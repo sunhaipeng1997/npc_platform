@@ -1,0 +1,37 @@
+package com.cdkhd.npc.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import java.util.Date;
+
+/**
+ * @Description
+ * @Author  rfx
+ * @Date 2019-12-03
+ */
+
+@Setter
+@Getter
+@ToString
+@Entity
+@Table ( name ="role" )
+public class Role extends BaseDomain {
+
+   	@Column(name = "role_name" )
+	private String roleName;
+
+   	@Column(name = "role_code" )
+	private String roleCode;
+
+   	@Column(name = "status" )
+	private Integer status;
+
+   	@Column(name = "create_time" )
+	private Date createTime;
+
+}
