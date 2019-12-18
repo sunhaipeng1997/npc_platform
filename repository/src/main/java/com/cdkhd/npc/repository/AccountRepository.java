@@ -1,9 +1,10 @@
 package com.cdkhd.npc.repository;
 
-import com.cdkhd.npc.entity.AccountUP;
+import com.cdkhd.npc.entity.Account;
 
-public interface AccountRepository extends BaseRepository<AccountUP> {
-    AccountUP findByUsername(String username);
+public interface AccountRepository extends BaseRepository<Account> {
 
-    AccountUP findByOpenId(String openid);
+    Account findByLoginUPUsername(String username);
+
+    Account findByLoginWeChatOpenId(String openid);
 }

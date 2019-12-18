@@ -25,7 +25,7 @@ public class JwtUtils {
                 .setExpiration(token.getExpireAt())
                 .setIssuedAt(token.getSignAt())
                 .claim("username", token.getUsername())
-                .claim("roles", token.getRoles())
+                .claim("accountRoles", token.getRoles())
                 .signWith(key)
                 .compact();
 

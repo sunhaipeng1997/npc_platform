@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +20,6 @@ import java.util.Date;
 @Table ( name ="government_user" )
 public class GovernmentUser extends BaseDomain {
 
-	/**
-	 * 唯一标识id
-	 */
-   	@Column(name = "government_id" )
-	private String governmentId;
 
 	/**
 	 * 1、正常
@@ -81,7 +74,7 @@ public class GovernmentUser extends BaseDomain {
 	/**
 	 * 账号表id
 	 */
-   	@Column(name = "account_id" )
-	private String accountId;
+	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
+	private Account account;
 
 }

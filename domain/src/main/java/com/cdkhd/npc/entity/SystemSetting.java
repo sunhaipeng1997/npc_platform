@@ -22,12 +22,6 @@ import java.util.Date;
 @Table ( name ="system_setting" )
 public class SystemSetting extends BaseDomain {
 
-   	@Column(name = "create_at" )
-	private Date createAt;
-
-   	@Column(name = "uid" )
-	private String uid;
-
    	@Column(name = "switchs" )
 	private Boolean switchs;
 

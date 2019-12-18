@@ -12,7 +12,7 @@ public class MenuVo extends BaseVo {
     private String icon;
 
     //页面跳转的url地址
-    private String url;
+    private String path;
 
     public String getName() {
         return name;
@@ -30,12 +30,12 @@ public class MenuVo extends BaseVo {
         this.icon = icon;
     }
 
-    public String getUrl() {
-        return url;
+    public String getPath() {
+        return path;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public static MenuVo convert(Menu menu) {

@@ -3,29 +3,30 @@ package com.cdkhd.npc.entity;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class SetTest {
     @Test
     public void testRoleSet() {
-        Set<Role> roles = new HashSet<>();
+        Set<AccountRole> roles = new HashSet<>();
 
-        Role role1 = new Role();
-        role1.setId(1L);
-        role1.setUid("1");
-        role1.setEnabled(true);
-        role1.setKeyword("ADMIN");
-        role1.setName("admin");
+        AccountRole accountRole1 = new AccountRole();
+        accountRole1.setId(1L);
+        accountRole1.setUid("1");
+        accountRole1.setEnabled(true);
+        accountRole1.setRoleCode("ADMIN");
+        accountRole1.setRoleName("admin");
 
-        Role role2 = new Role();
-        role2.setId(1L);
-        role2.setUid("1");
-        role2.setEnabled(true);
-        role2.setKeyword("ADMIN");
-        role2.setName("admin");
+        AccountRole accountRole2 = new AccountRole();
+        accountRole2.setId(1L);
+        accountRole2.setUid("1");
+        accountRole2.setEnabled(true);
+        accountRole2.setRoleCode("ADMIN");
+        accountRole2.setRoleName("admin");
 
-        roles.add(role1);
-        roles.add(role1);
-        roles.add(role2);
+        roles.add(accountRole1);
+        roles.add(accountRole1);
+        roles.add(accountRole2);
         System.out.println(roles);
     }
 }

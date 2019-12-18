@@ -12,7 +12,6 @@ import java.util.Date;
 @Setter
 @Getter
 @ToString
-@Entity
 @MappedSuperclass
 public class BaseDomain implements Serializable {
 

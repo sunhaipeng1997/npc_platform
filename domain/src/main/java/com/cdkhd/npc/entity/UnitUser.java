@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -81,7 +79,8 @@ public class UnitUser extends BaseDomain {
 	/**
 	 * 账号表id
 	 */
-   	@Column(name = "account_id" )
-	private String accountId;
+	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
+	private Account account;
+
 
 }

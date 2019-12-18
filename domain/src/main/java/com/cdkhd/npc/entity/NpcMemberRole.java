@@ -1,12 +1,12 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @Description
@@ -19,14 +19,19 @@ import lombok.ToString;
 @ToString
 @Entity
 @Table ( name ="npc_member_role" )
-public class NpcMemberRole  implements Serializable {
+public class NpcMemberRole extends BaseDomain {
 
-	private static final long serialVersionUID =  4832698148038476931L;
+	//代表身份角色细分  1、普通代表  2、人大主席  3、人大工委  4、特殊人员
+   	@Column(name = "role_name" )
+	private String roleName;
 
-   	@Column(name = "npc_member_id" )
-	private Long npcMemberId;
+   	@Column(name = "role_code" )
+	private String roleCode;
 
-   	@Column(name = "role_id" )
-	private Long roleId;
+   	//是否可用
+   	@Column(name = "enabled" )
+	private Boolean enabled;
+
+
 
 }

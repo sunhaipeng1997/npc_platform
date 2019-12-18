@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +32,8 @@ public class Menu extends BaseDomain {
    	@Column(name = "status" )
 	private Integer status;
 
-   	@Column(name = "create_time" )
-	private Date createTime;
-
+    //关联系统
+    @ManyToOne(targetEntity = Systems.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "system_id", referencedColumnName = "id")
+    private Systems systems;
 }

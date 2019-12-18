@@ -1,7 +1,6 @@
 package com.cdkhd.npc.repository;
 
-import com.cdkhd.npc.entity.Role;
+import com.cdkhd.npc.entity.AccountRole;
 
-public interface RoleRepository extends BaseRepository<com.cdkhd.npc.entity.Role> {
-    Role findByKeywordAndEnabledIsTrue(String keyword);
+public interface RoleRepository extends BaseRepository<AccountRole> {
 }

@@ -1,8 +1,8 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.entity.AccountUP;
+import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.Code;
-import com.cdkhd.npc.entity.Role;
+import com.cdkhd.npc.entity.AccountRole;
 import com.cdkhd.npc.entity.Token;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
 import com.cdkhd.npc.repository.AccountRepository;
@@ -12,8 +12,10 @@ import com.cdkhd.npc.util.BDSmsUtils;
 import com.cdkhd.npc.util.Constant;
 import com.cdkhd.npc.util.JwtUtils;
 import com.cdkhd.npc.vo.RespBody;
+import com.cdkhd.npc.vo.TokenVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -48,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        AccountUP account = accountRepository.findByUsername(username);
+        Account account = accountRepository.findByLoginUPUsername(username);
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在，拒绝发送验证码");
@@ -85,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
     //登录获取token
     @Override
     public RespBody login(UsernamePasswordDto upDto) {
-        RespBody<String> body = new RespBody<>();
+        RespBody body = new RespBody<>();
 
         if (StringUtils.isEmpty(upDto.getUsername()) || StringUtils.isEmpty(upDto.getPassword())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -93,39 +95,14 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        /*if (StringUtils.isEmpty(upDto.getCode())) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("验证码不能为空");
-            return body;
-        }*/
-
-        AccountUP account = accountRepository.findByUsername(upDto.getUsername());
+        Account account = accountRepository.findByLoginUPUsername(upDto.getUsername());
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在");
             return body;
         }
 
-        /*Code code = codeRepository.findByMobile(account.getMobile());
-        if (code == null) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("请首先获取验证码");
-            return body;
-        }
-
-        if (!code.isValid()) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("验证码已失效，请重新获取");
-            return body;
-        }
-
-        if (!code.getCode().equals(upDto.getCode())) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("验证码错误");
-            return body;
-        }*/
-
-        if (!account.getPassword().equals(upDto.getPassword())) {
+        if (!account.getLoginUP().getPassword().equals(upDto.getPassword())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("密码错误");
             return body;
@@ -136,15 +113,9 @@ public class AuthServiceImpl implements AuthService {
             body.setMessage("账号已被禁用");
             return body;
         }
-
-        /*//验证码成功验证过一次后设置为失效
-        code.setValid(false);
-        codeRepository.saveAndFlush(code);*/
-
         //生成token字符串
-        String jws = generateToken(account);
-
-        body.setData(jws);
+        TokenVo tokenVo = generateToken(account);
+        body.setData(tokenVo);
         return body;
     }
 
@@ -154,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
      * @param account 生成token所需的账号信息
      * @return 生成的token字符串
      */
-    private String generateToken(AccountUP account) {
+    private TokenVo generateToken(Account account) {
         Token token = new Token();
 
         Date signAt = new Date();
@@ -169,15 +140,18 @@ public class AuthServiceImpl implements AuthService {
         }
         Date expireAt = DateUtils.addDays(signAt, expireDate);
         token.setExpireAt(expireAt);
-
+        token.setUsername(account.getLoginUP().getUsername());
 
         //设置角色信息
-//        Set<String> roleKeywords = new HashSet<>();
-//        for (Role role : account.getRoles()) {
-//            roleKeywords.add(role.getName());
-//        }
+        Set<String> roleKeywords = new HashSet<>();
+        for (AccountRole accountRole : account.getAccountRoles()) {
+            roleKeywords.add(accountRole.getRoleName());
+        }
 
+        TokenVo tokenVo = new TokenVo();
+        BeanUtils.copyProperties(token,tokenVo);
+        tokenVo.setToken(JwtUtils.createJwt(token));
         //生成jwt token
-        return JwtUtils.createJwt(token);
+        return tokenVo;
     }
 }

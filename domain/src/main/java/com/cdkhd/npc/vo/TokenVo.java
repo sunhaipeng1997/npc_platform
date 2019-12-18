@@ -3,6 +3,7 @@ package com.cdkhd.npc.vo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
+import java.util.Set;
 
 public class TokenVo {
 
@@ -13,7 +14,11 @@ public class TokenVo {
 
     private String token;
 
-    private String role;
+    //用户名
+    private String username;
+
+    //用户角色
+    private Set<String> roles;
 
     public Date getSignAt() {
         return signAt;
@@ -39,12 +44,19 @@ public class TokenVo {
         this.token = token;
     }
 
-    public String getRole() {
-        return role;
+    public String getUsername() {
+        return username;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestClientConfig {
     //配置一个RestTemplate Bean，Spring Boot 1.4以后不会自动生成一个该类对象
+    //微信服务器请求相关接口配置
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();

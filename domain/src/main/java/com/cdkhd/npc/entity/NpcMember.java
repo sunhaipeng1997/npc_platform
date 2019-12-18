@@ -1,13 +1,13 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Description
@@ -23,15 +23,23 @@ import java.util.Date;
 public class NpcMember extends BaseDomain {
 
 	/**
-	 * 唯一标识id
+	 * 届次信息
 	 */
-   	@Column(name = "session_mid_id" )
-	private String sessionMidId;
+	@ManyToMany(targetEntity = Session.class)
+	@JoinTable(
+			name = "npc_member_session_mid",
+			joinColumns = {
+					@JoinColumn(name = "npc_member_id", referencedColumnName = "id", nullable = false)
+			},
+			inverseJoinColumns = {
+					@JoinColumn(name = "session_id", referencedColumnName = "id", nullable = false)
+			}
+	)
+	private Set<Session> sessions = new HashSet<>();
 
 	/**
 	 * 1、正常
-            2、锁定
-
+	 * 2、锁定
 	 */
    	@Column(name = "status" )
 	private Integer status;
@@ -48,9 +56,15 @@ public class NpcMember extends BaseDomain {
    	@Column(name = "mobile" )
 	private String mobile;
 
-   	@Column(name = "email" )
+	/**
+	 * 邮箱
+	 */
+	@Column(name = "email" )
 	private String email;
 
+	/**
+	 * 地址
+	 */
    	@Column(name = "address" )
 	private String address;
 
@@ -62,15 +76,14 @@ public class NpcMember extends BaseDomain {
 
 	/**
 	 * 1、男
-            2、女
+	 * 2、女
 	 */
    	@Column(name = "gender" )
 	private Integer gender;
 
 	/**
 	 * 1、人大代表
-            2、人大委员会成员
-
+	 * 2、人大委员会成员
 	 */
    	@Column(name = "type" )
 	private Integer type;
@@ -108,8 +121,9 @@ public class NpcMember extends BaseDomain {
 	/**
 	 * 账号表id
 	 */
-   	@Column(name = "account_id" )
-	private String accountId;
+	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
+	private Account account;
+
 
    	@Column(name = "avatar" )
 	private String avatar;
@@ -163,8 +177,8 @@ public class NpcMember extends BaseDomain {
 
 	/**
 	 * 是否特殊人员
-            1、是
-            2、否
+	 * 1、是
+	 * 2、否
 	 */
    	@Column(name = "special" )
 	private Integer special;

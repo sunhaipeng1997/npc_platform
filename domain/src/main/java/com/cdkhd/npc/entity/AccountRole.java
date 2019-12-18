@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,19 +17,20 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table ( name ="role" )
-public class Role extends BaseDomain {
+@Table ( name ="account_role" )
+public class AccountRole extends BaseDomain {
 
+	//账号身份角色信息  1、代表  2、选民  3、政府  4、办理单位
    	@Column(name = "role_name" )
 	private String roleName;
 
    	@Column(name = "role_code" )
 	private String roleCode;
 
-   	@Column(name = "status" )
-	private Integer status;
+   	//是否可用
+   	@Column(name = "enabled" )
+	private Boolean enabled;
 
-   	@Column(name = "create_time" )
-	private Date createTime;
+
 
 }

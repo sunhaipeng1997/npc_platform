@@ -5,9 +5,7 @@ package com.cdkhd.npc.util;
  * 2019/10/10 15:25
  */
 public enum StatusEnum{
-    ENABLED(Constant.ENABLED, Constant.ENABLED_NAME),
-    DISABLED(Constant.DISABLED, Constant.DISABLED_NAME),
-    OTHER(Constant.OTHER, Constant.OTHER_NAME);
+    ENABLED(Constant.LOGIN_WAY_UP, "");
 
     private Byte code;
     private String name;

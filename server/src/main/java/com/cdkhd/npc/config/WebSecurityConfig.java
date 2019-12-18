@@ -4,6 +4,7 @@ import com.cdkhd.npc.component.TokenAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,6 +34,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 //登录接口权限允许
                 .antMatchers("/api/manager/auth/login", "/api/manager/auth/code")
+                .permitAll()
+                .antMatchers(HttpMethod.OPTIONS)
                 .permitAll()
 
                 //其余接口访问受限
