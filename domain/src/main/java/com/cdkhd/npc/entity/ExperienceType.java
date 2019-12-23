@@ -22,13 +22,23 @@ import java.util.Date;
 @Table ( name ="experience_type" )
 public class ExperienceType extends BaseDomain {
 
-   	@Column(name = "create_at" )
-	private Date createAt;
-
-   	@Column(name = "uid" )
-	private String uid;
-
+    //类型名称
    	@Column(name = "name" )
 	private String name;
+
+    @Column(name = "area" )
+    private Integer area;
+
+    @Column(name = "town" )
+    private String town;
+
+    //类型状态
+    @Column(name = "status" )
+    private String status;
+
+    //类型状态
+    @Column(name = "sequence" )
+    private String sequence;
+
 
 }

@@ -121,7 +121,7 @@ public class NpcMember extends BaseDomain {
 	/**
 	 * 账号表id
 	 */
-	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
 	private Account account;
 
 

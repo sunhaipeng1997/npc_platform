@@ -137,9 +137,9 @@ public class Account extends BaseDomain {
 	private Set<AccountRole> accountRoles = new HashSet<>();
 
 	//代表关联
-	@OneToOne(mappedBy = "account",targetEntity=NpcMember.class, fetch = FetchType.LAZY)
-
-	private NpcMember npcMember;
+	@OneToMany(targetEntity=NpcMember.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "account", referencedColumnName = "id")
+    private Set<NpcMember> npcMembers = new HashSet<>();
 
 	//政府人员关联
 	@OneToOne(mappedBy = "account",targetEntity=GovernmentUser.class, fetch = FetchType.LAZY)
