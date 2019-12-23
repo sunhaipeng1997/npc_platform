@@ -138,9 +138,9 @@ public class NpcMember extends BaseDomain {
 	private String nation;
 
 	/**
-	 * 等级
-            1、镇代表
-            2、区代表
+	 *   等级
+     *   1、镇代表
+     *   2、区代表
 	 */
    	@Column(name = "level" )
 	private Integer level;

@@ -15,8 +15,11 @@
         <module>domain</module>
         <module>util</module>
         <module>server</module>
+        <module>server_mobile</module>
         <module>member_house</module>
+        <module>member_house_mobile</module>
         <module>suggestion_deal</module>
+        <module>suggestion_deal_mobile</module>
     </modules>
 
     <parent>
