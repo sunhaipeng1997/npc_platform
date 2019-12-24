@@ -20,7 +20,7 @@ import java.util.Date;
 @Table ( name ="account_role" )
 public class AccountRole extends BaseDomain {
 
-	//账号身份角色信息  1、代表  2、选民  3、政府  4、办理单位
+	//账号身份角色信息  1、人大  2、选民  3、政府  4、办理单位
    	@Column(name = "role_name" )
 	private String roleName;
 

@@ -137,14 +137,6 @@ public class NpcMember extends BaseDomain {
    	@Column(name = "nation" )
 	private String nation;
 
-	/**
-	 *   等级
-     *   1、镇代表
-     *   2、区代表
-	 */
-   	@Column(name = "level" )
-	private Integer level;
-
    	@Column(name = "can_opinion" )
 	private Integer canOpinion;
 
@@ -163,17 +155,28 @@ public class NpcMember extends BaseDomain {
    	@Column(name = "joining_time" )
 	private Date joiningTime;
 
-   	@Column(name = "area_id" )
-	private String areaId;
 
-	/**
-	 * 唯一标识id
-	 */
-   	@Column(name = "town_id" )
-	private String townId;
+    /**
+     *   等级
+     *   1、镇代表
+     *   2、区代表
+     */
+    @Column(name = "level" )
+    private Integer level;
 
-   	@Column(name = "group_id" )
-	private String groupId;
+    //关联区
+    @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Area area;
+
+    //关联镇
+    @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "town", referencedColumnName = "id")
+    private Town town;
+
+    @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "group", referencedColumnName = "id")
+	private NpcMemberGroup group;
 
 	/**
 	 * 是否特殊人员

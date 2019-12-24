@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @Table ( name ="npc_member_role" )
 public class NpcMemberRole extends BaseDomain {
 
-	//代表身份角色细分  1、普通代表  2、人大主席  3、人大工委  4、特殊人员
+	//代表身份角色细分  1、普通代表  2、人大主席  3、特殊人员
    	@Column(name = "role_name" )
 	private String roleName;
 

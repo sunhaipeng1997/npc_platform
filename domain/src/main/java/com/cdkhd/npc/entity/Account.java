@@ -87,16 +87,18 @@ public class Account extends BaseDomain {
 	@Column(name = "realname" )
 	private String realname;
 
+    @Column(name = "level" )
+    private Integer level;
+
 	//关联区
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "area_id", referencedColumnName = "id")
+	@JoinColumn(name = "area", referencedColumnName = "id")
 	private Area area;
 
 	//关联镇
 	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "town_id", referencedColumnName = "id")
+	@JoinColumn(name = "town", referencedColumnName = "id")
 	private Town town;
-
 
 	//关联村
 	@ManyToOne(targetEntity = Village.class, fetch = FetchType.LAZY)
@@ -137,8 +139,7 @@ public class Account extends BaseDomain {
 	private Set<AccountRole> accountRoles = new HashSet<>();
 
 	//代表关联
-	@OneToMany(targetEntity=NpcMember.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "account", referencedColumnName = "id")
+	@OneToMany(mappedBy = "account",targetEntity=NpcMember.class, fetch = FetchType.LAZY)
     private Set<NpcMember> npcMembers = new HashSet<>();
 
 	//政府人员关联
@@ -152,5 +153,10 @@ public class Account extends BaseDomain {
 	//上次登录进入的系统
 	@OneToOne(targetEntity=Systems.class, fetch = FetchType.LAZY)
 	private Systems systems;
+
+    //用户偏好设置
+    @OneToOne(targetEntity=UserSetting.class, fetch = FetchType.LAZY)
+    private UserSetting userSetting;
+
 
 }

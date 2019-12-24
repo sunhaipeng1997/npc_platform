@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/api/mobile")
+@RequestMapping("/api/mobile/login")
 public class WeChatApi {
 
     private WeChatService weChatService;

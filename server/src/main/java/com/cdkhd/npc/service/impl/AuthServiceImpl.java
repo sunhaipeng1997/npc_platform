@@ -5,8 +5,8 @@ import com.cdkhd.npc.entity.Code;
 import com.cdkhd.npc.entity.AccountRole;
 import com.cdkhd.npc.entity.Token;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
-import com.cdkhd.npc.repository.AccountRepository;
-import com.cdkhd.npc.repository.CodeRepository;
+import com.cdkhd.npc.repository.base.AccountRepository;
+import com.cdkhd.npc.repository.base.CodeRepository;
 import com.cdkhd.npc.service.AuthService;
 import com.cdkhd.npc.util.BDSmsUtils;
 import com.cdkhd.npc.util.Constant;
@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         //生成验证码，获取发送短信的配置参数
-        int verifycode = new Random().nextInt(8999) + 1000; //每次调用生成一次四位数的随机数
+        int verifycode = new Random().nextInt(899999) + 100000; //每次调用生成一次六位数的随机数
         final String accessKeyId = env.getProperty("code.accessKeyId");
         final String accessKeySecret = env.getProperty("code.AccessKeySecret");
         final String endPoint = env.getProperty("code.endPoint");

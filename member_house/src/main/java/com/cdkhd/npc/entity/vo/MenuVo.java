@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity.vo;
 
+import com.cdkhd.npc.entity.Menu;
 import com.cdkhd.npc.vo.BaseVo;
 import org.springframework.beans.BeanUtils;
 
