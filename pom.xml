@@ -36,6 +36,18 @@
             <version>1.18.10</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.deepoove</groupId>
+            <artifactId>poi-tl</artifactId>
+            <version>1.6.0</version>
+        </dependency>
     </dependencies>
 
     <build>
