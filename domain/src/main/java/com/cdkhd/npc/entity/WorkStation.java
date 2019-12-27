@@ -65,6 +65,6 @@ public class WorkStation extends BaseDomain {
             2、区上工作站
 	 */
    	@Column(name = "level" )
-	private Integer level;
+	private Byte level;
 
 }

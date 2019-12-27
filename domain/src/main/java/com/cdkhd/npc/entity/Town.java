@@ -34,12 +34,6 @@ public class Town extends BaseDomain {
    	@Column(name = "status" )
 	private Integer status;
 
-   	@Column(name = "修改时间" )
-	private Date 修改时间;
-
-   	@Column(name = "修改人" )
-	private String 修改人;
-
    	@Column(name = "area_id" )
 	private String areaId;
 

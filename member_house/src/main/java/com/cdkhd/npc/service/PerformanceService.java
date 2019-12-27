@@ -6,21 +6,68 @@ import com.cdkhd.npc.entity.dto.PerformanceTypeAddDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.vo.RespBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public interface PerformanceService {
 
     //履职类型相关接口
+
+    /**
+     * 条件查询履职类型
+     * @param userDetails
+     * @param performanceTypeDto
+     * @return
+     */
     RespBody findPerformanceType(UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto);
 
+    /**
+     * 添加、修改履职类型
+     * @param userDetails
+     * @param performanceTypeAddDto
+     * @return
+     */
     RespBody addOrUpdatePerformanceType(UserDetailsImpl userDetails, PerformanceTypeAddDto performanceTypeAddDto);
 
+    /**
+     * 删除履职类型
+     * @param uid
+     * @return
+     */
     RespBody deletePerformanceType(String uid);
 
+    /**
+     * 修改类型排序
+     * @param uid
+     * @param type
+     * @return
+     */
     RespBody changeTypeSequence(String uid, Byte type);
 
+    /**
+     * 修改类型状态
+     * @param uid
+     * @param status
+     * @return
+     */
     RespBody changeTypeStatus(String uid, Byte status);
 
     //履职相关接口
 
+    /**
+     * 条件查询履职信息
+     * @param userDetails
+     * @param performanceDto
+     * @return
+     */
     RespBody findPerformance(UserDetailsImpl userDetails, PerformanceDto performanceDto);
+
+    /**
+     * 导出履职信息
+     * @param userDetails
+     * @param performanceDto
+     * @return
+     */
+    void exportPerformance(UserDetailsImpl userDetails, PerformanceDto performanceDto, HttpServletRequest req, HttpServletResponse res);
 
 }

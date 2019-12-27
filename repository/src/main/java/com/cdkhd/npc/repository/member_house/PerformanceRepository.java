@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface PerformanceRepository extends BaseRepository<Performance> {
 
-    List<Performance> findByTypeUid();
+    Performance findByTransUid(String transUid);
+
+    Performance findByUidAndTransUid(String uid, String transUid);
 }

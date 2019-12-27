@@ -17,35 +17,43 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table ( name ="npc_member_group" )
-public class NpcMemberGroup extends BaseDomain {
+@Table ( name ="study" )
+public class Study extends BaseDomain {
 
-   	@Column(name = "create_at" )
-	private Date createAt;
-
-   	@Column(name = "uid" )
-	private String uid;
-
-   	@Column(name = "description" )
-	private String description;
-
+    //学习资料名字
    	@Column(name = "name" )
 	private String name;
 
-    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
-	private NpcMember leaderId;
+    //类型状态 1、启用 2、禁用
+    @Column(name = "status" )
+    private Byte status = 1;
+
+    //排序号
+    @Column(name = "sequence" )
+    private Integer sequence;
+
+    //备注
+    @Column(name = "remark" )
+    private String remark;
 
     @Column(name = "level" )
     private Byte level;
 
-    //关联区
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
 
-    //关联镇
     @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
+
+    //类型
+    @ManyToOne(targetEntity = StudyType.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_type", referencedColumnName = "id")
+    private StudyType studyType;
+
+    //路径
+    @Column(name = "url" )
+    private String url;
 
 }

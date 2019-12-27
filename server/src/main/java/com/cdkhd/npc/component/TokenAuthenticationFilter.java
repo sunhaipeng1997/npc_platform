@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

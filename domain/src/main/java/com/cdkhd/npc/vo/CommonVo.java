@@ -1,26 +1,20 @@
 package com.cdkhd.npc.vo;
 
-import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class CommonVo {
 
     private String uid;
 
     private String name;
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public static CommonVo convert(String uid, String name) {
+        CommonVo vo = new CommonVo();
+        vo.setUid(uid);
+        vo.setName(name);
+        return vo;
     }
 }

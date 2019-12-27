@@ -87,9 +87,6 @@ public class Account extends BaseDomain {
 	@Column(name = "realname" )
 	private String realname;
 
-    @Column(name = "level" )
-    private Integer level;
-
 	//关联区
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "area", referencedColumnName = "id")

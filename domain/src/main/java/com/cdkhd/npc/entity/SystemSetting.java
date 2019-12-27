@@ -57,7 +57,7 @@ public class SystemSetting extends BaseDomain {
 	private Boolean pushUpdate = true;
 
     @Column(name = "level" )
-    private Integer level;
+    private Byte level;
 
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")

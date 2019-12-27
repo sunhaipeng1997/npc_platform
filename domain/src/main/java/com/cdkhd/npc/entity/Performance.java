@@ -26,7 +26,7 @@ public class Performance extends BaseDomain {
 
    	//我是否查看
    	@Column(name = "my_view" )
-	private Byte myView;
+	private Boolean myView = true;
 
    	//审核原因
    	@Column(name = "reason" )
@@ -47,11 +47,15 @@ public class Performance extends BaseDomain {
 
    	//审核人是否查看
    	@Column(name = "view" )
-	private Byte view;
+	private Boolean view = false;
 
    	//履职时间
    	@Column(name = "work_at" )
 	private Date workAt;
+
+   	//审核时间
+   	@Column(name = "audit_at" )
+	private Date auditAt;
 
    	//审核人信息
     @ManyToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
@@ -64,7 +68,7 @@ public class Performance extends BaseDomain {
     private NpcMember npcMember;
 
    	@Column(name = "level" )
-	private Integer level;
+	private Byte level;
 
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")
@@ -74,4 +78,11 @@ public class Performance extends BaseDomain {
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
 
+    @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "group", referencedColumnName = "id")
+    private NpcMemberGroup group;
+
+    //图片uid
+    @Column(name = "trans_uid" )
+    private String transUid;
 }

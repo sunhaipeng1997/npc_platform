@@ -162,7 +162,7 @@ public class NpcMember extends BaseDomain {
      *   2、区代表
      */
     @Column(name = "level" )
-    private Integer level;
+    private Byte level;
 
     //关联区
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)

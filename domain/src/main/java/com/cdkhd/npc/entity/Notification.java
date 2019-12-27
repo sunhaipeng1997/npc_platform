@@ -64,6 +64,6 @@ public class Notification extends BaseDomain {
             2、区上
 	 */
    	@Column(name = "level" )
-	private Integer level;
+	private Byte level;
 
 }

@@ -1,5 +1,7 @@
 package com.cdkhd.npc.component;
 
+import com.cdkhd.npc.entity.Area;
+import com.cdkhd.npc.entity.Town;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,16 +19,19 @@ public class UserDetailsImpl implements UserDetails {
     private final boolean accountNonLocked;
     private final boolean credentialsNonExpired;
     private final boolean enabled;
+    private final Area area;
+    private final Town town;
+    private final Byte level;
 
     public UserDetailsImpl(String uid, String username, String password, Set<String> roles) {
         this(uid, username, password, roles, Collections.emptySet());
     }
 
     public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities) {
-        this(uid, username, password, roles, authorities, true, true, true, true);
+        this(uid, username, password, roles, authorities, true, true, true, true,null, null,null);
     }
 
-    public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled) {
+    public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, Area area, Town town, Byte level) {
         this.uid = uid;
         this.username = username;
         this.password = password;
@@ -36,6 +41,9 @@ public class UserDetailsImpl implements UserDetails {
         this.accountNonLocked = accountNonLocked;
         this.credentialsNonExpired = credentialsNonExpired;
         this.enabled = enabled;
+        this.area = area;
+        this.town = town;
+        this.level = level;
     }
 
     public String getUid() {
@@ -79,5 +87,17 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public Area getArea() {
+        return area;
+    }
+
+    public Town getTown() {
+        return town;
+    }
+
+    public Byte getLevel() {
+        return level;
     }
 }
