@@ -138,7 +138,7 @@ public class NpcMember extends BaseDomain {
 	private String nation;
 
    	@Column(name = "can_opinion" )
-	private Integer canOpinion;
+	private Boolean canOpinion;
 
    	@Column(name = "is_del" )
 	private Integer isDel;

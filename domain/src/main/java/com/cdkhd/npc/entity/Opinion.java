@@ -1,13 +1,12 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Description
@@ -22,34 +21,56 @@ import java.util.Date;
 @Table ( name ="opinion" )
 public class Opinion extends BaseDomain {
 
-   	@Column(name = "create_at" )
-	private Date createAt;
-
-   	@Column(name = "uid" )
-	private String uid;
-
-   	@Column(name = "can_operate" )
-	private Boolean canOperate;
-
+    /**
+     * 意见内容
+     */
    	@Column(name = "content" )
 	private String content;
 
+    /**
+     * 状态
+     */
    	@Column(name = "status" )
-	private Long status;
+	private Byte status;
 
+    /**
+     * 是否查看
+     */
    	@Column(name = "view" )
-	private Long view;
+	private Boolean view = false;
 
-   	@Column(name = "receiver_id" )
-	private Long receiverId;
+    /**
+     * 接受代表
+     */
+    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver", referencedColumnName = "id")
+    private NpcMember receiver;
 
-   	@Column(name = "sender_id" )
-	private Long senderId;
+    /**
+     * 提出人账号
+     */
+    @ManyToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender", referencedColumnName = "id")
+    private Account sender;
 
-   	@Column(name = "area_id" )
-	private Integer areaId;
+    @OneToMany(targetEntity = OpinionReply.class, mappedBy = "opinion", orphanRemoval = true)
+    private Set<OpinionReply> replies = new HashSet<>();
 
-   	@Column(name = "town_id" )
-	private String townId;
+    @OneToMany(targetEntity = OpinionImage.class, mappedBy = "opinion", orphanRemoval = true)
+    private Set<OpinionImage> images = new HashSet<>();
+
+
+    @Column(name = "level" )
+    private Byte level;
+
+    //关联区
+    @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Area area;
+
+    //关联镇
+    @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "town", referencedColumnName = "id")
+    private Town town;
 
 }
