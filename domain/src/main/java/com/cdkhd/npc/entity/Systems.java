@@ -30,7 +30,7 @@ public class Systems extends BaseDomain {
 	 * 是否可用
 	 */
 	@Column(name = "enabled")
-	private Boolean enabled;
+	private Byte enabled;
 
 	/**
 	 * 系统图标
@@ -45,10 +45,9 @@ public class Systems extends BaseDomain {
     private String description;
 
     /**
-     * 描述
+     *
      */
     @Column(name = "url")
     private String url;
-
 
 }

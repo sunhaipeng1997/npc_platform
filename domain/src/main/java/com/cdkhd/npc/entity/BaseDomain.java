@@ -34,6 +34,4 @@ public class BaseDomain implements Serializable {
     public BaseDomain(String uid) {
         this.uid = uid;
     }
-
-
 }

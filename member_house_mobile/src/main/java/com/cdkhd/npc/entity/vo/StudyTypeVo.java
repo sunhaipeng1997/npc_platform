@@ -1,7 +1,7 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.StudyType;
-import com.cdkhd.npc.enums.Status;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +37,7 @@ public class StudyTypeVo extends BaseVo {
         StudyTypeVo vo = new StudyTypeVo();
         BeanUtils.copyProperties(studyType, vo);
         vo.setStudyVos(studyType.getStudies().stream()
-                .filter(study -> study.getStatus().equals(Status.ENABLED.getValue()))
+                .filter(study -> study.getStatus().equals(StatusEnum.ENABLED.getValue()))
                 .map(StudyVo::convert)
                 .sorted(Comparator.comparing(StudyVo::getSequence))
                 .collect(Collectors.toList()));

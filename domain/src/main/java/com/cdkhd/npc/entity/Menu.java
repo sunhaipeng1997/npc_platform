@@ -2,6 +2,8 @@ package com.cdkhd.npc.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,17 +22,17 @@ import java.util.Date;
 @Table ( name ="menu" )
 public class Menu extends BaseDomain {
 
-   	@Column(name = "name" )
+   	@Column(name = "name")
 	private String name;
 
-   	@Column(name = "url" )
+   	@Column(name = "url")
 	private String url;
 
-   	@Column(name = "parent_id" )
+   	@Column(name = "parent_id")
 	private String parentId;
 
-   	@Column(name = "status" )
-	private Integer status;
+   	@Column(name = "enabled")
+	private Byte enabled = StatusEnum.ENABLED.getValue();
 
     //关联系统
     @ManyToOne(targetEntity = Systems.class, fetch = FetchType.LAZY)

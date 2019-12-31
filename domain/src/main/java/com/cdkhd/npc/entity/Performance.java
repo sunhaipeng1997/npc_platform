@@ -1,10 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -17,7 +17,7 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table ( name ="performance" )
+@Table(name = "performance")
 public class Performance extends BaseDomain {
 
     //履职内容

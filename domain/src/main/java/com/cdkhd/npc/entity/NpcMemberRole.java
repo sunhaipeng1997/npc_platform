@@ -1,12 +1,12 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Set;
 
 /**
  * @Description
@@ -21,17 +21,26 @@ import javax.persistence.Table;
 @Table ( name ="npc_member_role" )
 public class NpcMemberRole extends BaseDomain {
 
-	//代表身份角色细分  1、普通代表  2、人大主席  3、特殊人员
-   	@Column(name = "role_name" )
-	private String roleName;
-
-   	@Column(name = "role_code" )
-	private String roleCode;
+   	@Column
+	private String keyword;
 
    	//是否可用
-   	@Column(name = "enabled" )
-	private Boolean enabled;
+   	@Column
+	private Byte status = StatusEnum.ENABLED.getValue();
 
+	//代表身份角色细分  1、普通代表  2、人大主席  3、特殊人员
+   	@Column
+	private String name;
 
-
+	@ManyToMany
+	@JoinTable(
+			name = "npc_member_role_permission_mid",
+			joinColumns = {
+					@JoinColumn(name = "npc_member_role_id", referencedColumnName = "id")
+			},
+			inverseJoinColumns = {
+					@JoinColumn(name = "permission_id", referencedColumnName = "id")
+			}
+	)
+   	private Set<Permission> permissions;
 }

@@ -19,8 +19,6 @@ import java.util.Date;
 @Entity
 @Table ( name ="government_user" )
 public class GovernmentUser extends BaseDomain {
-
-
 	/**
 	 * 1、正常
             2、锁定

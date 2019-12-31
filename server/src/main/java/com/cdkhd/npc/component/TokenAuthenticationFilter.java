@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.SignatureException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,10 +29,13 @@ import java.util.stream.Collectors;
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
+    @Autowired
+    private UserDetailsImpl userDetails;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
-        String accessToken = getToken(request);
+        /*String accessToken = getToken(request);
 
         if (StringUtils.isNotBlank(accessToken)) {
             try {
@@ -60,7 +64,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 logger.warn("token解析失败");
                 e.printStackTrace();
             }
-        }
+        }*/
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptySet());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        LOGGER.info("合法访问，username: {}", userDetails.getUsername());
 
         //不管token验证通过与否，继续下一个过滤
         filterChain.doFilter(request, response);

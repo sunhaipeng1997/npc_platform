@@ -86,7 +86,7 @@ public class NpcMember extends BaseDomain {
 	 * 2、人大委员会成员
 	 */
    	@Column(name = "type" )
-	private Integer type;
+	private Byte type;
 
 	/**
 	 * 代表证号
@@ -95,25 +95,25 @@ public class NpcMember extends BaseDomain {
 	private String code;
 
 	/**
-	 * yyyy-MM-dd HH:mm:ss
+	 * 生成时间
 	 */
    	@Column(name = "create_time" )
 	private Date createTime;
 
 	/**
-	 * yyyy-MM-dd HH:mm:ss
+	 * 更新时间
 	 */
    	@Column(name = "update_time" )
 	private Date updateTime;
 
 	/**
-	 * 基本信息id
+	 * 生成人员
 	 */
    	@Column(name = "create_user" )
 	private String createUser;
 
 	/**
-	 * 基本信息id
+	 * 更新人员
 	 */
    	@Column(name = "update_user" )
 	private String updateUser;
@@ -125,36 +125,45 @@ public class NpcMember extends BaseDomain {
 	private Account account;
 
 
+	//头像
    	@Column(name = "avatar" )
 	private String avatar;
 
+   	//简介
    	@Column(name = "introduction" )
 	private String introduction;
 
+   	//备注
    	@Column(name = "comment" )
 	private String comment;
 
+   	//民族
    	@Column(name = "nation" )
 	private String nation;
 
+   	//是否能被提意见
    	@Column(name = "can_opinion" )
 	private Integer canOpinion;
 
+   	//是否删除
    	@Column(name = "is_del" )
 	private Integer isDel;
 
+   	//教育经历
    	@Column(name = "education" )
 	private String education;
 
+   	//现任职务
    	@Column(name = "jobs" )
 	private String jobs;
 
+   	//政治面貌
    	@Column(name = "political" )
 	private String political;
 
+   	//入党时间
    	@Column(name = "joining_time" )
 	private Date joiningTime;
-
 
     /**
      *   等级
@@ -174,16 +183,9 @@ public class NpcMember extends BaseDomain {
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
 
+    //关联小组
     @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "group", referencedColumnName = "id")
 	private NpcMemberGroup group;
-
-	/**
-	 * 是否特殊人员
-	 * 1、是
-	 * 2、否
-	 */
-   	@Column(name = "special" )
-	private Integer special;
 
 }

@@ -1,5 +1,10 @@
 package com.cdkhd.npc.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PageDto {
 
     /**
@@ -23,7 +28,6 @@ public class PageDto {
     private String direction = "DESC";
 
     public PageDto() {
-
     }
 
     public PageDto(int page, int size) {
@@ -38,40 +42,7 @@ public class PageDto {
         this.direction = direction;
     }
 
-    public int getPage() {
-        return page;
-    }
-
-    public int getPageRequestPage() {
-        return page - 1;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public String getProperty() {
-        return property;
-    }
-
-    public void setProperty(String property) {
-        this.property = property;
-    }
-
-    public String getDirection() {
-        return direction;
-    }
-
     public void setDirection(String direction) {
         this.direction = "ASC".equalsIgnoreCase(direction) ? "ASC" : "DESC";
     }
-
 }

@@ -33,6 +33,12 @@ public class LoginUP extends BaseDomain {
 	private String password;
 
 	/**
+	 * 登录验证手机号
+	 */
+	@Column
+	private String mobile;
+
+	/**
 	 * 账号表id
 	 */
 	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)

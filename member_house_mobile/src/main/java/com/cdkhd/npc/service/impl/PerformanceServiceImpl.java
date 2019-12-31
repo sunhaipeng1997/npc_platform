@@ -3,10 +3,10 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.AddPerformanceDto;
-import com.cdkhd.npc.enums.Level;
-import com.cdkhd.npc.enums.Status;
+import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
-import com.cdkhd.npc.repository.member_house.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceImageRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
@@ -17,9 +17,7 @@ import com.cdkhd.npc.utils.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +66,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public RespBody performanceTypeList(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
-        List<PerformanceType> performanceTypeList = performanceTypeRepository.findByStatus(Status.ENABLED.getValue());
+        List<PerformanceType> performanceTypeList = performanceTypeRepository.findByStatus(StatusEnum.ENABLED.getValue());
         List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
         body.setData(types);
         return body;
@@ -111,7 +109,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             performance.setTown(npcMember.getTown());
             performance.setNpcMember(npcMember);
             //设置完了基本信息后，给相应的审核人员推送消息
-            if (addPerformanceDto.getLevel().equals(Level.TOWN.getValue())){
+            if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
                 //如果是在镇上履职，那么查询镇上的审核人员
                 //首先判断端当前用户的角色是普通代表还是小组审核人员还是总审核人员
                 Set<String> keyword = Sets.newHashSet();//权限的集合

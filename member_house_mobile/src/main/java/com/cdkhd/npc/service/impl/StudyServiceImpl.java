@@ -3,8 +3,8 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.StudyTypeVo;
-import com.cdkhd.npc.enums.Level;
-import com.cdkhd.npc.enums.Status;
+import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.member_house.*;
 import com.cdkhd.npc.service.StudyService;
 import com.cdkhd.npc.vo.RespBody;
@@ -35,10 +35,10 @@ public class StudyServiceImpl implements StudyService {
     public RespBody studiesList(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         List<StudyType> studyTypeList;
-        if (userDetails.getLevel().equals(Level.TOWN.getValue())) {
-            studyTypeList = studyTypeRepository.findByStatusAndLevelAndTownUidOrderBySequenceAsc(Status.ENABLED.getValue(),Level.TOWN.getValue(),userDetails.getTown().getUid());
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            studyTypeList = studyTypeRepository.findByStatusAndLevelAndTownUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
         }else{
-            studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(Status.ENABLED.getValue(),Level.TOWN.getValue(),userDetails.getArea().getUid());
+            studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getArea().getUid());
         }
         List<StudyTypeVo> studyTypeVos = studyTypeList.stream()
                 .map(StudyTypeVo::convert)

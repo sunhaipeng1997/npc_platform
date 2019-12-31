@@ -8,4 +8,6 @@ import java.util.List;
 public interface SystemRepository extends BaseRepository<Systems> {
 
     List<Systems> findByEnabledTrue();
+
+    Systems findByName(String name);
 }

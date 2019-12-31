@@ -1,21 +1,17 @@
 package com.cdkhd.npc.enums;
 
-public enum Identity {
-    //代表的身份
-    TOWN((byte)1,"镇"),
-    AREA((byte)2,"区");
+public enum StatusEnum {
+    ENABLED((byte)1,"启用"),
+    DISABLED((byte)2,"停用");
 
     private Byte value;
     private String name;
 
-    Identity(Byte value, String name) {
+    StatusEnum(Byte value, String name) {
         this.value = value;
         this.name = name;
     }
 
-    private byte value() {
-        return this.value;
-    }
 
     public byte getValue() {
         return value;
@@ -26,19 +22,19 @@ public enum Identity {
     }
 
     public static Byte getValue(String name) {
-        Identity[] levels = values();
-        for (Identity level : levels) {
-            if (level.name().equals(name)) {
-                return level.value();
+        StatusEnum[] levels = values();
+        for (StatusEnum level : levels) {
+            if (level.getName().equals(name)) {
+                return level.getValue();
             }
         }
         return null;
     }
 
     public static String getName(byte value) {
-        Identity[] levels = values();
-        for (Identity level : levels) {
-            if (level.value() == value) {
+        StatusEnum[] levels = values();
+        for (StatusEnum level : levels) {
+            if (level.getValue() == value) {
                 return level.getName();
             }
         }

@@ -2,12 +2,13 @@ package com.cdkhd.npc.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
+
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
 
 /**
  * @Description
@@ -19,20 +20,22 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table ( name ="permission" )
+@Table (name ="permission")
 public class Permission extends BaseDomain {
 
+	//权限关键字
+   	@Column
+	private String keyword;
 
-   	@Column(name = "code" )
-	private String code;
+   	//权限状态
+   	@Column
+	private Byte status = StatusEnum.ENABLED.getValue();
 
-   	@Column(name = "status" )
-	private Integer status;
-
-   	@Column(name = "name" )
+   	//权限名称
+   	@Column
 	private String name;
 
-   	@Column(name = "create_time" )
-	private Date createTime;
-
+   	//关联菜单
+   	@OneToOne
+   	Menu menu;
 }

@@ -10,8 +10,8 @@ import com.cdkhd.npc.entity.dto.PerformanceTypeAddDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.entity.vo.PerformanceTypeVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
-import com.cdkhd.npc.enums.Level;
-import com.cdkhd.npc.repository.member_house.NpcMemberRepository;
+import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.PerformanceService;
@@ -22,7 +22,6 @@ import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -42,7 +41,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -242,7 +240,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         if (2 == 2) {
             systemSetting = (SystemSetting) systemSettingService.getSystemSetting().getData();
             if (systemSetting.getShowSubPerformance()) {
-                List<NpcMember> members = npcMemberRepository.findByLevel(Level.TOWN.getValue());
+                List<NpcMember> members = npcMemberRepository.findByLevel(LevelEnum.TOWN.getValue());
                 for (NpcMember member : members) {
                     accountUids.add(member.getAccount().getUid());
                 }

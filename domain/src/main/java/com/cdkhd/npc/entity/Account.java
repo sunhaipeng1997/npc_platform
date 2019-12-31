@@ -23,16 +23,6 @@ import java.util.Set;
 public class Account extends BaseDomain {
 
 	/**
-	 *  1、代表
-	 *	2、人大
-	 *	3、政府、目督办
-	 *	4、承办单位
-	 *	5、选民
-	 */
-   	@Column(name = "indetity" )
-	private Byte indetity;
-
-	/**
 	 * 1、正常
 	 * 2、锁定
 	 */
@@ -58,58 +48,16 @@ public class Account extends BaseDomain {
 	private Date lastLoginTime;
 
 	/**
-	 * 创建时间
-	 */
-   	@Column(name = "create_time" )
-	private Date createTime;
-
-	/**
-	 * 修改时间
-	 */
-   	@Column(name = "update_time" )
-	private Date updateTime;
-
-	/**
 	 * 逻辑刪除标识
 	 */
 	@Column(name = "is_del" )
 	private Integer isDel;
 
 	/**
-	 * 手机号
-	 */
-   	@Column(name = "mobile" )
-	private String mobile;
-
-	/**
-	 * 真实姓名
-	 */
-	@Column(name = "realname" )
-	private String realname;
-
-	//关联区
-	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "area", referencedColumnName = "id")
-	private Area area;
-
-	//关联镇
-	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "town", referencedColumnName = "id")
-	private Town town;
-
-	//关联村
-	@ManyToOne(targetEntity = Village.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "village_id", referencedColumnName = "id")
-	private Village village;
-
-	//修改个人信息的次数
-	private Integer updateInfo = 0;
-
-	/**
 	 * 登录方式 1、账号密码   2、微信小程序
 	 */
 	@Column(name = "login_way" )
-	private Byte LoginWay;
+	private Byte loginWay;
 
 	/**
 	 * 账号密码信息
@@ -123,6 +71,7 @@ public class Account extends BaseDomain {
 	@OneToOne(mappedBy = "account",targetEntity=LoginWeChat.class, fetch = FetchType.LAZY)
 	private LoginWeChat loginWeChat;
 
+	//关联的账号角色
 	@ManyToMany(targetEntity = AccountRole.class)
 	@JoinTable(
 			name = "account_role_mid",
@@ -135,9 +84,17 @@ public class Account extends BaseDomain {
 	)
 	private Set<AccountRole> accountRoles = new HashSet<>();
 
+	//选民关联
+	@OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+	private Voter voter;
+
 	//代表关联
-	@OneToMany(mappedBy = "account",targetEntity=NpcMember.class, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "account", targetEntity=NpcMember.class, fetch = FetchType.LAZY)
     private Set<NpcMember> npcMembers = new HashSet<>();
+
+	//后台管理员关联
+	@OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+	private BackgroundAdmin backgroundAdmin;
 
 	//政府人员关联
 	@OneToOne(mappedBy = "account",targetEntity=GovernmentUser.class, fetch = FetchType.LAZY)
@@ -154,6 +111,5 @@ public class Account extends BaseDomain {
     //用户偏好设置
     @OneToOne(targetEntity=UserSetting.class, fetch = FetchType.LAZY)
     private UserSetting userSetting;
-
 
 }

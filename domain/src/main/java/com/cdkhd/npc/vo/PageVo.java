@@ -55,12 +55,8 @@ public class PageVo<T> {
     }
 
     public PageVo(Page page, PageDto dto) {
-        // copy page size property and direction
         BeanUtils.copyProperties(dto, this);
 
-        // copy totalElements totalPages
-        BeanUtils.copyProperties(dto, this);
-        // 当前页拥有的元素个数
         this.setCurrentElements(page.getNumberOfElements());
         this.setTotalElements(page.getTotalElements());
         this.setTotalPages(page.getTotalPages());
@@ -131,13 +127,8 @@ public class PageVo<T> {
     }
 
     public PageVo<T> copy(Page page, PageDto dto) {
-
-        // copy page size property and direction
         BeanUtils.copyProperties(dto, this);
 
-        // copy totalElements totalPages
-        BeanUtils.copyProperties(dto, this);
-        // 当前页拥有的元素个数
         this.setCurrentElements(page.getNumberOfElements());
         this.setTotalElements(page.getTotalElements());
         this.setTotalPages(page.getTotalPages());

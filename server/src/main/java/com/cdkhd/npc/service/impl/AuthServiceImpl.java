@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
         final String endPoint = env.getProperty("code.endPoint");
         final String invokeId = env.getProperty("code.invokeId");
         final String templateCode = env.getProperty("code.templateCode");
-        String telephoneString = account.getMobile();
+        String telephoneString = account.getLoginUP().getMobile();
 
         //发送短信验证码
         BDSmsUtils.sendSms(telephoneString,accessKeyId,accessKeySecret,verifycode,endPoint,invokeId,templateCode);
@@ -145,7 +145,7 @@ public class AuthServiceImpl implements AuthService {
         //设置角色信息
         Set<String> roleKeywords = new HashSet<>();
         for (AccountRole accountRole : account.getAccountRoles()) {
-            roleKeywords.add(accountRole.getRoleName());
+            roleKeywords.add(accountRole.getKeyword());
         }
 
         TokenVo tokenVo = new TokenVo();

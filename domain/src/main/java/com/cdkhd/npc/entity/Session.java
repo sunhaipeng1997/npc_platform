@@ -4,6 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,7 +16,6 @@ import java.util.Date;
  * @Author  rfx
  * @Date 2019-12-03
  */
-
 @Setter
 @Getter
 @ToString
@@ -23,7 +24,7 @@ import java.util.Date;
 public class Session extends BaseDomain {
 
 	/**
-	 * 姓名
+	 * 届期名称
 	 */
    	@Column(name = "name" )
 	private String name;

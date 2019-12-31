@@ -22,6 +22,4 @@ public interface BaseRepository<T> extends JpaRepository<T, Long>, JpaSpecificat
     @Transactional
     List<T> removeByUid(String uid);
 
-//    T saveAll(Collection<T> collection);
-
 }
