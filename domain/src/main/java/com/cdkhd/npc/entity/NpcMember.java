@@ -143,7 +143,7 @@ public class NpcMember extends BaseDomain {
 
    	//是否能被提意见
    	@Column(name = "can_opinion" )
-	private Integer canOpinion;
+	private Boolean canOpinion;
 
    	//是否删除
    	@Column(name = "is_del" )

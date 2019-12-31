@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,19 +20,23 @@ import java.util.Date;
 @Table ( name ="opinion_reply" )
 public class OpinionReply extends BaseDomain {
 
-   	@Column(name = "create_at" )
-	private Date createAt;
 
-   	@Column(name = "uid" )
-	private String uid;
-
+    /**
+     * 回复内容
+     */
    	@Column(name = "reply" )
 	private String reply;
 
+    /**
+     * 是否查看
+     */
    	@Column(name = "view" )
 	private Long view;
 
-   	@Column(name = "opinion_id" )
-	private Long opinionId;
+    /**
+     * 回复的意见
+     */
+    @OneToOne(targetEntity = Opinion.class, fetch = FetchType.LAZY)
+    private Opinion opinion;
 
 }
