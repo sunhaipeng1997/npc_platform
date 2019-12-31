@@ -360,13 +360,13 @@ public class PerformanceServiceImpl implements PerformanceService {
             if (performance.getLevel() == 1) {
                 place = performance.getArea().getName() + performance.getTown().getName();
             } else if (performance.getLevel() == 1) {
-                place = performance.getTown().getName() + performance.getGroup().getName();
+                place = performance.getTown().getName() + performance.getNpcMemberGroup().getName();
             }
             cell6.setCellValue(place);
 
             // 审核人
             Cell cell7 = row.createCell(7);
-            cell7.setCellValue(performance.getAccount().getRealname());
+            cell7.setCellValue(performance.getNpcMember().getName());
 
             //审核状态
             Cell cell8 = row.createCell(8);

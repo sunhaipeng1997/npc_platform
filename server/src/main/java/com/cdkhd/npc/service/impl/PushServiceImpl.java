@@ -2,7 +2,6 @@ package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.repository.base.RoleRepository;
 import com.cdkhd.npc.service.PushService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -21,12 +20,9 @@ public class PushServiceImpl implements PushService {
 
     private final Environment env;
 
-    private final RoleRepository roleRepository;
-
     @Autowired
-    public PushServiceImpl(Environment env, RoleRepository roleRepository) {
+    public PushServiceImpl(Environment env) {
         this.env = env;
-        this.roleRepository = roleRepository;
     }
 
     /**

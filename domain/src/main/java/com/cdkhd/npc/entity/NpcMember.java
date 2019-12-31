@@ -185,7 +185,7 @@ public class NpcMember extends BaseDomain {
 
     //关联小组
     @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "group", referencedColumnName = "id")
-	private NpcMemberGroup group;
+    @JoinColumn(name = "npc_member_group", referencedColumnName = "id")
+	private NpcMemberGroup npcMemberGroup;
 
 }
