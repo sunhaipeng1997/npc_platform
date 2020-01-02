@@ -51,7 +51,7 @@ public class PerformanceVo extends BaseVo {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);
         vo.setMemberName(performance.getNpcMember().getName());
-        vo.setAuditor(performance.getAccount().getRealname());
+        vo.setAuditor(performance.getAuditor().getName());
         vo.setPerformanceType(PerformanceTypeVo.convert(performance.getPerformanceType()));
         return vo;
     }

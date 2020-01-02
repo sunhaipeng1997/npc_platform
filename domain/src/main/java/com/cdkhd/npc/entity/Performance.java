@@ -58,9 +58,9 @@ public class Performance extends BaseDomain {
 	private Date auditAt;
 
    	//审核人信息
-    @ManyToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;
+    @ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "auditor", referencedColumnName = "id")
+    private NpcMember auditor;
 
     //提出代表信息
     @ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
