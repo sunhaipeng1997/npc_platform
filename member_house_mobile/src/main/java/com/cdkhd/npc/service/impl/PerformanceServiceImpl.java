@@ -13,7 +13,7 @@ import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.util.SysUtil;
-import com.cdkhd.npc.utils.ImageUploadUtil;
+import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;

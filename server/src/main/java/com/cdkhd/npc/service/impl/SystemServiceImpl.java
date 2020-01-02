@@ -53,7 +53,7 @@ public class SystemServiceImpl implements SystemService {
     @Override
     public RespBody getCacheSystem(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
-        Account account = accountRepository.findByUid("1232131");
+        Account account = accountRepository.findByUid(userDetails.getUid());
         if (account.getSystems() != null) {
             body.setData(account.getSystems().getUrl());
         }

@@ -16,6 +16,6 @@ public class UserConfig {
         Set<String> roles = new HashSet<>();
         roles.add("ROLE_NPC");
 
-        return new UserDetailsImpl("uid", "username", "password", roles);
+        return new UserDetailsImpl("751806ea2d4211ea8f3f0242ac170005", "ll", "password", roles);
     }
 }

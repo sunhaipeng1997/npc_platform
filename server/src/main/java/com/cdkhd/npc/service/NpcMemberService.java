@@ -11,6 +11,7 @@ public interface NpcMemberService {
 
     RespBody addNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto);
 
-    RespBody updateNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto);
+    RespBody updateNpcMember(NpcMemberAddDto dto);
 
+    RespBody deleteNpcMember(String uid);
 }
