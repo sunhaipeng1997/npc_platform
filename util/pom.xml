@@ -44,16 +44,24 @@
             <version>0.10.7</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version><scope>provided</scope>
-        </dependency>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>-->
 
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.60</version>
+        </dependency>
+
+        <!--图片压缩-->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.8</version>
         </dependency>
     </dependencies>
 

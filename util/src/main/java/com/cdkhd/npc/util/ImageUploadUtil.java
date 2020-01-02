@@ -1,6 +1,5 @@
-package com.cdkhd.npc.utils;
+package com.cdkhd.npc.util;
 
-import com.cdkhd.npc.util.SysUtil;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +14,10 @@ public class ImageUploadUtil {
     public static String uid() {
         return UUID.randomUUID().toString().replace("-", "");
     }
-    /*将上传的图片保存到项目指定目录下，并返回图片的url
+
+
+    /**
+    * 将上传的图片保存到项目指定目录下，并返回图片的url
     * kind:图片的种类（履职图片/意见图片/建议图片等）
     * uid:图片所属记录（履职信息/意见/建议）的uid
     * image:上传的图片文件

@@ -42,7 +42,7 @@ public class NpcMember extends BaseDomain {
 	 * 2、锁定
 	 */
    	@Column(name = "status" )
-	private Integer status;
+	private Byte status;
 
 	/**
 	 * 姓名
@@ -79,7 +79,7 @@ public class NpcMember extends BaseDomain {
 	 * 2、女
 	 */
    	@Column(name = "gender" )
-	private Integer gender;
+	private Byte gender;
 
 	/**
 	 * 1、人大代表
@@ -95,35 +95,10 @@ public class NpcMember extends BaseDomain {
 	private String code;
 
 	/**
-	 * 生成时间
-	 */
-   	@Column(name = "create_time" )
-	private Date createTime;
-
-	/**
-	 * 更新时间
-	 */
-   	@Column(name = "update_time" )
-	private Date updateTime;
-
-	/**
-	 * 生成人员
-	 */
-   	@Column(name = "create_user" )
-	private String createUser;
-
-	/**
-	 * 更新人员
-	 */
-   	@Column(name = "update_user" )
-	private String updateUser;
-
-	/**
 	 * 账号表id
 	 */
 	@ManyToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
 	private Account account;
-
 
 	//头像
    	@Column(name = "avatar" )
@@ -142,12 +117,12 @@ public class NpcMember extends BaseDomain {
 	private String nation;
 
    	//是否能被提意见
-   	@Column(name = "can_opinion" )
-	private Boolean canOpinion;
+   	@Column(name = "can_opinion")
+	private Byte canOpinion = 1;
 
    	//是否删除
    	@Column(name = "is_del" )
-	private Integer isDel;
+	private Byte isDel = 0;
 
    	//教育经历
    	@Column(name = "education" )

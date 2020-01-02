@@ -1,29 +1,28 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.BackgroundAdmin;
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.Session;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
 import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.repository.base.AccountRepository;
-import com.cdkhd.npc.repository.base.NpcMemberRepository;
-import com.cdkhd.npc.repository.base.SessionRepository;
+import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NpcMemberService;
+import com.cdkhd.npc.util.ImageUploadUtil;
+import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Join;
@@ -41,12 +40,16 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     private AccountRepository accountRepository;
     private NpcMemberRepository npcMemberRepository;
     private SessionRepository sessionRepository;
+    private NpcMemberGroupRepository npcMemberGroupRepository;
+    private TownRepository townRepository;
 
     @Autowired
-    public NpcMemberServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository) {
+    public NpcMemberServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository) {
         this.accountRepository = accountRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.sessionRepository = sessionRepository;
+        this.npcMemberGroupRepository = npcMemberGroupRepository;
+        this.townRepository = townRepository;
     }
 
     /**
@@ -133,24 +136,128 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     /**
      * 添加代表
-     * @param userDetails 当前用户身份
+     * @param userDetails 当前用户
      * @param dto 待添加的代表信息
      * @return 添加结果
      */
     @Override
     public RespBody addNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto) {
+        RespBody body = new RespBody();
 
-        return null;
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
+
+        //待新增代表的uid
+        String memberUid = SysUtil.uid();
+        //保存代表头像至文件系统
+        String res = ImageUploadUtil.saveImage("npc_member_avatar", memberUid, dto.getAvatar());
+        if (res.equals("error")) {
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            body.setMessage("图片保存失败！请稍后重试");
+            LOGGER.error("代表头像保存失败, 新增代表失败");
+            return body;
+        }
+
+        //设置代表信息
+        NpcMember member = new NpcMember();
+        BeanUtils.copyProperties(dto, member);
+        member.setUid(memberUid);
+        member.setAvatar(res);
+        member.setLevel(bgAdmin.getLevel());
+        member.setArea(bgAdmin.getArea());   //与后台管理员同区
+
+        if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            member.setTown(bgAdmin.getTown());   //与后台管理员同镇
+
+            NpcMemberGroup group = npcMemberGroupRepository.findByUid(dto.getWorkUnitUid());
+            if (group == null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("所选的小组不存在");
+                LOGGER.error("uid为 {} 的小组不存在，添加代表失败", dto.getWorkUnitUid());
+                return body;
+            } else {
+                member.setNpcMemberGroup(group);   //设置工作小组
+            }
+        } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
+            Town town = townRepository.findByUid(dto.getWorkUnitUid());
+            if (town == null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("所选的镇不存在");
+                LOGGER.error("uid为 {} 的镇不存在，添加代表失败", dto.getWorkUnitUid());
+                return body;
+            } else {
+                member.setTown(town);   //设置工作镇
+            }
+        }
+
+        //保存代表
+        npcMemberRepository.save(member);
+
+        body.setMessage("添加代表成功");
+        return body;
     }
 
     /**
      * 修改代表信息
-     * @param userDetails 当前用户身份
      * @param dto 待修改的代表信息
      * @return 修改结果
      */
     @Override
-    public RespBody updateNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto) {
-        return null;
+    public RespBody updateNpcMember(NpcMemberAddDto dto) {
+        RespBody body = new RespBody();
+
+        NpcMember member = npcMemberRepository.findByUid(dto.getUid());
+        if (member == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("要修改的代表不存在");
+            LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
+            return body;
+        }
+
+        if (dto.getAvatar() != null) {
+            //保存代表头像至文件系统
+            String res = ImageUploadUtil.saveImage("npc_member_avatar", dto.getUid(), dto.getAvatar());
+            if (res.equals("error")) {
+                body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                body.setMessage("图片保存失败！请稍后重试");
+                LOGGER.error("代表头像保存失败，修改代表失败");
+                return body;
+            }
+            member.setAvatar(res);
+        }
+
+        //拷贝要修改代的属性
+        BeanUtils.copyProperties(dto, member);
+
+        //保存代表
+        npcMemberRepository.save(member);
+
+        body.setMessage("修改代表信息成功");
+        return body;
+    }
+
+    /**
+     * 逻辑删除代表信息
+     * @param uid 待删除的代表uid
+     * @return 删除结果
+     */
+    @Override
+    public RespBody deleteNpcMember(String uid) {
+        RespBody body = new RespBody();
+
+        NpcMember member = npcMemberRepository.findByUid(uid);
+        if (member == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("要删除的代表不存在");
+            LOGGER.warn("uid为 {} 的代表不存在，删除代表信息失败", uid);
+            return body;
+        }
+
+        //删除代表
+        member.setIsDel((byte)1);
+        npcMemberRepository.save(member);
+
+        body.setMessage("删除代表成功");
+        return body;
     }
 }

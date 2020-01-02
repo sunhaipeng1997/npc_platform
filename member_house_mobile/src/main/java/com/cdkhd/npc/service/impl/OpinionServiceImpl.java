@@ -1,20 +1,23 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.Account;
+import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.Opinion;
+import com.cdkhd.npc.entity.OpinionImage;
 import com.cdkhd.npc.entity.dto.AddOpinionDto;
 import com.cdkhd.npc.entity.dto.OpinionDto;
 import com.cdkhd.npc.entity.vo.OpinionVo;
 import com.cdkhd.npc.enums.ReplayStatus;
 import com.cdkhd.npc.repository.base.AccountRepository;
-import com.cdkhd.npc.repository.member_house.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.OpinionImageRepository;
 import com.cdkhd.npc.repository.member_house.OpinionReplayRepository;
 import com.cdkhd.npc.repository.member_house.OpinionRepository;
 import com.cdkhd.npc.service.OpinionService;
 import com.cdkhd.npc.service.PushService;
+import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.util.SysUtil;
-import com.cdkhd.npc.utils.ImageUploadUtil;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,7 +79,7 @@ public class OpinionServiceImpl implements OpinionService {
             return body;
         }
         NpcMember npcMember = npcMemberRepository.findByUid(addOpinionDto.getReceiver());
-        if (npcMember.getCanOpinion()){
+        if (npcMember.getCanOpinion().equals((byte)1)){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该代表意见箱已满，请另选一位代表！");
             return body;
