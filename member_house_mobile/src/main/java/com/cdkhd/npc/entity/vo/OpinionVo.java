@@ -67,9 +67,9 @@ public class OpinionVo extends BaseVo {
         Account account = opinion.getSender();
         if (account != null){
             //发送者信息
-            vo.setSender(account.getRealname());
-            vo.setAddress(account.getVillage().getName());
-            vo.setMobile(account.getMobile());
+            vo.setSender(account.getVoter().getRealname());
+            vo.setAddress(account.getVoter().getVillage().getName());
+            vo.setMobile(account.getVoter().getMobile());
         }
 
         NpcMember npcMember = opinion.getReceiver();

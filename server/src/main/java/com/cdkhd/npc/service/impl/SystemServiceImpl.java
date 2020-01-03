@@ -43,7 +43,7 @@ public class SystemServiceImpl implements SystemService {
     @Override
     public RespBody cacheSystem(UserDetailsImpl userDetails, String systemId) {
         RespBody body = new RespBody();
-        Account account = accountRepository.findByUid("1232131");
+        Account account = accountRepository.findByUid(userDetails.getUid());
         Systems systems = systemRepository.findByUid(systemId);
         account.setSystems(systems);
         accountRepository.saveAndFlush(account);

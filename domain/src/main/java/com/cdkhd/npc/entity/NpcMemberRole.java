@@ -43,4 +43,17 @@ public class NpcMemberRole extends BaseDomain {
 			}
 	)
    	private Set<Permission> permissions;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "npc_member_role_mid",
+            joinColumns = {
+                    @JoinColumn(name = "npc_member_role_id", referencedColumnName = "id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "npc_member_id", referencedColumnName = "id")
+            }
+    )
+    private Set<NpcMember> npcMembers;
 }

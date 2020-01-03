@@ -1,14 +1,13 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Set;
 
 /**
  * @Description

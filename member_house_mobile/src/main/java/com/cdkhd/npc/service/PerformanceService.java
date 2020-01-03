@@ -1,5 +1,6 @@
 package com.cdkhd.npc.service;
 
+import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.AddPerformanceDto;
 import com.cdkhd.npc.vo.RespBody;
@@ -22,7 +23,7 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody addOrUpdatePerformance(UserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
+    RespBody addOrUpdatePerformance(@CurrentUser UserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
 
 
 

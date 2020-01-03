@@ -79,7 +79,7 @@ public class Performance extends BaseDomain {
     private Town town;
 
     @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "npc_member_group", referencedColumnName = "id")
+    @JoinColumn(name = "npcMemberGroup", referencedColumnName = "id")
     private NpcMemberGroup npcMemberGroup;
 
     //图片uid

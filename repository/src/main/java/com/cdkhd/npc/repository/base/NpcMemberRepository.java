@@ -7,4 +7,6 @@ import java.util.List;
 public interface NpcMemberRepository extends BaseRepository<NpcMember> {
 
     List<NpcMember> findByLevel(Byte level);
+
+    List<NpcMember> findByNpcMember(Byte level);
 }

@@ -35,7 +35,7 @@ public class PerformanceApi {
     }
 
     /**
-     * 获取履职类型列表
+     * 添加或修改履职类型列表
      * @param userDetails
      * @return
      */

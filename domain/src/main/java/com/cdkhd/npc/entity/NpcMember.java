@@ -37,6 +37,21 @@ public class NpcMember extends BaseDomain {
 	)
 	private Set<Session> sessions = new HashSet<>();
 
+    /**
+     * 代表角色
+     */
+    @ManyToMany(targetEntity = NpcMemberRole.class)
+    @JoinTable(
+            name = "npc_member_role_mid",
+            joinColumns = {
+                    @JoinColumn(name = "npc_member_id", referencedColumnName = "id", nullable = false)
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+            }
+    )
+    private Set<NpcMemberRole> npcMemberRoles = new HashSet<>();
+
 	/**
 	 * 1、正常
 	 * 2、锁定
