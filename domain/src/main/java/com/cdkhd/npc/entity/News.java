@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import lombok.Getter;
@@ -22,7 +23,7 @@ import java.util.Date;
 @Table ( name ="news" )
 public class News extends BaseDomain {
 
-   	@Column(name = "creat_at" )
+	@Column(name = "creat_at" )
 	private Date creatAt;
 
    	@Column(name = "uid" )
@@ -69,6 +70,9 @@ public class News extends BaseDomain {
 
    	@Column(name = "town_id" )
 	private String townId;
+
+	@ManyToOne(targetEntity = NewsType.class)
+   	private NewsType newsType;
 
    	@Column(name = "read_times" )
 	private Long readTimes;

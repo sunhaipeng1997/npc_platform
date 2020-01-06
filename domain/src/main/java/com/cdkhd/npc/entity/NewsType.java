@@ -22,6 +22,9 @@ import java.util.Date;
 @Table ( name ="news_type" )
 public class NewsType extends BaseDomain {
 
+	@Column(name = "uid")
+	private String uid;
+
    	@Column(name = "name" )
 	private String name;
 
@@ -37,9 +40,11 @@ public class NewsType extends BaseDomain {
 
     //类型顺序
     @Column(name = "sequence" )
-
     private String sequence;
+
    	@Column(name = "remark" )
 	private String remark;
+
+
 
 }
