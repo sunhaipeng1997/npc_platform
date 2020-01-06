@@ -22,9 +22,6 @@ import java.util.Date;
 @Table ( name ="news_type" )
 public class NewsType extends BaseDomain {
 
-	@Column(name = "uid")
-	private String uid;
-
    	@Column(name = "name" )
 	private String name;
 

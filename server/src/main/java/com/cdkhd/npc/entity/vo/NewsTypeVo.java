@@ -1,15 +1,14 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.NewsType;
+import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
-public class NewsTypeVo {
-
-    private String uid;
+public class NewsTypeVo extends BaseVo {
 
     private String name;
 

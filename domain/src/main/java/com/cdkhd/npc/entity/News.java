@@ -26,9 +26,6 @@ public class News extends BaseDomain {
 	@Column(name = "creat_at" )
 	private Date creatAt;
 
-   	@Column(name = "uid" )
-	private String uid;
-
    	@Column(name = "audit" )
 	private Long audit;
 
