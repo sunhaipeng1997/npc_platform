@@ -21,14 +21,24 @@ public class ImageUploadUtil {
     * kind:图片的种类（履职图片/意见图片/建议图片等）
     * uid:图片所属记录（履职信息/意见/建议）的uid
     * image:上传的图片文件
-    * return:返回保存的图片到的访问url，若保存失败，则返回error
+    * return:返回保存的图片的访问url，若保存失败，则返回error
     */
     public static String saveImage(String kind, String uid, MultipartFile image) {
+        //得到源文件扩展名
         String orgName = image.getOriginalFilename();
         String extName = FilenameUtils.getExtension(orgName);
-        // 生成新的文件名
+
+        //生成新的文件名
         String filename = String.format("%s.%s", uid(), extName);
-        String parentPath = "static/public/" + kind + "/" + uid;
+
+        //生成新文件的父目录路径
+        String parentPath;
+        if ("".equals(uid)) {
+            parentPath = String.format("static/public/%s", kind);
+        } else {
+            parentPath = String.format("static/public/%s/%s", kind, uid);
+        }
+
         File imageFile = new File(parentPath, filename);
         File parentFile = imageFile.getParentFile();
         if (!parentFile.exists()) {
@@ -47,6 +57,20 @@ public class ImageUploadUtil {
             return "error";
         }
 
-        return "/public/" + kind + "/" + uid + "/" + filename;
+        if ("".equals(uid)) {
+            return "/public/" + kind + "/" + filename;
+        } else {
+            return "/public/" + kind + "/" + uid + "/" + filename;
+        }
+    }
+
+    /**
+     * 将上传的图片保存到项目指定目录下，并返回图片的url
+     * kind:图片的种类（代表头像等）
+     * image:上传的图片文件
+     * return:返回保存的图片的访问url，若保存失败，则返回error
+     */
+    public static String saveImage(String kind, MultipartFile image) {
+        return saveImage(kind, "", image);
     }
 }

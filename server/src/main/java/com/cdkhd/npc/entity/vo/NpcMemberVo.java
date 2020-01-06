@@ -50,9 +50,6 @@ public class NpcMemberVo {
     //是否能被提意见
     private Byte canOpinion;
 
-    //是否删除
-    private Byte isDel;
-
     //教育经历
     private String education;
 

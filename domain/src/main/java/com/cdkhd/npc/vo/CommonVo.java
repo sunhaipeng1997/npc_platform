@@ -3,6 +3,9 @@ package com.cdkhd.npc.vo;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 前端展示下拉菜单所使用的vo
+ */
 @Getter
 @Setter
 public class CommonVo {

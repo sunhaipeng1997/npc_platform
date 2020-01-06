@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/api/manager/member")
@@ -65,6 +66,70 @@ public class NpcMemberController {
     @DeleteMapping("/{uid}")
     public ResponseEntity deleteNpcMember(@PathVariable String uid) {
         RespBody body = npcMemberService.deleteNpcMember(uid);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 添加代表信息时上传头像
+     * @param userDetails 当前用户身份
+     * @param avatar 头像图片
+     * @return 上传结果，上传成功返回图片访问url
+     */
+    @PostMapping("/avatar")
+    public ResponseEntity uploadNpcMemberAvatar(@CurrentUser UserDetailsImpl userDetails, MultipartFile avatar) {
+        RespBody body = npcMemberService.uploadAvatar(userDetails, avatar);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 获取代表的工作单位列表（镇/小组）
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @GetMapping("/work_units")
+    public ResponseEntity getWorkUnits(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = npcMemberService.getWorkUnits(userDetails);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 获取届期列表
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @GetMapping("/sessions")
+    public ResponseEntity getSessions(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = npcMemberService.getSessions(userDetails);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 获取民族信息
+     * @return 查询结果
+     */
+    @GetMapping("/nations")
+    public ResponseEntity getNations() {
+        RespBody body = npcMemberService.getNations();
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 获取受教育程度信息
+     * @return 查询结果
+     */
+    @GetMapping("/educations")
+    public ResponseEntity getEducations() {
+        RespBody body = npcMemberService.getEducations();
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 获取政治面貌信息
+     * @return 查询结果
+     */
+    @GetMapping("/politic_status")
+    public ResponseEntity getPoliticStatus() {
+        RespBody body = npcMemberService.getPoliticalStatus();
         return ResponseEntity.ok(body);
     }
 }

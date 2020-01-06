@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,22 +17,23 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table ( name ="town" )
+@Table(name = "town")
 public class Town extends BaseDomain {
 
-   	@Column(name = "create_time" )
+	@Column(name = "create_time")
 	private Date createTime;
 
-   	@Column(name = "name" )
+	@Column(name = "name")
 	private String name;
 
-   	@Column(name = "remark" )
+	@Column(name = "remark")
 	private String remark;
 
-   	@Column(name = "status" )
+	@Column(name = "status")
 	private Integer status;
 
-   	@Column(name = "area_id" )
-	private String areaId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Area area;
 
 }
