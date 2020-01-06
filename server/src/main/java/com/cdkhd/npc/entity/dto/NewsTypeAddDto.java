@@ -1,6 +1,7 @@
 package com.cdkhd.npc.entity.dto;
 
 
+import com.cdkhd.npc.dto.BaseDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,9 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
-public class NewsTypeAddDto {
-
-    private String uid;
+public class NewsTypeAddDto extends BaseDto {
 
     @NotBlank
     private String name;
