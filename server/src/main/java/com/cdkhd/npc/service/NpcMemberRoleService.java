@@ -30,4 +30,20 @@ public interface NpcMemberRoleService {
      */
     List<NpcMember> findByKeyWordAndLevelAndUid(String keyword,Byte level,String uid);
 
+    /**
+     * 查寻所有小组审核人
+     * @param keyword 关键字
+     * @param level 等级 区、镇
+     * @param uid   小组uid
+     * @return
+     */
+    List<NpcMember> findByKeyWordAndUid(String keyword,Byte level, String uid);
+
+    /**
+     * 通过代表uid查询其所有权限
+     * @param uid   代表
+     * @return
+     */
+    List<String> findKeyWordByUid(String uid);
+
 }

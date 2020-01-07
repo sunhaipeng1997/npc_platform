@@ -35,6 +35,7 @@ public class PerformanceVo extends BaseVo {
 
    	//类型
     private PerformanceTypeVo performanceType;
+    private String typeName;
 
    	//履职时间
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -44,6 +45,9 @@ public class PerformanceVo extends BaseVo {
     //代表信息
     private String memberName;
 
+    //代表手机号
+    private String memberMobile;
+
     //审核人
     private String auditor;
 
@@ -51,8 +55,10 @@ public class PerformanceVo extends BaseVo {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);
         vo.setMemberName(performance.getNpcMember().getName());
+        vo.setMemberMobile(performance.getNpcMember().getMobile());
         vo.setAuditor(performance.getAuditor().getName());
         vo.setPerformanceType(PerformanceTypeVo.convert(performance.getPerformanceType()));
+        vo.setTypeName(performance.getPerformanceType().getName());
         return vo;
     }
 }

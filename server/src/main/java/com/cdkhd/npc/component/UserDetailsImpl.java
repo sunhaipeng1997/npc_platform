@@ -23,12 +23,12 @@ public class UserDetailsImpl implements UserDetails {
     private final Town town;
     private final Byte level;
 
-    public UserDetailsImpl(String uid, String username, String password, Set<String> roles) {
-        this(uid, username, password, roles, Collections.emptySet());
+    public UserDetailsImpl(String uid, String username, String password, Set<String> roles,Area area,Town town,Byte level) {
+        this(uid, username, password, roles, Collections.emptySet(),area,town,level);
     }
 
-    public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities) {
-        this(uid, username, password, roles, authorities, true, true, true, true,null, null,null);
+    public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities,Area area,Town town,Byte level) {
+        this(uid, username, password, roles, authorities, true, true, true, true,area, town,level);
     }
 
     public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, Area area, Town town, Byte level) {

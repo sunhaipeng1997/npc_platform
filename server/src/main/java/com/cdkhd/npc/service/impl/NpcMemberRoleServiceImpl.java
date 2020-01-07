@@ -1,8 +1,11 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.NpcMemberRole;
+import com.cdkhd.npc.entity.Permission;
 import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.repository.base.*;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.NpcMemberRoleRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -21,9 +24,12 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
 
     private NpcMemberRoleRepository npcMemberRoleRepository ;
 
+    private NpcMemberRepository npcMemberRepository ;
+
     @Autowired
-    public NpcMemberRoleServiceImpl(NpcMemberRoleRepository npcMemberRoleRepository) {
+    public NpcMemberRoleServiceImpl(NpcMemberRoleRepository npcMemberRoleRepository, NpcMemberRepository npcMemberRepository) {
         this.npcMemberRoleRepository = npcMemberRoleRepository;
+        this.npcMemberRepository = npcMemberRepository;
     }
 
     @Override
@@ -60,5 +66,31 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
             }
         }
         return npcMembers;
+    }
+
+    @Override
+    public List<NpcMember> findByKeyWordAndUid(String keyword,Byte level , String uid) {
+        List<NpcMember> npcMemberList = this.findByKeyWordAndLevel(keyword,level);
+        List<NpcMember> npcMembers = Lists.newArrayList();
+        for (NpcMember npcMember : npcMemberList) {
+            if (level.equals(LevelEnum.TOWN.getValue()) && npcMember.getNpcMemberGroup() != null && uid.equals(npcMember.getNpcMemberGroup().getUid())){
+                npcMembers.add(npcMember);
+            }if (level.equals(LevelEnum.AREA.getValue()) && npcMember.getTown() != null && uid.equals(npcMember.getTown().getUid())){
+                npcMembers.add(npcMember);
+            }
+        }
+        return npcMembers;
+    }
+
+    @Override
+    public List<String> findKeyWordByUid(String uid) {
+        NpcMember npcMember = npcMemberRepository.findByUid(uid);
+        List<String> permissionList = Lists.newArrayList();
+        for (NpcMemberRole npcMemberRole : npcMember.getNpcMemberRoles()) {
+            for (Permission permission : npcMemberRole.getPermissions()) {
+                permissionList.add(permission.getKeyword());
+            }
+        }
+        return permissionList;
     }
 }

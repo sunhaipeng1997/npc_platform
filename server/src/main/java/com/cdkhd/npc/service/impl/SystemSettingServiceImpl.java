@@ -27,12 +27,12 @@ public class SystemSettingServiceImpl implements SystemSettingService {
 
 
     @Override
-    public RespBody getSystemSetting() {
-        RespBody body = new RespBody();
+    public SystemSetting getSystemSetting() {
+        SystemSetting systemSetting = new SystemSetting();
         List<SystemSetting> systemSettings = systemSettingRepository.findAll();
         if (CollectionUtils.isNotEmpty(systemSettings)){
-            body.setData(systemSettings.get(0));
+            systemSetting = systemSettings.get(0);
         }
-        return body;
+        return systemSetting;
     }
 }

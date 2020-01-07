@@ -51,7 +51,8 @@ public class Performance extends BaseDomain {
 
    	//履职时间
    	@Column(name = "work_at" )
-	private Date workAt;
+    @Temporal(TemporalType.DATE)
+    private Date workAt;
 
    	//审核时间
    	@Column(name = "audit_at" )
@@ -85,4 +86,7 @@ public class Performance extends BaseDomain {
     //图片uid
     @Column(name = "trans_uid" )
     private String transUid;
+
+    @Column(name = "is_del" )
+    private Boolean isDel;
 }

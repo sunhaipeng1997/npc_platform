@@ -52,6 +52,14 @@ public interface PerformanceService {
      */
     RespBody changeTypeStatus(String uid, Byte status);
 
+    /**
+     * 履职类型下拉
+     * @param userDetails
+     * @return
+     */
+    RespBody performanceTypeList(UserDetailsImpl userDetails);
+
+
     //履职相关接口
 
     /**

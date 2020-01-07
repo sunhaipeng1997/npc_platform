@@ -3,7 +3,6 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.AddPerformanceDto;
-import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
@@ -14,6 +13,7 @@ import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.cdkhd.npc.service.PerformanceService;
+import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,9 +52,11 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private NpcMemberRoleService npcMemberRoleService;
 
+    private PushService pushService;
+
 
     @Autowired
-    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService) {
+    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushService pushService) {
         this.performanceRepository = performanceRepository;
         this.performanceTypeRepository = performanceTypeRepository;
         this.systemSettingRepository = systemSettingRepository;
@@ -64,6 +65,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.accountRepository = accountRepository;
         this.performanceImageRepository = performanceImageRepository;
         this.npcMemberRoleService = npcMemberRoleService;
+        this.pushService = pushService;
     }
 
     /**
@@ -117,22 +119,26 @@ public class PerformanceServiceImpl implements PerformanceService {
             performance.setTown(npcMember.getTown());
             performance.setNpcMember(npcMember);
             //设置完了基本信息后，给相应的审核人员推送消息
-            if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                //如果是在镇上履职，那么查询镇上的审核人员
-                //首先判断端当前用户的角色是普通代表还是小组审核人员还是总审核人员
-                SystemSetting systemSetting = systemSettingRepository.findAll().get(0);
-                if (systemSetting.getPerformanceGroupAudit()) {//开启了小组审核人员
-                    List<NpcMember> auditorManagers = npcMemberRoleService.findByKeyWordAndLevelAndUid("lvzsh",addPerformanceDto.getLevel(),npcMember.getTown().getUid());
-                }else{
-                    //小组审核人员没有开启，那么直接有总审核人员审核
-                    List<NpcMember> auditorManagers = npcMemberRoleService.findByKeyWordAndLevelAndUid("lvzsh",addPerformanceDto.getLevel(),npcMember.getTown().getUid());
+            List<NpcMember> auditors;
+            SystemSetting systemSetting = systemSettingRepository.findAll().get(0);
+            //如果是在镇上履职，那么查询镇上的审核人员
+            //首先判断端当前用户的角色是普通代表还是小组审核人员还是总审核人员
+            if (systemSetting.getPerformanceGroupAudit()) {//开启了小组审核人员
+                List<String> permissions = npcMemberRoleService.findKeyWordByUid(npcMember.getUid());
+                if (permissions.contains("lvxzshr")){//如果当前登录人是履职小组审核人，那么查询履职总审核人
+                    auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid("lvzsh",addPerformanceDto.getLevel(),npcMember.getTown().getUid());
                 }
-
-                //判断当前代表的权限
-//                if (keyword.contains("小组履职审核权限") )
+                else {
+                    //如果不是小组审核人
+                    //查询与我同组的所有小组审核人
+                    auditors = npcMemberRoleService.findByKeyWordAndUid("lvxzsh", addPerformanceDto.getLevel() ,npcMember.getTown().getUid());
+                }
             }else{
-                //如果是在区上履职，那么查询区上的审核人员
-
+                //小组审核人员没有开启，那么直接有总审核人员审核
+                auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid("lvzsh",addPerformanceDto.getLevel(),npcMember.getTown().getUid());
+            }
+            for (NpcMember auditor : auditors) {//todo 推送消息得重寫
+                pushService.pushMsg(auditor.getAccount(),"",1,"");
             }
         }
         performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));

@@ -1,9 +1,9 @@
 package com.cdkhd.npc.service;
 
-import com.cdkhd.npc.vo.RespBody;
+import com.cdkhd.npc.entity.SystemSetting;
 
 public interface SystemSettingService {
 
-    RespBody getSystemSetting();
+    SystemSetting getSystemSetting();
 
 }

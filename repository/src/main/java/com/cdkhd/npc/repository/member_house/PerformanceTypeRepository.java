@@ -19,4 +19,16 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
 
     @Query(value = "select type from PerformanceType as type where type.sequence > ?1 order by type.sequence asc ")
     Page<PerformanceType> findBySequenceAsc(Integer sequence, Pageable page);
+
+    PerformanceType findByNameAndLevelAndTownUidAndIsDelFalse(String name, Byte level, String townUid);
+
+    PerformanceType findByNameAndLevelAndAreaUidAndIsDelFalse(String name, Byte level, String areaUid);
+
+    @Query(value = "select max(type.sequence) from PerformanceType type")
+    Integer findMaxSequence();
+
+    List<PerformanceType> findByLevelAndTownUidAndIsDelFalse(Byte level, String townUid);
+
+    List<PerformanceType> findByLevelAndAreaUidAndIsDelFalse(Byte level, String areaUid);
+
 }

@@ -18,10 +18,12 @@ import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.util.Constant;
 import com.cdkhd.npc.util.ExcelCode;
+import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.mapred.IFile;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -86,11 +88,11 @@ public class PerformanceServiceImpl implements PerformanceService {
         Page<PerformanceType> performanceTypePage = performanceTypeRepository.findAll((Specification<PerformanceType>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), "userDetails.getLevel"));
-            if (1 == 1) {
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), "userDetalis.getTown"));
-            } else if (2 == 2) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), "userDetalis.getArea"));
+            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             if (performanceTypeDto.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status").as(Byte.class), performanceTypeDto.getStatus()));
@@ -120,12 +122,22 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public RespBody addOrUpdatePerformanceType(UserDetailsImpl userDetails, PerformanceTypeAddDto performanceTypeAddDto) {
         RespBody body = new RespBody();
-        if (StringUtils.isNotEmpty(performanceTypeAddDto.getName())) {
+        if (StringUtils.isEmpty(performanceTypeAddDto.getName())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("类型名称不能为空！");
             return body;
         }
-        PerformanceType performanceType;
+        PerformanceType performanceType = null;
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getTown().getUid());
+        }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            performanceType = performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        if (performanceType != null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("类型名称已经存在！");
+            return body;
+        }
         //如果uid不为空，说明是修改操作
         if (StringUtils.isNotEmpty(performanceTypeAddDto.getUid())) {
             performanceType = performanceTypeRepository.findByUid(performanceTypeAddDto.getUid());
@@ -137,12 +149,15 @@ public class PerformanceServiceImpl implements PerformanceService {
         } else {
             //uid为空说明是添加操作
             performanceType = new PerformanceType();
+            performanceType.setLevel(userDetails.getLevel());
+            performanceType.setArea(userDetails.getArea());
+            performanceType.setTown(userDetails.getTown());
+            Integer maxSequence = performanceTypeRepository.findMaxSequence();
+            performanceType.setSequence(maxSequence + 1);
         }
         performanceType.setName(performanceTypeAddDto.getName());
         performanceType.setRemark(performanceTypeAddDto.getName());
-//        performanceType.setLevel();
-//        performanceType.setArea();
-//        performanceType.setTown();
+
         performanceTypeRepository.saveAndFlush(performanceType);
         return body;
     }
@@ -220,43 +235,50 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
+    public RespBody performanceTypeList(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        List<PerformanceType> performanceTypes = Lists.newArrayList();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        List<CommonVo> commonVos = performanceTypes.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
+        return body;
+    }
+
+    @Override
     public RespBody findPerformance(UserDetailsImpl userDetails, PerformanceDto performanceDto) {
         RespBody body = new RespBody();
         //查询代表的履职之前首先查询系统配置
         int begin = performanceDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, performanceDto.getSize(), Sort.Direction.fromString(performanceDto.getDirection()), performanceDto.getProperty());
-        Page<Performance> performancePage = this.getPerformancePage(performanceDto, page);
+        Page<Performance> performancePage = this.getPerformancePage(userDetails,performanceDto, page);
         PageVo<PerformanceVo> vo = new PageVo<>(performancePage, performanceDto);
         List<PerformanceVo> performances = performancePage.getContent().stream().map(PerformanceVo::convert).collect(Collectors.toList());
         vo.setContent(performances);
         body.setData(vo);
-
         return body;
     }
 
-    private Page<Performance> getPerformancePage(PerformanceDto performanceDto, Pageable page) {
-        SystemSetting systemSetting;
-        List<String> accountUids = Lists.newArrayList();
-        if (2 == 2) {
-            systemSetting = (SystemSetting) systemSettingService.getSystemSetting().getData();
-            if (systemSetting.getShowSubPerformance()) {
-                List<NpcMember> members = npcMemberRepository.findByLevel(LevelEnum.TOWN.getValue());
-                for (NpcMember member : members) {
-                    accountUids.add(member.getAccount().getUid());
-                }
-            }
-        }
-        final List<String> uids = accountUids;
+    private Page<Performance> getPerformancePage(UserDetailsImpl userDetails, PerformanceDto performanceDto, Pageable page) {
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), "userDetails.getLevel"));
-            if (1 == 1) {
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), "userDetalis.getTown"));
-            } else if (2 == 2) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), "userDetalis.getArea"));
+            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                SystemSetting systemSetting = systemSettingService.getSystemSetting();
                 if (systemSetting.getShowSubPerformance()) {
-                    predicates.add(cb.in(root.get("npcMember").get("account").get("uid")).value(uids));
+                    List<NpcMember> members = npcMemberRepository.findByLevel(LevelEnum.TOWN.getValue());
+                    List<String> accountUids = Lists.newArrayList();
+                    for (NpcMember member : members) {
+                        accountUids.add(member.getAccount().getUid());
+                    }
+                    predicates.add(cb.in(root.get("npcMember").get("account").get("uid")).value(accountUids));
                 }
             }
             //标题
@@ -268,8 +290,11 @@ public class PerformanceServiceImpl implements PerformanceService {
                 predicates.add(cb.equal(root.get("performanceType").get("uid").as(String.class), performanceDto.getPerformanceType()));
             }
             //提出代表
-            if (StringUtils.isNotEmpty(performanceDto.getNpcMember())) {
-                predicates.add(cb.like(root.get("npcMember").get("name").as(String.class), "%" + performanceDto.getNpcMember() + "%"));
+            if (StringUtils.isNotEmpty(performanceDto.getName())) {
+                predicates.add(cb.like(root.get("npcMember").get("name").as(String.class), "%" + performanceDto.getName() + "%"));
+            }
+            if (StringUtils.isNotEmpty(performanceDto.getMobile())){
+                predicates.add(cb.equal(root.get("npcMember").get("mobile").as(String.class), performanceDto.getMobile()));
             }
             //履职时间 开始
             if (performanceDto.getWorkAtStart() != null) {
@@ -278,7 +303,6 @@ public class PerformanceServiceImpl implements PerformanceService {
             if (performanceDto.getWorkAtEnd() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("workAt").as(Date.class), performanceDto.getWorkAtEnd()));
             }
-
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         return performancePage;
@@ -295,7 +319,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         Workbook hssWb = new HSSFWorkbook();
         int begin = performanceDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, performanceDto.getSize(), Sort.Direction.fromString(performanceDto.getDirection()), performanceDto.getProperty());
-        List<Performance> performances = this.getPerformancePage(performanceDto, page).getContent();
+        List<Performance> performances = this.getPerformancePage(userDetails,performanceDto, page).getContent();
         // 查询还利息或者还款日期在这段时间的数据
         String fileName = ExcelCode.encodeFileName("代表履职信息.xls", req);
         res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
