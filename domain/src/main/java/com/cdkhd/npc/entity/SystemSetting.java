@@ -40,19 +40,15 @@ public class SystemSetting extends BaseDomain {
     @Column(name = "float_notice" )
 	private Boolean floatNotice = true;
 
-    //6.是否开启移动端首页自定义快捷功能
-    @Column(name = "quick_work" )
-	private Boolean quickWork = true;
-
-    //7.是否开启新闻推送(微信端通过服务号，安卓端通过消息通知)
+    //6.是否开启新闻推送(微信端通过服务号，安卓端通过消息通知)
     @Column(name = "push_news" )
 	private Boolean pushNews = true;
 
-    //8.是否开启学习活动推送
+    //7.是否开启学习活动推送
     @Column(name = "push_study" )
 	private Boolean pushStudy = true;
 
-    //9.是否开启软件更新提示
+    //8.是否开启软件更新提示
     @Column(name = "push_update" )
 	private Boolean pushUpdate = true;
 

@@ -108,8 +108,8 @@ public class Account extends BaseDomain {
 	@OneToOne(targetEntity=Systems.class, fetch = FetchType.LAZY)
 	private Systems systems;
 
-    //用户偏好设置
-    @OneToOne(targetEntity=UserSetting.class, fetch = FetchType.LAZY)
-    private UserSetting userSetting;
+    //移动端用户偏好设置
+    @OneToOne(targetEntity=MobileUserPreferences.class, fetch = FetchType.LAZY)
+    private MobileUserPreferences mobileUserPreferences;
 
 }
