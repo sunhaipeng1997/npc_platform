@@ -26,7 +26,7 @@ public class NpcMemberAddDto {
     private String mobile;
 
     //头像
-    private MultipartFile avatar;
+    private String avatar;
 
     //邮箱
     private String email;

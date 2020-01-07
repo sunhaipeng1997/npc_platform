@@ -17,17 +17,21 @@ import javax.persistence.Table;
 @Table(name = "common_dict")
 public class CommonDict extends BaseDomain{
 
+    //码表code
+    @Column(nullable = false)
+    private String code;
+
     //码表名称
     @Column(nullable = false)
-    private String dictName;
+    private String name;
 
-    //码表类型code
+    //码表类型
     @Column(nullable = false)
-    private String dictKey;
+    private String type;
 
     //码表类型名称
     @Column(nullable = false)
-    private String dictKeyName;
+    private String typeName;
 
     //码表是否删除
     @Column(nullable = false)

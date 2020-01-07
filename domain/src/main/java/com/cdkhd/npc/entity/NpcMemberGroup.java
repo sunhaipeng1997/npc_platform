@@ -20,12 +20,6 @@ import java.util.Date;
 @Table ( name ="npc_member_group" )
 public class NpcMemberGroup extends BaseDomain {
 
-   	@Column(name = "create_at" )
-	private Date createAt;
-
-   	@Column(name = "uid" )
-	private String uid;
-
    	@Column(name = "description" )
 	private String description;
 

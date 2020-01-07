@@ -5,11 +5,13 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
+import com.cdkhd.npc.enums.CommonDictTypeEnum;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.util.SysUtil;
+import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
@@ -42,14 +45,16 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     private SessionRepository sessionRepository;
     private NpcMemberGroupRepository npcMemberGroupRepository;
     private TownRepository townRepository;
+    private CommonDictRepository commonDictRepository;
 
     @Autowired
-    public NpcMemberServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository) {
+    public NpcMemberServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository, CommonDictRepository commonDictRepository) {
         this.accountRepository = accountRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.sessionRepository = sessionRepository;
         this.npcMemberGroupRepository = npcMemberGroupRepository;
         this.townRepository = townRepository;
+        this.commonDictRepository = commonDictRepository;
     }
 
     /**
@@ -147,22 +152,10 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
 
-        //待新增代表的uid
-        String memberUid = SysUtil.uid();
-        //保存代表头像至文件系统
-        String res = ImageUploadUtil.saveImage("npc_member_avatar", memberUid, dto.getAvatar());
-        if (res.equals("error")) {
-            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            body.setMessage("图片保存失败！请稍后重试");
-            LOGGER.error("代表头像保存失败, 新增代表失败");
-            return body;
-        }
-
         //设置代表信息
         NpcMember member = new NpcMember();
         BeanUtils.copyProperties(dto, member);
-        member.setUid(memberUid);
-        member.setAvatar(res);
+//        member.setAvatar(dto.getAvatar());
         member.setLevel(bgAdmin.getLevel());
         member.setArea(bgAdmin.getArea());   //与后台管理员同区
 
@@ -214,18 +207,6 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             return body;
         }
 
-        if (dto.getAvatar() != null) {
-            //保存代表头像至文件系统
-            String res = ImageUploadUtil.saveImage("npc_member_avatar", dto.getUid(), dto.getAvatar());
-            if (res.equals("error")) {
-                body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                body.setMessage("图片保存失败！请稍后重试");
-                LOGGER.error("代表头像保存失败，修改代表失败");
-                return body;
-            }
-            member.setAvatar(res);
-        }
-
         //拷贝要修改代的属性
         BeanUtils.copyProperties(dto, member);
 
@@ -258,6 +239,134 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         npcMemberRepository.save(member);
 
         body.setMessage("删除代表成功");
+        return body;
+    }
+
+    /**
+     * 添加代表信息时上传头像
+     * @param userDetails 当前用户身份
+     * @param avatar 头像图片
+     * @return 上传结果，上传成功返回图片访问url
+     */
+    @Override
+    public RespBody uploadAvatar(UserDetailsImpl userDetails, MultipartFile avatar) {
+        RespBody<String> body = new RespBody<>();
+
+        //保存代表头像至文件系统
+        String url = ImageUploadUtil.saveImage("npc_member_avatar", avatar);
+        if (url.equals("error")) {
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            body.setMessage("图片上传失败！请稍后重试");
+            LOGGER.error("代表头像保存失败");
+            return body;
+        }
+
+        body.setMessage("头像上传成功");
+        body.setData(url);
+        return body;
+    }
+
+    /**
+     * 获取代表的工作单位列表（镇/小组）
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @Override
+    public RespBody getWorkUnits(UserDetailsImpl userDetails) {
+        RespBody<List<CommonVo>> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
+
+        List<Session> sessions = null;
+        //如果当前后台管理员是镇后台管理员，则查询该镇的所有小组
+        //如果当前后台管理员是区后台管理员，则查询该区的所有镇
+        if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            sessions = sessionRepository.findByTownUid(bgAdmin.getTown().getUid());
+        } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
+            sessions = sessionRepository.findByAreaUidAndLevel(bgAdmin.getArea().getUid(), LevelEnum.AREA.getValue());
+        } else {
+            throw new RuntimeException("当前后台管理员level不合法");
+        }
+
+        List<CommonVo> vos = sessions.stream().map(session ->
+                CommonVo.convert(session.getUid(), session.getName())).collect(Collectors.toList());
+
+        body.setData(vos);
+        return body;
+    }
+
+    /**
+     * 获取届期列表
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @Override
+    public RespBody getSessions(UserDetailsImpl userDetails) {
+        RespBody<List<CommonVo>> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
+
+        List<CommonVo> vos = null;
+        //如果当前后台管理员是镇后台管理员，则查询该镇的所有届期
+        //如果当前后台管理员是区后台管理员，则查询该区的所有届期
+        if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            List<NpcMemberGroup> groups = npcMemberGroupRepository.findByTownUid(bgAdmin.getTown().getUid());
+            vos = groups.stream().map(group ->
+                    CommonVo.convert(group.getUid(), group.getName())).collect(Collectors.toList());
+        } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
+            List<Town> towns = townRepository.findByAreaUid(bgAdmin.getArea().getUid());
+            vos = towns.stream().map(town ->
+                    CommonVo.convert(town.getUid(), town.getName())).collect(Collectors.toList());
+        }
+
+        body.setData(vos);
+        return body;
+    }
+
+    /**
+     * 获取民族列表
+     * @return 查询结果
+     */
+    @Override
+    public RespBody getNations() {
+        List<CommonDict> nationDicts = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.NATION.getValue());
+        List<CommonVo> nationVos = nationDicts.stream().map(commonDict ->
+                CommonVo.convert(commonDict.getUid(), commonDict.getName())).collect(Collectors.toList());
+
+        RespBody<List<CommonVo>> body = new RespBody<>();
+        body.setData(nationVos);
+        return body;
+    }
+
+    /**
+     * 获取文化程度列表
+     * @return 查询结果
+     */
+    @Override
+    public RespBody getEducations() {
+        List<CommonDict> educationDicts = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.EDUCATION.getValue());
+        List<CommonVo> educationVos = educationDicts.stream().map(commonDict ->
+                CommonVo.convert(commonDict.getUid(), commonDict.getName())).collect(Collectors.toList());
+
+        RespBody<List<CommonVo>> body = new RespBody<>();
+        body.setData(educationVos);
+        return body;
+    }
+
+    /**
+     * 获取政治面貌列表
+     * @return 查询结果
+     */
+    @Override
+    public RespBody getPoliticalStatus() {
+        List<CommonDict> politicDicts = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.POLITIC.getValue());
+        List<CommonVo> politicVos = politicDicts.stream().map(commonDict ->
+                CommonVo.convert(commonDict.getUid(), commonDict.getName())).collect(Collectors.toList());
+
+        RespBody<List<CommonVo>> body = new RespBody<>();
+        body.setData(politicVos);
         return body;
     }
 }
