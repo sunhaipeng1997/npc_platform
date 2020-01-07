@@ -1,15 +1,20 @@
 package com.cdkhd.npc.service.impl;
 
+import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.NewsType;
+import com.cdkhd.npc.entity.PerformanceType;
 import com.cdkhd.npc.entity.dto.NewsTypeAddDto;
 import com.cdkhd.npc.entity.dto.NewsTypePageDto;
 import com.cdkhd.npc.entity.vo.NewsTypeVo;
+import com.cdkhd.npc.enums.DirectionEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.NewsRepository;
 import com.cdkhd.npc.repository.base.NewsTypeRepository;
 import com.cdkhd.npc.service.NewsTypeService;
 import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,12 +54,22 @@ public class NewsTypeServiceImpl implements NewsTypeService {
      * @return 添加结果
      */
     @Override
-    public RespBody addNewsType(NewsTypeAddDto addDto) {
+    public RespBody addNewsType(UserDetailsImpl userDetails, NewsTypeAddDto addDto) {
         RespBody body = new RespBody();
 
         NewsType newsType = new NewsType();
-        BeanUtils.copyProperties(addDto,newsType);
-        newsType.setUid(SysUtil.uid());
+
+        newsType.setArea(userDetails.getArea());
+        newsType.setTown(userDetails.getTown());
+
+        Integer maxSequence = newsTypeRepository.findMaxSequence();
+        if(maxSequence == null){
+            maxSequence = 0;
+        }
+        newsType.setSequence(maxSequence + 1 );
+
+        newsType.setName(addDto.getName());
+        newsType.setRemark(addDto.getRemark());
 
         newsTypeRepository.saveAndFlush(newsType);
 
@@ -67,21 +83,31 @@ public class NewsTypeServiceImpl implements NewsTypeService {
      * @return 更新结果
      */
     @Override
-    public RespBody updateNewsType(NewsTypeAddDto dto) {
+    public RespBody updateNewsType(UserDetailsImpl userDetails,NewsTypeAddDto dto) {
         RespBody body = new RespBody();
         NewsType newsType = newsTypeRepository.findByUid(dto.getUid());
         if(newsType == null){
             body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("该新闻类型不存在");
-            LOGGER.warn("uid为 {} 的新闻类别不存在，更新新闻类别失败",dto.getUid());
+            body.setMessage("该新闻栏目不存在");
+            LOGGER.warn("uid为 {} 的新闻栏目不存在，更新新闻类别失败",dto.getUid());
             return body;
         }
 
-        BeanUtils.copyProperties(dto,newsType);
+        if(!dto.getName().isEmpty()){
+            newsType.setName(dto.getName());
+        }
+
+        if(!dto.getRemark().isEmpty()){
+            newsType.setRemark(dto.getRemark());
+        }
+
+        if(dto.getStatus() != null){
+            newsType.setStatus(dto.getStatus());
+        }
 
         newsTypeRepository.save(newsType);
 
-        body.setMessage("修改新闻类别成功");
+        body.setMessage("修改新闻栏目成功");
         return body;
     }
 
@@ -92,7 +118,7 @@ public class NewsTypeServiceImpl implements NewsTypeService {
      * @return 删除结果
      */
     @Override
-    public RespBody deleteNewsType(String uid) {
+    public RespBody deleteNewsType(@NotBlank String uid) {
         RespBody body = new RespBody();
         NewsType newsType = newsTypeRepository.findByUid(uid);
         if(newsType == null){
@@ -123,7 +149,7 @@ public class NewsTypeServiceImpl implements NewsTypeService {
      * @return 查询结果
      */
     @Override
-    public RespBody pageOfNewsType(NewsTypePageDto pageDto) {
+    public RespBody pageOfNewsType(UserDetailsImpl userDetails,NewsTypePageDto pageDto) {
 
         //分页查询条件
         int begin = pageDto.getPage() - 1;
@@ -135,24 +161,22 @@ public class NewsTypeServiceImpl implements NewsTypeService {
         Specification<NewsType> specification = (root, query, cb)->{
             List<Predicate> predicateList = new ArrayList<>();
 
+            //按地区编码查询
+            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+
+            if(userDetails.getTown() != null){
+                //按镇/社区名称模糊查询
+                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
+            }
+
             //按类别名称模糊查询
             if (StringUtils.isNotEmpty(pageDto.getName())) {
                 predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getName() + "%"));
             }
 
-            //按镇/社区名称模糊查询
-            if (StringUtils.isNotEmpty(pageDto.getTown())) {
-                predicateList.add(cb.like(root.get("town").as(String.class), "%" + pageDto.getTown() + "%"));
-            }
-
             //按状态查询
             if (pageDto.getStatus() != null) {
                 predicateList.add(cb.equal(root.get("status").as(Byte.class), pageDto.getStatus()));
-            }
-
-            //按地区编码查询
-            if (pageDto.getArea() != null) {
-                predicateList.add(cb.equal(root.get("area").as(Integer.class), pageDto.getArea()));
             }
 
             return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
@@ -170,5 +194,67 @@ public class NewsTypeServiceImpl implements NewsTypeService {
         body.setData(pageVo);
 
         return body;
+    }
+
+
+    /**
+     * 调整新闻类别(栏目)顺序
+     * @param uid 调整对象
+     * @param direction 移动方向
+     * @return 查询结果
+     */
+    @Override
+    public RespBody changeTypeSequence(String uid, int direction) {
+        RespBody body = new RespBody();
+
+        NewsType newsType = newsTypeRepository.findByUid(uid);
+        if(newsType == null){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("该新闻类型不存在");
+            LOGGER.warn("uid为 {} 的新闻类别不存在,调整新闻类别排序失败",uid);
+            return body;
+        }
+
+        NewsType targetNewsType;
+        //上移
+        if(direction == DirectionEnum.UP.ordinal()){
+            Sort sort = new Sort(Sort.Direction.DESC, "sequence");
+            Pageable page = PageRequest.of(0, 1, sort);
+            targetNewsType = newsTypeRepository.findBySequenceDesc(newsType.getSequence(),page).getContent().get(0);
+
+        }else{//下移
+            Sort sort = new Sort(Sort.Direction.ASC, "sequence");
+            Pageable page = PageRequest.of(0, 1, sort);
+            targetNewsType = newsTypeRepository.findBySequenceAsc(newsType.getSequence(),page).getContent().get(0);
+        }
+
+        List<NewsType> newsTypeList = this.changeSequence(newsType,targetNewsType);
+        newsTypeRepository.saveAll(newsTypeList);
+
+        body.setMessage("调整顺序成功");
+        return body;
+    }
+
+
+    /**
+     * 交换新闻类型的顺序
+     * @param newsType
+     * @param targetNewsType
+     * @return
+     */
+    private List<NewsType> changeSequence(NewsType newsType, NewsType targetNewsType) {
+        List<NewsType> newsTypeList = Lists.newArrayList();
+
+        //旧顺序
+        Integer oldSec = newsType.getSequence();
+
+        //交换顺序
+        newsType.setSequence(targetNewsType.getSequence());
+        targetNewsType.setSequence(oldSec);
+
+        newsTypeList.add(newsType);
+        newsTypeList.add(targetNewsType);
+
+        return newsTypeList;
     }
 }

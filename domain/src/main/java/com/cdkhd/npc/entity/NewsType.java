@@ -1,9 +1,9 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,23 +25,22 @@ public class NewsType extends BaseDomain {
    	@Column(name = "name" )
 	private String name;
 
-   	@Column(name = "area" )
-	private Integer area;
+	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Area area;
 
-   	@Column(name = "town" )
-	private String town;
+	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "town", referencedColumnName = "id")
+	private Town town;
 
     //类型状态
     @Column(name = "status" )
-    private String status;
+	private Byte status = StatusEnum.DISABLED.getValue();
 
     //类型顺序
     @Column(name = "sequence" )
-    private String sequence;
+	private Integer sequence;
 
    	@Column(name = "remark" )
 	private String remark;
-
-
-
 }

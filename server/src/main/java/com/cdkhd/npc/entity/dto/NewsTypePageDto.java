@@ -8,19 +8,8 @@ import lombok.Setter;
 @Setter
 public class NewsTypePageDto extends PageDto {
 
-    private String uid;
-
+    //类型名称
     private String name;
 
-    private Integer area;
-
-    private String town;
-
-    //类型状态
-    private String status;
-
-    //类型顺序
-    private String sequence;
-
-    private String remark;
+    private Byte status;
 }

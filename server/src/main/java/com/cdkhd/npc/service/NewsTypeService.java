@@ -5,12 +5,16 @@ import com.cdkhd.npc.entity.dto.NewsTypeAddDto;
 import com.cdkhd.npc.entity.dto.NewsTypePageDto;
 import com.cdkhd.npc.vo.RespBody;
 
+import javax.validation.constraints.NotBlank;
+
 public interface NewsTypeService {
-    RespBody pageOfNewsType(NewsTypePageDto pageDto);
+    RespBody pageOfNewsType(UserDetailsImpl userDetails,NewsTypePageDto pageDto);
 
-    RespBody addNewsType(NewsTypeAddDto addDto);
+    RespBody addNewsType(UserDetailsImpl userDetails,NewsTypeAddDto addDto);
 
-    RespBody updateNewsType(NewsTypeAddDto dto);
+    RespBody updateNewsType(UserDetailsImpl userDetails,NewsTypeAddDto dto);
 
-    RespBody deleteNewsType(String uid);
+    RespBody deleteNewsType(@NotBlank String uid);
+
+    RespBody changeTypeSequence(@NotBlank String uid, int direction);
 }

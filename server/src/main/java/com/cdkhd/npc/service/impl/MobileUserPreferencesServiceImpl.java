@@ -1,12 +1,15 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.LoginUP;
 import com.cdkhd.npc.entity.MobileUserPreferences;
 import com.cdkhd.npc.entity.dto.MobileUserPreferencesDto;
 import com.cdkhd.npc.entity.vo.MobileUserPreferencesVo;
 import com.cdkhd.npc.enums.AccountRoleEnum;
+import com.cdkhd.npc.enums.NewsStyleEnum;
 import com.cdkhd.npc.enums.ShortcutActionEnum;
+import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.LoginUPRepository;
 import com.cdkhd.npc.repository.base.MobileUserPreferencesRepository;
 import com.cdkhd.npc.service.MobileUserPreferencesService;
@@ -27,27 +30,31 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
     private static final Logger LOGGER = LoggerFactory.getLogger(MobileUserPreferencesServiceImpl.class);
 
     private MobileUserPreferencesRepository mobileUserPreferencesRepository;
+    private AccountRepository accountRepository;
     private LoginUPRepository loginUPRepository;
 
     @Autowired
-    public MobileUserPreferencesServiceImpl(MobileUserPreferencesRepository mobileUserPreferencesRepository, LoginUPRepository loginUPRepository) {
+    public MobileUserPreferencesServiceImpl(MobileUserPreferencesRepository mobileUserPreferencesRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository) {
         this.mobileUserPreferencesRepository = mobileUserPreferencesRepository;
+        this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
     }
+
 
     @Override
     public RespBody getMobileUserPreferences(UserDetailsImpl userDetails){
         RespBody<MobileUserPreferencesVo> body = new RespBody<>();
 
-        LoginUP loginUP = loginUPRepository.findByUsername(userDetails.getUsername());
-        if(loginUP == null){
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("无此用户名");
-            LOGGER.error("查询用户偏好设置失败，无此用户名");
+
+        Account account = accountRepository.findByLoginUPUsername(userDetails.getUsername());
+        if(account == null){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("无此用户");
+            LOGGER.error("查询用户偏好设置失败，无此用户");
             return body;
         }
 
-        MobileUserPreferences mobileUserPreferences =  mobileUserPreferencesRepository.findByAccountId(loginUP.getAccount().getId());
+        MobileUserPreferences mobileUserPreferences =  mobileUserPreferencesRepository.findByAccountId(account.getId());
         if(mobileUserPreferences == null){
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("无此用户偏好设置");
@@ -56,6 +63,7 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
         }
         MobileUserPreferencesVo vo = MobileUserPreferencesVo.convert(mobileUserPreferences);
 
+        //根据角色，分配其相应的可选快捷操作列表
         List<String> actionList = new ArrayList<>();
         for(ShortcutActionEnum UserPref :ShortcutActionEnum.values()){
             switch (UserPref){
@@ -85,6 +93,13 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
         }
         vo.setActionList(actionList);
 
+        //可选的新闻风格列表
+        List<String> newsStyleList = new ArrayList<>();
+        for(NewsStyleEnum newsStyle :NewsStyleEnum.values()){
+            newsStyleList.add(newsStyle.getName());
+        }
+        vo.setNewsStyleList(newsStyleList);
+
         body.setData(vo);
         return body;
     }
@@ -94,15 +109,15 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
     public RespBody updateMobileUserPreferences(UserDetailsImpl userDetails, MobileUserPreferencesDto dto){
         RespBody body = new RespBody();
 
-        LoginUP loginUP = loginUPRepository.findByUsername(userDetails.getUsername());
-        if(loginUP == null){
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("无此用户名");
-            LOGGER.error("更新用户偏好设置失败，无此用户名");
+        Account account = accountRepository.findByLoginUPUsername(userDetails.getUsername());
+        if(account == null){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("无此用户");
+            LOGGER.error("查询用户偏好设置失败，无此用户");
             return body;
         }
 
-        MobileUserPreferences mobileUserPreferences =  mobileUserPreferencesRepository.findByAccountId(loginUP.getAccount().getId());
+        MobileUserPreferences mobileUserPreferences =  mobileUserPreferencesRepository.findByAccountId(account.getId());
         if(mobileUserPreferences == null){
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("无此用户偏好设置");

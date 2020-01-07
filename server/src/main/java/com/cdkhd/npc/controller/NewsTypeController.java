@@ -1,5 +1,7 @@
 package com.cdkhd.npc.controller;
 
+import com.cdkhd.npc.annotation.CurrentUser;
+import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.NewsTypeAddDto;
 import com.cdkhd.npc.entity.dto.NewsTypePageDto;
 import com.cdkhd.npc.service.NewsTypeService;
@@ -8,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.NotBlank;
 
 @Controller
 @RequestMapping("api/manager/news_type")
@@ -25,8 +29,8 @@ public class NewsTypeController {
      * @return 添加结果
      */
     @PostMapping
-    public ResponseEntity addNewsType(NewsTypeAddDto addDto){
-        RespBody body = newsTypeService.addNewsType(addDto);
+    public ResponseEntity addNewsType(@CurrentUser UserDetailsImpl userDetails, NewsTypeAddDto addDto){
+        RespBody body = newsTypeService.addNewsType(userDetails,addDto);
         return ResponseEntity.ok(body);
     }
 
@@ -36,8 +40,8 @@ public class NewsTypeController {
      * @return 更新结果
      */
     @PutMapping
-    public ResponseEntity updateNewsType(NewsTypeAddDto dto){
-        RespBody body = newsTypeService.updateNewsType(dto);
+    public ResponseEntity updateNewsType(@CurrentUser UserDetailsImpl userDetails,NewsTypeAddDto dto){
+        RespBody body = newsTypeService.updateNewsType(userDetails,dto);
         return ResponseEntity.ok(body);
     }
 
@@ -58,9 +62,21 @@ public class NewsTypeController {
      * @return 查询结果
      */
     @GetMapping
-    public ResponseEntity pageOfNewsType(NewsTypePageDto pageDto){
-        RespBody body = newsTypeService.pageOfNewsType(pageDto);
+    public ResponseEntity pageOfNewsType(@CurrentUser UserDetailsImpl userDetails,NewsTypePageDto pageDto){
+        RespBody body = newsTypeService.pageOfNewsType(userDetails,pageDto);
         return ResponseEntity.ok(body);
     }
 
+
+    /**
+     * 调整新闻类别(栏目)顺序
+     * @param uid 需调整对象的uid
+     * @param direction 移动方向
+     * @return 查询结果
+     */
+    @PutMapping("/change_sequence")
+    public ResponseEntity changeSequence(String uid, int direction){
+        RespBody body = newsTypeService.changeTypeSequence(uid,direction);
+        return ResponseEntity.ok(body);
+    }
 }
