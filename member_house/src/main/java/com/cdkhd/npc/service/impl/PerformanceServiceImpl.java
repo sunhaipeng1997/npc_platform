@@ -381,9 +381,9 @@ public class PerformanceServiceImpl implements PerformanceService {
             //所属地区
             Cell cell6 = row.createCell(6);
             String place = "";
-            if (performance.getLevel() == 1) {
+            if (performance.getLevel().equals(LevelEnum.AREA.getValue())) {
                 place = performance.getArea().getName() + performance.getTown().getName();
-            } else if (performance.getLevel() == 1) {
+            } else if (performance.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 place = performance.getTown().getName() + performance.getNpcMemberGroup().getName();
             }
             cell6.setCellValue(place);
