@@ -265,6 +265,20 @@ public class PerformanceServiceImpl implements PerformanceService {
         return body;
     }
 
+    @Override
+    public RespBody deletePerformance(String uid) {
+        RespBody body = new RespBody();
+        Performance performance = performanceRepository.findByUid(uid);
+        if (performance == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到履职信息！");
+            return body;
+        }
+        performance.setIsDel(true);
+        performanceRepository.saveAndFlush(performance);
+        return body;
+    }
+
     private Page<Performance> getPerformancePage(UserDetailsImpl userDetails, PerformanceDto performanceDto, Pageable page) {
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -297,7 +311,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 predicates.add(cb.like(root.get("npcMember").get("name").as(String.class), "%" + performanceDto.getName() + "%"));
             }
             if (StringUtils.isNotEmpty(performanceDto.getMobile())){
-                predicates.add(cb.equal(root.get("npcMember").get("mobile").as(String.class), performanceDto.getMobile()));
+                predicates.add(cb.like(root.get("npcMember").get("mobile").as(String.class), "%" + performanceDto.getMobile() + "%"));
             }
             //履职时间 开始
             if (performanceDto.getWorkAtStart() != null) {

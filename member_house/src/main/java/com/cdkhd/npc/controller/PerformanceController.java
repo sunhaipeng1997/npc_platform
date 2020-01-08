@@ -104,6 +104,17 @@ public class PerformanceController {
     }
 
     /**
+     * 删除履职信息
+     * @return
+     */
+    @DeleteMapping("/deletePerformance")
+    public ResponseEntity deletePerformance(String uid) {
+        RespBody body = performanceService.deletePerformance(uid);
+        return ResponseEntity.ok(body);
+    }
+
+
+    /**
      * 导出履职信息
      * @return
      */

@@ -1,15 +1,16 @@
 package com.cdkhd.npc.enums;
 
 public enum GenderEnum {
-    MALE((byte)1, "男"),
-    FEMALE((byte)2, "女");
+    //用户的身份等级（eg县代表 or 镇代表）
+    MALE((byte)1,"男"),
+    FEMALE((byte)2,"女");
 
     private Byte value;
     private String name;
 
-    GenderEnum(Byte v, String n) {
-        value = v;
-        name = n;
+    GenderEnum(Byte value, String name) {
+        this.value = value;
+        this.name = name;
     }
 
     public Byte getValue() {
@@ -21,20 +22,22 @@ public enum GenderEnum {
     }
 
     public static Byte getValue(String name) {
-        for (GenderEnum genderEnum : GenderEnum.values()) {
-            if (genderEnum.getName().equals(name)) {
-                return genderEnum.value;
+        GenderEnum[] levelEnums = values();
+        for (GenderEnum levelEnum : levelEnums) {
+            if (levelEnum.getName().equals(name)) {
+                return levelEnum.getValue();
             }
         }
         return null;
     }
 
     public static String getName(Byte value) {
-        for (GenderEnum genderEnum : GenderEnum.values()) {
-            if (genderEnum.getValue().equals(value)) {
-                return genderEnum.getName();
+        GenderEnum[] levelEnums = values();
+        for (GenderEnum levelEnum : levelEnums) {
+            if (levelEnum.getValue().equals(value)) {
+                return levelEnum.getName();
             }
         }
-        return "";
+        return null;
     }
 }

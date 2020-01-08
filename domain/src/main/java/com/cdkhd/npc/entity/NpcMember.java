@@ -87,7 +87,8 @@ public class NpcMember extends BaseDomain {
 	 * yyyy-MM-dd
 	 */
    	@Column(name = "birthday" )
-	private Date birthday;
+    @Temporal(TemporalType.DATE)
+    private Date birthday;
 
 	/**
 	 * 1、男
@@ -153,7 +154,8 @@ public class NpcMember extends BaseDomain {
 
    	//入党时间
    	@Column(name = "joining_time" )
-	private Date joiningTime;
+    @Temporal(TemporalType.DATE)
+    private Date joiningTime;
 
     /**
      *   等级

@@ -22,9 +22,6 @@ public interface NpcMemberService {
 
     RespBody getSessions(UserDetailsImpl userDetails);
 
-    RespBody getNations();
+    RespBody getListByKey(String key);
 
-    RespBody getEducations();
-
-    RespBody getPoliticalStatus();
 }

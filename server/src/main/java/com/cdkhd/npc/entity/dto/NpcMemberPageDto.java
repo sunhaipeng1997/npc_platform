@@ -12,7 +12,7 @@ import java.util.Date;
 public class NpcMemberPageDto extends PageDto {
 
     //代表姓名关键字
-    private String nameKey;
+    private String name;
 
     //代表手机号
     private String phone;

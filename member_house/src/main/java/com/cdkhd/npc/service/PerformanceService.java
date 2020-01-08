@@ -70,6 +70,14 @@ public interface PerformanceService {
      */
     RespBody findPerformance(UserDetailsImpl userDetails, PerformanceDto performanceDto);
 
+
+    /**
+     * 删除履职信息
+     * @param uid
+     * @return
+     */
+    RespBody deletePerformance(String uid);
+
     /**
      * 导出履职信息
      * @param userDetails

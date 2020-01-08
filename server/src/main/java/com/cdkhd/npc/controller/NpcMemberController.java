@@ -41,7 +41,7 @@ public class NpcMemberController {
      * @param dto 待添加的代表信息
      * @return 添加结果
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity addNpcMember(@CurrentUser UserDetailsImpl userDetails, NpcMemberAddDto dto) {
         RespBody body = npcMemberService.addNpcMember(userDetails, dto);
         return ResponseEntity.ok(body);
@@ -52,7 +52,7 @@ public class NpcMemberController {
      * @param dto 待修改的代表信息
      * @return 修改结果
      */
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity updateNpcMember(NpcMemberAddDto dto) {
         RespBody body = npcMemberService.updateNpcMember(dto);
         return ResponseEntity.ok(body);
@@ -63,7 +63,7 @@ public class NpcMemberController {
      * @param uid 待删除的代表uid
      * @return 删除结果
      */
-    @DeleteMapping("/{uid}")
+    @DeleteMapping("/delete")
     public ResponseEntity deleteNpcMember(@PathVariable String uid) {
         RespBody body = npcMemberService.deleteNpcMember(uid);
         return ResponseEntity.ok(body);
@@ -107,29 +107,10 @@ public class NpcMemberController {
      * 获取民族信息
      * @return 查询结果
      */
-    @GetMapping("/nations")
-    public ResponseEntity getNations() {
-        RespBody body = npcMemberService.getNations();
+    @GetMapping("/getListByKey")
+    public ResponseEntity getListByKey(String key) {
+        RespBody body = npcMemberService.getListByKey(key);
         return ResponseEntity.ok(body);
     }
 
-    /**
-     * 获取受教育程度信息
-     * @return 查询结果
-     */
-    @GetMapping("/educations")
-    public ResponseEntity getEducations() {
-        RespBody body = npcMemberService.getEducations();
-        return ResponseEntity.ok(body);
-    }
-
-    /**
-     * 获取政治面貌信息
-     * @return 查询结果
-     */
-    @GetMapping("/politic_status")
-    public ResponseEntity getPoliticStatus() {
-        RespBody body = npcMemberService.getPoliticalStatus();
-        return ResponseEntity.ok(body);
-    }
 }

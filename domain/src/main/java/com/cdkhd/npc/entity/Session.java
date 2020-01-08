@@ -6,6 +6,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Description
@@ -56,4 +58,20 @@ public class Session extends BaseDomain {
 	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "town", referencedColumnName = "id")
 	private Town town;
+
+    /**
+     * 届次信息
+     */
+    @ManyToMany(targetEntity = NpcMember.class)
+    @JoinTable(
+            name = "npc_member_session_mid",
+            joinColumns = {
+                    @JoinColumn(name = "session_id", referencedColumnName = "id", nullable = false)
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "npc_member_id", referencedColumnName = "id", nullable = false)
+            }
+    )
+    private Set<NpcMember> npcMembers = new HashSet<>();
+
 }

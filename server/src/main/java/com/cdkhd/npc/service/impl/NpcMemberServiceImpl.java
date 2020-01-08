@@ -14,6 +14,7 @@ import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +29,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,38 +68,25 @@ public class NpcMemberServiceImpl implements NpcMemberService {
      */
     @Override
     public RespBody pageOfNpcMembers(UserDetailsImpl userDetails, NpcMemberPageDto pageDto) {
-        Account account = accountRepository.findByUid(userDetails.getUid());
-        BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
-
         //分页查询条件
         Pageable pageable = PageRequest.of(pageDto.getPage() - 1, pageDto.getSize(),
                 Sort.Direction.fromString(pageDto.getDirection()), pageDto.getProperty());
 
-        //按届期查询
-        Specification<NpcMember> sessionSpec = (root, query, cb) -> {
-            if (pageDto.getSessionUid() != null) {
-                Join<NpcMember, Session> npcMemberSessionJoin = root.join("sessions", JoinType.RIGHT);
-                return cb.equal(npcMemberSessionJoin.get("Session.uid"), pageDto.getSessionUid());
-            }
-            return null;
-        };
-
         //其它查询条件
-        Specification<NpcMember> otherSpec = (root, query, cb) -> {
+        Specification<NpcMember> spec = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
-
             //查询与bgAdmin同级的代表
-            predicateList.add(cb.equal(root.get("level"), bgAdmin.getLevel()));
+            predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
             //同镇的代表 or 同区的代表
-            if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                predicateList.add(cb.equal(root.get("town").get("uid"), bgAdmin.getTown().getUid()));
-            } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicateList.add(cb.equal(root.get("area").get("uid"), bgAdmin.getArea().getUid()));
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicateList.add(cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                predicateList.add(cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
             }
 
             //按姓名模糊查询
-            if (StringUtils.isNotBlank(pageDto.getNameKey())) {
-                predicateList.add(cb.like(root.get("name"), "%" + pageDto.getNameKey() + "%"));
+            if (StringUtils.isNotBlank(pageDto.getName())) {
+                predicateList.add(cb.like(root.get("name"), "%" + pageDto.getName() + "%"));
             }
             //按手机号码模糊查询
             if (StringUtils.isNotBlank(pageDto.getPhone())) {
@@ -116,18 +106,29 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             //按工作单位查询
             if (StringUtils.isNotBlank(pageDto.getWorkUnitUid())) {
                 String workUnit = "";
-                if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                     workUnit = "group";
-                } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
+                } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                     workUnit = "town";
                 }
                 predicateList.add(cb.equal(root.get(workUnit).get("uid"), pageDto.getWorkUnitUid()));
             }
 
+            if (StringUtils.isNotEmpty(pageDto.getSessionUid())){
+                Session session = sessionRepository.findByUid(pageDto.getSessionUid());
+                Set<NpcMember> members = session.getNpcMembers();
+                List<String> memberIds = Lists.newArrayList();
+                for (NpcMember npcMember : members) {
+                    memberIds.add(npcMember.getUid());
+                }
+                CriteriaBuilder.In<Object> in = cb.in(root.get("uid"));
+                in.value(memberIds);
+                predicateList.add(in);
+            }
             return cb.and(predicateList.toArray(new Predicate[0]));
         };
 
-        Page<NpcMember> page = npcMemberRepository.findAll(otherSpec.and(sessionSpec), pageable);
+        Page<NpcMember> page = npcMemberRepository.findAll(spec, pageable);
 
         //封装查询结果
         PageVo<NpcMemberVo> pageVo = new PageVo<>(page, pageDto);
@@ -274,24 +275,20 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     @Override
     public RespBody getWorkUnits(UserDetailsImpl userDetails) {
         RespBody<List<CommonVo>> body = new RespBody<>();
-
-        Account account = accountRepository.findByUid(userDetails.getUid());
-        BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
-
-        List<Session> sessions = null;
+        List<CommonVo> vos = Lists.newArrayList();
         //如果当前后台管理员是镇后台管理员，则查询该镇的所有小组
         //如果当前后台管理员是区后台管理员，则查询该区的所有镇
-        if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sessions = sessionRepository.findByTownUid(bgAdmin.getTown().getUid());
-        } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
-            sessions = sessionRepository.findByAreaUidAndLevel(bgAdmin.getArea().getUid(), LevelEnum.AREA.getValue());
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            Set<NpcMemberGroup> npcMemberGroups = userDetails.getTown().getNpcMemberGroups();
+            vos = npcMemberGroups.stream().map(group ->
+                    CommonVo.convert(group.getUid(), group.getName())).collect(Collectors.toList());
+        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+            Set<Town> towns = userDetails.getArea().getTowns();
+            vos = towns.stream().map(town ->
+                    CommonVo.convert(town.getUid(), town.getName())).collect(Collectors.toList());
         } else {
             throw new RuntimeException("当前后台管理员level不合法");
         }
-
-        List<CommonVo> vos = sessions.stream().map(session ->
-                CommonVo.convert(session.getUid(), session.getName())).collect(Collectors.toList());
-
         body.setData(vos);
         return body;
     }
@@ -330,43 +327,13 @@ public class NpcMemberServiceImpl implements NpcMemberService {
      * @return 查询结果
      */
     @Override
-    public RespBody getNations() {
-        List<CommonDict> nationDicts = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.NATION.getValue());
+    public RespBody getListByKey(String key) {
+        List<CommonDict> nationDicts = commonDictRepository.findByTypeAndIsDelFalse(key);
         List<CommonVo> nationVos = nationDicts.stream().map(commonDict ->
                 CommonVo.convert(commonDict.getUid(), commonDict.getName())).collect(Collectors.toList());
-
         RespBody<List<CommonVo>> body = new RespBody<>();
         body.setData(nationVos);
         return body;
     }
 
-    /**
-     * 获取文化程度列表
-     * @return 查询结果
-     */
-    @Override
-    public RespBody getEducations() {
-        List<CommonDict> educationDicts = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.EDUCATION.getValue());
-        List<CommonVo> educationVos = educationDicts.stream().map(commonDict ->
-                CommonVo.convert(commonDict.getUid(), commonDict.getName())).collect(Collectors.toList());
-
-        RespBody<List<CommonVo>> body = new RespBody<>();
-        body.setData(educationVos);
-        return body;
-    }
-
-    /**
-     * 获取政治面貌列表
-     * @return 查询结果
-     */
-    @Override
-    public RespBody getPoliticalStatus() {
-        List<CommonDict> politicDicts = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.POLITIC.getValue());
-        List<CommonVo> politicVos = politicDicts.stream().map(commonDict ->
-                CommonVo.convert(commonDict.getUid(), commonDict.getName())).collect(Collectors.toList());
-
-        RespBody<List<CommonVo>> body = new RespBody<>();
-        body.setData(politicVos);
-        return body;
-    }
 }

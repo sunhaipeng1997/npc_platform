@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Description
@@ -36,4 +38,6 @@ public class Town extends BaseDomain {
 	@JoinColumn(name = "area", referencedColumnName = "id")
 	private Area area;
 
+    @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)
+    private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
 }

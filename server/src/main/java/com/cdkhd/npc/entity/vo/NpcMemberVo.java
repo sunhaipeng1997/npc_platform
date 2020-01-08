@@ -1,6 +1,8 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.enums.GenderEnum;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
@@ -16,6 +18,7 @@ public class NpcMemberVo {
 
     //性别
     private Byte gender;
+    private String genderName;
 
     //电话号码
     private String mobile;
@@ -27,6 +30,7 @@ public class NpcMemberVo {
     private String address;
 
     //生日
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date birthday;
 
     //职务类型
@@ -60,13 +64,13 @@ public class NpcMemberVo {
     private String political;
 
     //入党时间
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date joiningTime;
 
     public static NpcMemberVo convert(NpcMember npcMember) {
         NpcMemberVo vo = new NpcMemberVo();
-
         BeanUtils.copyProperties(npcMember, vo);
-
+        vo.setGenderName(GenderEnum.MALE.getName());
         return vo;
     }
 }
