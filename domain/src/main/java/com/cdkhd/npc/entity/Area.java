@@ -1,13 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +40,8 @@ public class Area extends BaseDomain {
    	@Column(name = "update_user" )
 	private String updateUser;
 
-    @OneToMany(targetEntity = Town.class, mappedBy = "area", orphanRemoval = true)
-    private Set<Town> towns = new HashSet<>();
+    @OneToMany(targetEntity = Town.class, orphanRemoval = true)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Set<Town> towns = new HashSet<>();
 
 }

@@ -1,10 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,9 +35,9 @@ public class Town extends BaseDomain {
 	private Integer status;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "area", referencedColumnName = "id")
 	private Area area;
 
-    @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)
-    private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
+    @OneToMany(targetEntity = NpcMemberGroup.class, orphanRemoval = true)
+	@JoinColumn(name = "town", referencedColumnName = "id")
+	private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
 }
