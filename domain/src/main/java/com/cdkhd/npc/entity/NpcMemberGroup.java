@@ -27,7 +27,7 @@ public class NpcMemberGroup extends BaseDomain {
 	private String name;
 
     @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
-	private NpcMember leaderId;
+	private NpcMember leader;
 
     @Column(name = "level" )
     private Byte level;

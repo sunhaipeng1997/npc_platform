@@ -20,8 +20,4 @@ public interface NpcMemberService {
 
     RespBody getWorkUnits(UserDetailsImpl userDetails);
 
-    RespBody getSessions(UserDetailsImpl userDetails);
-
-    RespBody getListByKey(String key);
-
 }

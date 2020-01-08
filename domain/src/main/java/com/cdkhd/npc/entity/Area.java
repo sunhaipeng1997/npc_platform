@@ -44,4 +44,8 @@ public class Area extends BaseDomain {
 	@JoinColumn(name = "area", referencedColumnName = "id")
 	private Set<Town> towns = new HashSet<>();
 
+    @OneToMany(targetEntity = Session.class, orphanRemoval = true)
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Set<Session> sessions = new HashSet<>();
+
 }

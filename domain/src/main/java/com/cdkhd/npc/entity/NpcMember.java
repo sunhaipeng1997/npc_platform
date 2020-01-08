@@ -152,11 +152,6 @@ public class NpcMember extends BaseDomain {
    	@Column(name = "political" )
 	private String political;
 
-   	//入党时间
-   	@Column(name = "joining_time" )
-    @Temporal(TemporalType.DATE)
-    private Date joiningTime;
-
     /**
      *   等级
      *   1、镇代表

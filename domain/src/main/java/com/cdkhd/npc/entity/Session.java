@@ -51,13 +51,13 @@ public class Session extends BaseDomain {
 
 	//关联区
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "area", referencedColumnName = "id")
-	private Area area;
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Area area;
 
 	//关联镇
 	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "town", referencedColumnName = "id")
-	private Town town;
+    @JoinColumn(name = "town", referencedColumnName = "id")
+    private Town town;
 
     /**
      * 届次信息

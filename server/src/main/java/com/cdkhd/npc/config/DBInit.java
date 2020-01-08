@@ -37,7 +37,6 @@ public class DBInit {
         initSystem();
         initMenu();
         initCommonDict();
-
         mapRoleAndPermission();
         mapPermissionMenu();
         mapMenuSystem();
@@ -332,6 +331,7 @@ public class DBInit {
         List<CommonDict> nations = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.NATION.getValue());
         List<CommonDict> educations = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.EDUCATION.getValue());
         List<CommonDict> politics = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.POLITIC.getValue());
+        List<CommonDict> jobs = commonDictRepository.findByTypeAndIsDelFalse(CommonDictTypeEnum.JOBS.getValue());
 
         //添加民族
         if (nations.size() == 0){
@@ -909,6 +909,32 @@ public class DBInit {
 
             //保存
             commonDictRepository.saveAll(educations);
+        }
+        //添加受教育程度
+        if (jobs.size() == 0){
+            CommonDict commonDict01 = new CommonDict();
+            commonDict01.setCode("01");
+            commonDict01.setName("普通代表");
+            commonDict01.setType(CommonDictTypeEnum.JOBS.getValue());
+            commonDict01.setTypeName("代表职务");
+            jobs.add(commonDict01);
+
+            CommonDict commonDict02 = new CommonDict();
+            commonDict02.setCode("02");
+            commonDict02.setName("人大主席");
+            commonDict02.setType(CommonDictTypeEnum.JOBS.getValue());
+            commonDict02.setTypeName("代表职务");
+            jobs.add(commonDict02);
+
+            CommonDict commonDict03 = new CommonDict();
+            commonDict03.setCode("03");
+            commonDict03.setName("特殊人员");
+            commonDict03.setType(CommonDictTypeEnum.JOBS.getValue());
+            commonDict03.setTypeName("代表职务");
+            jobs.add(commonDict03);
+
+            //保存
+            commonDictRepository.saveAll(jobs);
         }
     }
 }

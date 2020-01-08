@@ -120,7 +120,7 @@ public class OpinionServiceImpl implements OpinionService {
      */
     public void saveImg(MultipartFile image, Opinion opinion){
         //保存图片到文件系统
-        String url = ImageUploadUtil.saveImage("opinionImage", SysUtil.uid(), image);
+        String url = ImageUploadUtil.saveImage("opinionImage", SysUtil.uid(), image,500,500);
         if (url.equals("error")) {
             LOGGER.error("保存图片到文件系统失败");
         }

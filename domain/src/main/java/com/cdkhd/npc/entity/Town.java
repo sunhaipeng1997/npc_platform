@@ -35,9 +35,15 @@ public class Town extends BaseDomain {
 	private Integer status;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	private Area area;
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Area area;
 
     @OneToMany(targetEntity = NpcMemberGroup.class, orphanRemoval = true)
 	@JoinColumn(name = "town", referencedColumnName = "id")
 	private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
+
+    @OneToMany(targetEntity = Session.class, orphanRemoval = true)
+    @JoinColumn(name = "town", referencedColumnName = "id")
+    private Set<Session> sessions = new HashSet<>();
+
 }

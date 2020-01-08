@@ -29,7 +29,7 @@ public class NpcMemberController {
      * @param pageDto 分页查询条件
      * @return 查询结果
      */
-    @GetMapping("/page")
+    @GetMapping("/pageOfNpcMember")
     public ResponseEntity pageOfNpcMember(@CurrentUser UserDetailsImpl userDetails, NpcMemberPageDto pageDto) {
         RespBody body = npcMemberService.pageOfNpcMembers(userDetails, pageDto);
         return ResponseEntity.ok(body);
@@ -41,7 +41,7 @@ public class NpcMemberController {
      * @param dto 待添加的代表信息
      * @return 添加结果
      */
-    @PostMapping("/add")
+    @PostMapping("/addNpcMember")
     public ResponseEntity addNpcMember(@CurrentUser UserDetailsImpl userDetails, NpcMemberAddDto dto) {
         RespBody body = npcMemberService.addNpcMember(userDetails, dto);
         return ResponseEntity.ok(body);
@@ -52,7 +52,7 @@ public class NpcMemberController {
      * @param dto 待修改的代表信息
      * @return 修改结果
      */
-    @PutMapping("/update")
+    @PutMapping("/updateNpcMember")
     public ResponseEntity updateNpcMember(NpcMemberAddDto dto) {
         RespBody body = npcMemberService.updateNpcMember(dto);
         return ResponseEntity.ok(body);
@@ -72,12 +72,12 @@ public class NpcMemberController {
     /**
      * 添加代表信息时上传头像
      * @param userDetails 当前用户身份
-     * @param avatar 头像图片
+     * @param file 头像图片
      * @return 上传结果，上传成功返回图片访问url
      */
     @PostMapping("/avatar")
-    public ResponseEntity uploadNpcMemberAvatar(@CurrentUser UserDetailsImpl userDetails, MultipartFile avatar) {
-        RespBody body = npcMemberService.uploadAvatar(userDetails, avatar);
+    public ResponseEntity uploadNpcMemberAvatar(@CurrentUser UserDetailsImpl userDetails, MultipartFile file) {
+        RespBody body = npcMemberService.uploadAvatar(userDetails, file);
         return ResponseEntity.ok(body);
     }
 
@@ -92,25 +92,5 @@ public class NpcMemberController {
         return ResponseEntity.ok(body);
     }
 
-    /**
-     * 获取届期列表
-     * @param userDetails 当前用户
-     * @return 查询结果
-     */
-    @GetMapping("/sessions")
-    public ResponseEntity getSessions(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = npcMemberService.getSessions(userDetails);
-        return ResponseEntity.ok(body);
-    }
-
-    /**
-     * 获取民族信息
-     * @return 查询结果
-     */
-    @GetMapping("/getListByKey")
-    public ResponseEntity getListByKey(String key) {
-        RespBody body = npcMemberService.getListByKey(key);
-        return ResponseEntity.ok(body);
-    }
 
 }

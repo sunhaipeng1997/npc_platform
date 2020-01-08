@@ -23,7 +23,7 @@ public class ImageUploadUtil {
     * image:上传的图片文件
     * return:返回保存的图片的访问url，若保存失败，则返回error
     */
-    public static String saveImage(String kind, String uid, MultipartFile image) {
+    public static String saveImage(String kind, String uid, MultipartFile image,Integer width, Integer height) {
         //得到源文件扩展名
         String orgName = image.getOriginalFilename();
         String extName = FilenameUtils.getExtension(orgName);
@@ -51,7 +51,7 @@ public class ImageUploadUtil {
             // 拷贝文件
 //            FileUtils.copyInputStreamToFile(is, imageFile);
             //照片，裁剪尺寸500*500，dpi降为原来的一半
-            Thumbnails.of(is).size(500, 500).outputQuality(0.5f).outputFormat("jpg").toFile(imageFile);
+                Thumbnails.of(is).size(width, height).outputQuality(0.5f).outputFormat("jpg").toFile(imageFile);
         } catch (IOException e) {
             e.printStackTrace();
             return "error";
@@ -70,7 +70,7 @@ public class ImageUploadUtil {
      * image:上传的图片文件
      * return:返回保存的图片的访问url，若保存失败，则返回error
      */
-    public static String saveImage(String kind, MultipartFile image) {
-        return saveImage(kind, "", image);
+    public static String saveImage(String kind, MultipartFile image,Integer width, Integer height) {
+        return saveImage(kind, "", image,width,height);
     }
 }

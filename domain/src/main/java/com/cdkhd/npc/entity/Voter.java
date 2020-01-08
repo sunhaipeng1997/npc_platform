@@ -26,17 +26,17 @@ public class Voter extends BaseDomain {
 
     //关联区
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "area_id", referencedColumnName = "id")
+    @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
 
     //关联镇
     @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "town_id", referencedColumnName = "id")
+    @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
 
     //关联村
     @ManyToOne(targetEntity = Village.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "village_id", referencedColumnName = "id")
+    @JoinColumn(name = "village", referencedColumnName = "id")
     private Village village;
 
     //修改个人信息的次数

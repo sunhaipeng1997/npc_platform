@@ -1,7 +1,9 @@
 package com.cdkhd.npc.entity.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
@@ -35,6 +37,8 @@ public class NpcMemberAddDto {
     private String address;
 
     //生日
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date birthday;
 
     //性别
@@ -55,26 +59,11 @@ public class NpcMemberAddDto {
     //民族
     private String nation;
 
-    //是否能被提意见
-    private Boolean canOpinion;
-
-    //是否删除
-    private Byte isDel;
-
     //教育经历
     private String education;
 
-    //现任职务
-    private String jobs;
-
     //政治面貌
     private String political;
-
-    //入党时间
-    private Date joiningTime;
-
-    //届期状态：本届代表/往届代表
-    private Byte status;
 
     //任职届期
     private Set<String> sessionUids = new HashSet<>();

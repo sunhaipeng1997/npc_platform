@@ -107,7 +107,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             if (StringUtils.isNotBlank(pageDto.getWorkUnitUid())) {
                 String workUnit = "";
                 if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                    workUnit = "group";
+                    workUnit = "npcMemberGroup";
                 } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                     workUnit = "town";
                 }
@@ -150,18 +150,14 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     public RespBody addNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto) {
         RespBody body = new RespBody();
 
-        Account account = accountRepository.findByUid(userDetails.getUid());
-        BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
-
         //设置代表信息
         NpcMember member = new NpcMember();
         BeanUtils.copyProperties(dto, member);
-//        member.setAvatar(dto.getAvatar());
-        member.setLevel(bgAdmin.getLevel());
-        member.setArea(bgAdmin.getArea());   //与后台管理员同区
+        member.setLevel(userDetails.getLevel());
+        member.setArea(userDetails.getArea());   //与后台管理员同区
 
-        if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            member.setTown(bgAdmin.getTown());   //与后台管理员同镇
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            member.setTown(userDetails.getTown());   //与后台管理员同镇
 
             NpcMemberGroup group = npcMemberGroupRepository.findByUid(dto.getWorkUnitUid());
             if (group == null) {
@@ -172,7 +168,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             } else {
                 member.setNpcMemberGroup(group);   //设置工作小组
             }
-        } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
+        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
             Town town = townRepository.findByUid(dto.getWorkUnitUid());
             if (town == null) {
                 body.setStatus(HttpStatus.BAD_REQUEST);
@@ -252,16 +248,14 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     @Override
     public RespBody uploadAvatar(UserDetailsImpl userDetails, MultipartFile avatar) {
         RespBody<String> body = new RespBody<>();
-
         //保存代表头像至文件系统
-        String url = ImageUploadUtil.saveImage("npc_member_avatar", avatar);
+        String url = ImageUploadUtil.saveImage("npc_member_avatar", avatar,150,200);
         if (url.equals("error")) {
             body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             body.setMessage("图片上传失败！请稍后重试");
             LOGGER.error("代表头像保存失败");
             return body;
         }
-
         body.setMessage("头像上传成功");
         body.setData(url);
         return body;
@@ -275,7 +269,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     @Override
     public RespBody getWorkUnits(UserDetailsImpl userDetails) {
         RespBody<List<CommonVo>> body = new RespBody<>();
-        List<CommonVo> vos = Lists.newArrayList();
+        List<CommonVo> vos;
         //如果当前后台管理员是镇后台管理员，则查询该镇的所有小组
         //如果当前后台管理员是区后台管理员，则查询该区的所有镇
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
@@ -290,49 +284,6 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             throw new RuntimeException("当前后台管理员level不合法");
         }
         body.setData(vos);
-        return body;
-    }
-
-    /**
-     * 获取届期列表
-     * @param userDetails 当前用户
-     * @return 查询结果
-     */
-    @Override
-    public RespBody getSessions(UserDetailsImpl userDetails) {
-        RespBody<List<CommonVo>> body = new RespBody<>();
-
-        Account account = accountRepository.findByUid(userDetails.getUid());
-        BackgroundAdmin bgAdmin = account.getBackgroundAdmin();
-
-        List<CommonVo> vos = null;
-        //如果当前后台管理员是镇后台管理员，则查询该镇的所有届期
-        //如果当前后台管理员是区后台管理员，则查询该区的所有届期
-        if (bgAdmin.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            List<NpcMemberGroup> groups = npcMemberGroupRepository.findByTownUid(bgAdmin.getTown().getUid());
-            vos = groups.stream().map(group ->
-                    CommonVo.convert(group.getUid(), group.getName())).collect(Collectors.toList());
-        } else if (bgAdmin.getLevel().equals(LevelEnum.AREA.getValue())) {
-            List<Town> towns = townRepository.findByAreaUid(bgAdmin.getArea().getUid());
-            vos = towns.stream().map(town ->
-                    CommonVo.convert(town.getUid(), town.getName())).collect(Collectors.toList());
-        }
-
-        body.setData(vos);
-        return body;
-    }
-
-    /**
-     * 获取民族列表
-     * @return 查询结果
-     */
-    @Override
-    public RespBody getListByKey(String key) {
-        List<CommonDict> nationDicts = commonDictRepository.findByTypeAndIsDelFalse(key);
-        List<CommonVo> nationVos = nationDicts.stream().map(commonDict ->
-                CommonVo.convert(commonDict.getUid(), commonDict.getName())).collect(Collectors.toList());
-        RespBody<List<CommonVo>> body = new RespBody<>();
-        body.setData(nationVos);
         return body;
     }
 

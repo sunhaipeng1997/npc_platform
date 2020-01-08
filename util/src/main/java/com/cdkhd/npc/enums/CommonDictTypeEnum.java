@@ -3,7 +3,8 @@ package com.cdkhd.npc.enums;
 public enum CommonDictTypeEnum {
     NATION("nation"),
     EDUCATION("education"),
-    POLITIC("politic");
+    POLITIC("politic"),
+    JOBS("jobs");
 
     private String value;
 
