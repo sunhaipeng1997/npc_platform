@@ -14,7 +14,7 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody performanceTypeList(UserDetailsImpl userDetails);
+    RespBody performanceTypes(UserDetailsImpl userDetails);
 
     //履职信息相关接口
 
@@ -24,9 +24,5 @@ public interface PerformanceService {
      * @return
      */
     RespBody addOrUpdatePerformance(@CurrentUser UserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
-
-
-
-
 
 }

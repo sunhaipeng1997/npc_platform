@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.Date;
 
 /**
  * @Description
@@ -44,6 +43,5 @@ public class LoginUP extends BaseDomain {
 	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "account", referencedColumnName = "id")
 	private Account account;
-
 
 }

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.DELETE;
 
 @Controller
 @RequestMapping("/api/member_house/performance")
@@ -32,26 +31,29 @@ public class PerformanceController {
 
     /**
      * 获取履职类型列表
+     *
      * @return
      */
     @GetMapping("/performanceType")
     public ResponseEntity performanceType(@CurrentUser UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
-        RespBody body = performanceService.findPerformanceType(userDetails,performanceTypeDto);
+        RespBody body = performanceService.findPerformanceType(userDetails, performanceTypeDto);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 添加、修改履职类型
+     *
      * @return
      */
     @PostMapping("/addOrUpdatePerformanceType")
     public ResponseEntity addOrUpdatePerformanceType(@CurrentUser UserDetailsImpl userDetails, PerformanceTypeAddDto performanceTypeAddDto) {
-        RespBody body = performanceService.addOrUpdatePerformanceType(userDetails,performanceTypeAddDto);
+        RespBody body = performanceService.addOrUpdatePerformanceType(userDetails, performanceTypeAddDto);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 删除履职类型
+     *
      * @return
      */
     @DeleteMapping("/deletePerformanceType")
@@ -62,26 +64,29 @@ public class PerformanceController {
 
     /**
      * 修改类型排序
+     *
      * @return
      */
     @PostMapping("/changeTypeSequence")
     public ResponseEntity changeTypeSequence(String uid, Byte type) {
-        RespBody body = performanceService.changeTypeSequence(uid,type);
+        RespBody body = performanceService.changeTypeSequence(uid, type);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 修改类型状态
+     *
      * @return
      */
     @PostMapping("/changeTypeStatus")
     public ResponseEntity changeTypeStatus(String uid, Byte status) {
-        RespBody body = performanceService.changeTypeStatus(uid,status);
+        RespBody body = performanceService.changeTypeStatus(uid, status);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 类型下拉
+     *
      * @return
      */
     @GetMapping("/performanceTypeList")
@@ -92,14 +97,14 @@ public class PerformanceController {
 
     //履职相关接口
 
-
     /**
      * 获取履职信息列表
+     *
      * @return
      */
     @GetMapping("/findPerformance")
     public ResponseEntity findPerformance(@CurrentUser UserDetailsImpl userDetails, PerformanceDto performanceDto) {
-        RespBody body = performanceService.findPerformance(userDetails,performanceDto);
+        RespBody body = performanceService.findPerformance(userDetails, performanceDto);
         return ResponseEntity.ok(body);
     }
 
@@ -116,11 +121,11 @@ public class PerformanceController {
 
     /**
      * 导出履职信息
+     *
      * @return
      */
     @PostMapping("/exportPerformance")
     public void exportPerformance(@CurrentUser UserDetailsImpl userDetails, PerformanceDto performanceDto, HttpServletRequest req, HttpServletResponse res) {
-        performanceService.exportPerformance(userDetails,performanceDto,req,res);
+        performanceService.exportPerformance(userDetails, performanceDto, req, res);
     }
-
 }

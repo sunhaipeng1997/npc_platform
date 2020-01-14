@@ -42,6 +42,9 @@ public class Town extends BaseDomain {
 	@JoinColumn(name = "town", referencedColumnName = "id")
 	private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
 
+    @OneToMany(targetEntity = Village.class, mappedBy = "town", orphanRemoval = true)
+    private Set<Village> villages = new HashSet<>();
+
     @OneToMany(targetEntity = Session.class, orphanRemoval = true)
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Set<Session> sessions = new HashSet<>();

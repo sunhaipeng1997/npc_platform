@@ -5,11 +5,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.Date;
 
 /**
  * @Description
- * @Author  rfx
+ * @Author rfx
  * @Date 2019-12-03
  */
 
@@ -17,23 +16,22 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table ( name ="login_wechat" )
+@Table(name = "login_wechat")
 public class LoginWeChat extends BaseDomain {
 
+    @Column(name = "open_id")
+    private String openId;
 
-   	@Column(name = "open_id" )
-	private String openId;
+    /**
+     * 微信号
+     */
+    @Column(name = "weichat")
+    private String weichat;
 
-	/**
-	 * 微信号
-	 */
-	@Column(name = "weichat" )
-	private String weichat;
-
-	/**
-	 * 账号表id
-	 */
-	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
-	private Account account;
+    /**
+     * 账号表id
+     */
+    @OneToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
+    private Account account;
 
 }

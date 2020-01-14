@@ -1,11 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.*;
 
 /**
  * @Description
@@ -50,7 +49,5 @@ public class PerformanceType extends BaseDomain {
     //备注
     @Column(name = "remark" )
     private String remark;
-
-
 
 }

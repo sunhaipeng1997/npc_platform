@@ -1,16 +1,12 @@
 package com.cdkhd.npc.dto;
 
-import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class BaseDto {
 
     private String uid;
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
 }

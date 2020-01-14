@@ -12,7 +12,7 @@ import java.util.Date;
 
 /**
  * @Description
- * @Author  rfx
+ * @Author rfx
  * @Date 2019-12-03
  */
 
@@ -21,23 +21,24 @@ import java.util.Date;
 public class PerformanceVo extends BaseVo {
 
     //履职内容
-	private String content;
+    private String content;
 
-   	//审核原因
-	private String reason;
+    //审核原因
+    private String reason;
 
-   	//状态
-	private Byte status;
-	private String statusName;
+    //状态
+    private Byte status;
 
-   	//标题
-	private String title;
+    private String statusName;
 
-   	//类型
+    //标题
+    private String title;
+
+    //类型
     private PerformanceTypeVo performanceType;
     private String typeName;
 
-   	//履职时间
+    //履职时间
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date workAt;

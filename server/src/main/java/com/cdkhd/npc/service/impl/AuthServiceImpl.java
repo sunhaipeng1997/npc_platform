@@ -1,15 +1,15 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.Code;
 import com.cdkhd.npc.entity.AccountRole;
+import com.cdkhd.npc.entity.Code;
 import com.cdkhd.npc.entity.Token;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.CodeRepository;
 import com.cdkhd.npc.service.AuthService;
 import com.cdkhd.npc.util.BDSmsUtils;
-import com.cdkhd.npc.util.Constant;
 import com.cdkhd.npc.util.JwtUtils;
 import com.cdkhd.npc.vo.RespBody;
 import com.cdkhd.npc.vo.TokenVo;
@@ -67,11 +67,11 @@ public class AuthServiceImpl implements AuthService {
         String telephoneString = account.getLoginUP().getMobile();
 
         //发送短信验证码
-        BDSmsUtils.sendSms(telephoneString,accessKeyId,accessKeySecret,verifycode,endPoint,invokeId,templateCode);
+        BDSmsUtils.sendSms(telephoneString, accessKeyId, accessKeySecret, verifycode, endPoint, invokeId, templateCode);
 
         //保存code
         Code code = codeRepository.findByMobile(telephoneString);
-        if (code == null){
+        if (code == null) {
             code = new Code();
         }
         code.setMobile(telephoneString);
@@ -108,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        if (account.getStatus().equals(Constant.DISABLED)) {
+        if (account.getStatus().equals(StatusEnum.DISABLED.getValue())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("账号已被禁用");
             return body;
@@ -149,7 +149,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         TokenVo tokenVo = new TokenVo();
-        BeanUtils.copyProperties(token,tokenVo);
+        BeanUtils.copyProperties(token, tokenVo);
         tokenVo.setToken(JwtUtils.createJwt(token));
         //生成jwt token
         return tokenVo;

@@ -1,13 +1,13 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Description
@@ -25,45 +25,60 @@ public class Suggestion extends BaseDomain {
    	@Column(name = "title" )
 	private String title;
 
-   	@Column(name = "business" )
-	private String business;
+	@ManyToOne(targetEntity = SuggestionBusiness.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "suggestion_business", referencedColumnName = "id")
+	private SuggestionBusiness suggestionBusiness;
 
    	@Column(name = "content" )
 	private String content;
 
-   	@Column(name = "raiser" )
-	private String raiser;
+   	//提出代表
+	@ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+	private NpcMember raiser;
+
+   	//建议回复
+	@OneToMany(targetEntity = SuggestionReply.class, mappedBy = "suggestion", orphanRemoval = true)
+	private Set<SuggestionReply> replies = new HashSet<>();
 
 	/**
-	 * -1、审核失败
-            1、未提交
-            2、已提交审核
-            3、转交办理单位
-            4、办理中
-            5、办理完成
-            6、办结
+	 * ---------建议状态
+	 未提交	1
+	 已提交审核	2
+	 已提交政府	3
+	 已转交办理单位	4
+	 办理中	5
+	 办理完成	6
+	 办结	7
+	 自行办理	8
+	 审核失败	-1
 	 */
    	@Column(name = "status" )
-	private Integer status;
+	private Byte status;
 
-   	@Column(name = "leader" )
-	private String leader;
+	//领衔人
+	@ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+	private NpcMember leader;
 
+	//领衔人手机号
    	@Column(name = "mobile" )
 	private String mobile;
 
+	//提出时间
    	@Column(name = "raise_time" )
 	private Date raiseTime;
 
-   	@Column(name = "audditor" )
-	private String audditor;
+   	//实际的审核人员
+	@ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+	private NpcMember auditor;
 
-   	@Column(name = "audit" )
-	private Integer audit;
+   	@Column(name = "reason" )
+	private String reason;
 
+   	//审核原因
    	@Column(name = "audit_reason" )
 	private String auditReason;
 
+   	//审核时间
    	@Column(name = "audit_time" )
 	private Date auditTime;
 
@@ -103,4 +118,28 @@ public class Suggestion extends BaseDomain {
    	@Column(name = "view" )
 	private Integer view;
 
+	@Column(name = "del" )
+	private boolean isDel;
+
+	//每次提交的uid
+	@Column(name = "trans_uid" )
+	private String transUid;
+
+	@Column(name = "level" )
+	private Byte level;
+
+	//是否可操作
+	private boolean canOperate;
+
+	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Area area;
+
+	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "town", referencedColumnName = "id")
+	private Town town;
+
+    @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "npcMemberGroup", referencedColumnName = "id")
+    private NpcMemberGroup npcMemberGroup;
 }

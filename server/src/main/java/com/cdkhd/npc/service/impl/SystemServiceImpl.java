@@ -59,5 +59,4 @@ public class SystemServiceImpl implements SystemService {
         }
         return body;
     }
-
 }

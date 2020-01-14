@@ -1,11 +1,12 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Description
@@ -32,6 +33,9 @@ public class NpcMemberGroup extends BaseDomain {
     @Column(name = "level" )
     private Byte level;
 
+    @OneToMany(targetEntity = Village.class, mappedBy = "npcMemberGroup", orphanRemoval = true)
+    private Set<Village> villages = new HashSet<>();
+
     //关联区
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")
@@ -41,5 +45,9 @@ public class NpcMemberGroup extends BaseDomain {
     @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
+
+    // 小组成员
+    @OneToMany(targetEntity = NpcMember.class, mappedBy = "npcMemberGroup")
+    private Set<NpcMember> members = new HashSet<>();
 
 }

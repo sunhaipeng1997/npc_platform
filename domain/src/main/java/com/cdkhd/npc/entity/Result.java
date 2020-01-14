@@ -1,12 +1,12 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @Description
@@ -21,8 +21,8 @@ import lombok.ToString;
 @Table ( name ="result" )
 public class Result extends BaseDomain {
 
-   	@Column(name = "attachement_mid_id" )
-	private String attachementMidId;
+   	@Column(name = "attachment_mid_id" )
+	private String attachmentMidId;
 
    	@Column(name = "suggestion_id" )
 	private String suggestionId;

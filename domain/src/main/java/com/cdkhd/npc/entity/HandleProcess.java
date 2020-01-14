@@ -1,12 +1,12 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @Description
@@ -25,7 +25,7 @@ public class HandleProcess extends BaseDomain {
    	@Column(name = "description" )
 	private String description;
 
-   	@Column(name = "attachement_mid_id" )
-	private String attachementMidId;
+   	@Column(name = "attachment_mid_id" )
+	private String attachmentMidId;
 
 }

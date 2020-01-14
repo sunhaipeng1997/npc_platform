@@ -1,13 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.*;
 
 /**
  * @Description
@@ -21,24 +18,20 @@ import java.util.Date;
 @Entity
 @Table ( name ="suggestion_reply" )
 public class SuggestionReply extends BaseDomain {
-
-
-   	@Column(name = "create_at" )
-	private Date createAt;
-
-   	@Column(name = "uid" )
-	private String uid;
-
+	//回复内容
    	@Column(name = "reply" )
 	private String reply;
 
+	//代表查看回复状态
    	@Column(name = "view" )
-	private Long view;
+	private int view;
 
-   	@Column(name = "replyer_id" )
-	private Long replyerId;
+	// 关联的建议
+	@ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
+	private Suggestion suggestion;
 
-   	@Column(name = "suggestion_id" )
-	private Long suggestionId;
+	//回复的代表
+	@ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+	private NpcMember replyer;
 
 }

@@ -1,12 +1,12 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -24,8 +24,7 @@ public class Unit extends BaseDomain {
 
 	/**
 	 * 1、正常
-            2、锁定
-
+	 * 2、锁定
 	 */
    	@Column(name = "status" )
 	private Integer status;
@@ -36,6 +35,9 @@ public class Unit extends BaseDomain {
    	@Column(name = "name" )
 	private String name;
 
+	/**
+	 * 业务
+	 */
    	@Column(name = "business" )
 	private String business;
 

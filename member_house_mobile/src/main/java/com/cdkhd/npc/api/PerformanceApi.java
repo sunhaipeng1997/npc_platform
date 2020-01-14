@@ -30,7 +30,7 @@ public class PerformanceApi {
      */
     @GetMapping("/performanceTypeList")
     public ResponseEntity performanceTypeList(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = performanceService.performanceTypeList(userDetails);
+        RespBody body = performanceService.performanceTypes(userDetails);
         return ResponseEntity.ok(body);
     }
 

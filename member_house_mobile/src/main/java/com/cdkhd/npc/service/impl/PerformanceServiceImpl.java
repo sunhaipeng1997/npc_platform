@@ -3,7 +3,7 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.AddPerformanceDto;
-import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRoleRepository;
@@ -14,11 +14,12 @@ import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.service.PushService;
-import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.util.ImageUploadUtil;
+import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,11 +75,16 @@ public class PerformanceServiceImpl implements PerformanceService {
      * @return
      */
     @Override
-    public RespBody performanceTypeList(UserDetailsImpl userDetails) {
+    public RespBody performanceTypes(UserDetailsImpl userDetails) {
+        List<PerformanceType> performanceTypes = Lists.newArrayList();
         RespBody body = new RespBody();
-        List<PerformanceType> performanceTypeList = performanceTypeRepository.findByStatus(StatusEnum.ENABLED.getValue());
-        List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
-        body.setData(types);
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        List<CommonVo> commonVos = performanceTypes.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
         return body;
     }
 
