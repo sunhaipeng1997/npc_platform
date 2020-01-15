@@ -15,6 +15,6 @@ import lombok.Setter;
 public class VillagePageDto extends PageDto {
 
    	//小组uid
-	private String uid;
+	private String name;
 
 }

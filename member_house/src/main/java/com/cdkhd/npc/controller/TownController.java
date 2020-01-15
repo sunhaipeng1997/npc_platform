@@ -2,9 +2,9 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.GroupAddDto;
-import com.cdkhd.npc.entity.dto.GroupPageDto;
-import com.cdkhd.npc.service.GroupService;
+import com.cdkhd.npc.entity.dto.TownAddDto;
+import com.cdkhd.npc.entity.dto.TownPageDto;
+import com.cdkhd.npc.service.TownService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,69 +15,69 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/member_house/group")
-public class GroupController {
+@RequestMapping("/api/member_house/town")
+public class TownController {
 
-    private final GroupService groupService;
+    private final TownService townService;
 
     @Autowired
-    public GroupController(GroupService groupService) {
-        this.groupService = groupService;
+    public TownController(TownService townService) {
+        this.townService = townService;
     }
 
     /**
-     * 查询小组列表
+     * 查询镇列表
      *
      * @return
      */
     @GetMapping
-    public ResponseEntity page(@CurrentUser UserDetailsImpl userDetails, GroupPageDto groupPageDto){
-        RespBody body = groupService.page(userDetails, groupPageDto);
+    public ResponseEntity page(@CurrentUser UserDetailsImpl userDetails, TownPageDto TownPageDto){
+        RespBody body = townService.page(userDetails, TownPageDto);
         return ResponseEntity.ok(body);
     }
 
     /**
-     * 查询某个小组详细信息
+     * 查询某个镇详细信息
      *
      * @return
      */
     @GetMapping("/details")
     public ResponseEntity details(String uid){
-        RespBody body = groupService.details(uid);
+        RespBody body = townService.details(uid);
         return ResponseEntity.ok(body);
     }
 
 
     /**
-     * 增加小组
+     * 增加镇
      *
      * @return
      */
     @PostMapping
-    public ResponseEntity add(@CurrentUser UserDetailsImpl userDetails, GroupAddDto groupAddDto){
-        RespBody body = groupService.add(userDetails, groupAddDto);
+    public ResponseEntity add(@CurrentUser UserDetailsImpl userDetails, TownAddDto townAddDto){
+        RespBody body = townService.add(userDetails, townAddDto);
         return ResponseEntity.ok(body);
     }
 
     /**
-     * 修改小组
+     * 修改镇
      *
      * @return
      */
     @PostMapping("/update")
-    public ResponseEntity update(@CurrentUser UserDetailsImpl userDetails, GroupAddDto groupAddDto){
-        RespBody body = groupService.update(userDetails, groupAddDto);
+    public ResponseEntity update(@CurrentUser UserDetailsImpl userDetails, TownAddDto townAddDto){
+        RespBody body = townService.update(userDetails, townAddDto);
         return ResponseEntity.ok(body);
     }
 
     /**
-     * 删除小组
+     * 删除镇
      *
      * @return
      */
     @DeleteMapping
     public ResponseEntity delete(String uid){
-        RespBody body = groupService.delete(uid);
+        RespBody body = townService.delete(uid);
         return ResponseEntity.ok(body);
     }
 }

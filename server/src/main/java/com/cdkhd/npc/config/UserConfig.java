@@ -31,7 +31,7 @@ public class UserConfig {
         Set<String> roles = new HashSet<>();
         roles.add(AccountRoleEnum.NPC_MEMBER.getName());
         Area area = areaRepository.findByUid("112312313sdfgsdfgdfg");
-        Town town = townRepository.findByUid("54546566xcvxcbxcb");
+        Town town = townRepository.findByUid("16526676787abcd");
 
         return new UserDetailsImpl("7167137817287vxcvzxvz", "liyang", "123456", roles, area, town, (byte) 1);
     }

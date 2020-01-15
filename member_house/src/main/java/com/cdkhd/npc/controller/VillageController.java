@@ -28,7 +28,7 @@ public class VillageController {
      * @return
      */
     @GetMapping
-    public ResponseEntity findVillage(@CurrentUser UserDetailsImpl userDetails, VillagePageDto villagePageDto){
+    public ResponseEntity findVillage(@CurrentUser UserDetailsImpl userDetails, VillagePageDto villagePageDto) {
         RespBody body = villageService.findVillage(userDetails, villagePageDto);
         return ResponseEntity.ok(body);
     }
@@ -39,7 +39,7 @@ public class VillageController {
      * @return
      */
     @PostMapping
-    public ResponseEntity addVillage(@CurrentUser UserDetailsImpl userDetails, VillageAddDto villageAddDto){
+    public ResponseEntity addVillage(@CurrentUser UserDetailsImpl userDetails, VillageAddDto villageAddDto) {
         RespBody body = villageService.addVillage(userDetails, villageAddDto);
         return ResponseEntity.ok(body);
     }
@@ -50,7 +50,7 @@ public class VillageController {
      * @return
      */
     @PutMapping
-    public ResponseEntity updateVillage(VillageAddDto villageAddDto){
+    public ResponseEntity updateVillage(VillageAddDto villageAddDto) {
         RespBody body = villageService.updateVillage(villageAddDto);
         return ResponseEntity.ok(body);
     }
@@ -61,11 +61,10 @@ public class VillageController {
      * @return
      */
     @DeleteMapping
-    public ResponseEntity deleteVillage(String uid){
+    public ResponseEntity deleteVillage(String uid) {
         RespBody body = villageService.deleteVillage(uid);
         return ResponseEntity.ok(body);
     }
-
 
     /**
      * 查询没有被小组包含的村
@@ -73,8 +72,19 @@ public class VillageController {
      * @return
      */
     @GetMapping("/optional")
-    public ResponseEntity optional(@CurrentUser UserDetailsImpl userDetails){
+    public ResponseEntity optional(@CurrentUser UserDetailsImpl userDetails) {
         RespBody body = villageService.optional(userDetails);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 查询小组可以操作的村
+     *
+     * @return
+     */
+    @GetMapping("/modifiable")
+    public ResponseEntity modifiable(@CurrentUser UserDetailsImpl userDetails, String uid) {
+        RespBody body = villageService.modifiable(userDetails, uid);
         return ResponseEntity.ok(body);
     }
 }

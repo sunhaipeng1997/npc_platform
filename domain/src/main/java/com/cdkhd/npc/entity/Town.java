@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,14 +21,11 @@ import java.util.Set;
 @Table(name = "town")
 public class Town extends BaseDomain {
 
-	@Column(name = "create_time")
-	private Date createTime;
-
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "remark")
-	private String remark;
+	@Column(name = "description")
+	private String description;
 
 	@Column(name = "status")
 	private Integer status;

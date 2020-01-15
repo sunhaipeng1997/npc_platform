@@ -28,6 +28,9 @@ public class VillageVo extends BaseVo {
     public static VillageVo convert(Village village) {
         VillageVo vo = new VillageVo();
         BeanUtils.copyProperties(village, vo);
+        if(village.getNpcMemberGroup() != null){
+            vo.setGroupName(village.getNpcMemberGroup().getName());
+        }
         return vo;
     }
 }

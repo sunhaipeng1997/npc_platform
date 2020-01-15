@@ -5,6 +5,7 @@ import com.cdkhd.npc.entity.Village;
 import com.cdkhd.npc.entity.dto.VillageAddDto;
 import com.cdkhd.npc.entity.dto.VillagePageDto;
 import com.cdkhd.npc.entity.vo.VillageVo;
+import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;
 import com.cdkhd.npc.repository.member_house.VillageRepository;
 import com.cdkhd.npc.service.VillageService;
 import com.cdkhd.npc.vo.PageVo;
@@ -29,9 +30,12 @@ public class VillageServiceImpl implements VillageService {
 
     private VillageRepository villageRepository;
 
+    private NpcMemberGroupRepository npcMemberGroupRepository;
+
     @Autowired
-    public VillageServiceImpl(VillageRepository villageRepository) {
+    public VillageServiceImpl(VillageRepository villageRepository, NpcMemberGroupRepository npcMemberGroupRepository) {
         this.villageRepository = villageRepository;
+        this.npcMemberGroupRepository = npcMemberGroupRepository;
     }
 
     @Override
@@ -39,10 +43,10 @@ public class VillageServiceImpl implements VillageService {
         RespBody body = new RespBody();
         int begin = villagePageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, villagePageDto.getSize(), Sort.Direction.fromString(villagePageDto.getDirection()), villagePageDto.getProperty());
-        Page<Village> villagePage = villageRepository.findAll((Specification<Village>)(root, query, cb) -> {
+        Page<Village> villagePage = villageRepository.findAll((Specification<Village>) (root, query, cb) -> {
             Predicate predicate = root.isNotNull();
-            if (StringUtils.isNotEmpty(villagePageDto.getUid())){
-                predicate = cb.and(predicate, cb.equal(root.get("npcMemberGroup").get("uid").as(String.class), villagePageDto.getUid()));
+            if (StringUtils.isNotEmpty(villagePageDto.getName())) {
+                predicate = cb.and(predicate, cb.equal(root.get("npcMemberGroup").get("name").as(String.class), villagePageDto.getName()));
             }
             return predicate;
         }, page);
@@ -68,13 +72,13 @@ public class VillageServiceImpl implements VillageService {
     @Override
     public RespBody updateVillage(VillageAddDto villageAddDto) {
         RespBody body = new RespBody();
-        if (StringUtils.isEmpty(villageAddDto.getUid())){
+        if (StringUtils.isEmpty(villageAddDto.getUid())) {
             body.setMessage("要修改的村不能为空");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
         Village village = villageRepository.findByUid(villageAddDto.getUid());
-        if (village != null){
+        if (village != null) {
             village.setName(villageAddDto.getName());
             village.setIntroduction(villageAddDto.getIntroduction());
         }
@@ -86,13 +90,13 @@ public class VillageServiceImpl implements VillageService {
     @Override
     public RespBody deleteVillage(String uid) {
         RespBody body = new RespBody();
-        if (StringUtils.isEmpty(uid)){
+        if (StringUtils.isEmpty(uid)) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("删除村不能为空");
             return body;
         }
         Village village = villageRepository.findByUid(uid);
-        if (village == null){
+        if (village == null) {
             body.setMessage("找不到该村");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
@@ -107,10 +111,30 @@ public class VillageServiceImpl implements VillageService {
         RespBody body = new RespBody();
         List<Village> villages = villageRepository.findByTownUidAndNpcMemberGroupIsNull(userDetails.getTown().getUid());
         List<VillageVo> villageVos = new ArrayList<>();
-        for (Village village : villages){
+        for (Village village : villages) {
             villageVos.add(VillageVo.convert(village));
         }
         body.setData(villageVos);
+        return body;
+    }
+
+    @Override
+    public RespBody modifiable(UserDetailsImpl userDetails, String uid) {
+        RespBody body = new RespBody();
+        //该小组包含的村
+        List<Village> villages = new ArrayList<>(npcMemberGroupRepository.findByUid(uid).getVillages());
+        //没有被任何小组包含的村
+        List<Village> modifyGroupVillages = villageRepository.findAll((Specification<Village>) (root, query, cb) -> {
+            Predicate predicate = cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid());
+            predicate = cb.and(predicate, cb.isNull(root.get("npcMemberGroup")));
+            return predicate;
+        });
+        modifyGroupVillages.addAll(villages);
+        modifyGroupVillages.sort((o1, o2) ->  Long.compare(o1.getId(), o2.getId()));
+        List<List<VillageVo>> res = new ArrayList<>();
+        res.add(villages.stream().map(VillageVo::convert).collect(Collectors.toList()));
+        res.add(modifyGroupVillages.stream().map(VillageVo::convert).collect(Collectors.toList()));
+        body.setData(res);
         return body;
     }
 }

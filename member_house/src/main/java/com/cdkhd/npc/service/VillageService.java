@@ -17,4 +17,6 @@ public interface VillageService {
 
     RespBody optional(UserDetailsImpl userDetails);
 
+    RespBody modifiable(UserDetailsImpl userDetails, String uid);
+
 }

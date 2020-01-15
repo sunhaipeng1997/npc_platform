@@ -7,7 +7,7 @@ import com.cdkhd.npc.vo.RespBody;
 
 public interface GroupService {
 
-    RespBody page(UserDetailsImpl userDetails, GroupPageDto GroupPageDto);
+    RespBody page(UserDetailsImpl userDetails, GroupPageDto groupPageDto);
 
     RespBody details(String uid);
 
