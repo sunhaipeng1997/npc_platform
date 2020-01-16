@@ -8,6 +8,7 @@ import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +43,16 @@ public class PerformanceApi {
     @PostMapping("/addOrUpdatePerformance")
     public ResponseEntity addOrUpdatePerformance(@CurrentUser UserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
         RespBody body = performanceService.addOrUpdatePerformance(userDetails,addPerformanceDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 添加或修改履职类型列表
+     * @return
+     */
+    @DeleteMapping("/deletePerformance")
+    public ResponseEntity deletePerformance(String uid) {
+        RespBody body = performanceService.deletePerformance(uid);
         return ResponseEntity.ok(body);
     }
 

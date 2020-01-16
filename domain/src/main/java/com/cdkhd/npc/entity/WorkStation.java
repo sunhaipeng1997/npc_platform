@@ -22,10 +22,6 @@ import java.util.Date;
 @Table ( name ="work_station" )
 public class WorkStation extends BaseDomain {
 
-
-   	@Column(name = "create_at" )
-	private Date createAt;
-
    	@Column(name = "uid" )
 	private String uid;
 

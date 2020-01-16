@@ -1,10 +1,8 @@
 package com.cdkhd.npc.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -37,20 +35,18 @@ public class Account extends BaseDomain {
     @Column(name = "login_times")
     private Integer loginTimes;
 
-    /**
-     * 登录时间
-     */
-    @Column(name = "login_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date loginTime;
+	/**
+	 * 登录时间
+	 */
+   	@Column(name = "login_time" )
+    @Temporal(TemporalType.TIMESTAMP)
+	private Date loginTime;
 
-    /**
-     * 上次登录时间
-     */
-    @Column(name = "last_login_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	/**
+	 * 上次登录时间
+	 */
+   	@Column(name = "last_login_time" )
+    @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginTime;
 
     /**

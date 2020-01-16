@@ -1,16 +1,17 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.NpcMemberGroup;
+import com.cdkhd.npc.entity.Session;
+import com.cdkhd.npc.entity.Town;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
-import com.cdkhd.npc.enums.CommonDictTypeEnum;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.util.ImageUploadUtil;
-import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
@@ -30,8 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,21 +42,17 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NpcMemberServiceImpl.class);
 
-    private AccountRepository accountRepository;
     private NpcMemberRepository npcMemberRepository;
     private SessionRepository sessionRepository;
     private NpcMemberGroupRepository npcMemberGroupRepository;
     private TownRepository townRepository;
-    private CommonDictRepository commonDictRepository;
 
     @Autowired
-    public NpcMemberServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository, CommonDictRepository commonDictRepository) {
-        this.accountRepository = accountRepository;
+    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository) {
         this.npcMemberRepository = npcMemberRepository;
         this.sessionRepository = sessionRepository;
         this.npcMemberGroupRepository = npcMemberGroupRepository;
         this.townRepository = townRepository;
-        this.commonDictRepository = commonDictRepository;
     }
 
     /**
@@ -77,6 +72,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             List<Predicate> predicateList = new ArrayList<>();
             //查询与bgAdmin同级的代表
             predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
+            predicateList.add(cb.isFalse(root.get("isDel")));
             //同镇的代表 or 同区的代表
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicateList.add(cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
@@ -147,14 +143,38 @@ public class NpcMemberServiceImpl implements NpcMemberService {
      * @return 添加结果
      */
     @Override
-    public RespBody addNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto) {
+    public RespBody addOrUpdateNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto) {
         RespBody body = new RespBody();
-
+        NpcMember member;
+        if (StringUtils.isNotEmpty(dto.getUid())){
+            member = npcMemberRepository.findByUid(dto.getUid());
+            if (member == null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("要修改的代表不存在");
+                LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
+                return body;
+            }
+        }else {
+            member = new NpcMember();
+            member.setLevel(userDetails.getLevel());
+            member.setArea(userDetails.getArea());   //与后台管理员同区
+        }
         //设置代表信息
-        NpcMember member = new NpcMember();
-        BeanUtils.copyProperties(dto, member);
-        member.setLevel(userDetails.getLevel());
-        member.setArea(userDetails.getArea());   //与后台管理员同区
+        member.setName(dto.getName());
+        member.setMobile(dto.getMobile());
+        member.setEmail(dto.getEmail());
+        member.setAddress(dto.getAddress());
+        member.setBirthday(dto.getBirthday());
+        member.setGender(dto.getGender());
+        member.setType(dto.getType());
+        member.setCode(dto.getCode());
+        member.setIdcard(dto.getIdcard());
+        member.setAvatar(dto.getAvatar());
+        member.setIntroduction(dto.getIntroduction());
+        member.setComment(dto.getComment());
+        member.setNation(dto.getNation());
+        member.setEducation(dto.getEducation());
+        member.setPolitical(dto.getPolitical());
 
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             member.setTown(userDetails.getTown());   //与后台管理员同镇
@@ -179,38 +199,10 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 member.setTown(town);   //设置工作镇
             }
         }
-
         //保存代表
         npcMemberRepository.save(member);
 
         body.setMessage("添加代表成功");
-        return body;
-    }
-
-    /**
-     * 修改代表信息
-     * @param dto 待修改的代表信息
-     * @return 修改结果
-     */
-    @Override
-    public RespBody updateNpcMember(NpcMemberAddDto dto) {
-        RespBody body = new RespBody();
-
-        NpcMember member = npcMemberRepository.findByUid(dto.getUid());
-        if (member == null) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("要修改的代表不存在");
-            LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
-            return body;
-        }
-
-        //拷贝要修改代的属性
-        BeanUtils.copyProperties(dto, member);
-
-        //保存代表
-        npcMemberRepository.save(member);
-
-        body.setMessage("修改代表信息成功");
         return body;
     }
 
@@ -232,7 +224,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         }
 
         //删除代表
-        member.setIsDel((byte)1);
+        member.setIsDel(true);
         npcMemberRepository.save(member);
 
         body.setMessage("删除代表成功");

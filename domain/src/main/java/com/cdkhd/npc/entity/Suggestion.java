@@ -1,5 +1,7 @@
 package com.cdkhd.npc.entity;
 
+import javax.persistence.*;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -65,7 +67,8 @@ public class Suggestion extends BaseDomain {
 
 	//提出时间
    	@Column(name = "raise_time" )
-	private Date raiseTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date raiseTime;
 
    	//实际的审核人员
 	@ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
@@ -80,13 +83,15 @@ public class Suggestion extends BaseDomain {
 
    	//审核时间
    	@Column(name = "audit_time" )
-	private Date auditTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date auditTime;
 
    	@Column(name = "convey_id" )
 	private String conveyId;
 
    	@Column(name = "convey_time" )
-	private Date conveyTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date conveyTime;
 
    	@Column(name = "accept" )
 	private Integer accept;
@@ -101,16 +106,19 @@ public class Suggestion extends BaseDomain {
 	private String unit;
 
    	@Column(name = "accept_time" )
-	private Date acceptTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date acceptTime;
 
    	@Column(name = "deal_times" )
 	private Integer dealTimes;
 
    	@Column(name = "finish_time" )
-	private Date finishTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date finishTime;
 
    	@Column(name = "accomplish_time" )
-	private Date accomplishTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date accomplishTime;
 
    	@Column(name = "urge" )
 	private Integer urge;

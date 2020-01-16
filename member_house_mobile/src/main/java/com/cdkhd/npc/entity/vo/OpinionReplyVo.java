@@ -3,6 +3,7 @@ package com.cdkhd.npc.entity.vo;
 import com.cdkhd.npc.entity.BaseDomain;
 import com.cdkhd.npc.entity.Opinion;
 import com.cdkhd.npc.entity.OpinionReply;
+import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,7 +19,7 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-public class OpinionReplyVo extends BaseDomain {
+public class OpinionReplyVo extends BaseVo {
 
 
     //回复内容

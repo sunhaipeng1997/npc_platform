@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,16 +21,11 @@ import java.util.Date;
 public class SuggestionSetting extends BaseDomain {
 
 	/**
-	 * 姓名
+	 * 完成时间
 	 */
    	@Column(name = "finish_time" )
-	private Date finishTime;
-
-	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
-   	@Column(name = "create_time" )
-	private Date createTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date finishTime;
 
 	/**
 	 * 基本信息id
@@ -43,8 +36,9 @@ public class SuggestionSetting extends BaseDomain {
 	/**
 	 * yyyy-MM-dd HH:mm:ss
 	 */
-   	@Column(name = "update_tTime" )
-	private Date updateTTime;
+   	@Column(name = "update_time" )
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updateTime;
 
 	/**
 	 * 基本信息id

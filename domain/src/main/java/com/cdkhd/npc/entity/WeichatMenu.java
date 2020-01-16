@@ -23,12 +23,6 @@ import java.util.Date;
 public class WeichatMenu extends BaseDomain {
 
 	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
-   	@Column(name = "create_time" )
-	private Date createTime;
-
-	/**
 	 * appid
 	 */
    	@Column(name = "appid" )

@@ -36,27 +36,17 @@ public class NpcMemberController {
     }
 
     /**
-     * 添加代表
+     * 添加/修改代表
      * @param userDetails 当前用户
      * @param dto 待添加的代表信息
      * @return 添加结果
      */
-    @PostMapping("/addNpcMember")
-    public ResponseEntity addNpcMember(@CurrentUser UserDetailsImpl userDetails, NpcMemberAddDto dto) {
-        RespBody body = npcMemberService.addNpcMember(userDetails, dto);
+    @PostMapping("/addOrUpdateNpcMember")
+    public ResponseEntity addOrUpdateNpcMember(@CurrentUser UserDetailsImpl userDetails, NpcMemberAddDto dto) {
+        RespBody body = npcMemberService.addOrUpdateNpcMember(userDetails, dto);
         return ResponseEntity.ok(body);
     }
 
-    /**
-     * 修改代表信息
-     * @param dto 待修改的代表信息
-     * @return 修改结果
-     */
-    @PutMapping("/updateNpcMember")
-    public ResponseEntity updateNpcMember(NpcMemberAddDto dto) {
-        RespBody body = npcMemberService.updateNpcMember(dto);
-        return ResponseEntity.ok(body);
-    }
 
     /**
      * 逻辑删除代表信息
@@ -64,7 +54,7 @@ public class NpcMemberController {
      * @return 删除结果
      */
     @DeleteMapping("/delete")
-    public ResponseEntity deleteNpcMember(@PathVariable String uid) {
+    public ResponseEntity deleteNpcMember(String uid) {
         RespBody body = npcMemberService.deleteNpcMember(uid);
         return ResponseEntity.ok(body);
     }

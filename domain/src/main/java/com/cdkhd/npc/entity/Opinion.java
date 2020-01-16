@@ -22,6 +22,11 @@ import java.util.Set;
 public class Opinion extends BaseDomain {
 
     /**
+     * 图片uid
+     */
+    private String transUid;
+
+    /**
      * 意见内容
      */
    	@Column(name = "content" )

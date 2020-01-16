@@ -5,7 +5,6 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.News;
 import com.cdkhd.npc.entity.NewsType;
-import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.dto.NewsAddDto;
 import com.cdkhd.npc.entity.dto.NewsReviewDto;
 import com.cdkhd.npc.entity.dto.NewsPageDto;
@@ -16,10 +15,12 @@ import com.cdkhd.npc.enums.NewsStatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NewsService;
 import com.cdkhd.npc.util.ImageUploadUtil;
+import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.weaver.MemberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -48,13 +49,15 @@ public class NewsServiceImpl implements NewsService {
     private NpcMemberRepository npcMemberRepository;
     private LoginUPRepository loginUPRepository;
     private NewsTypeRepository newsTypeRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
-    public NewsServiceImpl(NewsRepository newsRepository, NpcMemberRepository npcMemberRepository, LoginUPRepository loginUPRepository, NewsTypeRepository newsTypeRepository) {
+    public NewsServiceImpl(NewsRepository newsRepository, NpcMemberRepository npcMemberRepository, LoginUPRepository loginUPRepository, NewsTypeRepository newsTypeRepository, AccountRepository accountRepository) {
         this.newsRepository = newsRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.loginUPRepository = loginUPRepository;
         this.newsTypeRepository = newsTypeRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -376,8 +379,9 @@ public class NewsServiceImpl implements NewsService {
         news.setFeedback(dto.getFeedback());
 
         //将当前用户记录为该新闻的审核人
-        Account currentAccount = loginUPRepository.findByUsername(userDetails.getUsername()).getAccount();
-        news.setReviewer(npcMemberRepository.findByAccount(currentAccount));
+        Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
+
+        news.setReviewer(NpcMemberUtil.getCurrentIden(userDetails.getLevel(),currentAccount.getNpcMembers()));
 
         newsRepository.saveAndFlush(news);
 

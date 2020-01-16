@@ -26,7 +26,7 @@ public class CommonDictServiceImpl implements CommonDictService {
     }
 
     /**
-     * 获取民族列表
+     * 根据key获取相应的下拉
      * @return 查询结果
      */
     @Override

@@ -18,7 +18,9 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-public class AddOpinionDto extends BaseDto {
+public class AddOpinionDto {
+
+    private String transUid;
 
     /**
      * 意见内容

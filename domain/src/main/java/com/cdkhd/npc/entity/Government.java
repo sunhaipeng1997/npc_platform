@@ -43,18 +43,6 @@ public class Government extends BaseDomain {
 	private String mobile;
 
 	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
-   	@Column(name = "create_time" )
-	private Date createTime;
-
-	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
-   	@Column(name = "update_time" )
-	private Date updateTime;
-
-	/**
 	 * 基本信息id
 	 */
    	@Column(name = "create_user" )

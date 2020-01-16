@@ -22,9 +22,6 @@ import java.util.Date;
 @Table ( name ="notification_detail" )
 public class NotificationDetail extends BaseDomain {
 
-   	@Column(name = "create_at" )
-	private Date createAt;
-
    	@Column(name = "uid" )
 	private String uid;
 

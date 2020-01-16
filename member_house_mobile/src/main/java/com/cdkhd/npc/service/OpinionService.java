@@ -2,11 +2,14 @@ package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.AddOpinionDto;
+import com.cdkhd.npc.entity.dto.OpinionDetailDto;
 import com.cdkhd.npc.entity.dto.OpinionDto;
+import com.cdkhd.npc.entity.dto.OpinionReplyDto;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface OpinionService {
 
+    //选民意见部分
 
     /**
      * 意见管理
@@ -22,5 +25,26 @@ public interface OpinionService {
      */
     RespBody myOpinions(UserDetailsImpl userDetails, OpinionDto opinionDto);
 
+    /**
+     * 意见详情
+     * @return
+     */
+    RespBody detailOpinion(OpinionDetailDto opinionDetailDto);
 
+    //代表意见部分
+
+    /**
+     * 我收到的意见
+     * @param userDetails
+     * @param opinionDto
+     * @return
+     */
+    RespBody receiveOpinions(UserDetailsImpl userDetails, OpinionDto opinionDto);
+
+    /**
+     * 回复意见
+     * @param opinionReplyDto
+     * @return
+     */
+    RespBody replyOpinion(OpinionReplyDto opinionReplyDto);
 }

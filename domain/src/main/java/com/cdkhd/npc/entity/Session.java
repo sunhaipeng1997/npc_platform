@@ -31,15 +31,17 @@ public class Session extends BaseDomain {
 	 * 届期开始时间
 	 * yyyy-MM-dd HH:mm:ss
 	 */
-   	@Column(name = "start_time" )
-	private Date startTime;
+   	@Column(name = "start_date" )
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
 
 	/**
 	 * 届期结束时间
 	 * yyyy-MM-dd HH:mm:ss
 	 */
-   	@Column(name = "end_time" )
-	private Date endTime;
+   	@Column(name = "end_date" )
+    @Temporal(TemporalType.DATE)
+	private Date endDate;
 
    	//备注
    	@Column(name = "remark" )

@@ -56,7 +56,8 @@ public class Performance extends BaseDomain {
 
    	//审核时间
    	@Column(name = "audit_at" )
-	private Date auditAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date auditAt;
 
    	//审核人信息
     @ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)

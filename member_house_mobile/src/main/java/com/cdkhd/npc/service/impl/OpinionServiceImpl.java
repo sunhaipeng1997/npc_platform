@@ -1,14 +1,17 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.Opinion;
-import com.cdkhd.npc.entity.OpinionImage;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.AddOpinionDto;
+import com.cdkhd.npc.entity.dto.OpinionDetailDto;
 import com.cdkhd.npc.entity.dto.OpinionDto;
+import com.cdkhd.npc.entity.dto.OpinionReplyDto;
+import com.cdkhd.npc.entity.vo.OpinionListVo;
+import com.cdkhd.npc.entity.vo.OpinionReplyVo;
 import com.cdkhd.npc.entity.vo.OpinionVo;
-import com.cdkhd.npc.enums.ReplayStatus;
+import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.ReplayStatusEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.OpinionImageRepository;
@@ -17,8 +20,9 @@ import com.cdkhd.npc.repository.member_house.OpinionRepository;
 import com.cdkhd.npc.service.OpinionService;
 import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.util.ImageUploadUtil;
-import com.cdkhd.npc.util.SysUtil;
+import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.RespBody;
+import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,29 +72,32 @@ public class OpinionServiceImpl implements OpinionService {
     @Override
     public RespBody addOpinion(UserDetailsImpl userDetails, AddOpinionDto addOpinionDto) {
         RespBody body = new RespBody();
-        if (StringUtils.isNotEmpty(addOpinionDto.getContent())){
+        if (StringUtils.isEmpty(addOpinionDto.getContent())){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("请输入您要提交的意见！");
+            LOGGER.error("意见内容不能为空");
             return body;
         }
-        if (StringUtils.isNotEmpty(addOpinionDto.getReceiver())){
+        if (StringUtils.isEmpty(addOpinionDto.getReceiver())){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("请选择您要提交意见的代表！");
+            LOGGER.error("没有选择接收意见的代表");
             return body;
         }
         NpcMember npcMember = npcMemberRepository.findByUid(addOpinionDto.getReceiver());
-        if (npcMember.getCanOpinion().equals((byte)1)){
+        if (npcMember.getCanOpinion().equals(StatusEnum.DISABLED.getValue())){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该代表意见箱已满，请另选一位代表！");
             return body;
         }
-        if (StringUtils.isNotEmpty(addOpinionDto.getUid())){
+        if (StringUtils.isEmpty(addOpinionDto.getTransUid())){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("系统参数错误，请联系管理员！");
+            LOGGER.error("没有传入意见uid");
             return body;
         }
         Account account = accountRepository.findByUid(userDetails.getUid());
-        Opinion opinion = opinionRepository.findByUid(addOpinionDto.getUid());
+        Opinion opinion = opinionRepository.findByTransUid(addOpinionDto.getTransUid());
         if (opinion == null) {
             opinion = new Opinion();
             opinion.setArea(userDetails.getArea());
@@ -99,7 +106,8 @@ public class OpinionServiceImpl implements OpinionService {
             opinion.setView(false);//接受代表是否查阅，默认新提交的未查阅
             opinion.setContent(addOpinionDto.getContent());//意见内容
             opinion.setReceiver(npcMember);//接受代表
-            opinion.setStatus(ReplayStatus.UNANSWERED.getValue());//是否回复
+            opinion.setStatus(ReplayStatusEnum.UNANSWERED.getValue());//是否回复
+            opinion.setTransUid(addOpinionDto.getTransUid());
             opinion.setSender(account);
         }
         opinionRepository.saveAndFlush(opinion);
@@ -120,7 +128,7 @@ public class OpinionServiceImpl implements OpinionService {
      */
     public void saveImg(MultipartFile image, Opinion opinion){
         //保存图片到文件系统
-        String url = ImageUploadUtil.saveImage("opinionImage", SysUtil.uid(), image,500,500);
+        String url = ImageUploadUtil.saveImage("opinionImage", image,500,500);
         if (url.equals("error")) {
             LOGGER.error("保存图片到文件系统失败");
         }
@@ -144,14 +152,118 @@ public class OpinionServiceImpl implements OpinionService {
         Pageable page = PageRequest.of(begin, opinionDto.getSize(), Sort.Direction.fromString(opinionDto.getDirection()), opinionDto.getProperty());
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("sender").get("uid").as(String.class), userDetails.getUid()));
+            if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), opinionDto.getAreaUid()));
+            }else if (opinionDto.getLevel().equals(LevelEnum.AREA.getValue())){
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), opinionDto.getAreaUid()));
+            }
+            predicates.add(cb.equal(root.get("sender").get("uid").as(String.class), userDetails.getUid()));
             //状态 已回复  未回复
             if (opinionDto.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status").as(Byte.class), opinionDto.getStatus()));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
-        List<OpinionVo> opinionVos = opinions.getContent().stream().map(OpinionVo::convert).collect(Collectors.toList());
+        List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
         body.setData(opinionVos);
+        return body;
+    }
+
+    /**
+     * 意见详情
+     * @param opinionDetailDto
+     * @return
+     */
+    @Override
+    public RespBody detailOpinion(OpinionDetailDto opinionDetailDto) {
+        RespBody body = new RespBody();
+        if (StringUtils.isEmpty(opinionDetailDto.getUid())){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该意见！");
+            LOGGER.error("意见uid为空");
+            return body;
+        }
+        OpinionVo opinionVo = this.opinionInfo(opinionDetailDto.getUid(),body,opinionDetailDto.getMember());
+        body.setData(opinionVo);
+        return body;
+    }
+
+    public OpinionVo opinionInfo(String uid,RespBody body,Boolean member) {
+        Opinion opinion = opinionRepository.findByUid(uid);
+        OpinionVo opinionVo = new OpinionVo();
+        if (opinion == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该意见！");
+            return opinionVo;
+        }
+        if (member){
+            opinion.setView(true);
+        }else{
+            for (OpinionReply reply : opinion.getReplies()) {
+                reply.setView(true);
+            }
+        }
+        opinionRepository.saveAndFlush(opinion);
+        opinionVo = OpinionVo.convert(opinion);
+        return opinionVo;
+    }
+
+    //代表意见部分
+
+    /**
+     * 我收到的意见
+     * @param userDetails
+     * @param opinionDto
+     * @return
+     */
+    @Override
+    public RespBody receiveOpinions(UserDetailsImpl userDetails, OpinionDto opinionDto) {
+        RespBody body = new RespBody();
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(opinionDto.getLevel(), account.getNpcMembers());
+        int begin = opinionDto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, opinionDto.getSize(), Sort.Direction.fromString(opinionDto.getDirection()), opinionDto.getProperty());
+        Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
+            if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), opinionDto.getAreaUid()));
+            }else if (opinionDto.getLevel().equals(LevelEnum.AREA.getValue())){
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), opinionDto.getAreaUid()));
+            }
+            //状态 已回复  未回复
+            if (opinionDto.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status").as(Byte.class), opinionDto.getStatus()));
+            }
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        }, page);
+        List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
+        body.setData(opinionVos);
+        return body;
+    }
+
+    /**
+     * 回复意见
+     * @param opinionReplyDto
+     * @return
+     */
+    @Override
+    public RespBody replyOpinion(OpinionReplyDto opinionReplyDto) {
+        RespBody body = new RespBody();
+        if (StringUtils.isEmpty(opinionReplyDto.getUid())){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该意见！");
+        }
+        Opinion opinion = opinionRepository.findByUid(opinionReplyDto.getUid());
+        if (opinion == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该意见！");
+        }
+        OpinionReply opinionReply = new OpinionReply();
+        opinionReply.setOpinion(opinion);
+        opinionReply.setReply(opinionReplyDto.getContent());
+        opinionReplayRepository.saveAndFlush(opinionReply);
         return body;
     }
 }

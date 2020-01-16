@@ -31,4 +31,8 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
 
     List<PerformanceType> findByLevelAndAreaUidAndIsDelFalse(Byte level, String areaUid);
 
+    List<PerformanceType> findByLevelAndTownUidAndStatusAndIsDelFalse(Byte level, String townUid,Byte status);
+
+    List<PerformanceType> findByLevelAndAreaUidAndStatusAndIsDelFalse(Byte level, String areaUid,Byte status);
+
 }

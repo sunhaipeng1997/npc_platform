@@ -31,8 +31,8 @@ public class ImageUploadUtil {
         String filename = String.format("%s.%s", uid(), extName);
 
         //生成新文件的父目录路径
-        String parentPath = String.format("static/public/%s", kind);
-
+        String parentPath;
+        parentPath = String.format("static/public/%s", kind);
         File imageFile = new File(parentPath, filename);
         File parentFile = imageFile.getParentFile();
         if (!parentFile.exists()) {

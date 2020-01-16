@@ -10,9 +10,7 @@ public interface NpcMemberService {
 
     RespBody pageOfNpcMembers(UserDetailsImpl userDetails, NpcMemberPageDto pageDto);
 
-    RespBody addNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto);
-
-    RespBody updateNpcMember(NpcMemberAddDto dto);
+    RespBody addOrUpdateNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto);
 
     RespBody deleteNpcMember(String uid);
 

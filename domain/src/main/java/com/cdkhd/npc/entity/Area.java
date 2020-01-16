@@ -22,9 +22,6 @@ import java.util.Set;
 @Table ( name ="area" )
 public class Area extends BaseDomain {
 
-   	@Column(name = "create_time" )
-	private Date createTime;
-
    	@Column(name = "name" )
 	private String name;
 
@@ -34,11 +31,6 @@ public class Area extends BaseDomain {
    	@Column(name = "status" )
 	private Integer status;
 
-   	@Column(name = "update_time" )
-	private Date updateTime;
-
-   	@Column(name = "update_user" )
-	private String updateUser;
 
     @OneToMany(targetEntity = Town.class, orphanRemoval = true)
 	@JoinColumn(name = "area", referencedColumnName = "id")

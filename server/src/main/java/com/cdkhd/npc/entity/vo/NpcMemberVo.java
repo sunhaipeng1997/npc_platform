@@ -4,6 +4,7 @@ import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.enums.GenderEnum;
 import com.cdkhd.npc.enums.JobsEnum;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class NpcMemberVo {
+public class NpcMemberVo extends BaseVo {
 
     //姓名
     private String name;
@@ -36,7 +37,8 @@ public class NpcMemberVo {
     private Date birthday;
 
     //职务类型
-    private Byte type;
+    private Byte jobType;
+    private String typeName;//普通代表、主席、特殊人员
 
     //代表证号
     private String code;
@@ -45,7 +47,7 @@ public class NpcMemberVo {
     private String avatar;
 
     //简介
-    private String introduction;
+    private String remark;
 
     //备注
     private String comment;
@@ -60,7 +62,7 @@ public class NpcMemberVo {
     private String education;
 
     //职务
-    private String jobs;
+    private String jobs;//任职***镇镇长
 
     //政治面貌
     private String political;
@@ -71,17 +73,29 @@ public class NpcMemberVo {
 
     //工作单位
     private String workUnit;
+    private String workUnitName;
 
     //届期
     private String session;
 
+    //身份证号
+    private String idcard;
+
+    //出生日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date bornAt;
+
     public static NpcMemberVo convert(NpcMember npcMember) {
         NpcMemberVo vo = new NpcMemberVo();
         BeanUtils.copyProperties(npcMember, vo);
-        vo.setGenderName(GenderEnum.MALE.getName());
-        vo.setWorkUnit(npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getNpcMemberGroup().getName():npcMember.getTown().getName());
-        vo.setJobs(JobsEnum.getName(npcMember.getJobs()));
+        vo.setGenderName(GenderEnum.getName(npcMember.getGender()));
+        vo.setWorkUnit(npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getNpcMemberGroup().getUid():npcMember.getTown().getUid());
+        vo.setWorkUnitName(npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getNpcMemberGroup().getName():npcMember.getTown().getName());
+        vo.setJobType(npcMember.getType());
+        vo.setTypeName(JobsEnum.getName(npcMember.getType()));
+        vo.setBornAt(npcMember.getBirthday());
         vo.setSession("其他");
+        vo.setRemark(npcMember.getIntroduction());
         return vo;
     }
 }

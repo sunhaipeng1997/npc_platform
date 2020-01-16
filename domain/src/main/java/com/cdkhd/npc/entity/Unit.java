@@ -1,5 +1,7 @@
 package com.cdkhd.npc.entity;
 
+import javax.persistence.*;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -50,14 +52,9 @@ public class Unit extends BaseDomain {
 	/**
 	 * yyyy-MM-dd HH:mm:ss
 	 */
-   	@Column(name = "create_time" )
-	private Date createTime;
-
-	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
    	@Column(name = "update_time" )
-	private Date updateTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updateTime;
 
 	/**
 	 * 基本信息id

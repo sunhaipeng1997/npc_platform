@@ -50,6 +50,9 @@ public class NpcMemberAddDto {
     //代表证号
     private String code;
 
+    //代表身份证号
+    private String idcard;
+
     //简介
     private String introduction;
 

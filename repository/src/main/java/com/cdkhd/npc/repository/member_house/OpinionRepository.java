@@ -9,4 +9,6 @@ public interface OpinionRepository extends BaseRepository<Opinion> {
 
 
     List<Opinion> findBySenderUid(String uid);
+
+    Opinion findByTransUid(String uid);
 }

@@ -2,8 +2,12 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Systems;
 import com.cdkhd.npc.vo.BaseVo;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
+@Getter
+@Setter
 public class SystemVo extends BaseVo {
 
     //系统名称
@@ -18,37 +22,6 @@ public class SystemVo extends BaseVo {
     // 描述
     private String url;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getSvg() {
-        return svg;
-    }
-
-    public void setSvg(String svg) {
-        this.svg = svg;
-    }
 
     public static SystemVo convert(Systems systems) {
         SystemVo vo = new SystemVo();

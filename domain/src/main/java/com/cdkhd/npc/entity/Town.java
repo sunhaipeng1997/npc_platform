@@ -35,14 +35,14 @@ public class Town extends BaseDomain {
     private Area area;
 
     @OneToMany(targetEntity = NpcMemberGroup.class, orphanRemoval = true)
-	@JoinColumn(name = "town", referencedColumnName = "id")
+	@JoinColumn(name = "npcMemberGroups", referencedColumnName = "id")
 	private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
 
     @OneToMany(targetEntity = Village.class, mappedBy = "town", orphanRemoval = true)
     private Set<Village> villages = new HashSet<>();
 
     @OneToMany(targetEntity = Session.class, orphanRemoval = true)
-    @JoinColumn(name = "town", referencedColumnName = "id")
+    @JoinColumn(name = "sessions", referencedColumnName = "id")
     private Set<Session> sessions = new HashSet<>();
 
 }

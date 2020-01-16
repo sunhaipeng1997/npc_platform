@@ -9,5 +9,9 @@ public interface NpcMemberRepository extends BaseRepository<NpcMember> {
 
     List<NpcMember> findByLevel(Byte level);
 
+    List<NpcMember> findByTownUidAndLevelAndIsDelFalse(String uid, Byte level);
+
+    List<NpcMember> findByAreaUidAndLevelAndIsDelFalse(String uid, Byte level);
+
     NpcMember findByAccount(Account account);
 }

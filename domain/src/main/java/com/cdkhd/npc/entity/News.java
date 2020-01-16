@@ -1,6 +1,8 @@
 package com.cdkhd.npc.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import javax.persistence.*;
 import com.cdkhd.npc.enums.NewsStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
@@ -92,7 +94,8 @@ public class News extends BaseDomain {
 	private Boolean published = false;
 
 	//公开发布时间
-	@Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "publish_at" )
+    @Temporal(TemporalType.TIMESTAMP)
 	private Date publishAt;
 
 	@Column(name = "level" )

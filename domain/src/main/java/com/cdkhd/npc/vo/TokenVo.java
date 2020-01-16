@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 import java.util.Set;
 
@@ -12,6 +14,7 @@ import java.util.Set;
 public class TokenVo {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date signAt;
 
     private long expireAt;

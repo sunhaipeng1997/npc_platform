@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,10 +19,6 @@ import java.util.Date;
 @Entity
 @Table ( name ="notification" )
 public class Notification extends BaseDomain {
-
-   	@Column(name = "create_at" )
-	private Date createAt;
-
    	@Column(name = "uid" )
 	private String uid;
 
@@ -35,7 +29,8 @@ public class Notification extends BaseDomain {
 	private String content;
 
    	@Column(name = "publish_at" )
-	private Date publishAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date publishAt;
 
    	@Column(name = "published" )
 	private Boolean published;

@@ -407,16 +407,16 @@ public class PerformanceServiceImpl implements PerformanceService {
             cell6.setCellValue(place);
 
             // 审核人
-            Cell cell7 = row.createCell(7);
-            cell7.setCellValue(performance.getNpcMember().getName());
+            Cell cell8 = row.createCell(8);
+            cell8.setCellValue(performance.getNpcMember().getName());
 
             //审核状态
-            Cell cell8 = row.createCell(8);
-            cell8.setCellValue(performance.getStatus());
+            Cell cell9 = row.createCell(9);
+            cell9.setCellValue(performance.getStatus());
 
             //审核意见
-            Cell cell9 = row.createCell(9);
-            cell9.setCellValue(performance.getReason());
+            Cell cell10 = row.createCell(10);
+            cell10.setCellValue(performance.getReason());
 
         }
         try {
@@ -424,7 +424,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             os.flush();
         } catch (IOException e1) {
             e1.printStackTrace();
-            LOGGER.error("导出代表建议失败 \n {}", e1);
+            LOGGER.error("导出代表履职失败 \n {}", e1);
         }
     }
 

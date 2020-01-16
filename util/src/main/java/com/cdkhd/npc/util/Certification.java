@@ -1,6 +1,8 @@
 package com.cdkhd.npc.util;
 
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -11,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
  * @描述
  */
 public class Certification {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Certification.class);
 
     public static void send(String token, String body) {
 
@@ -24,20 +27,17 @@ public class Certification {
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         HttpEntity<String> reqEntity = new HttpEntity<>(body, headers);
         ResponseEntity<JSONObject> respEntity = restTemplate.postForEntity(sendUrl, reqEntity, JSONObject.class);
-        System.out.println("status      :" +  respEntity.getStatusCode());
+        LOGGER.error(respEntity.getStatusCode().toString());
         if (respEntity.getStatusCode() == HttpStatus.OK) {
             JSONObject respBody = respEntity.getBody();
-            System.out.print("respBody  :");
-            System.out.println(respBody);
-            if (respBody != null) {
-                if ((respBody.getIntValue("errcode") == 0)) {
-                    System.out.println("success");
-                } else {
-                    System.out.println("failed");
-                }
+            LOGGER.error(respBody.toString());
+            if ((respBody.getIntValue("errcode") == 0)) {
+                LOGGER.info("消息发送成功!");
+            } else {
+                LOGGER.error("消息发送失败!");
             }
         } else {
-            System.out.println("failed");
+            LOGGER.error("消息发送失败!");
         }
     }
 

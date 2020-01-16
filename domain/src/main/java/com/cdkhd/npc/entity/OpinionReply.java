@@ -30,7 +30,7 @@ public class OpinionReply extends BaseDomain {
      * 是否查看
      */
    	@Column(name = "view" )
-	private Long view;
+	private Boolean view = false;
 
     /**
      * 回复的意见

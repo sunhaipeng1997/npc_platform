@@ -57,7 +57,7 @@ public class NpcMember extends BaseDomain {
 	 * 2、锁定
 	 */
    	@Column(name = "status" )
-	private Byte status;
+	private Byte status = 1;
 
 	/**
 	 * 姓名
@@ -111,6 +111,12 @@ public class NpcMember extends BaseDomain {
    	@Column(name = "code" )
 	private String code;
 
+    /**
+     * 代表身份证号
+     */
+    @Column(name = "idcard" )
+    private String idcard;
+
 	/**
 	 * 账号表id
 	 */
@@ -139,7 +145,7 @@ public class NpcMember extends BaseDomain {
 
    	//是否删除
    	@Column(name = "is_del" )
-	private Byte isDel = 0;
+	private Boolean isDel = false;
 
    	//教育经历
    	@Column(name = "education" )
