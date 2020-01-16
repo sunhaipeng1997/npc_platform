@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface NewsRepository extends BaseRepository<News>{
     int countByNewsType(NewsType newsType);
+    News findByTitle(String title);
 }

@@ -13,11 +13,11 @@ public class NewsTypeVo extends BaseVo {
 
     private String name;
 
-    //类型状态
+    //栏目状态
     private Byte status;
     private String statusName;
 
-    //类型顺序
+    //栏目顺序
     private Integer sequence;
 
     private String remark;

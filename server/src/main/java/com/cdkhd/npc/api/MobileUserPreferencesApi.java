@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("api/mobile/user_preferences")
-public class MobileUserPreferencesController {
+public class MobileUserPreferencesApi {
 
     private MobileUserPreferencesService mobileUserPreferencesService;
 
     @Autowired
-    public MobileUserPreferencesController(MobileUserPreferencesService mobileUserPreferencesService) {
+    public MobileUserPreferencesApi(MobileUserPreferencesService mobileUserPreferencesService) {
         this.mobileUserPreferencesService = mobileUserPreferencesService;
     }
 

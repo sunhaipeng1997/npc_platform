@@ -99,7 +99,8 @@ public class NpcMember extends BaseDomain {
 
 	/**
 	 * 1、人大代表
-	 * 2、人大委员会成员
+	 * 2、人大主席
+	 * 3、特殊人员
 	 */
    	@Column(name = "type" )
 	private Byte type;

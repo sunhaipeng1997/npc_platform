@@ -162,7 +162,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     public void saveCover(MultipartFile cover,Performance performance){
         //保存图片到文件系统
-        String url = ImageUploadUtil.saveImage("experienceImage", SysUtil.uid(), cover,500,500);
+        String url = ImageUploadUtil.saveImage("experienceImage",cover,500,500);
         if (url.equals("error")) {
             LOGGER.error("保存图片到文件系统失败");
         }
