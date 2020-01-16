@@ -5,6 +5,7 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.AddPerformanceDto;
 import com.cdkhd.npc.entity.dto.AuditPerformanceDto;
 import com.cdkhd.npc.entity.dto.PerformancePageDto;
+import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -90,13 +91,13 @@ public class PerformanceServiceImpl implements PerformanceService {
      * @return
      */
     @Override
-    public RespBody performanceTypeList(UserDetailsImpl userDetails, PerformanceType performanceType) {
+    public RespBody performanceTypes(UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
-        if (performanceType.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(performanceType.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
-        }else if (performanceType.getLevel().equals(LevelEnum.AREA.getValue())){
-            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(performanceType.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+        if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+        }else if (performanceTypeDto.getLevel().equals(LevelEnum.AREA.getValue())){
+            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
         body.setData(types);

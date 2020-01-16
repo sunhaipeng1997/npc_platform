@@ -3,6 +3,7 @@ package com.cdkhd.npc.api;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.AddPerformanceDto;
+import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,8 @@ public class PerformanceApi {
      * @return
      */
     @GetMapping("/performanceTypeList")
-    public ResponseEntity performanceTypeList(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = performanceService.performanceTypes(userDetails);
+    public ResponseEntity performanceTypeList(@CurrentUser UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
+        RespBody body = performanceService.performanceTypes(userDetails, performanceTypeDto);
         return ResponseEntity.ok(body);
     }
 

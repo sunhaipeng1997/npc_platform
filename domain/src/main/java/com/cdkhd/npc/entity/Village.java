@@ -26,9 +26,11 @@ public class Village extends BaseDomain {
 	private String name;
 
    	@ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
-	private NpcMemberGroup npcMemberGroup;
+    @JoinColumn(name = "npc_member_group", referencedColumnName = "id")
+    private NpcMemberGroup npcMemberGroup;
 
    	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
-	private Town town;
+    @JoinColumn(name = "town", referencedColumnName = "id")
+    private Town town;
 
 }

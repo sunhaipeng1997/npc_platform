@@ -6,6 +6,7 @@ import com.cdkhd.npc.entity.PerformanceType;
 import com.cdkhd.npc.entity.dto.AddPerformanceDto;
 import com.cdkhd.npc.entity.dto.AuditPerformanceDto;
 import com.cdkhd.npc.entity.dto.PerformancePageDto;
+import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface PerformanceService {
@@ -17,7 +18,7 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody performanceTypeList(UserDetailsImpl userDetails, PerformanceType performanceType);
+    RespBody performanceTypes(UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto);
 
     //履职信息相关接口
 
