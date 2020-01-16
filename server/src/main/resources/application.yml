@@ -3,9 +3,9 @@ spring:
     name: npc-platform
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: nian9695,,,
+    password: cd@khd2018
   jpa:
     database: mysql
     show-sql: false
