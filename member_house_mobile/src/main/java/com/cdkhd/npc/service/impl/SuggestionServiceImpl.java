@@ -15,7 +15,6 @@ import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.SuggestionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
-import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;

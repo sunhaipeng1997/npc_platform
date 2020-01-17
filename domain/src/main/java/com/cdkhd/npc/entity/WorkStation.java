@@ -1,13 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.*;
 
 /**
  * @Description
@@ -22,39 +19,42 @@ import java.util.Date;
 @Table ( name ="work_station" )
 public class WorkStation extends BaseDomain {
 
-   	@Column(name = "uid" )
-	private String uid;
+	@Column(name = "name" )
+	private String name;
 
    	@Column(name = "address" )
 	private String address;
 
+   	//工作站图片
    	@Column(name = "avatar" )
 	private String avatar;
 
    	@Column(name = "description" )
 	private String description;
 
+   	//是否可用
    	@Column(name = "enabled" )
-	private Boolean enabled;
+	private Boolean enabled = true;
 
    	@Column(name = "latitude" )
 	private String latitude;
 
+   	//联系人
    	@Column(name = "linkman" )
 	private String linkman;
 
    	@Column(name = "longitude" )
 	private String longitude;
 
-   	@Column(name = "name" )
-	private String name;
-
+   	//联系电话
    	@Column(name = "telephone" )
 	private String telephone;
 
-   	@Column(name = "town_id" )
-	private String townId;
+   	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	private Town town;
 
+   	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+   	private Area area;
 	/**
 	 * 等级
             1、镇上工作站

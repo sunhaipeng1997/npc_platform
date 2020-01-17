@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,13 +30,13 @@ public class Area extends BaseDomain {
    	@Column(name = "status" )
 	private Integer status;
 
-
-    @OneToMany(targetEntity = Town.class, orphanRemoval = true)
-	@JoinColumn(name = "area", referencedColumnName = "id")
+    @OneToMany(targetEntity = Town.class, mappedBy = "area", orphanRemoval = true)
 	private Set<Town> towns = new HashSet<>();
 
-    @OneToMany(targetEntity = Session.class, orphanRemoval = true)
-    @JoinColumn(name = "area", referencedColumnName = "id")
+    @OneToMany(targetEntity = Session.class, mappedBy = "area", orphanRemoval = true)
     private Set<Session> sessions = new HashSet<>();
+
+    @OneToMany(targetEntity = WorkStation.class, mappedBy = "area", orphanRemoval = true)
+    private Set<WorkStation> workStations = new HashSet<>();
 
 }

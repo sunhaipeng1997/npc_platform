@@ -140,7 +140,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
             suggestionBusiness = suggestionBusinessRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(suggestionBusinessAddDto.getName(), userDetails.getLevel(), userDetails.getArea().getUid());
         }
-        if (suggestionBusiness != null) {
+        if (StringUtils.isEmpty(suggestionBusinessAddDto.getUid()) && suggestionBusiness != null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("类型名称已经存在！");
             return body;

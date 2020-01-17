@@ -47,12 +47,20 @@ public class SuggestionApi {
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 添加或修改建议
+     *
+     * */
     @PostMapping("/addOrUpdateSuggestion")
     public ResponseEntity addOrUpdateSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionAddDto suggestionAddDto) {
         RespBody body = suggestionService.addOrUpdateSuggestion(userDetails,suggestionAddDto);
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 建议详情
+     *
+     * */
     @GetMapping("/detail")
     public ResponseEntity suggestionDetail(String uid){
         String result = suggestionService.suggestionDetail(uid);
@@ -61,12 +69,20 @@ public class SuggestionApi {
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 审核人员审核建议
+     *
+     * */
     @PostMapping("/audit")
     public ResponseEntity audit(@CurrentUser UserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto) {
         RespBody body = suggestionService.audit(userDetails, suggestionAuditDto);
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 删除建议
+     *
+     * */
     @DeleteMapping
     public ResponseEntity delete(@RequestBody SuggestionAddDto suggestionAddDto) {
         RespBody body = suggestionService.deleteSuggestion(suggestionAddDto.getUid());
