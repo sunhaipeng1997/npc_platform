@@ -92,8 +92,8 @@ public class ImageUploadUtil {
             // 拷贝文件
 //            FileUtils.copyInputStreamToFile(is, imageFile);
 
-            //照片，裁剪尺寸width*height，dpi降为原来的一半
-            Thumbnails.of(is).outputQuality(0.5f).outputFormat("jpg").toFile(imageFile);
+            //按比例缩放%50，dpi降为原来的一半
+            Thumbnails.of(is).scale(0.50f).outputQuality(0.5f).outputFormat("jpg").toFile(imageFile);
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -94,40 +94,29 @@ public class NewsServiceImpl implements NewsService {
 
         MultipartFile image = dto.getImage();
         if (image == null) {
-            body.setMessage("封面不能为空");
+            body.setMessage("图片不能为空");
             body.setStatus(HttpStatus.BAD_REQUEST);
-            LOGGER.warn("新闻封面不能为空,上传封面图失败",dto.getUid());
+            LOGGER.warn("图片不能为空,上传图片失败",dto.getUid());
             return body;
         }
 
-        Integer width = dto.getWidth(),height = dto.getHeight();
+        String imgUrl;
+
         //下面对图片进行压缩
         if(dto.getWidth()==null || dto.getHeight() == null){
-            width = 600;
-            height = 400;
+            imgUrl = ImageUploadUtil.saveImage("news",image);
+        }else{
+            imgUrl = ImageUploadUtil.saveImage("news",image,dto.getWidth(),dto.getHeight());
         }
 
-        //用于新闻详情页和首页轮播位置，缩略图，宽长比为1.5
-        String bigCoverUrl = ImageUploadUtil.saveImage("news",image,width,height);
-        if(bigCoverUrl.equals("error")){
+        if(imgUrl.equals("error")){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("服务器错误");
-            LOGGER.warn("保存新闻大封面图片失败");
+            LOGGER.warn("保存图片失败");
             return body;
         }else {
-            jsonObj.put("bigCoverUrl", bigCoverUrl);
+            jsonObj.put("imgUrl", imgUrl);
         }
-
-        //新闻列表位置显示的小尺寸缩略图
-//        String smallCoverUrl = ImageUploadUtil.saveImage("news",image,180,140);
-//        if(smallCoverUrl.equals("error")){
-//            body.setStatus(HttpStatus.BAD_REQUEST);
-//            body.setMessage("服务器错误");
-//            LOGGER.warn("保存新闻小封面图片失败");
-//            return body;
-//        }else {
-//            jsonObj.put("smallCoverUrl", smallCoverUrl);
-//        }
 
         body.setData(jsonObj);
         return body;
