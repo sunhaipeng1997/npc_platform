@@ -1,6 +1,7 @@
 package com.cdkhd.npc.util;
 
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,11 +48,11 @@ public class ImageUploadUtil {
             // 拷贝文件
 //            FileUtils.copyInputStreamToFile(is, imageFile);
             if(width == 0 || height == 0){
-                //照片，裁剪尺寸width*height，dpi降为原来的一半
-                Thumbnails.of(is).size(500, 300).outputQuality(0.5f).outputFormat("jpg").toFile(imageFile);
+                //照片，裁剪尺寸width*height，
+                Thumbnails.of(is).size(500, 300).outputFormat("jpg").toFile(imageFile);
             }else {
-                //照片，裁剪尺寸width*height，dpi降为原来的一半
-                Thumbnails.of(is).size(width, height).outputQuality(0.5f).outputFormat("jpg").toFile(imageFile);
+                //照片，裁剪尺寸width*height
+                Thumbnails.of(is).sourceRegion(Positions.CENTER, width, height).size(width, height).outputFormat("jpg").toFile(imageFile);
             }
 
         } catch (IOException e) {
@@ -93,7 +94,7 @@ public class ImageUploadUtil {
 //            FileUtils.copyInputStreamToFile(is, imageFile);
 
             //按比例缩放%50，dpi降为原来的一半
-            Thumbnails.of(is).scale(0.50f).outputQuality(0.5f).outputFormat("jpg").toFile(imageFile);
+            Thumbnails.of(is).scale(0.50f).outputFormat("jpg").toFile(imageFile);
 
         } catch (IOException e) {
             e.printStackTrace();

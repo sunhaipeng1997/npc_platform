@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.News;
+import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,15 +14,16 @@ import java.util.List;
 
 @Getter
 @Setter
-public class NewsDetailsVo {
+public class NewsDetailsVo extends BaseVo {
 
     private String title;
 
     private String newsAbstract;
 
     //新闻详情页只需要主封面图
-    //不用传小的封面图
     private String coverUrl;
+
+    private String smallCoverUrl;
 
     private String content;
 
@@ -47,8 +49,12 @@ public class NewsDetailsVo {
 
     private Boolean pushNews;
 
+    private Long viewStatus;
+
     //审核人姓名
     private String reviewerName;
+
+    private String feedback;
 
     //这个不一定为真实的发布时间，
     //是因为政府的业务需求，需要手动设置一个发布时间显示在移动端
