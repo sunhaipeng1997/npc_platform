@@ -189,7 +189,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     public void saveCover(MultipartFile cover, Suggestion suggestion) {
         //保存图片到文件系统
-        String url = ImageUploadUtil.saveImage("suggestionImage", SysUtil.uid(), cover, 500, 500);
+        String url = ImageUploadUtil.saveImage("suggestionImage", cover, 500, 500);
         if (url.equals("error")) {
             LOGGER.error("保存图片到文件系统失败");
         }
