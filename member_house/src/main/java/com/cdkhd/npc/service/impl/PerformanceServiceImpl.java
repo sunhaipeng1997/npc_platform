@@ -289,7 +289,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-                SystemSetting systemSetting = systemSettingService.getSystemSetting();
+                SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);
                 if (systemSetting.getShowSubPerformance()) {
                     List<NpcMember> members = npcMemberRepository.findByLevel(LevelEnum.TOWN.getValue());
                     List<String> accountUids = Lists.newArrayList();

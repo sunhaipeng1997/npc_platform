@@ -51,14 +51,17 @@ public class WorkStation extends BaseDomain {
 	private String telephone;
 
    	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
-	private Town town;
+    @JoinColumn(name = "town", referencedColumnName = "id")
+    private Town town;
 
    	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-   	private Area area;
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Area area;
+
 	/**
 	 * 等级
-            1、镇上工作站
-            2、区上工作站
+    1、镇上工作站
+    2、区上工作站
 	 */
    	@Column(name = "level" )
 	private Byte level;

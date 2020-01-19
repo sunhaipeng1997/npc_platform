@@ -100,9 +100,18 @@ public class StudyServiceImpl implements StudyService {
         }
         StudyType studyType = null;
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
-            studyType = studyTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(studyTypeAddDto.getName(),userDetails.getLevel(),userDetails.getTown().getUid());
+            if (StringUtils.isEmpty(studyTypeAddDto.getUid())) {
+                studyType = studyTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(studyTypeAddDto.getName(), userDetails.getLevel(), userDetails.getTown().getUid());
+            }else{
+                studyType = studyTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalseAndUidNot(studyTypeAddDto.getName(), userDetails.getLevel(), userDetails.getTown().getUid(),studyTypeAddDto.getUid());
+            }
         }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            studyType = studyTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(studyTypeAddDto.getName(),userDetails.getLevel(),userDetails.getArea().getUid());
+            if (StringUtils.isEmpty(studyTypeAddDto.getUid())) {
+                studyType = studyTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(studyTypeAddDto.getName(), userDetails.getLevel(), userDetails.getArea().getUid());
+            }else{
+                studyType = studyTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalseAndUidNot(studyTypeAddDto.getName(), userDetails.getLevel(), userDetails.getTown().getUid(),studyTypeAddDto.getUid());
+
+            }
         }
         if (studyType != null){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -132,7 +141,7 @@ public class StudyServiceImpl implements StudyService {
             studyType.setSequence(maxSequence + 1);
         }
         studyType.setName(studyTypeAddDto.getName());
-        studyType.setRemark(studyTypeAddDto.getName());
+        studyType.setRemark(studyTypeAddDto.getRemark());
 
         studyTypeRepository.saveAndFlush(studyType);
         return body;

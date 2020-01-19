@@ -81,6 +81,7 @@ public class SessionServiceImpl implements SessionService {
         //其它查询条件
         Page<Session> sessionPage = sessionRepository.findAll((Specification<Session>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isNotNull(root.get("startDate").as(Date.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -97,6 +98,7 @@ public class SessionServiceImpl implements SessionService {
         PageVo<SessionVo> vo = new PageVo<>(sessionPage, sessionPageDto);
         List<SessionVo> sessionVos = sessionPage.getContent().stream().map(SessionVo::convert).collect(Collectors.toList());
         vo.setContent(sessionVos);
+        body.setData(vo);
         return body;
     }
 
@@ -108,23 +110,22 @@ public class SessionServiceImpl implements SessionService {
         Boolean result;
         List<Session> sessionList = Lists.newArrayList();
         if (StringUtils.isNotEmpty(sessionAddDto.getUid())) {//修改届期
+            session = sessionRepository.findByUid(sessionAddDto.getUid());
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {//镇代表
-                sessionList = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(),userDetails.getLevel());
+                sessionList = sessionRepository.findByTownUidAndLevelAndUidNotAndStartDateIsNotNull(userDetails.getTown().getUid(),userDetails.getLevel(),sessionAddDto.getUid());
             }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {//区代表
-                sessionList = sessionRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(),userDetails.getLevel());
-            }
-            for (Session session1 : sessionList) {
-                if (sessionAddDto.getUid().equals(session1.getUid())){
-                    session = session1;
-                    sessionList.remove(session1);
-                    break;
-                }
+                sessionList = sessionRepository.findByAreaUidAndLevelAndUidNotAndStartDateIsNotNull(userDetails.getArea().getUid(),userDetails.getLevel(),sessionAddDto.getUid());
             }
         }else {//添加届期
             session = new Session();
             session.setLevel(userDetails.getLevel());
             session.setArea(userDetails.getArea());
             session.setTown(userDetails.getTown());
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {//镇代表
+                sessionList = sessionRepository.findByTownUidAndLevelAndStartDateIsNotNull(userDetails.getTown().getUid(),userDetails.getLevel());
+            }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {//区代表
+                sessionList = sessionRepository.findByAreaUidAndLevelAndStartDateIsNotNull(userDetails.getArea().getUid(),userDetails.getLevel());
+            }
         }
         result = this.validateSessionDate(sessionAddDto,sessionList);//验证届期之间的日期是否有交叉
         if (!result) {

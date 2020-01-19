@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -154,10 +155,12 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
                 return body;
             }
+            body.setMessage("修改代表成功");
         }else {
             member = new NpcMember();
             member.setLevel(userDetails.getLevel());
             member.setArea(userDetails.getArea());   //与后台管理员同区
+            body.setMessage("添加代表成功");
         }
         //设置代表信息
         member.setName(dto.getName());
@@ -175,6 +178,8 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         member.setNation(dto.getNation());
         member.setEducation(dto.getEducation());
         member.setPolitical(dto.getPolitical());
+        Set<Session> sessions = sessionRepository.findByUidIn(dto.getSessionUids());
+        member.setSessions(sessions);
 
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             member.setTown(userDetails.getTown());   //与后台管理员同镇
@@ -202,7 +207,6 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         //保存代表
         npcMemberRepository.save(member);
 
-        body.setMessage("添加代表成功");
         return body;
     }
 

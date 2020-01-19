@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Entity
 @Setter
 @Getter
-@Table(name = "t_suggestion_image")
+@Table(name = "suggestion_image")
 public class SuggestionImage extends BaseDomain{
 
     @ManyToOne(targetEntity = Suggestion.class,fetch = FetchType.LAZY)

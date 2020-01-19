@@ -51,10 +51,9 @@ public class TownServiceImpl implements TownService {
         RespBody body = new RespBody();
         int begin = townPageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, townPageDto.getSize(), Sort.Direction.fromString(townPageDto.getDirection()), townPageDto.getProperty());
-
         Page<Town> pageRes = townRepository.findAll((Specification<Town>)(root, query, cb) -> {
             Predicate predicate = root.isNotNull();
-            predicate = cb.and(predicate, cb.equal(root.get("area"), userDetails.getArea()));
+            predicate = cb.and(predicate, cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
             if (StringUtils.isNotEmpty(townPageDto.getSearchKey())){
                 predicate = cb.and(predicate, cb.like(root.get("name").as(String.class), "%" + townPageDto.getSearchKey() + "%"));
             }

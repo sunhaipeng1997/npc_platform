@@ -18,6 +18,10 @@ public interface StudyTypeRepository extends BaseRepository<StudyType> {
 
     StudyType findByNameAndLevelAndAreaUidAndIsDelFalse(String name, Byte level, String uid);
 
+    StudyType findByNameAndLevelAndTownUidAndIsDelFalseAndUidNot(String name, Byte level, String uid,String typeUid);
+
+    StudyType findByNameAndLevelAndAreaUidAndIsDelFalseAndUidNot(String name, Byte level, String uid,String typeUid);
+
     @Query(value = "select max(type.sequence) from StudyType type")
     Integer findMaxSequence();
 

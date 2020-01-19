@@ -42,8 +42,7 @@ public class Town extends BaseDomain {
     @OneToMany(targetEntity = WorkStation.class, mappedBy = "town", orphanRemoval = true)
     private Set<WorkStation> workStations = new HashSet<>();
 
-    @OneToMany(targetEntity = Session.class, orphanRemoval = true)
-    @JoinColumn(name = "sessions", referencedColumnName = "id")
+    @ManyToOne(targetEntity = Session.class, fetch = FetchType.LAZY)
     private Set<Session> sessions = new HashSet<>();
 
 }

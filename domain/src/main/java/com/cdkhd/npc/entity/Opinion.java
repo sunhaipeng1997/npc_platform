@@ -44,6 +44,10 @@ public class Opinion extends BaseDomain {
    	@Column(name = "view" )
 	private Boolean view = false;
 
+    //逻辑删除
+    @Column(name = "is_del" )
+    private Boolean isDel = false;
+
     /**
      * 接受代表
      */

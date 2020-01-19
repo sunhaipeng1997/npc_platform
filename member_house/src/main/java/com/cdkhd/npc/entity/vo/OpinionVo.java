@@ -1,11 +1,16 @@
 package com.cdkhd.npc.entity.vo;
 
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.dto.PageDto;
 import com.cdkhd.npc.entity.Opinion;
 import com.cdkhd.npc.enums.ReplayStatusEnum;
+import com.cdkhd.npc.vo.BaseVo;
+import com.cdkhd.npc.vo.PageVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -16,7 +21,7 @@ import java.util.stream.Collectors;
  */
 @Setter
 @Getter
-public class OpinionVo extends PageDto {
+public class OpinionVo extends BaseVo {
 
     //接受代表名称
     private String memberName;
@@ -28,7 +33,7 @@ public class OpinionVo extends PageDto {
     private String groupName;
 
     //内容
-    private String content;
+    private String contents;
 
     //回复状态
     private Byte status;
@@ -46,6 +51,7 @@ public class OpinionVo extends PageDto {
     public static OpinionVo convert(Opinion opinion) {
         OpinionVo vo = new OpinionVo();
         BeanUtils.copyProperties(opinion, vo);
+        vo.setContents(opinion.getContent());
         vo.setMemberName(opinion.getReceiver().getName());
         vo.setSenderName(opinion.getSender().getVoter().getRealname());
         vo.setMobile(opinion.getSender().getVoter().getMobile());

@@ -11,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_role")
+@Table(name = "role")
 public class Role extends BaseDomain {
 
     private boolean enabled = true;

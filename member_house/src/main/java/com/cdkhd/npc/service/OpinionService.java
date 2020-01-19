@@ -18,9 +18,16 @@ public interface OpinionService {
     RespBody opinionPage(UserDetailsImpl userDetails, OpinionPageDto opinionPageDto);
 
     /**
-     * 回复意见
+     * 导出意见
      * @param opinionPageDto
      * @return
      */
     void exportOpinion(UserDetailsImpl userDetails, OpinionPageDto opinionPageDto, HttpServletRequest req, HttpServletResponse res);
+
+    /**
+     * 删除意见
+     * @param uid
+     * @return
+     */
+    RespBody deleteOpinion(String uid);
 }
