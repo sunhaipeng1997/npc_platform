@@ -1,11 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.*;
 
 /**
  * @Description
@@ -32,7 +31,7 @@ public class SystemSetting extends BaseDomain {
     @Column(name = "voter_opinion_to_all" )
 	private Boolean voterOpinionToAll = true;
 
-    //4.代表是否可以向代表提建议
+    //4.代表是否可以向代表提意见
     @Column(name = "member_opinion_to_member" )
 	private Boolean memberOpinionToMember = true;
 
@@ -51,6 +50,10 @@ public class SystemSetting extends BaseDomain {
     //8.是否开启软件更新提示
     @Column(name = "push_update" )
 	private Boolean pushUpdate = true;
+
+    //9 .是否开启软件快捷办公
+    @Column(name = "quick_work" )
+    private Boolean quickWork = true;
 
     @Column(name = "level" )
     private Byte level;

@@ -317,10 +317,6 @@ public class SuggestionServiceImpl implements SuggestionService {
         return body;
     }
 
-    @Override
-    public RespBody rank(UserDetailsImpl userDetails) {
-        return null;
-    }
 
     @Override
     public RespBody auditorSug(UserDetailsImpl userDetails, SuggestionPageDto dto) {

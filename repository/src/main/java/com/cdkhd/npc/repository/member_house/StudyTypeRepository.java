@@ -25,11 +25,17 @@ public interface StudyTypeRepository extends BaseRepository<StudyType> {
     @Query(value = "select max(type.sequence) from StudyType type")
     Integer findMaxSequence();
 
-    @Query(value = "select type from StudyType as type where type.sequence < ?1 order by type.sequence desc ")
-    Page<StudyType> findBySequenceDesc(Integer sequence, Pageable page);
+    @Query(value = "select type from StudyType as type where type.sequence < ?1 and type.level = ?2 and type.town.uid = ?3 order by type.sequence desc ")
+    Page<StudyType> findByTownSequenceDesc(Integer sequence, Byte level, String townUid, Pageable page);
 
-    @Query(value = "select type from StudyType as type where type.sequence > ?1 order by type.sequence asc ")
-    Page<StudyType> findBySequenceAsc(Integer sequence, Pageable page);
+    @Query(value = "select type from StudyType as type where type.sequence < ?1 and type.level = ?2 and type.area.uid = ?3 order by type.sequence desc ")
+    Page<StudyType> findByAreaSequenceDesc(Integer sequence, Byte level, String areaUid, Pageable page);
+
+    @Query(value = "select type from StudyType as type where type.sequence > ?1 and type.level = ?2 and type.town.uid = ?3 order by type.sequence asc ")
+    Page<StudyType> findByTownSequenceAsc(Integer sequence, Byte level, String townUid, Pageable page);
+
+    @Query(value = "select type from StudyType as type where type.sequence > ?1 and type.level = ?2 and type.area.uid = ?3 order by type.sequence asc ")
+    Page<StudyType> findByAreaSequenceAsc(Integer sequence, Byte level, String areaUid, Pageable page);
 
     List<StudyType> findByLevelAndTownUidAndIsDelFalse(Byte level, String uid);
 

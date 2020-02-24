@@ -86,6 +86,12 @@ public class Account extends BaseDomain {
     )
     private Set<AccountRole> accountRoles = new HashSet<>();
 
+    /**
+     * 手机号
+     */
+    @Column(name = "mobile")
+    private String mobile;
+
     //选民关联
     @OneToOne(mappedBy = "account", targetEntity = Voter.class, fetch = FetchType.LAZY)
     private Voter voter;

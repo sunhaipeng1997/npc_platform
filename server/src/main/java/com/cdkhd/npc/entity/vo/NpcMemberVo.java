@@ -1,9 +1,11 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.NpcMemberRole;
 import com.cdkhd.npc.enums.GenderEnum;
 import com.cdkhd.npc.enums.JobsEnum;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -39,7 +41,7 @@ public class NpcMemberVo extends BaseVo {
     private Date birthday;
 
     //职务类型
-    private Byte jobType;
+    private String jobType;
     private String typeName;//普通代表、主席、特殊人员
 
     //代表证号

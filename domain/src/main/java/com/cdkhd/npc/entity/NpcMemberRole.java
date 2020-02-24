@@ -28,9 +28,12 @@ public class NpcMemberRole extends BaseDomain {
    	@Column
 	private Byte status = StatusEnum.ENABLED.getValue();
 
-	//代表身份角色细分  1、普通代表  2、人大主席  3、特殊人员
+	//代表身份角色细分 （必须） 1、普通代表  2、人大主席  3、特殊人员 ，（非必须）4、新闻审核人  5、通知公告审核人  6、 建议接受人 7、履职小组审核人 8、 履职总审核人
    	@Column
 	private String name;
+
+   	//是否是必须的角色
+   	private Boolean isMust;
 
 	@ManyToMany
 	@JoinTable(

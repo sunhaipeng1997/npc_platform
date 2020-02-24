@@ -2,6 +2,7 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.StudyAddDto;
 import com.cdkhd.npc.entity.dto.StudyDto;
 import com.cdkhd.npc.entity.dto.StudyTypeAddDto;
 import com.cdkhd.npc.entity.dto.StudyTypeDto;
@@ -14,9 +15,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-@RequestMapping("/api/member_house/study")
+@RequestMapping("/api/server/study")
 public class StudyController {
 
     private StudyService studyService;
@@ -62,8 +64,8 @@ public class StudyController {
      * @return
      */
     @PostMapping("/changeTypeSequence")
-    public ResponseEntity changeTypeSequence(String uid, Byte type) {
-        RespBody body = studyService.changeTypeSequence(uid,type);
+    public ResponseEntity changeTypeSequence(@CurrentUser UserDetailsImpl userDetails,String uid, Byte type) {
+        RespBody body = studyService.changeTypeSequence(userDetails, uid,type);
         return ResponseEntity.ok(body);
     }
 
@@ -95,8 +97,8 @@ public class StudyController {
      * @return
      */
     @GetMapping("/findStudy")
-    public ResponseEntity findStudy(@CurrentUser UserDetailsImpl userDetails, StudyDto performanceDto) {
-        RespBody body = studyService.findStudy(userDetails,performanceDto);
+    public ResponseEntity findStudy(@CurrentUser UserDetailsImpl userDetails, StudyDto studyDto) {
+        RespBody body = studyService.findStudy(userDetails,studyDto);
         return ResponseEntity.ok(body);
     }
 
@@ -110,6 +112,48 @@ public class StudyController {
         return ResponseEntity.ok(body);
     }
 
+    /**
+     *  添加/修改学习信息
+     * @return
+     */
+    @PostMapping("/addOrUpdateStudy")
+    public ResponseEntity addOrUpdateStudy(@CurrentUser UserDetailsImpl userDetails,StudyAddDto studyAddDto) {
+        RespBody body = studyService.addOrUpdateStudy(userDetails,studyAddDto);
+        return ResponseEntity.ok(body);
+    }
+
+
+    /**
+     *  上传学习资料
+     * @return
+     */
+    @PostMapping("/uploadStudyFile")
+    public ResponseEntity uploadStudyFile(@CurrentUser UserDetailsImpl userDetails, MultipartFile file) {
+        RespBody body = studyService.uploadStudyFile(userDetails,file);
+        return ResponseEntity.ok(body);
+    }
+
+
+    /**
+     *  修改学习资料排序
+     * @return
+     */
+    @PostMapping("/changeStudySequence")
+    public ResponseEntity changeStudySequence(String uid, Byte type, String studyType) {
+        RespBody body = studyService.changeStudySequence(uid,type, studyType);
+        return ResponseEntity.ok(body);
+    }
+
+
+    /**
+     *  修改学习资料状态
+     * @return
+     */
+    @PostMapping("/changeStudyStatus")
+    public ResponseEntity changeStudyStatus(String uid, Byte status) {
+        RespBody body = studyService.changeStudyStatus(uid,status);
+        return ResponseEntity.ok(body);
+    }
 
 
 }

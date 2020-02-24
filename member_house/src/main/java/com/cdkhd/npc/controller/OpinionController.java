@@ -44,7 +44,7 @@ public class OpinionController {
 
 
     /**
-     * 获取意见列表
+     * 删除意见信息
      * @return
      */
     @DeleteMapping("/deleteOpinion")

@@ -1,6 +1,7 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Study;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,9 +29,19 @@ public class StudyVo extends BaseVo {
     //排序号
     private Integer sequence;
 
+    //学习类型名称
+    private String typeName;
+
+    //状态
+    private Byte status;
+    private String statusName;
+
     public static StudyVo convert(Study study) {
         StudyVo vo = new StudyVo();
         BeanUtils.copyProperties(study, vo);
+        vo.setStatus(study.getStatus());
+        vo.setStatusName(StatusEnum.getName(study.getStatus()));
+        vo.setTypeName(study.getStudyType().getName());
         return vo;
     }
 }

@@ -1,8 +1,10 @@
 package com.cdkhd.npc.api;
 
+
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.service.StudyService;
+import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,27 +13,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/member_house_mobile/study")
-public class StudyApi {
-
-    private StudyService studyService;
+@RequestMapping("/api/mobile/systemSetting")
+public class SystemSettingApi {
+    private SystemSettingService systemSettingService;
 
     @Autowired
-    public StudyApi(StudyService studyService) {
-        this.studyService = studyService;
+    public SystemSettingApi(SystemSettingService systemSettingService) {
+        this.systemSettingService = systemSettingService;
     }
 
-
     /**
-     * 获取履职类型列表
+     * 获取系统配置
      * @param userDetails
      * @return
      */
-    @GetMapping("/studiesList")
-    public ResponseEntity studiesList(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = studyService.studiesList(userDetails);
+    @GetMapping("getSystemSetting")
+    public ResponseEntity getSystemSetting(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = systemSettingService.getSystemSettings(userDetails);
         return ResponseEntity.ok(body);
     }
-
 
 }

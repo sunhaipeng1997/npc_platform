@@ -7,6 +7,8 @@ import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRoleRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
+import com.cdkhd.npc.vo.CommonVo;
+import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
@@ -82,15 +85,35 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
         return npcMembers;
     }
 
+
     @Override
     public List<String> findKeyWordByUid(String uid) {
         NpcMember npcMember = npcMemberRepository.findByUid(uid);
         List<String> permissionList = Lists.newArrayList();
         for (NpcMemberRole npcMemberRole : npcMember.getNpcMemberRoles()) {
-            for (Permission permission : npcMemberRole.getPermissions()) {
-                permissionList.add(permission.getKeyword());
+                permissionList.add(npcMemberRole.getKeyword());
+        }
+        return permissionList;
+    }
+
+    @Override
+    public List<String> findKeyWordByUid(String uid, Boolean isMust) {
+        NpcMember npcMember = npcMemberRepository.findByUid(uid);
+        List<String> permissionList = Lists.newArrayList();
+        for (NpcMemberRole npcMemberRole : npcMember.getNpcMemberRoles()) {
+            if (isMust.equals(npcMemberRole.getIsMust())) {
+                permissionList.add(npcMemberRole.getKeyword());
             }
         }
         return permissionList;
+    }
+
+    @Override
+    public RespBody findMustList() {
+        RespBody body = new RespBody();
+        List<NpcMemberRole> npcMemberRoleList = npcMemberRoleRepository.findByIsMustTrue();
+        List<CommonVo> commonVos = npcMemberRoleList.stream().map(role -> CommonVo.convert(role.getUid(),role.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
+        return body;
     }
 }
