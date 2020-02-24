@@ -47,7 +47,7 @@ public class NpcMemberAddDto {
     private Byte gender;
 
     //任职类型
-    private Byte type;
+    private String type;
 
     //代表证号
     private String code;

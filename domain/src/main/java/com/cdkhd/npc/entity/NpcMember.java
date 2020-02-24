@@ -103,7 +103,7 @@ public class NpcMember extends BaseDomain {
 	 * 3、特殊人员
 	 */
    	@Column(name = "type" )
-	private Byte type;
+	private String type;
 
 	/**
 	 * 代表证号

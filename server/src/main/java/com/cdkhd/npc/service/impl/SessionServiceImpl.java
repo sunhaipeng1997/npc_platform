@@ -260,7 +260,8 @@ public class SessionServiceImpl implements SessionService {
         }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
             session = sessionRepository.findAreaCurrentSession(userDetails.getArea().getUid(),userDetails.getLevel(),new Date());
         }
-        return session;    }
+        return session;
+    }
 
     @Override
     public Session defaultSession(UserDetailsImpl userDetails) {

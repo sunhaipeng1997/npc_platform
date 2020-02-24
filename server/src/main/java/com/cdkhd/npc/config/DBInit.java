@@ -62,6 +62,7 @@ public class DBInit {
                 npcMemberRole = new NpcMemberRole();
                 npcMemberRole.setKeyword(npcMemberRoleEnum.getKeyword());
                 npcMemberRole.setName(npcMemberRoleEnum.getName());
+                npcMemberRole.setIsMust(npcMemberRoleEnum.getIsMust());
                 npcMemberRoleRepository.saveAndFlush(npcMemberRole);
             }
         }

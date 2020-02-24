@@ -2,6 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.dto.OpinionPageDto;
 import com.cdkhd.npc.entity.dto.StatisticalPageDto;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
@@ -11,10 +12,16 @@ import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.StatisticalService;
 import com.cdkhd.npc.service.SystemSettingService;
+import com.cdkhd.npc.util.ExcelCode;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +30,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -212,6 +225,117 @@ public class StatisticalServiceImpl implements StatisticalService {
         Map<String,Map<String, Integer>> townMap = this.dealPerformance(towns,performanceList,performanceTypeList);
         body.setData(townMap);
         return body;
+    }
+
+    @Override
+    public void exportStatistical(UserDetailsImpl userDetails, StatisticalPageDto statisticalPageDto, HttpServletRequest req, HttpServletResponse res) {
+        ServletOutputStream os = null;
+        try {
+            os = res.getOutputStream();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        Workbook hssWb = new HSSFWorkbook();
+        int begin = statisticalPageDto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, statisticalPageDto.getSize(), Sort.Direction.fromString(statisticalPageDto.getDirection()), statisticalPageDto.getProperty());
+        Page<NpcMember> npcMembers = this.getNpcMemberPage(userDetails,statisticalPageDto,page);
+        List<Performance> performanceList = this.getPerformanceList(userDetails,statisticalPageDto);
+        List<PerformanceType> performanceTypeList = this.getPerformanceTypeList(userDetails);
+        Map<String,Map<String, Integer>> memberMap = this.dealPerformanceForMember(npcMembers,performanceList,performanceTypeList);
+
+        String fileName = ExcelCode.encodeFileName("代表履职统计.xls", req);
+        res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+
+        //todo  后面还没改完
+        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见"};
+
+        Sheet sheet = hssWb.createSheet("代表建议");
+
+        Row headRow = sheet.createRow(0);
+        int colSize = tableHeaders.length;
+        for (int i = 0; i < colSize; i++) {
+            Cell cell = headRow.createCell(i);
+            cell.setCellValue(tableHeaders[i]);
+        }
+
+        int beginIndex = 1;
+//        for (Suggestion suggestion : suggestions) {
+//            Row row = sheet.createRow(beginIndex);
+//
+//            // 编号
+//            Cell cell0 = row.createCell(0);
+//            cell0.setCellValue(beginIndex);
+//            beginIndex++;
+//
+//            // 建议类型
+//            Cell cell1 = row.createCell(1);
+//            cell1.setCellValue(suggestion.getSuggestionBusiness().getName());
+//
+//            // 建议类型
+//            Cell cell2 = row.createCell(2);
+//            cell2.setCellValue(suggestion.getTitle());
+//
+//            // 建议时间
+//            Cell cell3 = row.createCell(3);
+//            cell3.setCellValue(suggestion.getAuditTime());
+//
+//            // 建议代表
+//            Cell cell4 = row.createCell(4);
+//            NpcMember member = suggestion.getRaiser();
+//            if (member != null) {
+//                // 联系方式
+//                Cell cell7 = row.createCell(7);
+//                cell4.setCellValue(member.getName());
+//                String mobile = member.getMobile();
+//                if (StringUtils.isNotBlank(mobile)) {
+//                    cell7.setCellValue(mobile);
+//                } else {
+//                    cell7.setCellValue("");
+//                }
+//            } else {
+//                cell2.setCellValue("");
+//            }
+//
+//            //建议内容
+//            Cell cell5 = row.createCell(5);
+//            cell5.setCellValue(suggestion.getContent());
+//
+//            //所属地区
+//            Cell cell6 = row.createCell(6);
+//            String place = "";
+//            if (suggestion.getLevel().equals(LevelEnum.AREA.getValue())) {
+//                place = suggestion.getArea().getName() + suggestion.getTown().getName();
+//            } else if (suggestion.getLevel().equals(LevelEnum.TOWN.getValue())) {
+//                place = suggestion.getTown().getName() + suggestion.getNpcMemberGroup().getName();
+//            }
+//            cell6.setCellValue(place);
+//
+//            // 审核人
+//            Cell cell7 = row.createCell(7);
+//            cell7.setCellValue(suggestion.getAuditor().getName());
+//
+//            //审核状态
+//            Cell cell8 = row.createCell(8);
+//            cell8.setCellValue(suggestion.getStatus());
+//
+//            //审核意见
+//            Cell cell9 = row.createCell(9);
+//            cell9.setCellValue(suggestion.getReason());
+//
+//        }
+        try {
+            hssWb.write(os);
+            os.flush();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            LOGGER.error("导出代表建议出错 \n {}", e1);
+        }
+    }
+
+    @Override
+    public void exportTownStatistical(UserDetailsImpl userDetails, StatisticalPageDto statisticalPageDto, HttpServletRequest req, HttpServletResponse res) {
+
     }
 
     private Map<String, Map<String, Integer>> dealPerformance(Page<Town> towns, List<Performance> performanceList, List<PerformanceType> performanceTypeList) {

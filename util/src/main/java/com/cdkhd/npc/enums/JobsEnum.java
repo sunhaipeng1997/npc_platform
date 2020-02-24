@@ -1,20 +1,20 @@
 package com.cdkhd.npc.enums;
 
 public enum JobsEnum {
-    NORMAL((byte)1,"普通代表"),
-    LEADER((byte)2,"人大主席"),
-    SPECIAL((byte)3,"特殊人员");
+    NORMAL("MEMBER","普通代表"),
+    LEADER("CHAIRMAN","人大主席"),
+    SPECIAL("SPECIAL_MAN","特殊人员");
 
-    private Byte value;
+    private String value;
     private String name;
 
-    JobsEnum(Byte value, String name) {
+    JobsEnum(String value, String name) {
         this.value = value;
         this.name = name;
     }
 
 
-    public byte getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -22,7 +22,7 @@ public enum JobsEnum {
         return name;
     }
 
-    public static Byte getValue(String name) {
+    public static String getValue(String name) {
         JobsEnum[] levels = values();
         for (JobsEnum level : levels) {
             if (level.getName().equals(name)) {
@@ -32,10 +32,10 @@ public enum JobsEnum {
         return null;
     }
 
-    public static String getName(byte value) {
+    public static String getName(String value) {
         JobsEnum[] levels = values();
         for (JobsEnum level : levels) {
-            if (level.getValue() == value) {
+            if (level.getValue().equals(value)) {
                 return level.getName();
             }
         }

@@ -24,4 +24,8 @@ public interface StatisticalService {
      * @return
      */
     RespBody townPerformance(UserDetailsImpl userDetails, StatisticalPageDto statisticalPageDto);
+
+    void exportStatistical(UserDetailsImpl userDetails, StatisticalPageDto statisticalPageDto, HttpServletRequest req, HttpServletResponse res);
+
+    void exportTownStatistical(UserDetailsImpl userDetails, StatisticalPageDto statisticalPageDto, HttpServletRequest req, HttpServletResponse res);
 }

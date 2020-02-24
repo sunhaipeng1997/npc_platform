@@ -1,10 +1,12 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.StudyAddDto;
 import com.cdkhd.npc.entity.dto.StudyDto;
 import com.cdkhd.npc.entity.dto.StudyTypeAddDto;
 import com.cdkhd.npc.entity.dto.StudyTypeDto;
 import com.cdkhd.npc.vo.RespBody;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface StudyService {
 
@@ -39,7 +41,7 @@ public interface StudyService {
      * @param type
      * @return
      */
-    RespBody changeTypeSequence(String uid, Byte type);
+    RespBody changeTypeSequence(UserDetailsImpl userDetails,String uid, Byte type);
 
     /**
      * 修改类型状态
@@ -75,5 +77,47 @@ public interface StudyService {
      */
     RespBody deleteStudy(String uid);
 
+
+    /**
+     * 添加/修改学习信息
+     * @param userDetails
+     * @param studyAddDto
+     * @return
+     */
+    RespBody addOrUpdateStudy(UserDetailsImpl userDetails, StudyAddDto studyAddDto);
+
+    /**
+     * 上传学习资料
+     * @param userDetails
+     * @param file
+     * @return
+     */
+    RespBody uploadStudyFile(UserDetailsImpl userDetails, MultipartFile file);
+
+    /**
+     * 修改学习资料排序
+     * @param uid
+     * @param type
+     * @return
+     */
+    RespBody changeStudySequence(String uid, Byte type, String studyType);
+
+    /**
+     * 修改学习资料状态
+     * @param uid
+     * @param status
+     * @return
+     */
+    RespBody changeStudyStatus(String uid, Byte status);
+
+
+    //小程序相关接口
+
+    /**
+     * 学习资料列表展示
+     * @param userDetails
+     * @return
+     */
+    RespBody studyList(UserDetailsImpl userDetails);
 
 }

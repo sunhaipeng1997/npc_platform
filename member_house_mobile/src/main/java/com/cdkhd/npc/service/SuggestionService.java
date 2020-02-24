@@ -65,17 +65,21 @@ public interface SuggestionService {
 
 
     /**
-     * 建议排名
-     * @param userDetails
-     * @return
-     */
-    RespBody rank(UserDetailsImpl userDetails);
-
-    /**
      * 审核人员相关的建议
      * @param userDetails
      * @param dto
      * @return
      */
     RespBody auditorSug(UserDetailsImpl userDetails, SuggestionPageDto dto);
+
+    //rfx
+    //上级查看下级代表建议详情
+
+    /**
+     *  根据选择的代表查看其提出的建议
+     * @param userDetails
+     * @param uid
+     * @return
+     */
+    RespBody getMemberSugList(UserDetailsImpl userDetails, String uid);
 }

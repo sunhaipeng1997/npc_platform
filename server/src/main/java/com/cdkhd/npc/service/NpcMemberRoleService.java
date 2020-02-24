@@ -1,6 +1,9 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.NpcMemberRole;
+import com.cdkhd.npc.vo.CommonVo;
+import com.cdkhd.npc.vo.RespBody;
 
 import java.util.List;
 
@@ -30,6 +33,7 @@ public interface NpcMemberRoleService {
      */
     List<NpcMember> findByKeyWordAndLevelAndUid(String keyword,Byte level,String uid);
 
+
     /**
      * 查寻所有小组审核人
      * @param keyword 关键字
@@ -45,5 +49,18 @@ public interface NpcMemberRoleService {
      * @return
      */
     List<String> findKeyWordByUid(String uid);
+
+    /**
+     * 通过代表uid查询其所有权限
+     * @param uid   代表
+     * @return
+     */
+    List<String> findKeyWordByUid(String uid, Boolean isMust);
+
+    /**
+     * 查询所有必选的代表角色
+     * @return
+     */
+    RespBody findMustList();
 
 }

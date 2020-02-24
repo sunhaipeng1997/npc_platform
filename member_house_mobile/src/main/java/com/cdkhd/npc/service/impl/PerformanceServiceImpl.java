@@ -9,6 +9,8 @@ import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.NpcMemberRoleEnum;
+import com.cdkhd.npc.enums.PermissionEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
@@ -26,6 +28,7 @@ import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
@@ -188,23 +192,37 @@ public class PerformanceServiceImpl implements PerformanceService {
             performance.setTown(npcMember.getTown());
             performance.setNpcMember(npcMember);
             //设置完了基本信息后，给相应的审核人员推送消息
-            List<NpcMember> auditors;
+            List<NpcMember> auditors = Lists.newArrayList();
             SystemSetting systemSetting = systemSettingRepository.findAll().get(0);
             //如果是在镇上履职，那么查询镇上的审核人员
+            String uid;
+            if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+                uid = npcMember.getTown().getUid();
+            }else{
+                uid = npcMember.getArea().getUid();
+            }
             //首先判断端当前用户的角色是普通代表还是小组审核人员还是总审核人员
             if (systemSetting.getPerformanceGroupAudit()) {//开启了小组审核人员
-                List<String> permissions = npcMemberRoleService.findKeyWordByUid(npcMember.getUid());
-                if (permissions.contains("lvxzshr")){//如果当前登录人是履职小组审核人，那么查询履职总审核人
-                    auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid("lvzsh",addPerformanceDto.getLevel(),npcMember.getTown().getUid());
+                List<String> permissions = npcMemberRoleService.findKeyWordByUid(npcMember.getUid(),false);
+                if (CollectionUtils.isNotEmpty(permissions) && permissions.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword())){//如果当前登录人是履职小组审核人，那么查询履职总审核人
+                    auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(),addPerformanceDto.getLevel(),uid);
                 }
                 else {
                     //如果不是小组审核人
+                    //查询出所有的小组审核人
+                    List<NpcMember> allGroupAuditors = npcMemberRoleService.findByKeyWordAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(), addPerformanceDto.getLevel() ,uid);
                     //查询与我同组的所有小组审核人
-                    auditors = npcMemberRoleService.findByKeyWordAndUid("lvxzsh", addPerformanceDto.getLevel() ,npcMember.getTown().getUid());
+                    for (NpcMember allGroupAuditor : allGroupAuditors) {
+                        if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue()) && allGroupAuditor.getNpcMemberGroup().getUid().equals(npcMember.getNpcMemberGroup().getUid())){
+                            auditors.add(allGroupAuditor);
+                        }else if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue()) && allGroupAuditor.getTown().getUid().equals(npcMember.getTown().getUid())){
+                            auditors.add(allGroupAuditor);
+                        }
+                    }
                 }
             }else{
                 //小组审核人员没有开启，那么直接有总审核人员审核
-                auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid("lvzsh",addPerformanceDto.getLevel(),npcMember.getTown().getUid());
+                auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(),addPerformanceDto.getLevel(),uid);
             }
             for (NpcMember auditor : auditors) {//todo 推送消息得重寫
                 pushService.pushMsg(auditor.getAccount(),"",1,"");
@@ -257,21 +275,61 @@ public class PerformanceServiceImpl implements PerformanceService {
     public RespBody performanceAuditorPage(UserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());
-        NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());
-        SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());//当前登录账户的代表信息
+        List<String> roleKeywords = npcMember.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toList());
+        SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);//系统设置开关
+
+        //排序条件
         int begin = performancePageDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, performancePageDto.getSize(), Sort.Direction.fromString(performancePageDto.getDirection()), performancePageDto.getProperty());
+        Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createAt");//再按创建时间排序
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(statusSort);
+        orders.add(createAt);
+        Sort sort = Sort.by(orders);
+
+        Pageable page = PageRequest.of(begin, performancePageDto.getSize(), sort);
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                if ("判断角色".equals(11)) {
-                    //todo 如果是小组审核人人员，并且开关打开了，才查询
-                    //todo 如果小组审核人员，开关关闭，那么结果为空
+                List<NpcMember> npcMemberList = Lists.newArrayList();
+                if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
+                    //todo 如果是小组审核人人员，并且开关打开了，才查询同组的所有代表
+                    npcMemberList = npcMemberRepository.findByNpcMemberGroupUidAndIsDelFalse(npcMember.getNpcMemberGroup().getUid());
+                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit() ) {
+                    //todo 如果总审核人员，开关开启，那么查询所有小组审核人员
+                    npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(),performancePageDto.getLevel(),npcMember.getTown().getUid());
+                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit() ) {
                     //todo 如果是总审核人员，并且开关关闭了，那么查询所有的
-                    //todo 如果总审核人员，开关关闭，那么查询所有小组审核人员
+                    npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
                 }
+                if (CollectionUtils.isNotEmpty(npcMemberList)){
+                    List<String> uids = npcMemberList.stream().map(NpcMember::getUid).collect(Collectors.toList());
+                    CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
+                    in.value(uids);
+                    predicates.add(in);
+                }
+                predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), performancePageDto.getAreaUid()));
             }else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())){
+                List<NpcMember> npcMemberList = Lists.newArrayList();
+                if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
+                    //todo 如果是小组审核人人员，并且开关打开了，才查询同镇的所有代表
+                    npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
+                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit() ) {
+                    //todo 如果总审核人员，开关开启，那么查询所有镇审核人员
+                    npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(),performancePageDto.getLevel(),npcMember.getArea().getUid());
+                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit() ) {
+                    //todo 如果是总审核人员，并且开关关闭了，那么查询所有的
+                    npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
+                }
+                if (CollectionUtils.isNotEmpty(npcMemberList)){
+                    List<String> uids = npcMemberList.stream().map(NpcMember::getUid).collect(Collectors.toList());
+                    CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
+                    in.value(uids);
+                    predicates.add(in);
+                }
+                predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), performancePageDto.getAreaUid()));
             }
             //状态 已回复  未回复

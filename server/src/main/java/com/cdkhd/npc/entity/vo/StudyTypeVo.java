@@ -34,10 +34,13 @@ public class StudyTypeVo extends BaseVo {
     private Byte status;
     private String statusName;
 
+    private List<StudyVo> studyVos;
+
     public static StudyTypeVo convert(StudyType studyType) {
         StudyTypeVo vo = new StudyTypeVo();
         BeanUtils.copyProperties(studyType, vo);
         vo.setStatusName(StatusEnum.getName(studyType.getStatus()));
+        vo.setStudyVos(studyType.getStudies().stream().map(StudyVo::convert).collect(Collectors.toList()));
         return vo;
     }
 }

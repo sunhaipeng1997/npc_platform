@@ -1,25 +1,25 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.NpcMemberGroup;
-import com.cdkhd.npc.entity.Session;
-import com.cdkhd.npc.entity.Town;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
+import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NpcMemberService;
+import com.cdkhd.npc.service.SessionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,15 +44,23 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     private NpcMemberRepository npcMemberRepository;
     private SessionRepository sessionRepository;
+    private SessionService sessionService;
     private NpcMemberGroupRepository npcMemberGroupRepository;
+    private NpcMemberRoleRepository npcMemberRoleRepository;
     private TownRepository townRepository;
+    private AccountRepository accountRepository;
+    private AccountRoleRepository accountRoleRepository;
 
     @Autowired
-    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository) {
+    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, SessionService sessionService, NpcMemberGroupRepository npcMemberGroupRepository, NpcMemberRoleRepository npcMemberRoleRepository, TownRepository townRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository) {
         this.npcMemberRepository = npcMemberRepository;
         this.sessionRepository = sessionRepository;
+        this.sessionService = sessionService;
         this.npcMemberGroupRepository = npcMemberGroupRepository;
+        this.npcMemberRoleRepository = npcMemberRoleRepository;
         this.townRepository = townRepository;
+        this.accountRepository = accountRepository;
+        this.accountRoleRepository = accountRoleRepository;
     }
 
     /**
@@ -155,8 +162,22 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
                 return body;
             }
+            member = npcMemberRepository.findByLevelAndMobileAndUidIsNotAndIsDelFalse(userDetails.getLevel(),dto.getMobile(),dto.getUid());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
+            if (member != null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("该代表已经存在");
+                LOGGER.warn("手机号为 {} 代表已经存在，修改代表信息失败", dto.getMobile());
+                return body;
+            }
             body.setMessage("修改代表成功");
         }else {
+            member = npcMemberRepository.findByLevelAndMobileAndIsDelFalse(userDetails.getLevel(),dto.getMobile());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
+            if (member != null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("该代表已经存在");
+                LOGGER.warn("手机号为 {} 代表已经存在，修改代表信息失败", dto.getMobile());
+                return body;
+            }
             member = new NpcMember();
             member.setLevel(userDetails.getLevel());
             member.setArea(userDetails.getArea());   //与后台管理员同区
@@ -169,7 +190,8 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         member.setAddress(dto.getAddress());
         member.setBirthday(dto.getBirthday());
         member.setGender(dto.getGender());
-        member.setType(dto.getType());
+        NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByKeyword(dto.getType());
+        member.setType(npcMemberRole.getKeyword());
         member.setCode(dto.getCode());
         member.setIdcard(dto.getIdcard());
         member.setAvatar(dto.getAvatar());
@@ -204,9 +226,48 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 member.setTown(town);   //设置工作镇
             }
         }
+
+        //本届的特殊职能
+        Session currentSession = sessionService.currentSession(userDetails);
+        Session defauleSession = sessionService.defaultSession(userDetails);
+        String currentSessionId = "";
+        String defauleSessionId = "";
+        if (currentSession != null){
+            currentSessionId = currentSession.getUid();
+        }
+        defauleSessionId = defauleSession.getUid();
+        Account account = accountRepository.findByMobile(dto.getMobile());//代表对应的账号信息
+        if(dto.getSessionUids().contains(defauleSessionId)){//如果选择了其他届期，就清除掉非必选的角色，然后将账号角色改为选民
+            Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
+            npcMemberRoles.clear();//先把所有的角色删除掉，然后将本次选择的加上
+            npcMemberRoles.add(npcMemberRole);
+            member.setNpcMemberRoles(npcMemberRoles);
+            if (account != null){
+                Set<AccountRole> accountRoles = account.getAccountRoles();
+                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
+//                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword()));
+                AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
+                accountRoles.add(voter);
+                accountRoleRepository.saveAll(accountRoles);
+            }
+        }
+        else if (dto.getSessionUids().contains(currentSessionId)){//如果选择的届期里面包含了当前的届期，那么就给代表赋予当前代表的职能
+            Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
+            npcMemberRoles.removeIf(role -> role.getIsMust());//先把必选的角色删除掉，然后将本次选择的加上
+            npcMemberRoles.add(npcMemberRole);
+            member.setNpcMemberRoles(npcMemberRoles);
+            if (account != null){
+                Set<AccountRole> accountRoles = account.getAccountRoles();
+//                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
+                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword()));
+                AccountRole memberAccount = accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword());//将选民和代表身份都移除后加上代表身份
+                accountRoles.add(memberAccount);
+                accountRoleRepository.saveAll(accountRoles);
+            }
+        }
+
         //保存代表
         npcMemberRepository.save(member);
-
         return body;
     }
 
@@ -244,6 +305,12 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     @Override
     public RespBody uploadAvatar(UserDetailsImpl userDetails, MultipartFile avatar) {
         RespBody<String> body = new RespBody<>();
+        if (avatar == null){
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            body.setMessage("图片上传失败！请稍后重试");
+            LOGGER.error("代表头像保存失败");
+            return body;
+        }
         //保存代表头像至文件系统
         String url = ImageUploadUtil.saveImage("npc_member_avatar", avatar,150,200);
         if (url.equals("error")) {

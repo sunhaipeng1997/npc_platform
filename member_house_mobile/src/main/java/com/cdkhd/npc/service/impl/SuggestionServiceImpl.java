@@ -317,10 +317,6 @@ public class SuggestionServiceImpl implements SuggestionService {
         return body;
     }
 
-    @Override
-    public RespBody rank(UserDetailsImpl userDetails) {
-        return null;
-    }
 
     @Override
     public RespBody auditorSug(UserDetailsImpl userDetails, SuggestionPageDto dto) {
@@ -343,5 +339,16 @@ public class SuggestionServiceImpl implements SuggestionService {
         vo.copy(pageRes);
         body.setData(vo);
         return body;
+    }
+
+    /**
+     * 获取该代表提出的所有建议
+     * @param userDetails
+     * @param uid
+     * @return
+     */
+    @Override
+    public RespBody getMemberSugList(UserDetailsImpl userDetails, String uid) {
+        return null;
     }
 }

@@ -48,7 +48,7 @@ public class PerformanceApi {
     }
 
     /**
-     * 添加或修改履职类型列表
+     * 删除履职信息
      * @return
      */
     @DeleteMapping("/deletePerformance")

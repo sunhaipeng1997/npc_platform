@@ -1,25 +1,28 @@
 package com.cdkhd.npc.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.PerformanceType;
 import com.cdkhd.npc.entity.Study;
 import com.cdkhd.npc.entity.StudyType;
+import com.cdkhd.npc.entity.dto.StudyAddDto;
 import com.cdkhd.npc.entity.dto.StudyDto;
 import com.cdkhd.npc.entity.dto.StudyTypeAddDto;
 import com.cdkhd.npc.entity.dto.StudyTypeDto;
-import com.cdkhd.npc.entity.vo.PerformanceTypeVo;
 import com.cdkhd.npc.entity.vo.StudyTypeVo;
 import com.cdkhd.npc.entity.vo.StudyVo;
 import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.member_house.StudyRepository;
 import com.cdkhd.npc.repository.member_house.StudyTypeRepository;
 import com.cdkhd.npc.service.StudyService;
 import com.cdkhd.npc.util.Constant;
+import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +35,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,15 +52,13 @@ import java.util.stream.Collectors;
 public class StudyServiceImpl implements StudyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StudyServiceImpl.class);
 
-    private NpcMemberRepository npcMemberRepository;
 
     private StudyTypeRepository studyTypeRepository;
 
     private StudyRepository studyRepository;
 
     @Autowired
-    public StudyServiceImpl(NpcMemberRepository npcMemberRepository, StudyTypeRepository studyTypeRepository, StudyRepository studyRepository) {
-        this.npcMemberRepository = npcMemberRepository;
+    public StudyServiceImpl(StudyTypeRepository studyTypeRepository, StudyRepository studyRepository) {
         this.studyTypeRepository = studyTypeRepository;
         this.studyRepository = studyRepository;
     }
@@ -162,7 +168,7 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    public RespBody changeTypeSequence(String uid, Byte type) {
+    public RespBody changeTypeSequence(UserDetailsImpl userDetails,String uid, Byte type) {
         RespBody body = new RespBody();
         StudyType studyType = studyTypeRepository.findByUid(uid);
         if (studyType == null) {
@@ -174,11 +180,20 @@ public class StudyServiceImpl implements StudyService {
         if (type.equals(Constant.LOGIN_WAY_UP)) {//1 上移
             Sort sort = new Sort(Sort.Direction.DESC, "sequence");
             Pageable page = PageRequest.of(0, 1, sort);
-            targetType = studyTypeRepository.findBySequenceDesc(studyType.getSequence(), page).getContent().get(0);
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                targetType = studyTypeRepository.findByTownSequenceDesc(studyType.getSequence(), userDetails.getLevel(), userDetails.getTown().getUid(), page).getContent().get(0);
+            }else{
+                targetType = studyTypeRepository.findByAreaSequenceDesc(studyType.getSequence(), userDetails.getLevel(), userDetails.getArea().getUid(), page).getContent().get(0);
+            }
         } else {
             Sort sort = new Sort(Sort.Direction.ASC, "sequence");
             Pageable page = PageRequest.of(0, 1, sort);
-            targetType = studyTypeRepository.findBySequenceAsc(studyType.getSequence(), page).getContent().get(0);
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                targetType = studyTypeRepository.findByTownSequenceAsc(studyType.getSequence(), userDetails.getLevel(), userDetails.getTown().getUid(), page).getContent().get(0);
+            }else{
+                targetType = studyTypeRepository.findByAreaSequenceAsc(studyType.getSequence(), userDetails.getLevel(), userDetails.getArea().getUid(), page).getContent().get(0);
+            }
+
         }
         List<StudyType> types = this.changeSequence(studyType, targetType);
         studyTypeRepository.saveAll(types);
@@ -275,6 +290,166 @@ public class StudyServiceImpl implements StudyService {
     }
 
     /**
+     * 添加或修改学习资料
+     * @param userDetails
+     * @param studyAddDto
+     * @return
+     */
+    @Override
+    public RespBody addOrUpdateStudy(UserDetailsImpl userDetails, StudyAddDto studyAddDto) {
+        RespBody body = new RespBody();
+        Study study;
+        if (StringUtils.isEmpty(studyAddDto.getUid())) {//添加学习资料
+            study = new Study();
+            study.setLevel(userDetails.getLevel());
+            study.setArea(userDetails.getArea());
+            study.setTown(userDetails.getTown());
+            Integer maxSequence = studyRepository.findMaxSequence(studyAddDto.getStudyType());
+            study.setSequence(maxSequence==null?1:maxSequence+1);
+        }
+        else {
+            study = studyRepository.findByUid(studyAddDto.getUid());
+            if (study == null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("找不到学习资料！");
+                return body;
+            }
+        }
+        study.setName(studyAddDto.getName());
+        study.setStudyType(studyTypeRepository.findByUid(studyAddDto.getStudyType()));
+        study.setRemark(studyAddDto.getRemark());
+        study.setUrl(studyAddDto.getUrl());
+        studyRepository.saveAndFlush(study);
+        return body;
+    }
+
+    /**
+     * 上传学习文件
+     * @param userDetails
+     * @param file
+     * @return
+     */
+    @Override
+    public RespBody uploadStudyFile(UserDetailsImpl userDetails, MultipartFile file) {
+        RespBody<JSONObject> body = new RespBody<>();
+        if (file == null) {
+            body.setMessage("文件不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        // 保存新文件
+        String org = file.getOriginalFilename();
+        String ext = FilenameUtils.getExtension(org);
+        // 生成新的文件名
+        String filename = String.format("%s.%S", SysUtil.uid(), ext);
+        String parentPath = "static/public/study";
+        File bgFile = new File(parentPath, filename);
+        File parentFile = bgFile.getParentFile();
+        if (!parentFile.exists()) {
+            boolean mkdirs = parentFile.mkdirs();
+            if (!mkdirs) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("系统内部错误");
+                return body;
+            }
+        }
+
+        try (InputStream is = file.getInputStream()) {
+            // 拷贝文件
+            FileUtils.copyInputStreamToFile(is, bgFile);
+            JSONObject obj = new JSONObject();
+            obj.put("url", String.format("/public/study/%s", filename));
+            obj.put("name", org);
+            body.setData(obj);
+        } catch (IOException e) {
+            LOGGER.error("文件保存失败 {}", e);
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("系统内部错误");
+            return body;
+        }
+        return body;
+    }
+
+    /**
+     * 修改学习资料的排序号
+     * @param uid
+     * @param type
+     * @return
+     */
+    @Override
+    public RespBody changeStudySequence(String uid, Byte type, String studyType) {
+        RespBody body = new RespBody();
+        Study study = studyRepository.findByUid(uid);
+        if (study == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到学习资料！");
+            return body;
+        }
+        if (StringUtils.isEmpty(studyType)){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("只能调整同一类型下的学习资料！");
+            return body;
+        }
+        Study targetStudy;
+        if (type.equals(Constant.LOGIN_WAY_UP)) {//1 上移
+            Sort sort = new Sort(Sort.Direction.DESC, "sequence");
+            Pageable page = PageRequest.of(0, 1, sort);
+            targetStudy = studyRepository.findBySequenceDesc(study.getSequence(), studyType, page).getContent().get(0);
+        } else {
+            Sort sort = new Sort(Sort.Direction.ASC, "sequence");
+            Pageable page = PageRequest.of(0, 1, sort);
+            targetStudy = studyRepository.findBySequenceAsc(study.getSequence(), studyType, page).getContent().get(0);
+    }
+        List<Study> types = this.changeSequence(study, targetStudy);
+        studyRepository.saveAll(types);
+        return body;
+    }
+
+    /**
+     * 修改学习资料状态
+     * @param uid
+     * @param status
+     * @return
+     */
+    @Override
+    public RespBody changeStudyStatus(String uid, Byte status) {
+        RespBody body = new RespBody();
+        Study study = studyRepository.findByUid(uid);
+        if (study == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到学习资料！");
+            return body;
+        }
+        study.setStatus(status);
+        studyRepository.saveAndFlush(study);
+        return body;
+    }
+
+    /**
+     * 小程序学习资料列表展示
+     * @param userDetails
+     * @return
+     */
+    @Override
+    public RespBody studyList(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        List<StudyType> studyTypeList;
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            studyTypeList = studyTypeRepository.findByStatusAndLevelAndTownUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
+        }else{
+            studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getArea().getUid());
+        }
+        List<StudyTypeVo> studyTypeVos = studyTypeList.stream()
+                .filter(type -> !type.getIsDel())
+                .map(StudyTypeVo::convert)
+                .sorted(Comparator.comparing(StudyTypeVo::getSequence))
+                .collect(Collectors.toList());
+        body.setData(studyTypeVos);
+        return body;
+    }
+
+    /**
      * 交换类型的顺序
      *
      * @param studyType
@@ -291,4 +466,20 @@ public class StudyServiceImpl implements StudyService {
         return typeList;
     }
 
+    /**
+     * 交换学习资料的顺序
+     *
+     * @param study
+     * @param targetStudy
+     * @return
+     */
+    private List<Study> changeSequence(Study study, Study targetStudy) {
+        List<Study> studyList = Lists.newArrayList();
+        Integer beforeSec = study.getSequence();
+        study.setSequence(targetStudy.getSequence());
+        targetStudy.setSequence(beforeSec);
+        studyList.add(study);
+        studyList.add(targetStudy);
+        return studyList;
+    }
 }

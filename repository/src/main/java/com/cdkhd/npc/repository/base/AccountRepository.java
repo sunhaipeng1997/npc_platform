@@ -7,4 +7,6 @@ public interface AccountRepository extends BaseRepository<Account> {
     Account findByLoginUPUsername(String username);
 
     Account findByLoginWeChatOpenId(String openid);
+
+    Account findByMobile(String mobile);
 }
