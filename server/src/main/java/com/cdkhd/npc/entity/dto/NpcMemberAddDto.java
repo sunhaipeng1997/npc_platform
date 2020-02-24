@@ -1,6 +1,7 @@
 package com.cdkhd.npc.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -69,7 +71,7 @@ public class NpcMemberAddDto {
     private String political;
 
     //任职届期
-    private Set<String> sessionUids = new HashSet<>();
+    private List<String> sessionUids = Lists.newArrayList();
 
     /*
     * 工作单位uid

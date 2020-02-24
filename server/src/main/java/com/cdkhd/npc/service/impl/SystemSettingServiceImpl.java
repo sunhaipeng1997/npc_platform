@@ -1,6 +1,8 @@
 package com.cdkhd.npc.service.impl;
 
+import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.SystemSetting;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.vo.RespBody;
@@ -27,11 +29,12 @@ public class SystemSettingServiceImpl implements SystemSettingService {
 
 
     @Override
-    public SystemSetting getSystemSetting() {
+    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
         SystemSetting systemSetting = new SystemSetting();
-        List<SystemSetting> systemSettings = systemSettingRepository.findAll();
-        if (CollectionUtils.isNotEmpty(systemSettings)){
-            systemSetting = systemSettings.get(0);
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
         }
         return systemSetting;
     }

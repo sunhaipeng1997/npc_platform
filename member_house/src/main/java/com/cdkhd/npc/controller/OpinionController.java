@@ -42,6 +42,18 @@ public class OpinionController {
         return ResponseEntity.ok(body);
     }
 
+
+    /**
+     * 获取意见列表
+     * @return
+     */
+    @DeleteMapping("/deleteOpinion")
+    public ResponseEntity deleteOpinion(String uid) {
+        RespBody body = opinionService.deleteOpinion(uid);
+        return ResponseEntity.ok(body);
+    }
+
+
     /**
      * 导出意见
      * @return

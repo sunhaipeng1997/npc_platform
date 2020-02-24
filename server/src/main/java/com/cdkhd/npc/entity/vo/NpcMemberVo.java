@@ -11,6 +11,8 @@ import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -76,7 +78,7 @@ public class NpcMemberVo extends BaseVo {
     private String workUnitName;
 
     //届期
-    private String session;
+    private List<SessionVo> sessions;
 
     //身份证号
     private String idcard;
@@ -94,7 +96,7 @@ public class NpcMemberVo extends BaseVo {
         vo.setJobType(npcMember.getType());
         vo.setTypeName(JobsEnum.getName(npcMember.getType()));
         vo.setBornAt(npcMember.getBirthday());
-        vo.setSession("其他");
+        vo.setSessions(npcMember.getSessions().stream().map(SessionVo::convert).collect(Collectors.toList()));
         vo.setRemark(npcMember.getIntroduction());
         return vo;
     }

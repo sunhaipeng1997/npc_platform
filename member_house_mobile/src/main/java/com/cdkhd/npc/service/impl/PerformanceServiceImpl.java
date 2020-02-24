@@ -258,7 +258,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());
-        SystemSetting systemSetting = systemSettingService.getSystemSetting();
+        SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);
         int begin = performancePageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, performancePageDto.getSize(), Sort.Direction.fromString(performancePageDto.getDirection()), performancePageDto.getProperty());
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {

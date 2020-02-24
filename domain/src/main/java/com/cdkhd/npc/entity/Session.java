@@ -62,7 +62,7 @@ public class Session extends BaseDomain {
     private Town town;
 
     /**
-     * 届次信息
+     * 代表信息
      */
     @ManyToMany(targetEntity = NpcMember.class)
     @JoinTable(

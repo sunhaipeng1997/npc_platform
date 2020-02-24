@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.zookeeper.Op;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -182,5 +184,24 @@ public class OpinionServiceImpl implements OpinionService {
             LOGGER.error("导出意见失败 \n {}", e1);
         }
 
+    }
+
+    @Override
+    public RespBody deleteOpinion(String uid) {
+        RespBody body = new RespBody();
+        if (StringUtils.isEmpty(uid)){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到意见信息！");
+            return body;
+        }
+        Opinion opinion = opinionRepository.findByUid(uid);
+        if (null == opinion){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到意见信息！");
+            return body;
+        }
+        opinion.setIsDel(true);
+        opinionRepository.saveAndFlush(opinion);
+        return body;
     }
 }

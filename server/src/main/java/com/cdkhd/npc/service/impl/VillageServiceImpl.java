@@ -5,6 +5,7 @@ import com.cdkhd.npc.entity.Village;
 import com.cdkhd.npc.entity.dto.VillageAddDto;
 import com.cdkhd.npc.entity.dto.VillagePageDto;
 import com.cdkhd.npc.entity.vo.VillageVo;
+import com.cdkhd.npc.enums.GroupEnum;
 import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;
 import com.cdkhd.npc.repository.member_house.VillageRepository;
 import com.cdkhd.npc.service.VillageService;
@@ -46,7 +47,14 @@ public class VillageServiceImpl implements VillageService {
         Page<Village> villagePage = villageRepository.findAll((Specification<Village>) (root, query, cb) -> {
             Predicate predicate = root.isNotNull();
             if (StringUtils.isNotEmpty(villagePageDto.getName())) {
-                predicate = cb.and(predicate, cb.equal(root.get("npcMemberGroup").get("name").as(String.class), villagePageDto.getName()));
+                predicate = cb.and(predicate, cb.like(root.get("name").as(String.class), "%" + villagePageDto.getName() +"%"));
+            }
+            if (StringUtils.isNotEmpty(villagePageDto.getGroup())) {
+                if (GroupEnum.UNGROUPED.getValue().equals(villagePageDto.getGroup())){
+                    predicate = cb.and(predicate, cb.isNull(root.get("npcMemberGroup")));
+                }else {
+                    predicate = cb.and(predicate, cb.equal(root.get("npcMemberGroup").get("uid").as(String.class), villagePageDto.getGroup()));
+                }
             }
             return predicate;
         }, page);
@@ -58,32 +66,23 @@ public class VillageServiceImpl implements VillageService {
     }
 
     @Override
-    public RespBody addVillage(UserDetailsImpl userDetails, VillageAddDto villageAddDto) {
+    public RespBody addOrUpdateVillage(UserDetailsImpl userDetails, VillageAddDto villageAddDto) {
         RespBody body = new RespBody();
-        Village village = new Village();
-//        BeanUtils.copyProperties(villageAddDto, village);
+        Village village;
+        if (StringUtils.isEmpty(villageAddDto.getUid())) {
+            village = new Village();
+            village.setTown(userDetails.getTown());
+        }else{
+            village = villageRepository.findByUid(villageAddDto.getUid());
+            if (village != null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("找不到修改的村");
+                return body;
+            }
+        }
         village.setName(villageAddDto.getName());
         village.setIntroduction(villageAddDto.getIntroduction());
-        village.setTown(userDetails.getTown());
         villageRepository.saveAndFlush(village);
-        return body;
-    }
-
-    @Override
-    public RespBody updateVillage(VillageAddDto villageAddDto) {
-        RespBody body = new RespBody();
-        if (StringUtils.isEmpty(villageAddDto.getUid())) {
-            body.setMessage("要修改的村不能为空");
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            return body;
-        }
-        Village village = villageRepository.findByUid(villageAddDto.getUid());
-        if (village != null) {
-            village.setName(villageAddDto.getName());
-            village.setIntroduction(villageAddDto.getIntroduction());
-        }
-        villageRepository.saveAndFlush(village);
-        body.setMessage("修改成功");
         return body;
     }
 

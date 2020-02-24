@@ -28,7 +28,7 @@ public class StudyController {
 
 
     /**
-     * 获取履职类型列表
+     * 获取学习类型列表
      * @return
      */
     @GetMapping("/studyType")
@@ -38,7 +38,7 @@ public class StudyController {
     }
 
     /**
-     * 添加、修改履职类型
+     * 添加、修改学习类型
      * @return
      */
     @PostMapping("/addOrUpdateStudyType")
@@ -48,7 +48,7 @@ public class StudyController {
     }
 
     /**
-     * 删除履职类型
+     * 删除学习类型
      * @return
      */
     @DeleteMapping("/deleteStudyType")
@@ -87,11 +87,11 @@ public class StudyController {
         return ResponseEntity.ok(body);
     }
 
-    //履职相关接口
+    //学习相关接口
 
 
     /**
-     * 获取履职信息列表
+     * 获取学习信息列表
      * @return
      */
     @GetMapping("/findStudy")
@@ -101,7 +101,7 @@ public class StudyController {
     }
 
     /**
-     * 删除履职信息
+     * 删除学习信息
      * @return
      */
     @DeleteMapping("/deleteStudy")

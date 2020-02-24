@@ -36,7 +36,7 @@ public class StudyType extends BaseDomain {
 
     //逻辑删除
     @Column(name = "is_del" )
-    private Boolean isDel;
+    private Boolean isDel = false;
 
     //备注
     @Column(name = "remark" )

@@ -7,14 +7,13 @@ import lombok.Setter;
 /**
  * @Description
  * @Author  ly
- * @Date 2019-01-10
+ * @Date 2019-01-16
  */
 
 @Setter
 @Getter
-public class VillagePageDto extends PageDto {
+public class WorkStationPageDto extends PageDto {
 
-   	//小组uid
-	private String name;
+	private String searchKey;
 
 }

@@ -9,9 +9,7 @@ public interface VillageService {
 
     RespBody findVillage(UserDetailsImpl userDetails, VillagePageDto villagePageDto);
 
-    RespBody addVillage(UserDetailsImpl userDetails, VillageAddDto villagePageDto);
-
-    RespBody updateVillage(VillageAddDto villagePageDto);
+    RespBody addOrUpdateVillage(UserDetailsImpl userDetails, VillageAddDto villagePageDto);
 
     RespBody deleteVillage(String uid);
 

@@ -15,6 +15,8 @@ import com.cdkhd.npc.service.GroupService;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class GroupServiceImpl implements GroupService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GroupServiceImpl.class);
 
     private final NpcMemberGroupRepository npcMemberGroupRepository;
 
@@ -60,6 +63,7 @@ public class GroupServiceImpl implements GroupService {
             return predicate;
         }, page);
         PageVo<GroupPageVo> vo = new PageVo<>(pageRes, groupPageDto);
+        LOGGER.info(pageRes.getContent().get(0).getTown().getName());
         vo.setContent(pageRes.stream().map(GroupPageVo::convert).collect(Collectors.toList()));
         body.setData(vo);
         return body;

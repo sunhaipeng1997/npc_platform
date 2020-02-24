@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/api/member_house/village")
+@RequestMapping("/api/manager/village")
 public class VillageController {
 
     private final VillageService villageService;
@@ -27,31 +27,20 @@ public class VillageController {
      *
      * @return
      */
-    @GetMapping
+    @GetMapping("/findVillage")
     public ResponseEntity findVillage(@CurrentUser UserDetailsImpl userDetails, VillagePageDto villagePageDto) {
         RespBody body = villageService.findVillage(userDetails, villagePageDto);
         return ResponseEntity.ok(body);
     }
 
     /**
-     * 添加村
+     * 添加、修改村
      *
      * @return
      */
-    @PostMapping
-    public ResponseEntity addVillage(@CurrentUser UserDetailsImpl userDetails, VillageAddDto villageAddDto) {
-        RespBody body = villageService.addVillage(userDetails, villageAddDto);
-        return ResponseEntity.ok(body);
-    }
-
-    /**
-     * 修改村
-     *
-     * @return
-     */
-    @PutMapping
-    public ResponseEntity updateVillage(VillageAddDto villageAddDto) {
-        RespBody body = villageService.updateVillage(villageAddDto);
+    @PostMapping("/addOrUpdateVillage")
+    public ResponseEntity addOrUpdateVillage(@CurrentUser UserDetailsImpl userDetails, VillageAddDto villageAddDto) {
+        RespBody body = villageService.addOrUpdateVillage(userDetails, villageAddDto);
         return ResponseEntity.ok(body);
     }
 
@@ -60,7 +49,7 @@ public class VillageController {
      *
      * @return
      */
-    @DeleteMapping
+    @DeleteMapping("/deleteVillage")
     public ResponseEntity deleteVillage(String uid) {
         RespBody body = villageService.deleteVillage(uid);
         return ResponseEntity.ok(body);
