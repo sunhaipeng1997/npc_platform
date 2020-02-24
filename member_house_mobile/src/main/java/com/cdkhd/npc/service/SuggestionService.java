@@ -78,8 +78,8 @@ public interface SuggestionService {
     /**
      *  根据选择的代表查看其提出的建议
      * @param userDetails
-     * @param member
+     * @param uid
      * @return
      */
-    RespBody getMemberSugList(UserDetailsImpl userDetails, String member);
+    RespBody getMemberSugList(UserDetailsImpl userDetails, String uid);
 }

@@ -25,14 +25,29 @@ public class NpcMemberApi {
 
     /**
      * 分页查询代表信息
-     * @param userDetails 当前用户
+     * @param
      * @param level 等级
      * @param uid 区、县uid
      * @return 查询结果
      */
-    @GetMapping("/pageOfNpcMember")
-    public ResponseEntity pageOfNpcMember(@CurrentUser UserDetailsImpl userDetails, Byte level, String uid) {
-        RespBody body = npcMemberService.allNpcMembers(userDetails, level,uid );
+    @GetMapping("/allNpcMembers")
+    public ResponseEntity allNpcMembers(Byte level, String uid) {
+        RespBody body = npcMemberService.allNpcMembers(level,uid);
+        return ResponseEntity.ok(body);
+    }
+
+
+
+    /**
+     * 获取当前区域下的行政列表
+     * @param userDetails
+     * @param level 等级 区 返回贞烈镇列表 镇 返回小组列表
+     * @param uid 区、县uid
+     * @return 查询结果
+     */
+    @GetMapping("/npcMemberUnits")
+    public ResponseEntity npcMemberUnits(@CurrentUser UserDetailsImpl userDetails, Byte level, String uid) {
+        RespBody body = npcMemberService.npcMemberUnits(userDetails, level,uid);
         return ResponseEntity.ok(body);
     }
 }
