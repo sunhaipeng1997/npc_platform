@@ -7,6 +7,8 @@ import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
 import com.cdkhd.npc.entity.dto.SuggestionPageDto;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.MobileSugStatusEnum;
+import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
@@ -89,11 +91,11 @@ public class SuggestionServiceImpl implements SuggestionService {
     @Override
     public RespBody sugBusList(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
-        List<SuggestionBusiness> sb = org.apache.commons.compress.utils.Lists.newArrayList();
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+        List<SuggestionBusiness> sb = Lists.newArrayList();
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
             sb = suggestionBusinessRepository.findByLevelAndAreaUidAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -111,10 +113,12 @@ public class SuggestionServiceImpl implements SuggestionService {
         if (npcMember != null) {
             Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
                 Predicate predicate = cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid());
-                if (dto.getStatus() == (byte)2){  //未审核
-                    predicate = cb.equal(root.get("status").as(Byte.class), (byte)2);
-                }else if (dto.getStatus() == (byte)3){  //已审核
-                    predicate = cb.notEqual(root.get("status").as(Byte.class), (byte)2);
+                if (dto.getStatus() != null){
+                    if (dto.getStatus().equals(MobileSugStatusEnum.TO_BE_AUDITED.getValue())){  //未审核
+                        predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue());
+                    }else if (dto.getStatus().equals(MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue())){  //已审核
+                        predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue());
+                    }
                 }
                 return predicate;
             }, page);
@@ -149,7 +153,6 @@ public class SuggestionServiceImpl implements SuggestionService {
             //有uid表示修改建议
             //查询是否是的第一次提交
             suggestion = suggestionRepository.findByUidAndTransUid(dto.getUid(), dto.getTransUid());
-
         }
         if (suggestion == null) { //如果是第一次提交，就保存基本信息
             suggestion = new Suggestion();
@@ -157,7 +160,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             suggestion.setArea(npcMember.getArea());
             suggestion.setTown(npcMember.getTown());
             suggestion.setRaiser(npcMember);
-            suggestion.setStatus((byte) 2);  //建议状态改为“已提交待审核”
+            suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
 
             //设置完基本信息后，给相应审核人员推送消息
 //            List<NpcMember> auditors;
@@ -207,7 +210,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             body.setMessage("请先选择一条建议");
         }
         Suggestion suggestion = suggestionRepository.findByUid(uid);
-        suggestion.setDel(true);
+        suggestion.setDel(true);  //逻辑删除
         suggestionRepository.saveAndFlush(suggestion);
         return body;
     }
@@ -283,7 +286,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         }
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(suggestionAuditDto.getLevel(), account.getNpcMembers());
-        suggestion.setStatus((byte) 8);  //将建议状态设置成“自行办理”
+        suggestion.setStatus(SuggestionStatusEnum.SELF_HANDLE.getValue());  //将建议状态设置成“自行办理”
         suggestion.setAuditReason(suggestionAuditDto.getReason());
         suggestion.setAuditTime(new Date());
         suggestion.setAuditor(npcMember);
@@ -297,15 +300,16 @@ public class SuggestionServiceImpl implements SuggestionService {
         Suggestion suggestion = suggestionRepository.findByUid(uid);
         if (suggestion == null) {
             body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("代表建议不存在");
+            body.setMessage("建议不存在");
             return body;
         }
         int timeout = 0;
-        String time = env.getProperty("code.overdueTime");
+        String time = env.getProperty("code.overdueTime");  //获取配置文件中设置的允许撤回时长
         if (StringUtils.isNotBlank(time)) {
             timeout = Integer.parseInt(time);
         }
-        Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);
+        Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);  //过期时间
+
         int view = suggestion.getView();
         if (expireAt.before(new Date()) || view == 1) {
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -326,12 +330,13 @@ public class SuggestionServiceImpl implements SuggestionService {
         PageVo<SuggestionVo> vo = new PageVo<>(dto);
         Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
             Predicate predicate = root.isNotNull();
-//            predicate = cb.equal(root.get("raiser").get("level").as(Byte.class), userDetails.getLevel());
             predicate = cb.and(predicate, cb.equal(root.get("raiser").get("area").as(String.class), userDetails.getArea()));
-            if (dto.getStatus() == (byte)2){  //未审核
-                predicate = cb.equal(root.get("status").as(Byte.class), (byte)2);
-            }else if (dto.getStatus() == (byte)3){  //已审核
-                predicate = cb.notEqual(root.get("status").as(Byte.class), (byte)2);
+            if (dto.getStatus() != null){
+                if (dto.getStatus().equals(MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue())){  //已审核
+                    predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue());
+                }else if (dto.getStatus().equals(MobileSugStatusEnum.TO_BE_AUDITED.getValue())){  //未审核
+                    predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue());
+                }
             }
             return predicate;
         }, page);
@@ -342,13 +347,24 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     /**
-     * 获取该代表提出的所有建议
-     * @param userDetails
+     * 获取该代表提出的审核通过所有建议
      * @param uid
      * @return
      */
     @Override
-    public RespBody getMemberSugList(UserDetailsImpl userDetails, String uid) {
-        return null;
+    public RespBody getMemberSugList(String uid, SuggestionPageDto dto) {
+        RespBody<PageVo<SuggestionVo>> body = new RespBody<>();
+        int begin = dto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+        PageVo<SuggestionVo> vo = new PageVo<>(dto);
+        Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
+            Predicate predicate = cb.equal(root.get("raiser").get("uid").as(String.class), uid);
+            predicate = cb.and(predicate, cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue()));
+            return predicate;
+        }, page);
+        vo.setContent(pageRes.stream().map(SuggestionVo::convert).collect(Collectors.toList()));
+        vo.copy(pageRes);
+        body.setData(vo);
+        return body;
     }
 }

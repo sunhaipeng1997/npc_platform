@@ -108,11 +108,36 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
+        Code code = codeRepository.findByMobile(account.getLoginUP().getMobile());
+        if (code == null || !code.getCode().equals(upDto.getCode())) {
+            body.setMessage("验证码错误");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        String expireStr = env.getProperty("code.timeout");  //读取验证码过期分钟数
+        int expireMinutes = 30;  //默认为三十分钟有效
+        if (StringUtils.isNotBlank(expireStr)) {
+            expireMinutes = Integer.parseInt(expireStr);
+        }
+
+        Date expireAt = DateUtils.addMinutes(code.getCreateTime(), expireMinutes);
+
+        if (!code.getValid() || expireAt.before(new Date())) {
+            body.setMessage("验证码已失效");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
         if (account.getStatus().equals(StatusEnum.DISABLED.getValue())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("账号已被禁用");
             return body;
         }
+
+        //成功验证码验证过一次后设置为失效
+        code.setValid(false);
+        codeRepository.saveAndFlush(code);
         //生成token字符串
         TokenVo tokenVo = generateToken(account);
         body.setData(tokenVo);

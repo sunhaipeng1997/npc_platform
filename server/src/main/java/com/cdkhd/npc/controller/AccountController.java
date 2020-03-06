@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/member_house/account")
+@RequestMapping("/api/manager/account")
 public class AccountController {
 
     private AccountService accountService;

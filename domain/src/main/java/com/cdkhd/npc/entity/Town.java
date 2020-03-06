@@ -31,6 +31,7 @@ public class Town extends BaseDomain {
 	private Integer status;
 
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
 
     @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)
@@ -42,7 +43,7 @@ public class Town extends BaseDomain {
     @OneToMany(targetEntity = WorkStation.class, mappedBy = "town", orphanRemoval = true)
     private Set<WorkStation> workStations = new HashSet<>();
 
-    @ManyToOne(targetEntity = Session.class, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Session.class, mappedBy = "town", orphanRemoval = true)
     private Set<Session> sessions = new HashSet<>();
 
 }

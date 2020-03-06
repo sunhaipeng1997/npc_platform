@@ -25,8 +25,10 @@ public class SuggestionApi {
 
 
     /**
-     * 获取所有建议业务类型列表
-     *
+     * 根据代表身份
+     * 获取建议业务下拉类型列表
+     * @param userDetails
+     * @return
      * */
     @GetMapping("/sugBusList")
     public ResponseEntity sugBusList(@CurrentUser UserDetailsImpl userDetails){
@@ -35,8 +37,8 @@ public class SuggestionApi {
     }
 
     /**
-     * 代表提出的建议
-     *
+     * 根据代表身份、查询条件获取提出
+     * 的建议列表
      * @param userDetails
      * @param dto
      * @return
@@ -49,7 +51,8 @@ public class SuggestionApi {
 
     /**
      * 添加或修改建议
-     *
+     * @param userDetails
+     * @param suggestionAddDto
      * */
     @PostMapping("/addOrUpdateSuggestion")
     public ResponseEntity addOrUpdateSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionAddDto suggestionAddDto) {
@@ -58,8 +61,9 @@ public class SuggestionApi {
     }
 
     /**
-     * 建议详情
-     *
+     * 根据建议uid查询建议详情
+     * @param uid
+     * @return
      * */
     @GetMapping("/detail")
     public ResponseEntity suggestionDetail(String uid){
@@ -71,7 +75,8 @@ public class SuggestionApi {
 
     /**
      * 审核人员审核建议
-     *
+     * @param userDetails
+     * @param suggestionAuditDto
      * */
     @PostMapping("/audit")
     public ResponseEntity audit(@CurrentUser UserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto) {
@@ -81,16 +86,20 @@ public class SuggestionApi {
 
     /**
      * 删除建议
+     * @param uid
+     * @return
      *
      * */
-    @DeleteMapping
-    public ResponseEntity delete(@RequestBody SuggestionAddDto suggestionAddDto) {
-        RespBody body = suggestionService.deleteSuggestion(suggestionAddDto.getUid());
+    @DeleteMapping("/deleteSuggestion")
+    public ResponseEntity delete(String uid) {
+        RespBody body = suggestionService.deleteSuggestion(uid);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 撤回建议
+     * @param uid
+     * @return
      *
      * */
     @GetMapping("/revoke")
@@ -101,10 +110,23 @@ public class SuggestionApi {
 
     /**
      * 审核人员待审核的建议
+     * @param userDetails
+     * @param dto
      * */
     @GetMapping("/auditorSug")
     public ResponseEntity auditorSug(@CurrentUser UserDetailsImpl userDetails, SuggestionPageDto dto) {
         RespBody body = suggestionService.auditorSug(userDetails, dto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     *  根据选择的代表查看其提出的建议
+     * @param uid
+     * @return
+     */
+    @GetMapping("/getMemberSugList")
+    public ResponseEntity getMemberSugList(String uid, SuggestionPageDto dto){
+        RespBody body = suggestionService.getMemberSugList(uid, dto);
         return ResponseEntity.ok(body);
     }
 }

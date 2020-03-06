@@ -74,7 +74,7 @@ public class VillageServiceImpl implements VillageService {
             village.setTown(userDetails.getTown());
         }else{
             village = villageRepository.findByUid(villageAddDto.getUid());
-            if (village != null) {
+            if (village == null) {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("找不到修改的村");
                 return body;

@@ -39,12 +39,12 @@ public class Session extends BaseDomain {
 	 * 届期结束时间
 	 * yyyy-MM-dd HH:mm:ss
 	 */
-   	@Column(name = "end_date" )
-    @Temporal(TemporalType.DATE)
+	@Column(name = "end_date" )
+	@Temporal(TemporalType.DATE)
 	private Date endDate;
 
-   	//备注
-   	@Column(name = "remark" )
+	//备注
+	@Column(name = "remark" )
 	private String remark;
 
    	//届期的等级，区的届期/镇的届期

@@ -1,18 +1,19 @@
 package com.cdkhd.npc.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.WorkStation;
-import com.cdkhd.npc.entity.dto.UploadPicDto;
 import com.cdkhd.npc.entity.dto.WorkStationAddDto;
 import com.cdkhd.npc.entity.dto.WorkStationPageDto;
 import com.cdkhd.npc.entity.vo.WorkStationPageVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.member_house.WorkStationRepository;
 import com.cdkhd.npc.service.WorkStationService;
+import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,12 +23,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
 import java.util.stream.Collectors;
 
 @Service
 public class WorkStationServiceImpl implements WorkStationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkStationServiceImpl.class);
 
     private final WorkStationRepository workStationRepository;
 
@@ -111,16 +115,44 @@ public class WorkStationServiceImpl implements WorkStationService {
         return body;
     }
 
+    /**
+     * 添加工作站时上传的工作站图像
+     * @param userDetails 当前用户身份
+     * @param avatar 头像图片
+     * @return 上传结果，上传成功返回图片访问url
+     */
     @Override
-    public RespBody upload(UploadPicDto uploadPicDto) {
-        RespBody<JSONObject> body = new RespBody();
-        String uid = uploadPicDto.getUid();
-        if (StringUtils.isBlank(uid)){
-            body.setMessage("uid 不能为空");
-
+    public RespBody upload(UserDetailsImpl userDetails, MultipartFile avatar) {
+        RespBody<String> body = new RespBody<>();
+        if (avatar == null){
+            body.setMessage("图片上传失败！请稍后重试");
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("代表头像保存失败");
+            return body;
         }
+        //保存代表头像至文件系统
+        String url = ImageUploadUtil.saveImage("work_station_avatar", avatar,200,200);
+        if (url.equals("error")) {
+            body.setMessage("图片上传失败！请稍后重试");
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("代表头像保存失败");
+            return body;
+        }
+        body.setMessage("头像上传成功");
+        body.setData(url);
         return body;
     }
+
+//    @Override
+//    public RespBody upload(UploadPicDto uploadPicDto) {
+//        RespBody<JSONObject> body = new RespBody();
+//        String uid = uploadPicDto.getUid();
+//        if (StringUtils.isBlank(uid)){
+//            body.setMessage("uid 不能为空");
+//
+//        }
+//        return body;
+//    }
 
     @Override
     public RespBody changeStatus(String uid) {

@@ -8,17 +8,11 @@ import com.cdkhd.npc.vo.RespBody;
 
 public interface SuggestionService {
 
-
-    //建议业务类型相关接口
     /**
      * 全部建议类型列表
      * */
     RespBody sugBusList(UserDetailsImpl userDetails);
 
-
-
-
-    //小程序建议相关接口
     /**
      * 代表提出的建议
      * @param userDetails
@@ -73,13 +67,11 @@ public interface SuggestionService {
     RespBody auditorSug(UserDetailsImpl userDetails, SuggestionPageDto dto);
 
     //rfx
-    //上级查看下级代表建议详情
-
+    //上级查看下级代表建议列表详情
     /**
      *  根据选择的代表查看其提出的建议
-     * @param userDetails
      * @param uid
      * @return
      */
-    RespBody getMemberSugList(UserDetailsImpl userDetails, String uid);
+    RespBody getMemberSugList(String uid, SuggestionPageDto dto);
 }

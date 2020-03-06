@@ -2,9 +2,11 @@ package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.*;
+import com.cdkhd.npc.entity.dto.AddOpinionDto;
+import com.cdkhd.npc.entity.dto.OpinionDetailDto;
+import com.cdkhd.npc.entity.dto.OpinionDto;
+import com.cdkhd.npc.entity.dto.OpinionReplyDto;
 import com.cdkhd.npc.service.OpinionService;
-import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,29 +28,31 @@ public class OpinionApi {
 
     /**
      * 添加意见
+     *
      * @param userDetails
      * @return
      */
     @PostMapping("/addOpinion")
     public ResponseEntity addOpinion(@CurrentUser UserDetailsImpl userDetails, AddOpinionDto addOpinionDto) {
-        RespBody body = opinionService.addOpinion(userDetails,addOpinionDto);
+        RespBody body = opinionService.addOpinion(userDetails, addOpinionDto);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 我的意见列表
+     *
      * @param userDetails
      * @return
      */
     @GetMapping("/myOpinions")
     public ResponseEntity myOpinions(@CurrentUser UserDetailsImpl userDetails, OpinionDto opinionDto) {
-        RespBody body = opinionService.myOpinions(userDetails,opinionDto);
+        RespBody body = opinionService.myOpinions(userDetails, opinionDto);
         return ResponseEntity.ok(body);
     }
 
-
     /**
      * 意见详情
+     *
      * @return
      */
     @GetMapping("/detailOpinion")
@@ -61,18 +65,19 @@ public class OpinionApi {
 
     /**
      * 我收到的意见列表
+     *
      * @param userDetails
      * @return
      */
     @GetMapping("/receiveOpinions")
     public ResponseEntity receiveOpinions(@CurrentUser UserDetailsImpl userDetails, OpinionDto opinionDto) {
-        RespBody body = opinionService.receiveOpinions(userDetails,opinionDto);
+        RespBody body = opinionService.receiveOpinions(userDetails, opinionDto);
         return ResponseEntity.ok(body);
     }
 
-
     /**
      * 回复意见
+     *
      * @return
      */
     @PostMapping("/replyOpinion")

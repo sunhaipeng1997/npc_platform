@@ -1,13 +1,12 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @Description
@@ -21,9 +20,6 @@ import java.util.Date;
 @Entity
 @Table ( name ="code" )
 public class Code extends BaseDomain {
-
-   	@Column(name = "uid" )
-	private String uid;
 
    	@Column(name = "code" )
 	private String code;

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @Setter
 public class SuggestionVo extends BaseVo {
 
+    //建议标题
     private String title;
 
     //建议的内容
