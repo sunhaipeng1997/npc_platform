@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/member_house/group")
+@RequestMapping("/api/manager/group")
 public class GroupController {
 
     private final GroupService groupService;
@@ -30,7 +30,7 @@ public class GroupController {
      *
      * @return
      */
-    @GetMapping
+    @GetMapping("/page")
     public ResponseEntity page(@CurrentUser UserDetailsImpl userDetails, GroupPageDto groupPageDto){
         RespBody body = groupService.page(userDetails, groupPageDto);
         return ResponseEntity.ok(body);
@@ -53,7 +53,7 @@ public class GroupController {
      *
      * @return
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity add(@CurrentUser UserDetailsImpl userDetails, GroupAddDto groupAddDto){
         RespBody body = groupService.add(userDetails, groupAddDto);
         return ResponseEntity.ok(body);
@@ -75,7 +75,7 @@ public class GroupController {
      *
      * @return
      */
-    @DeleteMapping
+    @DeleteMapping("/delete")
     public ResponseEntity delete(String uid){
         RespBody body = groupService.delete(uid);
         return ResponseEntity.ok(body);

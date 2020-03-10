@@ -7,10 +7,7 @@ import com.cdkhd.npc.entity.dto.TownAddDto;
 import com.cdkhd.npc.entity.dto.TownPageDto;
 import com.cdkhd.npc.entity.vo.TownDetailsVo;
 import com.cdkhd.npc.entity.vo.TownPageVo;
-import com.cdkhd.npc.repository.base.AreaRepository;
-import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;
 import com.cdkhd.npc.repository.base.TownRepository;
-import com.cdkhd.npc.repository.member_house.VillageRepository;
 import com.cdkhd.npc.service.TownService;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
@@ -30,21 +27,25 @@ import java.util.stream.Collectors;
 @Service
 public class TownServiceImpl implements TownService {
 
-    private final NpcMemberGroupRepository npcMemberGroupRepository;
+    //private final NpcMemberGroupRepository npcMemberGroupRepository;
 
     private final TownRepository townRepository;
 
-    private final AreaRepository areaRepository;
+//    private final AreaRepository areaRepository;
+//
+//    private final VillageRepository villageRepository;
 
-    private final VillageRepository villageRepository;
 
     @Autowired
-    public TownServiceImpl(NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository, AreaRepository areaRepository, VillageRepository villageRepository) {
-        this.npcMemberGroupRepository = npcMemberGroupRepository;
+    public TownServiceImpl(TownRepository townRepository) {
         this.townRepository = townRepository;
-        this.areaRepository = areaRepository;
-        this.villageRepository = villageRepository;
     }
+//    public TownServiceImpl(NpcMemberGroupRepository npcMemberGroupRepository, TownRepository townRepository, AreaRepository areaRepository, VillageRepository villageRepository) {
+//        this.npcMemberGroupRepository = npcMemberGroupRepository;
+//        this.townRepository = townRepository;
+//        this.areaRepository = areaRepository;
+//        this.villageRepository = villageRepository;
+//    }
 
     @Override
     public RespBody page(UserDetailsImpl userDetails, TownPageDto townPageDto) {
@@ -80,6 +81,7 @@ public class TownServiceImpl implements TownService {
 
     @Override
     public RespBody add(UserDetailsImpl userDetails, TownAddDto townAddDto) {
+        //添加镇需要创建镇管理员账号
         RespBody body = new RespBody();
         Town town = townRepository.findByAreaUidAndName(userDetails.getArea().getUid(), townAddDto.getName());
         if (null != town){
@@ -88,10 +90,9 @@ public class TownServiceImpl implements TownService {
             return body;
         }
         town = townAddDto.convert();
-        Area area = areaRepository.findByUid(userDetails.getArea().getUid());
+        Area area = userDetails.getArea();
         town.setArea(area);
-        //保存该镇
-        townRepository.saveAndFlush(town);
+        townRepository.saveAndFlush(town);  //保存该镇
         return body;
     }
 

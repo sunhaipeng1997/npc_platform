@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/member_house/town")
+@RequestMapping("/api/manager/town")
 public class TownController {
 
     private final TownService townService;
@@ -30,7 +30,7 @@ public class TownController {
      *
      * @return
      */
-    @GetMapping
+    @GetMapping("page")
     public ResponseEntity page(@CurrentUser UserDetailsImpl userDetails, TownPageDto TownPageDto){
         RespBody body = townService.page(userDetails, TownPageDto);
         return ResponseEntity.ok(body);
@@ -53,7 +53,7 @@ public class TownController {
      *
      * @return
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity add(@CurrentUser UserDetailsImpl userDetails, TownAddDto townAddDto){
         RespBody body = townService.add(userDetails, townAddDto);
         return ResponseEntity.ok(body);
@@ -75,7 +75,7 @@ public class TownController {
      *
      * @return
      */
-    @DeleteMapping
+    @DeleteMapping("/delete")
     public ResponseEntity delete(String uid){
         RespBody body = townService.delete(uid);
         return ResponseEntity.ok(body);

@@ -128,7 +128,7 @@ public class SessionServiceImpl implements SessionService {
             }
         }
         result = this.validateSessionDate(sessionAddDto,sessionList);//验证届期之间的日期是否有交叉
-        if (!result) {
+            if (!result) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("当前时间段已有一届，请换时间段");
             LOGGER.warn("当前时间段已有一届，请换时间段");

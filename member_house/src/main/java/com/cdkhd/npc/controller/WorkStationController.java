@@ -2,7 +2,6 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.UploadPicDto;
 import com.cdkhd.npc.entity.dto.WorkStationAddDto;
 import com.cdkhd.npc.entity.dto.WorkStationPageDto;
 import com.cdkhd.npc.service.WorkStationService;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/api/member_house/work_stations")
@@ -38,9 +38,9 @@ public class WorkStationController {
     /**
      * 上传文件  未完待续
      * */
-    @PostMapping("/upload")
-    public ResponseEntity upload(UploadPicDto uploadPicDto){
-        RespBody body = workStationService.upload(uploadPicDto);
+    @PostMapping("/uploadWorkStationAvatar")
+    public ResponseEntity uploadWorkStationAvatar(@CurrentUser UserDetailsImpl userDetails, MultipartFile file){
+        RespBody body = workStationService.upload(userDetails, file);
         return ResponseEntity.ok(body);
     }
 

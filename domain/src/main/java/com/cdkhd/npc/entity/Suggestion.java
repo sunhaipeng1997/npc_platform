@@ -1,7 +1,5 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -123,6 +121,7 @@ public class Suggestion extends BaseDomain {
    	@Column(name = "urge" )
 	private Integer urge;
 
+   	//建议浏览次数
    	@Column(name = "view" )
 	private Integer view;
 
