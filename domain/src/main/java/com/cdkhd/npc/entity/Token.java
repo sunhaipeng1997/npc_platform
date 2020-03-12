@@ -20,4 +20,6 @@ public class Token {
 
 	//用户角色
 	private Set<String> roles;
+
+	private Account account;
 }

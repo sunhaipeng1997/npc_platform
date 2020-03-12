@@ -35,6 +35,11 @@ public class Menu extends BaseDomain {
 	private Byte enabled = StatusEnum.ENABLED.getValue();
 
     //关联系统
+    @ManyToOne(targetEntity = Permission.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "permission", referencedColumnName = "id")
+    private Permission permission;
+
+    //关联系统
     @ManyToOne(targetEntity = Systems.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "system_id", referencedColumnName = "id")
     private Systems systems;

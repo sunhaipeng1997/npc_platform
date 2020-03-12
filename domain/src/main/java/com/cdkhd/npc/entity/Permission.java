@@ -35,6 +35,6 @@ public class Permission extends BaseDomain {
 	private String name;
 
    	//关联菜单
-   	@OneToOne
-   	Menu menu;
+   	@OneToMany(mappedBy = "permission", targetEntity = Menu.class, fetch = FetchType.LAZY)
+    private Set<Menu> menus;
 }

@@ -28,10 +28,9 @@ public class Town extends BaseDomain {
 	private String description;
 
 	@Column(name = "status")
-	private Integer status;
+	private Byte status;
 
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
 
     @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)
@@ -43,7 +42,10 @@ public class Town extends BaseDomain {
     @OneToMany(targetEntity = WorkStation.class, mappedBy = "town", orphanRemoval = true)
     private Set<WorkStation> workStations = new HashSet<>();
 
-    @OneToMany(targetEntity = Session.class, mappedBy = "town", orphanRemoval = true)
+    @OneToMany(targetEntity = Session.class, fetch = FetchType.LAZY)
     private Set<Session> sessions = new HashSet<>();
+
+    @OneToMany(targetEntity = NpcMember.class, mappedBy = "town", orphanRemoval = true)
+    private Set<NpcMember> npcMembers = new HashSet<>();
 
 }

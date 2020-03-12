@@ -175,6 +175,8 @@ public class AuthServiceImpl implements AuthService {
 
         TokenVo tokenVo = new TokenVo();
         BeanUtils.copyProperties(token, tokenVo);
+        token.setRoles(roleKeywords);
+        tokenVo.setRoles(roleKeywords);
         tokenVo.setToken(JwtUtils.createJwt(token));
         //生成jwt token
         return tokenVo;

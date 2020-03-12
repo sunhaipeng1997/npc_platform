@@ -86,4 +86,14 @@ public class OpinionApi {
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 回复意见
+     * @return
+     */
+    @PostMapping("/memberRecOpins")
+    public ResponseEntity memberRecOpins(UidDto uidDto) {
+        RespBody body = opinionService.memberRecOpins(uidDto);
+        return ResponseEntity.ok(body);
+    }
+
 }

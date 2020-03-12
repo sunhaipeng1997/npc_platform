@@ -4,6 +4,7 @@ import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.NpcMember;
 
 import java.util.List;
+import java.util.Set;
 
 public interface NpcMemberRepository extends BaseRepository<NpcMember> {
 
@@ -20,4 +21,6 @@ public interface NpcMemberRepository extends BaseRepository<NpcMember> {
     NpcMember findByLevelAndMobileAndUidIsNotAndIsDelFalse(Byte level, String mobile,String uid);
 
     NpcMember findByLevelAndMobileAndIsDelFalse(Byte level, String mobile);
+
+    Set<NpcMember> findByUidIn(List<String> uids);
 }

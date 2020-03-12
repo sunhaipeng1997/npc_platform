@@ -2,12 +2,8 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.AddOpinionDto;
-import com.cdkhd.npc.entity.dto.OpinionDetailDto;
-import com.cdkhd.npc.entity.dto.OpinionDto;
-import com.cdkhd.npc.entity.dto.OpinionReplyDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.OpinionListVo;
-import com.cdkhd.npc.entity.vo.OpinionReplyVo;
 import com.cdkhd.npc.entity.vo.OpinionVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.ReplayStatusEnum;
@@ -22,7 +18,6 @@ import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.RespBody;
-import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -264,6 +259,21 @@ public class OpinionServiceImpl implements OpinionService {
         opinionReply.setOpinion(opinion);
         opinionReply.setReply(opinionReplyDto.getContent());
         opinionReplayRepository.saveAndFlush(opinionReply);
+        return body;
+    }
+
+    @Override
+    public RespBody memberRecOpins(UidDto uidDto) {
+        RespBody body = new RespBody();
+        int begin = uidDto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, uidDto.getSize(), Sort.Direction.fromString(uidDto.getDirection()), uidDto.getProperty());
+        Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), uidDto.getUid()));
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        }, page);
+        List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
+        body.setData(opinionVos);
         return body;
     }
 }

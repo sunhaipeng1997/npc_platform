@@ -3,10 +3,7 @@ package com.cdkhd.npc.service;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.PerformanceType;
-import com.cdkhd.npc.entity.dto.AddPerformanceDto;
-import com.cdkhd.npc.entity.dto.AuditPerformanceDto;
-import com.cdkhd.npc.entity.dto.PerformancePageDto;
-import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface PerformanceService {
@@ -67,4 +64,10 @@ public interface PerformanceService {
      */
     RespBody auditPerformance(UserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto);
 
+    /**
+     * 代表提交的履职列表
+     * @param uidDto
+     * @return
+     */
+    RespBody performanceList(UidDto uidDto);
 }

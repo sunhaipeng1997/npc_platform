@@ -1,6 +1,6 @@
 package com.cdkhd.npc.entity.dto;
 
-import com.cdkhd.npc.dto.BaseDto;
+import com.cdkhd.npc.dto.PageDto;
 import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,9 +13,9 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class OpinionReplyDto extends BaseDto {
+public class UidDto extends PageDto {
 
-    //回复内容
-    private String content;
+    //uid
+    private String uid;
 
 }
