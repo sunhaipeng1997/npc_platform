@@ -2,10 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.AddPerformanceDto;
-import com.cdkhd.npc.entity.dto.AuditPerformanceDto;
-import com.cdkhd.npc.entity.dto.PerformancePageDto;
-import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -371,6 +368,22 @@ public class PerformanceServiceImpl implements PerformanceService {
             Account account = performance.getNpcMember().getAccount();
             pushService.pushMsg(account,"",1,"");
         }
+        return body;
+    }
+
+    @Override
+    public RespBody performanceList(UidDto uidDto) {
+        RespBody body = new RespBody();
+        int begin = uidDto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, uidDto.getSize(), Sort.Direction.fromString(uidDto.getDirection()), uidDto.getProperty());
+        Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), uidDto.getUid()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        }, page);
+        List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
+        body.setData(performanceVos);
         return body;
     }
 

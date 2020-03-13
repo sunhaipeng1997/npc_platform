@@ -77,10 +77,6 @@ public class News extends BaseDomain {
 	@Column(name = "status" )
 	private Integer status = NewsStatusEnum.DRAFT.ordinal();
 
-	//创建时间
-	@Column(name = "creat_at" )
-	private Date creatAt;
-
 	//审核人员查看状态
 	@Column(name = "view_status" )
 	private Long viewStatus;
@@ -100,6 +96,10 @@ public class News extends BaseDomain {
 
 	@Column(name = "level" )
    	private Byte level;
+
+	//审核人是否查看
+    @Column(name = "view" )
+    private Boolean view = false;
 
    	//关联新闻审核人
    	//指的是具体对该新闻进行审核操作的人

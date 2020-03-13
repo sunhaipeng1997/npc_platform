@@ -1,10 +1,8 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.AddOpinionDto;
-import com.cdkhd.npc.entity.dto.OpinionDetailDto;
-import com.cdkhd.npc.entity.dto.OpinionDto;
-import com.cdkhd.npc.entity.dto.OpinionReplyDto;
+import com.cdkhd.npc.dto.PageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface OpinionService {
@@ -47,4 +45,14 @@ public interface OpinionService {
      * @return
      */
     RespBody replyOpinion(OpinionReplyDto opinionReplyDto);
+
+
+    /**
+     * 代表收到的意见
+     * @param uidDto
+     * @return
+     */
+    RespBody memberRecOpins(UidDto uidDto);
+
+
 }
