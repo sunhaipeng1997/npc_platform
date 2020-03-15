@@ -9,7 +9,6 @@ import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.SpecialFunctionService;
-import com.cdkhd.npc.utils.Constant;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
@@ -122,7 +121,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
                 gobj.put("NAME", group.getName());
                 Set<NpcMember> members = group.getMembers();
                 for (NpcMember member : members) {
-                    if (member.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toSet()).contains(Constant.PERFORMANCE_AUDITOR) && member.getStatus().equals(StatusEnum.ENABLED.getValue()) && !member.getIsDel()) {
+                    if (member.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toSet()).contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && member.getStatus().equals(StatusEnum.ENABLED.getValue()) && !member.getIsDel()) {
                         gobj.put("AUDITOR_UID", member.getUid());
                         gobj.put("AUDITOR_NAME", member.getName());
                     }
@@ -175,7 +174,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
     //履职登记总审核
     @Override
     public RespBody performanceAuditorManager(UserDetailsImpl userDetails, List<String> uids) {
-        return auditorSetting(userDetails, uids, Constant.PERFORMANCE_AUDITOR_MANAGER);
+        return auditorSetting(userDetails, uids, NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());
     }
 
     private RespBody auditorSetting(UserDetailsImpl userDetails, List<String> uids, String roleName) {
@@ -245,7 +244,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
     private String validateGroupAuditor(String uid, String roleName,Byte level) {
         String memberName = "";
         if (NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword().equals(roleName)) {//设置履职总审核
-            NpcMemberRole role = npcMemberRoleRepository.findByKeyword(Constant.PERFORMANCE_AUDITOR);//查询小组履职审核人员
+            NpcMemberRole role = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());//查询小组履职审核人员
             for (NpcMember npcMember : role.getNpcMembers()) {//判断这个代表有没有被设置为小组审核人
                 if (npcMember.getUid().equals(uid) && level.equals(npcMember.getLevel())) {
                     memberName = npcMember.getName();

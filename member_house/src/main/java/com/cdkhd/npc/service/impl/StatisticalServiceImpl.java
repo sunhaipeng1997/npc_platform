@@ -2,7 +2,6 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.OpinionPageDto;
 import com.cdkhd.npc.entity.dto.StatisticalPageDto;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
