@@ -1,9 +1,6 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,10 +15,17 @@ import lombok.ToString;
 @Getter
 @ToString
 @Entity
-@Table ( name ="attachment" )
+@Table(name = "t_attachment")
 public class Attachment extends BaseDomain {
 
-   	@Column(name = "url" )
+	@ManyToOne(cascade = CascadeType.ALL, targetEntity = Notification.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "notification_id")
+	private Notification notification;
+
+	@Column(nullable = false, unique = true)
 	private String url;
+
+	@Column(name = "file_name")
+	private String fileName;
 
 }

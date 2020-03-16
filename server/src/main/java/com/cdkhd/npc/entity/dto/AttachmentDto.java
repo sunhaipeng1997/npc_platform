@@ -6,9 +6,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
-public class UploadPicDto {
+public class AttachmentDto {
 
-    private String uid;
+    private String fileName;
 
     private MultipartFile file;
+
+    private String notificationUid;
 }

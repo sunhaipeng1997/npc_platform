@@ -8,6 +8,7 @@ import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.CodeRepository;
+import com.cdkhd.npc.repository.base.LoginUPRepository;
 import com.cdkhd.npc.service.AuthService;
 import com.cdkhd.npc.util.BDSmsUtils;
 import com.cdkhd.npc.util.JwtUtils;
@@ -29,12 +30,14 @@ import java.util.Set;
 @Service
 public class AuthServiceImpl implements AuthService {
     private AccountRepository accountRepository;
+    private LoginUPRepository loginUPRepository;
     private CodeRepository codeRepository;
     private Environment env;
 
     @Autowired
-    public AuthServiceImpl(AccountRepository accountRepository, CodeRepository codeRepository, Environment env) {
+    public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository, Environment env) {
         this.accountRepository = accountRepository;
+        this.loginUPRepository = loginUPRepository;
         this.codeRepository = codeRepository;
         this.env = env;
     }
@@ -49,8 +52,8 @@ public class AuthServiceImpl implements AuthService {
             body.setMessage("用户名不能为空");
             return body;
         }
-
-        Account account = accountRepository.findByLoginUPUsername(username);
+        Account account =  loginUPRepository.findByUsername(username).getAccount();
+//        Account account = accountRepository.findByLoginUPUsername(username);
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在，拒绝发送验证码");
@@ -70,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         //发送短信验证码
         BDSmsUtils.sendSms(telephoneString, accessKeyId, accessKeySecret, verifycode, endPoint, invokeId, templateCode, timeout);
 
-        //保存code
+        //保存codea
         Code code = codeRepository.findByMobile(telephoneString);
         if (code == null) {
             code = new Code();
@@ -97,7 +100,8 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        Account account = accountRepository.findByLoginUPUsername(upDto.getUsername());
+        Account account =  loginUPRepository.findByUsername(upDto.getUsername()).getAccount();
+//        Account account = accountRepository.findByLoginUPUsername(upDto.getUsername());
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在");

@@ -35,17 +35,17 @@ public class Account extends BaseDomain {
     @Column(name = "login_times")
     private Integer loginTimes;
 
-	/**
-	 * 登录时间
-	 */
-   	@Column(name = "login_time" )
+    /**
+     * 登录时间
+     */
+    @Column(name = "login_time" )
     @Temporal(TemporalType.TIMESTAMP)
-	private Date loginTime;
+    private Date loginTime;
 
-	/**
-	 * 上次登录时间
-	 */
-   	@Column(name = "last_login_time" )
+    /**
+     * 上次登录时间
+     */
+    @Column(name = "last_login_time" )
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginTime;
 
@@ -104,7 +104,7 @@ public class Account extends BaseDomain {
     @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
     private BackgroundAdmin backgroundAdmin;
 
-    //政府人员关联
+    //政府人员关联a
     @OneToOne(mappedBy = "account", targetEntity = GovernmentUser.class, fetch = FetchType.LAZY)
     private GovernmentUser governmentUser;
 

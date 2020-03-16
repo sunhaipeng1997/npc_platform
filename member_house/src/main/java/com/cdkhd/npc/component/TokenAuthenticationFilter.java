@@ -1,8 +1,10 @@
 package com.cdkhd.npc.component;
 
+import com.alibaba.fastjson.JSON;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
+import com.cdkhd.npc.repository.base.LoginUPRepository;
 import com.cdkhd.npc.util.JwtUtils;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -33,6 +35,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private AccountRepository accountRepository;
+    private LoginUPRepository loginUPRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -47,7 +50,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>)userInfo.get("accountRoles");
                     List<GrantedAuthority> authorities = roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-                    Account account = accountRepository.findByLoginUPUsername(userInfo.get("username").toString());
+                    Account account =  loginUPRepository.findByUsername(userInfo.get("username").toString()).getAccount();
+//                    Account account = accountRepository.findByLoginUPUsername(userInfo.get("username").toString());
                     UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), LevelEnum.TOWN.getValue());
                     UserDetails userDetails = new User(userInfo.get("username").toString(), "", authorities);
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());

@@ -141,6 +141,8 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
+        //TODO 删除对应的封面图
+
         newsRepository.deleteByUid(uid);
 
         body.setMessage("删除新闻成功");
@@ -309,7 +311,7 @@ public class NewsServiceImpl implements NewsService {
         //后台管理员可以在新闻创建后、被退回并修改后在再提交，此时状态为：DRAFT
         //也可以直接将审核不通过的新闻再次提交审核，此时新闻状态为：NOT_APPROVED
         if(news.getStatus() != NewsStatusEnum.DRAFT.ordinal() &&
-           news.getStatus() != NewsStatusEnum.NOT_APPROVED.ordinal()){
+                news.getStatus() != NewsStatusEnum.NOT_APPROVED.ordinal()){
 
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("在[审核中][待发布][已发布]状态均不能提交审核");
@@ -317,13 +319,13 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
-        //查找与本账号同地区/镇的具有新闻审核权限的用户
+        //TODO 查找与本账号同地区/镇的具有新闻审核权限的用户
 
         //将状态设置为"审核中"
         news.setStatus(NewsStatusEnum.UNDER_REVIEW.ordinal());
         newsRepository.save(news);
 
-        //推送消息
+        //TODO 推送消息
 
         body.setMessage("成功提交新闻审核");
         return body;
@@ -358,7 +360,7 @@ public class NewsServiceImpl implements NewsService {
             //将新闻状态设置为"待发布"(可发布)状态
             news.setStatus(NewsStatusEnum.RELEASABLE.ordinal());
         }else {
-        //如果审核结果为:不通过
+            //如果审核结果为:不通过
 
             //将新闻状态设置为"不通过"状态
             news.setStatus(NewsStatusEnum.NOT_APPROVED.ordinal());

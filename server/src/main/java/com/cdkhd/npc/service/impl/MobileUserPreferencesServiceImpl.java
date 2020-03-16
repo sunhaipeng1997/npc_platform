@@ -3,6 +3,7 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.LoginUP;
+import com.cdkhd.npc.entity.LoginWeChat;
 import com.cdkhd.npc.entity.MobileUserPreferences;
 import com.cdkhd.npc.entity.dto.MobileUserPreferencesDto;
 import com.cdkhd.npc.entity.vo.MobileUserPreferencesVo;
@@ -33,6 +34,7 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
     private AccountRepository accountRepository;
     private LoginUPRepository loginUPRepository;
 
+
     @Autowired
     public MobileUserPreferencesServiceImpl(MobileUserPreferencesRepository mobileUserPreferencesRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository) {
         this.mobileUserPreferencesRepository = mobileUserPreferencesRepository;
@@ -45,8 +47,7 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
     public RespBody getMobileUserPreferences(UserDetailsImpl userDetails){
         RespBody<MobileUserPreferencesVo> body = new RespBody<>();
 
-
-        Account account = accountRepository.findByLoginUPUsername(userDetails.getUsername());
+        Account account =  loginUPRepository.findByUsername(userDetails.getUsername()).getAccount();
         if(account == null){
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("无此用户");
@@ -109,7 +110,7 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
     public RespBody updateMobileUserPreferences(UserDetailsImpl userDetails, MobileUserPreferencesDto dto){
         RespBody body = new RespBody();
 
-        Account account = accountRepository.findByLoginUPUsername(userDetails.getUsername());
+        Account account =  loginUPRepository.findByUsername(userDetails.getUsername()).getAccount();
         if(account == null){
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("无此用户");

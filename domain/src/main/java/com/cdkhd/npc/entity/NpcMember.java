@@ -37,38 +37,38 @@ public class NpcMember extends BaseDomain {
 	)
 	private Set<Session> sessions = new HashSet<>();
 
-    /**
-     * 代表角色
-     */
-    @ManyToMany(targetEntity = NpcMemberRole.class)
-    @JoinTable(
-            name = "npc_member_role_mid",
-            joinColumns = {
-                    @JoinColumn(name = "npc_member_id", referencedColumnName = "id", nullable = false)
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
-            }
-    )
-    private Set<NpcMemberRole> npcMemberRoles = new HashSet<>();
+	/**
+	 * 代表角色
+	 */
+	@ManyToMany(targetEntity = NpcMemberRole.class)
+	@JoinTable(
+			name = "npc_member_role_mid",
+			joinColumns = {
+					@JoinColumn(name = "npc_member_id", referencedColumnName = "id", nullable = false)
+			},
+			inverseJoinColumns = {
+					@JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+			}
+	)
+	private Set<NpcMemberRole> npcMemberRoles = new HashSet<>();
 
 	/**
 	 * 1、正常
 	 * 2、锁定
 	 */
-   	@Column(name = "status" )
+	@Column(name = "status" )
 	private Byte status = 1;
 
 	/**
 	 * 姓名
 	 */
-   	@Column(name = "name" )
+	@Column(name = "name" )
 	private String name;
 
 	/**
 	 * 电话号码
 	 */
-   	@Column(name = "mobile" )
+	@Column(name = "mobile" )
 	private String mobile;
 
 	/**
@@ -80,21 +80,21 @@ public class NpcMember extends BaseDomain {
 	/**
 	 * 地址
 	 */
-   	@Column(name = "address" )
+	@Column(name = "address" )
 	private String address;
 
 	/**
 	 * yyyy-MM-dd
 	 */
-   	@Column(name = "birthday" )
-    @Temporal(TemporalType.DATE)
-    private Date birthday;
+	@Column(name = "birthday" )
+	@Temporal(TemporalType.DATE)
+	private Date birthday;
 
 	/**
 	 * 1、男
 	 * 2、女
 	 */
-   	@Column(name = "gender" )
+	@Column(name = "gender" )
 	private Byte gender;
 
 	/**
@@ -102,20 +102,20 @@ public class NpcMember extends BaseDomain {
 	 * 2、人大主席
 	 * 3、特殊人员
 	 */
-   	@Column(name = "type" )
+	@Column(name = "type" )
 	private String type;
 
 	/**
 	 * 代表证号
 	 */
-   	@Column(name = "code" )
+	@Column(name = "code" )
 	private String code;
 
-    /**
-     * 代表身份证号
-     */
-    @Column(name = "idcard" )
-    private String idcard;
+	/**
+	 * 代表身份证号
+	 */
+	@Column(name = "idcard" )
+	private String idcard;
 
 	/**
 	 * 账号表id
@@ -124,65 +124,68 @@ public class NpcMember extends BaseDomain {
 	private Account account;
 
 	//头像
-   	@Column(name = "avatar" )
+	@Column(name = "avatar" )
 	private String avatar;
 
-   	//简介
-   	@Column(name = "introduction" )
+	//简介
+	@Column(name = "introduction" )
 	private String introduction;
 
-   	//备注
-   	@Column(name = "comment" )
+	//备注
+	@Column(name = "comment" )
 	private String comment;
 
-   	//民族
-   	@Column(name = "nation" )
+	//民族
+	@Column(name = "nation" )
 	private String nation;
 
-   	//是否能被提意见
-   	@Column(name = "can_opinion")
+	//是否能被提意见
+	@Column(name = "can_opinion")
 	private Byte canOpinion = 1;
 
-   	//是否删除
-   	@Column(name = "is_del" )
+	//是否删除
+	@Column(name = "is_del" )
 	private Boolean isDel = false;
 
-   	//教育经历
-   	@Column(name = "education" )
+	//教育经历
+	@Column(name = "education" )
 	private String education;
 
-   	//现任职务
-   	@Column(name = "jobs" )
+	//现任职务
+	@Column(name = "jobs" )
 	private String jobs;
 
-   	//政治面貌
-   	@Column(name = "political" )
+	//政治面貌
+	@Column(name = "political" )
 	private String political;
 
-    //是否只能作为特殊职能 1，是  0，不是
-    private Byte special = 0;
+	//是否只能作为特殊职能 1，是  0，不是
+	private Byte special = 0;
 
-    /**
-     *   等级
-     *   1、镇代表
-     *   2、区代表
-     */
-    @Column(name = "level" )
-    private Byte level;
+	/**
+	 *   等级
+	 *   1、镇代表
+	 *   2、区代表
+	 */
+	@Column(name = "level" )
+	private Byte level;
 
-    //关联区
-    @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "area", referencedColumnName = "id")
-    private Area area;
+	//关联区
+	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Area area;
 
-    //关联镇
-    @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "town", referencedColumnName = "id")
-    private Town town;
+	//关联镇
+	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "town", referencedColumnName = "id")
+	private Town town;
 
-    //关联小组
-    @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "npc_member_group", referencedColumnName = "id")
+	//关联小组
+	@ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "npc_member_group", referencedColumnName = "id")
 	private NpcMemberGroup npcMemberGroup;
+
+	@ManyToMany(targetEntity = Notification.class)
+	private Set<Notification> receivedNotifications = new HashSet<>();
 
 }

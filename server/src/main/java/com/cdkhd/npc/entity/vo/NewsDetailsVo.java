@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.News;
+import com.cdkhd.npc.enums.NewsStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -44,6 +45,7 @@ public class NewsDetailsVo extends BaseVo {
 
     //新闻当前状态
     private Integer status;
+    private String statusName;
 
     private Integer whereShow;
 
@@ -70,10 +72,11 @@ public class NewsDetailsVo extends BaseVo {
         vo.setNewsTypeUid(news.getNewsType().getUid());
         vo.setNewsTypeName(news.getNewsType().getName());
 
+        vo.setStatusName(NewsStatusEnum.values()[news.getStatus()].getName());
 
         //此审核人是实际审核该新闻的人，存储在NpcMember表中
 //        因为数据库表的关联还没确定好，新闻审核人还没设置
-//        vo.setReviewerName(news.getReviewer().getName());
+        vo.setReviewerName(news.getReviewer().getName());
 
         return vo;
     }
