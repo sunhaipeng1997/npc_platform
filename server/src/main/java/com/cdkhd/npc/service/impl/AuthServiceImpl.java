@@ -64,10 +64,11 @@ public class AuthServiceImpl implements AuthService {
         final String endPoint = env.getProperty("code.endPoint");
         final String invokeId = env.getProperty("code.invokeId");
         final String templateCode = env.getProperty("code.templateCode");
+        int timeout = Integer.parseInt(env.getProperty("code.timeout"));
         String telephoneString = account.getLoginUP().getMobile();
 
         //发送短信验证码
-        BDSmsUtils.sendSms(telephoneString, accessKeyId, accessKeySecret, verifycode, endPoint, invokeId, templateCode);
+        BDSmsUtils.sendSms(telephoneString, accessKeyId, accessKeySecret, verifycode, endPoint, invokeId, templateCode, timeout);
 
         //保存code
         Code code = codeRepository.findByMobile(telephoneString);
@@ -86,7 +87,8 @@ public class AuthServiceImpl implements AuthService {
 
     //登录获取token
     @Override
-    public RespBody login(UsernamePasswordDto upDto) {
+    public RespBody
+    login(UsernamePasswordDto upDto) {
         RespBody body = new RespBody<>();
 
         if (StringUtils.isEmpty(upDto.getUsername()) || StringUtils.isEmpty(upDto.getPassword())) {

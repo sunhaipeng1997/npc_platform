@@ -1,6 +1,5 @@
 package com.cdkhd.npc.component;
 
-import com.alibaba.fastjson.JSON;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
@@ -46,14 +45,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     //保存认证信息到SecurityContext
                     //从token中解析用户的角色信息
-                    List<String> roles = (List<String>)userInfo.get("accountRoles");
+                    List<String> roles = (List<String>) userInfo.get("accountRoles");
                     List<GrantedAuthority> authorities = roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
                     Account account = accountRepository.findByLoginUPUsername(userInfo.get("username").toString());
                     UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), LevelEnum.TOWN.getValue());
                     UserDetails userDetails = new User(userInfo.get("username").toString(), "", authorities);
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-
                     logger.info("合法访问，username: " + userInfo.get("username").toString());
 
                 }

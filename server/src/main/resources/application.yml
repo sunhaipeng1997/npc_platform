@@ -20,6 +20,25 @@ spring:
   resources:
     static-locations: ["classpath:/static/", "./static"]
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 24MB
+
 service_app:
   app_id: 1
   app_secret: secret
+
+code:
+  #百度云安全认证key
+  accessKeyId: a8d78d24102445d9a29557ad3f1fdd31
+  #百度云安全认证secret
+  AccessKeySecret: 0a74dae125f84ed592f1143731b21e22
+  #百度云消息服务中心
+  endPoint: http://sms.bj.baidubce.com
+  #短信签名id
+  invokeId: 0FaecrUS-V0hG-RqZG
+  #短信模板id
+  templateCode: smsTpl:35dbca99-ae04-47ac-8e79-51f567820bbb
+  #验证码有效时间 单位：分钟
+  timeout: 5 #分钟

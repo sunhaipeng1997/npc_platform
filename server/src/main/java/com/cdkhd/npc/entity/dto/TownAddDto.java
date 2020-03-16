@@ -14,10 +14,13 @@ public class TownAddDto {
     // 镇名称
     private String name;
 
+    //管理员账号
     private String account;
 
+    //管理员密码
     private String password;
 
+    //手机号
     private String mobile;
 
     // 镇介绍
