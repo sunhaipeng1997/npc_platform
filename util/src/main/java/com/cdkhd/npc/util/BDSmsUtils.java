@@ -12,17 +12,17 @@ import java.util.Map;
 public class BDSmsUtils {
 
     /**
-     *
-     * @param phoneNumber  接收消息的电话号码
+     * @param phoneNumber     接收消息的电话号码
      * @param accessKeyId
      * @param accessKeySecret
-     * @param code  验证码
-     * @param endPoint  SME服务域名
-     * @param invokeId  消息签名id
-     * @param templateCode  消息模板id
+     * @param code            验证码
+     * @param endPoint        SME服务域名
+     * @param invokeId        消息签名id
+     * @param templateCode    消息模板id
+     * @param timeout    消息超时分钟数
      * @return
      */
-    public static SendMessageV2Response sendSms(String phoneNumber,String accessKeyId,String accessKeySecret,int code,String endPoint,String invokeId,String templateCode){
+    public static SendMessageV2Response sendSms(String phoneNumber, String accessKeyId, String accessKeySecret, int code, String endPoint, String invokeId, String templateCode, int timeout) {
         // 相关参数定义
 //        String endPoint = "http://sms.bj.baidubce.com"; // SMS服务域名，可根据环境选择具体域名
 //        String accessKeyId = env.getProperty("code.accessKeyId");
@@ -44,7 +44,7 @@ public class BDSmsUtils {
 //        String templateCode = "smsTpl:bfcc8c6c-f109-4cea-8a65-3fde507e85b8"; // 本次发送使用的模板Code
         Map<String, String> vars = new HashMap<String, String>(); // 若模板内容为：您的验证码是${code},在${time}分钟内输入有效
         vars.put("code", String.valueOf(code));
-//        vars.put("time", "5");
+        vars.put("minute", String.valueOf(timeout));
 
         //验证码
         System.out.println("code:        " + code);

@@ -30,7 +30,7 @@ public class TownController {
      *
      * @return
      */
-    @GetMapping("page")
+    @GetMapping("/page")
     public ResponseEntity page(@CurrentUser UserDetailsImpl userDetails, TownPageDto TownPageDto){
         RespBody body = townService.page(userDetails, TownPageDto);
         return ResponseEntity.ok(body);
