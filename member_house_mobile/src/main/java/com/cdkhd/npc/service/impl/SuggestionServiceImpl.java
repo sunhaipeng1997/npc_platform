@@ -4,6 +4,7 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.SuggestionAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
+import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
 import com.cdkhd.npc.entity.dto.SuggestionPageDto;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -89,13 +90,13 @@ public class SuggestionServiceImpl implements SuggestionService {
      * @return
      */
     @Override
-    public RespBody sugBusList(UserDetailsImpl userDetails) {
+    public RespBody sugBusList(UserDetailsImpl userDetails, SuggestionBusinessDto dto) {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
-        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid());
-        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
+        if (dto.getLevel().equals(LevelEnum.AREA.getValue())){
+            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndIsDelFalse(dto.getLevel(),userDetails.getArea().getUid());
+        }else if (dto.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndIsDelFalse(dto.getLevel(),userDetails.getTown().getUid());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);

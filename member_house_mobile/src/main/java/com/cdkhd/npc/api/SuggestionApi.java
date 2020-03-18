@@ -4,6 +4,7 @@ import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.SuggestionAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
+import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
 import com.cdkhd.npc.entity.dto.SuggestionPageDto;
 import com.cdkhd.npc.service.SuggestionService;
 import com.cdkhd.npc.vo.RespBody;
@@ -31,8 +32,8 @@ public class SuggestionApi {
      * @return
      * */
     @GetMapping("/sugBusList")
-    public ResponseEntity sugBusList(@CurrentUser UserDetailsImpl userDetails){
-        RespBody body = suggestionService.sugBusList(userDetails);
+    public ResponseEntity sugBusList(@CurrentUser UserDetailsImpl userDetails, SuggestionBusinessDto dto){
+        RespBody body = suggestionService.sugBusList(userDetails, dto);
         return ResponseEntity.ok(body);
     }
 
@@ -65,7 +66,7 @@ public class SuggestionApi {
      * @param uid
      * @return
      * */
-    @GetMapping("/detail")
+    @GetMapping("/suggestionDetail")
     public ResponseEntity suggestionDetail(String uid){
         String result = suggestionService.suggestionDetail(uid);
         RespBody body = new RespBody();

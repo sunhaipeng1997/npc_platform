@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity.vo;
 
+import com.cdkhd.npc.entity.BackgroundAdmin;
 import com.cdkhd.npc.entity.NpcMemberGroup;
 import com.cdkhd.npc.entity.Town;
 import com.cdkhd.npc.vo.BaseVo;
@@ -18,6 +19,9 @@ public class TownPageVo extends BaseVo {
     // 镇名称
     private String name;
 
+    //管理员手机号
+    private String mobile;
+
     // 镇介绍
     private String description;
 
@@ -30,6 +34,14 @@ public class TownPageVo extends BaseVo {
         Set<NpcMemberGroup> groups = town.getNpcMemberGroups();
         if (groups != null && !groups.isEmpty()) {
             vo.setGroups(groups.stream().map(GroupVo::convert).collect(Collectors.toSet()));
+        }
+        Set<BackgroundAdmin> backgroundAdmins = town.getBackgroundAdmins();
+        if (backgroundAdmins.size() <= 2){
+            for(BackgroundAdmin backgroundAdmin : backgroundAdmins){
+                if (!backgroundAdmin.getAccount().getLoginUP().getUsername().contains("@cdkhd")){
+                    vo.setMobile(backgroundAdmin.getAccount().getLoginUP().getMobile());
+                }
+            }
         }
         return vo;
     }

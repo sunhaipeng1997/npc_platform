@@ -14,6 +14,7 @@ import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,9 +43,11 @@ public class TownServiceImpl implements TownService {
 
     private final BackgroundAdminRepository backgroundAdminRepository;
 
+    private Environment env;
+
 
     @Autowired
-    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository) {
+    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, Environment env) {
         this.townRepository = townRepository;
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
@@ -52,6 +55,7 @@ public class TownServiceImpl implements TownService {
         this.voterRepository = voterRepository;
         this.systemSettingRepository = systemSettingRepository;
         this.backgroundAdminRepository = backgroundAdminRepository;
+        this.env = env;
     }
 
     @Override
@@ -99,28 +103,65 @@ public class TownServiceImpl implements TownService {
         town = townAddDto.convert();
         Area area = userDetails.getArea();
         town.setArea(area);
+
+        final String accountSuffix = env.getProperty("account.suffix");
+        final String accountPassword = env.getProperty("account.password");
+        final String accountMobile = env.getProperty("account.mobile");
+
         LoginUP loginUP = new LoginUP();
         loginUP.setUsername(townAddDto.getAccount());
         loginUP.setPassword(townAddDto.getPassword());
         loginUP.setMobile(townAddDto.getMobile());
+
+        //镇管理员公司默认账号
+        LoginUP khd_loginUP = new LoginUP();
+        khd_loginUP.setUsername(townAddDto.getAccount() + accountSuffix);
+        khd_loginUP.setPassword(accountPassword);
+        khd_loginUP.setMobile(accountMobile);
+
         Account account = new Account();
         account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
         accountRepository.saveAndFlush(account);
+
+        //科鸿达
+        Account khd_account = new Account();
+        khd_account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
+        accountRepository.saveAndFlush(khd_account);
+
         Voter voter = new Voter();
         voter.setAccount(account);
         voterRepository.saveAndFlush(voter);
+
+        //科鸿达
+        Voter khd_voter = new Voter();
+        khd_voter.setAccount(khd_account);
+        voterRepository.saveAndFlush(khd_voter);
+
         loginUP.setAccount(account);
         loginUPRepository.saveAndFlush(loginUP);
+
+        //科鸿达
+        khd_loginUP.setAccount(khd_account);
+        loginUPRepository.saveAndFlush(khd_loginUP);
+
         townRepository.saveAndFlush(town);  //保存该镇
         SystemSetting systemSetting = new SystemSetting();
         systemSetting.setTown(town);
         systemSetting.setLevel(LevelEnum.TOWN.getValue());
         systemSettingRepository.saveAndFlush(systemSetting);
+
         BackgroundAdmin backgroundAdmin = new BackgroundAdmin();
         backgroundAdmin.setAccount(account);
         backgroundAdmin.setTown(town);
         backgroundAdmin.setLevel(LevelEnum.TOWN.getValue());
         backgroundAdminRepository.saveAndFlush(backgroundAdmin);
+
+        //科鸿达
+        BackgroundAdmin khd_backgroundAdmin = new BackgroundAdmin();
+        khd_backgroundAdmin.setAccount(khd_account);
+        khd_backgroundAdmin.setTown(town);
+        khd_backgroundAdmin.setLevel(LevelEnum.TOWN.getValue());
+        backgroundAdminRepository.saveAndFlush(khd_backgroundAdmin);
         return body;
     }
 

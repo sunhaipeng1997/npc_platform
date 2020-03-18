@@ -36,6 +36,9 @@ public class Town extends BaseDomain {
     @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)
 	private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
 
+    @OneToMany(targetEntity = BackgroundAdmin.class, mappedBy = "town", orphanRemoval = true)
+    private Set<BackgroundAdmin> backgroundAdmins = new HashSet<>();
+
     @OneToMany(targetEntity = Village.class, mappedBy = "town", orphanRemoval = true)
     private Set<Village> villages = new HashSet<>();
 

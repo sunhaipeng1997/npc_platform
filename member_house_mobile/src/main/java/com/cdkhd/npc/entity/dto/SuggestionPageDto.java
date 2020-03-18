@@ -16,5 +16,8 @@ public class SuggestionPageDto extends PageDto {
     //建议状态 1：全部  2：未审核  3：已审核
     private Byte status;
 
-    private String town;
+    //代表当前身份 1镇 2区
+    private Byte level;
+
+//    private String town;
 }

@@ -3,6 +3,7 @@ package com.cdkhd.npc.service;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.SuggestionAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
+import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
 import com.cdkhd.npc.entity.dto.SuggestionPageDto;
 import com.cdkhd.npc.vo.RespBody;
 
@@ -11,7 +12,7 @@ public interface SuggestionService {
     /**
      * 全部建议类型列表
      * */
-    RespBody sugBusList(UserDetailsImpl userDetails);
+    RespBody sugBusList(UserDetailsImpl userDetails, SuggestionBusinessDto dto);
 
     /**
      * 代表提出的建议

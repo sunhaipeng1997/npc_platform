@@ -12,11 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -27,7 +23,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(OncePerRequestFilter.class);
@@ -35,6 +30,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private AccountRepository accountRepository;
     private LoginUPRepository loginUPRepository;
+
+
+
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,11 +47,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //保存认证信息到SecurityContext
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
-                    List<GrantedAuthority> authorities = roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
                     Account account =  loginUPRepository.findByUsername(userInfo.get("username").toString()).getAccount();
-//                    Account account = accountRepository.findByLoginUPUsername(userInfo.get("username").toString());
                     UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), LevelEnum.TOWN.getValue());
-                    UserDetails userDetails = new User(userInfo.get("username").toString(), "", authorities);
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     logger.info("合法访问，username: " + userInfo.get("username").toString());
@@ -61,9 +57,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException e) {
                 logger.warn("token已过期，请重新登录");
                 e.printStackTrace();
-//            } catch (SignatureException e) {
-//                logger.warn("签名验证失败，token不合法，拒绝访问");
-//                e.printStackTrace();
             } catch (Exception e) {
                 logger.warn("token解析失败");
                 e.printStackTrace();
