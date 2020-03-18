@@ -55,7 +55,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 HttpEntity<String> httpEntity = new HttpEntity<>(requestBody.toJSONString(), headers);
 
                 //调用微信服务器接口，创建公众号菜单
-                ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, JSONObject.class);
+                ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class);
                 JSONObject jsonObj = responseEntity.getBody();
                 if (jsonObj != null && jsonObj.get("status").equals(HttpStatus.OK)){
                     userInfo = (Map<String, Object>) jsonObj.get("data");
