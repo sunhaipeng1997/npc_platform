@@ -18,4 +18,5 @@ public interface NpcMemberService {
 
     RespBody getWorkUnits(UserDetailsImpl userDetails);
 
+    RespBody npcMemberList(UserDetailsImpl userDetails);
 }

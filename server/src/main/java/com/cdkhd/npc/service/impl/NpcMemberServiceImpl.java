@@ -4,6 +4,7 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
+import com.cdkhd.npc.entity.vo.MemberListVo;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
 import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -347,6 +348,21 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             throw new RuntimeException("当前后台管理员level不合法");
         }
         body.setData(vos);
+        return body;
+    }
+
+    @Override
+    public RespBody npcMemberList(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        List<MemberListVo> memberListVos = Lists.newArrayList();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            List<NpcMemberGroup>  memberGroups = npcMemberGroupRepository.findByTownUid(userDetails.getTown().getUid());
+            memberListVos = memberGroups.stream().map(group -> MemberListVo.convert(group.getUid(),group.getName(),group.getMembers())).collect(Collectors.toList());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            Set<Town> towns = userDetails.getArea().getTowns();
+            memberListVos = towns.stream().map(town -> MemberListVo.convert(town.getUid(),town.getName(),town.getNpcMembers())).collect(Collectors.toList());
+        }
+        body.setData(memberListVos);
         return body;
     }
 

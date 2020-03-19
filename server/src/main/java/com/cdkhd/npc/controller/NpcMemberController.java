@@ -83,4 +83,15 @@ public class NpcMemberController {
     }
 
 
+    /**
+     * 獲取代表列表
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @GetMapping("/npcMemberList")
+    public ResponseEntity npcMemberList(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = npcMemberService.npcMemberList(userDetails);
+        return ResponseEntity.ok(body);
+    }
+
 }
