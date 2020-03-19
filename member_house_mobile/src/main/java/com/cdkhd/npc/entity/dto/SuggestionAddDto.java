@@ -37,6 +37,7 @@ public class SuggestionAddDto extends BaseDto {
 
     private String town;
 
+    //提建议人代表等级
     private Byte Level;
 
     private String TransUid;
