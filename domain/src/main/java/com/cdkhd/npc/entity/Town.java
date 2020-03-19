@@ -31,6 +31,7 @@ public class Town extends BaseDomain {
 	private Byte status;
 
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
 
     @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)

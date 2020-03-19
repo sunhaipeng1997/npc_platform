@@ -276,8 +276,8 @@ public class MenuServiceImpl implements MenuService {
         obj.put("PERFORMANCES", performances.size());
 
         //todo 还没提交代码我收到的通知数量
-        List<NotificationDetail> notificationDetails = Lists.newArrayList();
-        obj.put("NOTIFICATION_DETAILS", notificationDetails.size());
+    //        List<Notification> notifications = Lists.newArrayList();
+    //        obj.put("NOTIFICATION_DETAILS", notifications.size());
 
         //我收到的建议条数
         List<Suggestion> suggestions = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {

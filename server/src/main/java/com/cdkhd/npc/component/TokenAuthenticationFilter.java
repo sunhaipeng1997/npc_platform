@@ -31,10 +31,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private AccountRepository accountRepository;
     private LoginUPRepository loginUPRepository;
 
-
-
-
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token

@@ -32,6 +32,7 @@ public class LoginWeChat extends BaseDomain {
      * 账号表id
      */
     @OneToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "account", referencedColumnName = "id")
     private Account account;
 
 }

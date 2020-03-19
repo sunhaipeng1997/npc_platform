@@ -74,12 +74,12 @@ public class Notification extends BaseDomain {
 
     //区(县)
     @OneToOne(targetEntity=Area.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "area",referencedColumnName = "id",nullable = true)
+    @JoinColumn(name = "area",referencedColumnName = "id")
     private Area area;
 
     //镇（乡）
     @OneToOne(targetEntity=Town.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "town",referencedColumnName = "id",nullable = true)
+    @JoinColumn(name = "town",referencedColumnName = "id")
     private Town town;
 
     @Column(name = "level" )

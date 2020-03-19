@@ -43,6 +43,7 @@ public class Voter extends BaseDomain {
     private Integer updateInfo = 0;
 
     //关联的账号信息
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "account", referencedColumnName = "id")
     private Account account;
 }
