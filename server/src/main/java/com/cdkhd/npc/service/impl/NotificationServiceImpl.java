@@ -1,5 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
@@ -34,7 +35,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -48,25 +51,18 @@ public class NotificationServiceImpl implements NotificationService {
     private PushService pushService;
 
     @Autowired
-    public NotificationServiceImpl(NotificationRepository notificationRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, SystemSettingService systemSettingService, PushService pushService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, AttachmentRepository attachmentRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, SystemSettingService systemSettingService, PushService pushService) {
         this.notificationRepository = notificationRepository;
+        this.attachmentRepository = attachmentRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.accountRepository = accountRepository;
         this.systemSettingService = systemSettingService;
         this.pushService = pushService;
     }
 
-
     @Override
     public RespBody uploadAttachment(AttachmentDto dto) {
         RespBody<JSONObject> body = new RespBody<>();
-
-        String notificationUid = dto.getNotificationUid();
-        if (StringUtils.isBlank(notificationUid)) {
-            body.setMessage("通知UID不能为空");
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            return body;
-        }
 
         MultipartFile file = dto.getFile();
         if (file == null) {
@@ -74,11 +70,12 @@ public class NotificationServiceImpl implements NotificationService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
+        Attachment attachment = new Attachment();
 
         // 保存
         String filename = file.getOriginalFilename();
 //        String ext = FilenameUtils.getExtension(org);
-        String parentPath = String.format("static/public/notification/%s", notificationUid);
+        String parentPath = String.format("static/public/notification/%s", attachment.getUid());
         File bgFile = new File(parentPath, filename);
         File parentFile = bgFile.getParentFile();
         if (!parentFile.exists()) {
@@ -100,9 +97,8 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        Attachment attachment = new Attachment();
-        attachment.setFileName(filename);
-        attachment.setUrl(String.format("/public/notification/%s/%s", notificationUid,filename));
+
+        attachment.setUrl(String.format("/public/notification/%s/%s",attachment.getUid(),filename));
         attachmentRepository.save(attachment);
 
         JSONObject obj = new JSONObject();
@@ -129,8 +125,9 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
+        List<String> npcMemberUidlist = JSONObject.parseArray(dto.getReceiversUid().toJSONString(),String.class);
         Set<NpcMember> receivers = new HashSet<>();
-        for (String npcMemberUid : dto.getReceiversUid()){
+        for (String npcMemberUid : npcMemberUidlist){
             NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
             if(npcMember == null){
                 body.setStatus(HttpStatus.NOT_FOUND);
@@ -143,8 +140,9 @@ public class NotificationServiceImpl implements NotificationService {
 
         notification.setReceivers(receivers);
 
+        List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
         Set<Attachment> attachments = new HashSet<>();
-        for (String attachmentUid : dto.getAttachmentsUid()){
+        for (String attachmentUid : attachmentUidList){
             Attachment attachment = attachmentRepository.findByUid(attachmentUid);
             if(attachment == null){
                 body.setStatus(HttpStatus.NOT_FOUND);

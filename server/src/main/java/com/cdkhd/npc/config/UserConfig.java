@@ -1,16 +1,17 @@
 package com.cdkhd.npc.config;
 
-        import com.cdkhd.npc.component.UserDetailsImpl;
-        import com.cdkhd.npc.entity.Area;
-        import com.cdkhd.npc.enums.AccountRoleEnum;
-        import com.cdkhd.npc.repository.base.AreaRepository;
-        import com.cdkhd.npc.repository.base.TownRepository;
-        import org.springframework.beans.factory.annotation.Autowired;
-        import org.springframework.context.annotation.Bean;
-        import org.springframework.context.annotation.Configuration;
+import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.Area;
+import com.cdkhd.npc.entity.Town;
+import com.cdkhd.npc.repository.base.AreaRepository;
+import com.cdkhd.npc.repository.base.TownRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.cdkhd.npc.enums.AccountRoleEnum;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-        import java.util.HashSet;
-        import java.util.Set;
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 public class UserConfig {
@@ -29,9 +30,9 @@ public class UserConfig {
     public UserDetailsImpl npcUser() {
         Set<String> roles = new HashSet<>();
         roles.add(AccountRoleEnum.NPC_MEMBER.getName());
-        Area area = areaRepository.findByUid("7727372632898398487");
-        //Town town = townRepository.findByUid("0be1568713f34a8a82f0479c07462273");
+        Area area = areaRepository.findByUid("9ad12abd2dd811ea8f3f0242ac170005");
+        Town town = townRepository.findByUid("ce9028c82dd811ea8f3f0242ac170005");
 
-        return new UserDetailsImpl("7167137817287vxcvzxvz", "liyang", "123456", roles, area, null, (byte) 2);
+        return new UserDetailsImpl("dfhdrfwer23r2r3g45yu65h6546", "ll", "123456", roles, area, town, (byte) 1);
     }
 }

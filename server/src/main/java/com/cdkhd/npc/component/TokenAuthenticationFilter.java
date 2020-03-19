@@ -29,6 +29,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
     private LoginUPRepository loginUPRepository;
 
     @Override

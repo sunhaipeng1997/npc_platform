@@ -1,10 +1,12 @@
 package com.cdkhd.npc.entity.dto;
 
+import com.alibaba.fastjson.JSONArray;
 import com.cdkhd.npc.dto.BaseDto;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -18,13 +20,11 @@ public class NotificationAddDto extends BaseDto {
 
     private Byte type;
 
-    private Set<String> attachmentsUid;
+    private JSONArray attachmentsUid;
 
     //是否为公告
     private boolean isBillboard;
 
-    private String tags;
-
     //接收人
-    private Set<String> receiversUid;
+    private JSONArray receiversUid;
 }

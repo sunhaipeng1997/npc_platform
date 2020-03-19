@@ -35,8 +35,6 @@ public class Notification extends BaseDomain {
     @Column(name = "type")
     private Byte type;
 
-    @Column(name = "tags")
-    private String tags;
 
     //附件
     @OneToMany(mappedBy = "notification",targetEntity = Attachment.class, fetch = FetchType.LAZY)

@@ -8,9 +8,5 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 public class AttachmentDto {
 
-    private String fileName;
-
     private MultipartFile file;
-
-    private String notificationUid;
 }
