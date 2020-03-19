@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,13 +35,15 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private AccountRepository accountRepository;
     private LoginUPRepository loginUPRepository;
     private RestTemplate restTemplate;
+    private Environment environment;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
         String accessToken = getToken(request);
         //fixme url需要写在配置文件里面
-        String url = "http://localhost:..../api/manager/token/parseToken";
+//        String url = "http://localhost:..../api/manager/token/parseToken";
+        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken";
         if (StringUtils.isNotBlank(accessToken)) {
             try {
                 //验证token并解析用户信息
@@ -54,7 +57,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 requestBody.put("token", accessToken);
                 HttpEntity<String> httpEntity = new HttpEntity<>(requestBody.toJSONString(), headers);
 
-                //调用微信服务器接口，创建公众号菜单
+                //调用server接口，获取解析token后的用户信息
                 ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class);
                 JSONObject jsonObj = responseEntity.getBody();
                 if (jsonObj != null && jsonObj.get("status").equals(HttpStatus.OK)){
