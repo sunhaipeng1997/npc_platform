@@ -196,6 +196,59 @@ public class NewsTypeServiceImpl implements NewsTypeService {
         return body;
     }
 
+    /**
+     * 分页查询新闻类别(栏目)
+     * @param pageDto 查询条件
+     * @return 查询结果
+     */
+    @Override
+    public RespBody pageOfNewsTypeForMobile(NewsTypePageDto pageDto) {
+
+        //分页查询条件
+        int begin = pageDto.getPage() - 1;
+        Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
+                Sort.Direction.fromString(pageDto.getDirection()),
+                pageDto.getProperty());
+
+        //用户查询条件
+        Specification<NewsType> specification = (root, query, cb)->{
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //按地区编码查询
+            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
+
+            if(pageDto.getTownUid().isEmpty()){
+                //按镇/社区名称模糊查询
+                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getTownUid()));
+            }
+
+            //按类别名称模糊查询
+            if (StringUtils.isNotEmpty(pageDto.getName())) {
+                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getName() + "%"));
+            }
+
+            //按状态查询
+            if (pageDto.getStatus() != null) {
+                predicateList.add(cb.equal(root.get("status").as(Byte.class), pageDto.getStatus()));
+            }
+
+            return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
+        };
+
+        //查询数据库
+        Page<NewsType> page = newsTypeRepository.findAll(specification,pageable);
+
+        //封装查询结果
+        PageVo<NewsTypeVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(page.getContent().stream().map(NewsTypeVo::convert).collect(Collectors.toList()));
+
+        //返回数据
+        RespBody<PageVo> body = new RespBody<>();
+        body.setData(pageVo);
+
+        return body;
+    }
+
 
     /**
      * 调整新闻类别(栏目)顺序

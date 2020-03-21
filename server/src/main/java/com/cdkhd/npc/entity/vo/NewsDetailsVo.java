@@ -76,7 +76,7 @@ public class NewsDetailsVo extends BaseVo {
 
         //此审核人是实际审核该新闻的人，存储在NpcMember表中
 //        因为数据库表的关联还没确定好，新闻审核人还没设置
-        vo.setReviewerName(news.getReviewer().getName());
+//        vo.setReviewerName(news.getReviewer().getName());
 
         return vo;
     }

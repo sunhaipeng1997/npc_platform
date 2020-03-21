@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -35,10 +33,10 @@ public class Notification extends BaseDomain {
     @Column(name = "type")
     private Byte type;
 
-
     //附件
-    @OneToMany(mappedBy = "notification",targetEntity = Attachment.class, fetch = FetchType.LAZY)
-    private Set<Attachment> attachments = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL) //表示级练操作
+    @JoinColumn(name = "notification_id") //表示对应子表的关联外键，如果不使用这个注解则需要创建中间表
+    private List<Attachment> attachments = new ArrayList<>();
 
     //是否为全局公告
     private boolean isBillboard = false;
@@ -69,7 +67,6 @@ public class Notification extends BaseDomain {
     @Column(name = "feedback" )
     private String feedback;
 
-
     //区(县)
     @OneToOne(targetEntity=Area.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "area",referencedColumnName = "id")
@@ -92,4 +89,5 @@ public class Notification extends BaseDomain {
     //发布时间
     @Temporal(TemporalType.TIMESTAMP)
     private Date publishAt;
+
 }

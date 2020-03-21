@@ -21,6 +21,8 @@ public interface NewsService {
 
     RespBody page(UserDetailsImpl userDetails, NewsPageDto pageDto);
 
+    RespBody pageForMobile(NewsPageDto pageDto);
+
     RespBody details(String uid);
 
     RespBody review(UserDetailsImpl userDetails,NewsReviewDto dto);

@@ -18,14 +18,10 @@ import lombok.ToString;
 @Table(name = "t_attachment")
 public class Attachment extends BaseDomain {
 
-	@ManyToOne(cascade = CascadeType.ALL, targetEntity = Notification.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "notification_id")
-	private Notification notification;
-
 	@Column(nullable = false, unique = true)
 	private String url;
 
-	@Column(name = "file_name")
-	private String fileName;
+	@Column(name = "name")
+	private String name;
 
 }

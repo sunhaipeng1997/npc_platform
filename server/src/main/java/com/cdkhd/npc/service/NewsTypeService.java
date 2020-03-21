@@ -10,6 +10,8 @@ import javax.validation.constraints.NotBlank;
 public interface NewsTypeService {
     RespBody pageOfNewsType(UserDetailsImpl userDetails,NewsTypePageDto pageDto);
 
+    RespBody pageOfNewsTypeForMobile(NewsTypePageDto pageDto);
+
     RespBody addNewsType(UserDetailsImpl userDetails,NewsTypeAddDto addDto);
 
     RespBody updateNewsType(UserDetailsImpl userDetails,NewsTypeAddDto dto);

@@ -3,12 +3,11 @@ package com.cdkhd.npc.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.Attachment;
-import com.cdkhd.npc.entity.Notification;
-import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
+import com.cdkhd.npc.entity.vo.NewsPageVo;
 import com.cdkhd.npc.entity.vo.NotificationDetailsVo;
+import com.cdkhd.npc.entity.vo.NotificationPageVo;
 import com.cdkhd.npc.enums.NewsStatusEnum;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
@@ -20,6 +19,7 @@ import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
+import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -28,10 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.Predicate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -72,11 +79,18 @@ public class NotificationServiceImpl implements NotificationService {
         }
         Attachment attachment = new Attachment();
 
-        // 保存
-        String filename = file.getOriginalFilename();
-//        String ext = FilenameUtils.getExtension(org);
-        String parentPath = String.format("static/public/notification/%s", attachment.getUid());
-        File bgFile = new File(parentPath, filename);
+        //得到源文件名及扩展名
+        String orgFilename = file.getOriginalFilename();
+        String extName = FilenameUtils.getExtension(orgFilename);
+
+        //生成新的文件名
+        String newFilename = String.format("%s.%s", SysUtil.uid(), extName);
+
+        //生成新文件的父目录路径
+        String parentPath = String.format("static/public/notification");
+
+        //创建新的文件
+        File bgFile = new File(parentPath, newFilename);
         File parentFile = bgFile.getParentFile();
         if (!parentFile.exists()) {
             boolean mkdirs = parentFile.mkdirs();
@@ -87,8 +101,8 @@ public class NotificationServiceImpl implements NotificationService {
             }
         }
 
+        // 拷贝文件
         try (InputStream is = file.getInputStream()) {
-            // 拷贝文件
             FileUtils.copyInputStreamToFile(is, bgFile);
         } catch (IOException e) {
             LOGGER.error("通知附件保存失败 {}", e);
@@ -97,8 +111,9 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
+        attachment.setName(orgFilename);
+        attachment.setUrl(String.format("/public/notification/%s",newFilename));
 
-        attachment.setUrl(String.format("/public/notification/%s/%s",attachment.getUid(),filename));
         attachmentRepository.save(attachment);
 
         JSONObject obj = new JSONObject();
@@ -141,7 +156,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setReceivers(receivers);
 
         List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
-        Set<Attachment> attachments = new HashSet<>();
+        List<Attachment> attachments = new ArrayList<>();
         for (String attachmentUid : attachmentUidList){
             Attachment attachment = attachmentRepository.findByUid(attachmentUid);
             if(attachment == null){
@@ -180,7 +195,23 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        //TODO 删除对应的附件
+        //删除之前的附件
+        List<Attachment> attachments = notification.getAttachments();
+        if(!attachments.isEmpty()){
+            for(Attachment attachment : attachments){
+                File oldFile = new File("static", attachment.getUrl());
+                if (oldFile.exists()) {
+                    try {
+                        FileUtils.forceDelete(oldFile);
+                    } catch (IOException e) {
+                        LOGGER.error("通知附件删除失败 {}", e);
+                        body.setStatus(HttpStatus.BAD_REQUEST);
+                        body.setMessage("系统内部错误");
+                        return body;
+                    }
+                }
+            }
+        }
 
         notificationRepository.deleteByUid(uid);
 
@@ -191,6 +222,67 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public RespBody update(NotificationAddDto dto){
         RespBody body = new RespBody();
+
+        if(dto.getUid().isEmpty()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("uid不能为空");
+            return body;
+        }
+
+        Notification notification = notificationRepository.findByUid(dto.getUid());
+        if(notification == null){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("该通知不存在");
+            LOGGER.warn("uid为 {} 的通知不存在，删除通知失败",dto.getUid());
+            return body;
+        }
+
+        BeanUtils.copyProperties(dto, notification);
+
+        //如果是一般通知，则必须要有接收人
+        if(!dto.isBillboard() && dto.getReceiversUid().isEmpty()){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("该通知缺少接收人");
+            LOGGER.warn("该通知缺少接收人");
+            return body;
+        }
+
+        if(!dto.getReceiversUid().isEmpty()){
+            List<String> npcMemberUidList = JSONObject.parseArray(dto.getReceiversUid().toJSONString(),String.class);
+            Set<NpcMember> receivers = new HashSet<>();
+            for (String npcMemberUid : npcMemberUidList){
+                NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
+                if(npcMember == null){
+                    body.setStatus(HttpStatus.NOT_FOUND);
+                    body.setMessage("该通知的接收人不存在");
+                    LOGGER.warn("uid为 {} 的通知不存在，新增通知失败",npcMemberUid);
+                    return body;
+                }
+                receivers.add(npcMember);
+            }
+            notification.setReceivers(receivers);
+        }
+
+        if(!dto.getAttachmentsUid().isEmpty()){
+            List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
+            List<Attachment> attachments = new ArrayList<>();
+            for (String attachmentUid : attachmentUidList){
+                Attachment attachment = attachmentRepository.findByUid(attachmentUid);
+                if(attachment == null){
+                    body.setStatus(HttpStatus.NOT_FOUND);
+                    body.setMessage("附件不存在");
+                    LOGGER.warn("uid为 {} 的附件不存在，新增通知失败",attachmentUid);
+                    return body;
+                }
+                attachments.add(attachment);
+            }
+            notification.setAttachments(attachments);
+        }
+
+        //保存数据
+        notificationRepository.save(notification);
+
+        body.setMessage("添加通知成功");
         return body;
     }
 
@@ -202,7 +294,57 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public RespBody page(UserDetailsImpl userDetails, NotificationPageDto pageDto){
-        RespBody body = new RespBody();
+        //分页查询条件
+        int begin = pageDto.getPage() - 1;
+        Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
+                Sort.Direction.fromString(pageDto.getDirection()),
+                pageDto.getProperty());
+
+        //用户查询条件
+        Specification<Notification> specification = (root, query, cb)->{
+            List<Predicate> predicateList = new ArrayList<>();
+
+            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+
+//            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+
+//            if(userDetails.getTown() != null){
+//                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
+//            }
+
+            //按签署部门查询
+            if (StringUtils.isNotEmpty(pageDto.getDepartment())) {
+                predicateList.add(cb.like(root.get("department").as(String.class), "%" + pageDto.getDepartment() + "%"));
+            }
+
+            //按新闻标题模糊查询
+            if (StringUtils.isNotEmpty(pageDto.getTitle())) {
+                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
+            }
+
+            //按通知状态查询
+            if (pageDto.getStatus() != null) {
+                predicateList.add(cb.equal(root.get("status").as(Integer.class), pageDto.getStatus()));
+            }
+
+            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
+
+            predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
+
+            return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
+        };
+
+        //查询数据库
+        Page<Notification> page = notificationRepository.findAll(specification,pageable);
+
+        //封装查询结果
+        PageVo<NotificationPageVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(page.getContent().stream().map(NotificationPageVo::convert).collect(Collectors.toList()));
+
+        //返回数据
+        RespBody<PageVo> body = new RespBody<>();
+        body.setData(pageVo);
+
         return body;
     }
 
@@ -215,6 +357,12 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public RespBody details(String uid){
         RespBody body = new RespBody();
+        if(uid.isEmpty()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("UID不能为空");
+            return body;
+        }
+
         Notification notification = notificationRepository.findByUid(uid);
         if(notification == null){
             body.setStatus(HttpStatus.NOT_FOUND);

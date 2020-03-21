@@ -267,6 +267,75 @@ public class NewsServiceImpl implements NewsService {
 
 
     /**
+     * 分页查询
+     * @param
+     * @param pageDto 新闻页面dto
+     * @return
+     */
+    @Override
+    public RespBody pageForMobile(NewsPageDto pageDto){
+
+        //分页查询条件
+        int begin = pageDto.getPage() - 1;
+        Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
+                Sort.Direction.fromString(pageDto.getDirection()),
+                pageDto.getProperty());
+
+        //用户查询条件
+        Specification<News> specification = (root, query, cb)->{
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //按地区编码查询
+            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
+
+            //按镇/社区名称模糊查询
+            if(!pageDto.getTownUid().isEmpty()){
+                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getTownUid()));
+            }
+
+            //按栏目查询
+            if (StringUtils.isNotEmpty(pageDto.getNewsTypeName())) {
+                predicateList.add(cb.equal(root.get("newsType").get("name").as(String.class),  pageDto.getNewsTypeName()));
+            }
+
+            //按新闻标题模糊查询
+            if (StringUtils.isNotEmpty(pageDto.getTitle())) {
+                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
+            }
+
+            //按新闻作者模糊查询
+            if (StringUtils.isNotEmpty(pageDto.getAuthor())) {
+                predicateList.add(cb.like(root.get("author").as(String.class), "%" + pageDto.getAuthor() + "%"));
+            }
+
+            //按新闻状态查询
+            if (pageDto.getStatus() != null) {
+                predicateList.add(cb.equal(root.get("status").as(Integer.class), pageDto.getStatus()));
+            }
+
+            //按显示位置/优先级查询
+            if(pageDto.getWhereShow() != null){
+                predicateList.add(cb.equal(root.get("whereShow").as(Integer.class), pageDto.getWhereShow()));
+            }
+
+            return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
+        };
+
+        //查询数据库
+        Page<News> page = newsRepository.findAll(specification,pageable);
+
+        //封装查询结果
+        PageVo<NewsPageVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(page.getContent().stream().map(NewsPageVo::convert).collect(Collectors.toList()));
+
+        //返回数据
+        RespBody<PageVo> body = new RespBody<>();
+        body.setData(pageVo);
+
+        return body;
+    }
+
+    /**
      * 获取某一新闻的细节
      *
      * @param uid 新闻uid

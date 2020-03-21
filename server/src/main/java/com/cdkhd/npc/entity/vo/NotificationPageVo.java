@@ -16,9 +16,12 @@ import java.util.Date;
 public class NotificationPageVo extends BaseVo {
     private String title;
 
-    private String content;
+    private String department;
 
+    private Integer status;
     private String statusName;
+
+    private Byte type;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")

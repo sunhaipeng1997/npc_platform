@@ -16,9 +16,9 @@ public class NewsPageDto extends PageDto {
 
     private Integer status;
 
-    private Integer area;
+    private String areaUid;
 
-    private String townId;
+    private String townUid;
 
     private String newsTypeName;
 
