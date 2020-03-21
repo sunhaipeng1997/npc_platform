@@ -105,7 +105,7 @@ public class SuggestionController {
     }
 
     /**
-     * 导出建议信息
+     * 导出建议列表信息
      *
      * @return
      */

@@ -1,6 +1,7 @@
 package com.cdkhd.npc.component;
 
 import com.cdkhd.npc.entity.Account;
+import com.cdkhd.npc.entity.LoginUP;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.LoginUPRepository;
@@ -25,11 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OncePerRequestFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
     @Autowired
     private AccountRepository accountRepository;
-
     @Autowired
     private LoginUPRepository loginUPRepository;
 
@@ -45,7 +45,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //保存认证信息到SecurityContext
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
-                    Account account =  loginUPRepository.findByUsername(userInfo.get("username").toString()).getAccount();
+                    LoginUP loginUP = loginUPRepository.findByUsername(userInfo.get("username").toString());
+                    Account account =  loginUP.getAccount();
+
                     UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), LevelEnum.TOWN.getValue());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);

@@ -64,7 +64,7 @@ public class Account extends BaseDomain {
     /**
      * 账号密码信息
      */
-    @OneToOne(mappedBy = "account", targetEntity = LoginUP.class, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account")//, targetEntity = LoginUP.class, fetch = FetchType.LAZY)
     private LoginUP loginUP;
 
     /**

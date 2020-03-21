@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         //发送短信验证码
         BDSmsUtils.sendSms(telephoneString, accessKeyId, accessKeySecret, verifycode, endPoint, invokeId, templateCode, timeout);
 
-        //保存codea
+        //保存code
         Code code = codeRepository.findByMobile(telephoneString);
         if (code == null) {
             code = new Code();
@@ -90,8 +90,7 @@ public class AuthServiceImpl implements AuthService {
 
     //登录获取token
     @Override
-    public RespBody
-    login(UsernamePasswordDto upDto) {
+    public RespBody login(UsernamePasswordDto upDto) {
         RespBody body = new RespBody<>();
 
         if (StringUtils.isEmpty(upDto.getUsername()) || StringUtils.isEmpty(upDto.getPassword())) {

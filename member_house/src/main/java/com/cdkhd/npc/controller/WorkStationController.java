@@ -29,14 +29,14 @@ public class WorkStationController {
     /**
      * 分页查询镇或者区的工作站
      * */
-    @GetMapping
+    @GetMapping("/page")
     public ResponseEntity page(@CurrentUser UserDetailsImpl userDetails, WorkStationPageDto workStationPageDto){
         RespBody body = workStationService.page(userDetails, workStationPageDto);
         return ResponseEntity.ok(body);
     }
 
     /**
-     * 上传文件  未完待续
+     * 上传文件
      * */
     @PostMapping("/uploadWorkStationAvatar")
     public ResponseEntity uploadWorkStationAvatar(@CurrentUser UserDetailsImpl userDetails, MultipartFile file){
@@ -56,7 +56,7 @@ public class WorkStationController {
     /**
      * 改变工作站启用、禁用状态
      * */
-    @PostMapping("/status")
+    @PostMapping("/changeStatus")
     public ResponseEntity changeStatus(String uid){
         RespBody body = workStationService.changeStatus(uid);
         return ResponseEntity.ok(body);
@@ -65,7 +65,7 @@ public class WorkStationController {
     /**
      * 删除工作站
      * */
-    @DeleteMapping
+    @DeleteMapping("/delete")
     public ResponseEntity delete(String uid){
         RespBody body = workStationService.delete(uid);
         return ResponseEntity.ok(body);

@@ -3,7 +3,6 @@ package com.cdkhd.npc.component;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.LoginUPRepository;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -29,21 +28,23 @@ import java.util.List;
 import java.util.Map;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OncePerRequestFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
     @Autowired
-    private AccountRepository accountRepository;
     private LoginUPRepository loginUPRepository;
+    @Autowired
     private RestTemplate restTemplate;
+    @Autowired
     private Environment environment;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
         String accessToken = getToken(request);
+        String url = environment.getProperty("serverUrl") + accessToken;
         //fixme url需要写在配置文件里面
-//        String url = "http://localhost:..../api/manager/token/parseToken";
-        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken";
+//        String url = "http://localhost:8080/api/manager/token/parseToken?token=" + accessToken;
+//        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken";
         if (StringUtils.isNotBlank(accessToken)) {
             try {
                 //验证token并解析用户信息
@@ -52,7 +53,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 //设置http头
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                //构造的菜单数据作为请求体
+                //构造的参数作为请求体
                 JSONObject requestBody = new JSONObject();
                 requestBody.put("token", accessToken);
                 HttpEntity<String> httpEntity = new HttpEntity<>(requestBody.toJSONString(), headers);
@@ -60,7 +61,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 //调用server接口，获取解析token后的用户信息
                 ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class);
                 JSONObject jsonObj = responseEntity.getBody();
-                if (jsonObj != null && jsonObj.get("status").equals(HttpStatus.OK)){
+
+                String str = jsonObj.get("status").toString();
+
+                if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
                     userInfo = (Map<String, Object>) jsonObj.get("data");
                 }else {
                     logger.info("token解析失败");
