@@ -13,13 +13,21 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class NotificationPageVo extends BaseVo {
+public class NotificationPageVo  {
+    @DateTimeFormat(pattern = "MM-dd")
+    @JsonFormat(pattern = "MM-dd", timezone = "GMT+8")
+    private Date createTime;
+
+    private String uid;
     private String title;
 
     private String department;
 
     private Integer status;
     private String statusName;
+
+    //审核人员查看状态，暂时这样用
+    private int view;
 
     private Byte type;
 

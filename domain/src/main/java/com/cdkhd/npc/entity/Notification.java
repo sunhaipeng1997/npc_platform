@@ -63,9 +63,6 @@ public class Notification extends BaseDomain {
     @JoinColumn(name = "reviewer_npcMember", referencedColumnName = "id")
     private NpcMember reviewer;
 
-    //审核人的反馈意见
-    @Column(name = "feedback" )
-    private String feedback;
 
     //区(县)
     @OneToOne(targetEntity=Area.class, fetch = FetchType.LAZY)
@@ -80,14 +77,20 @@ public class Notification extends BaseDomain {
     @Column(name = "level" )
     private Byte level;
 
-    //审核人员查看状态
-    private int view;
-
     //通知是否已经发布
     private boolean published;
 
     //发布时间
     @Temporal(TemporalType.TIMESTAMP)
     private Date publishAt;
+
+    //TODO 审核与操作记录相关的字段要分离到单独的一张表中去
+
+    //审核人的反馈意见
+    @Column(name = "feedback" )
+    private String feedback;
+
+    //审核人员查看状态
+    private int view;
 
 }

@@ -24,13 +24,13 @@ public class NotificationApi {
 
     /**
      * 分页查询
-     * @param userDetails 用户信息
+     *   用户信息（为了方便测试，暂时不加）
      * @param pageDto 通知页面dto
      * @return
      */
     @GetMapping
-    public ResponseEntity page(@CurrentUser UserDetailsImpl userDetails, NotificationPageDto pageDto){
-        RespBody body = notificationService.page(userDetails,pageDto);
+    public ResponseEntity page( NotificationPageDto pageDto){
+        RespBody body = notificationService.pageForMobile(pageDto);
         return ResponseEntity.ok(body);
     }
 

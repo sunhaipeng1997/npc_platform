@@ -14,7 +14,13 @@ import java.util.Date;
 
 @Setter
 @Getter
-public class NewsPageVo extends BaseVo {
+public class NewsPageVo{
+
+    @DateTimeFormat(pattern = "MM-dd")
+    @JsonFormat(pattern = "MM-dd", timezone = "GMT+8")
+    private Date createTime;
+
+    private String uid;
 
     private String title;
 
