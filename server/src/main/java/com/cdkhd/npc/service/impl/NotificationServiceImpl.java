@@ -410,13 +410,13 @@ public class NotificationServiceImpl implements NotificationService {
         Specification<Notification> specification = (root, query, cb)->{
             List<Predicate> predicateList = new ArrayList<>();
 
-            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-
-            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-
-            if(userDetails.getTown() != null){
-                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
-            }
+//            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+//
+//            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+//
+//            if(userDetails.getTown() != null){
+//                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
+//            }
 
             //按签署部门查询
             if (StringUtils.isNotEmpty(pageDto.getDepartment())) {
@@ -433,9 +433,15 @@ public class NotificationServiceImpl implements NotificationService {
                 predicateList.add(cb.equal(root.get("status").as(Integer.class), pageDto.getStatus()));
             }
 
-            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
+//            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
 
-            predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
+//            predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
+
+            //            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
+
+            if(pageDto.getType() != null){
+                predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
+            }
 
             return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
         };
