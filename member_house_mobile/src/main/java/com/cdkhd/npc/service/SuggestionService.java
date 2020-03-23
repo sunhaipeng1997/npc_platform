@@ -53,7 +53,7 @@ public interface SuggestionService {
      * @param uid
      * @return
      */
-    String suggestionDetail(String uid);
+    RespBody suggestionDetail(String uid);
 
 
     RespBody suggestionRevoke(String uid);

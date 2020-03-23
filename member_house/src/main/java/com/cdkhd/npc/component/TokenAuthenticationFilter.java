@@ -41,9 +41,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
         String accessToken = getToken(request);
-        String url = environment.getProperty("serverUrl") + accessToken;
         //fixme url需要写在配置文件里面
-//        String url = "http://localhost:8080/api/manager/token/parseToken?token=" + accessToken;
+        String url = "http://127.0.0.1:8080/api/manager/token/parseToken?token=" + accessToken;
 //        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken";
         if (StringUtils.isNotBlank(accessToken)) {
             try {
@@ -75,7 +74,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
                     Account account =  loginUPRepository.findByUsername(userInfo.get("username").toString()).getAccount();
-                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), LevelEnum.TOWN.getValue());
+                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), LevelEnum.AREA.getValue());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     logger.info("合法访问，username: " + userInfo.get("username").toString());

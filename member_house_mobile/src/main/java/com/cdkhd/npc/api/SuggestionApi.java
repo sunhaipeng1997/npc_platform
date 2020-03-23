@@ -68,9 +68,7 @@ public class SuggestionApi {
      * */
     @GetMapping("/suggestionDetail")
     public ResponseEntity suggestionDetail(String uid){
-        String result = suggestionService.suggestionDetail(uid);
-        RespBody body = new RespBody();
-        body.setData(result);
+        RespBody body = suggestionService.suggestionDetail(uid);
         return ResponseEntity.ok(body);
     }
 

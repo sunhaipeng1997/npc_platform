@@ -1,5 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
+import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.dto.AccountPageDto;
 import com.cdkhd.npc.entity.vo.AccountVo;
@@ -67,6 +68,22 @@ public class AccountServiceImpl implements AccountService {
         }
         account.setStatus(status);
         accountRepository.saveAndFlush(account);
+        return body;
+    }
+
+
+    @Override
+    public RespBody getMyInfo(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+//        Account account = accountRepository.findByUid(userDetails.getUid());
+        Account account = accountRepository.findByUid("751806ea2d4211ea8f3f0242ac170005");
+        if (account == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到此账号！");
+            return body;
+        }
+        AccountVo accountVo = AccountVo.convert(account);
+        body.setData(accountVo);
         return body;
     }
 }

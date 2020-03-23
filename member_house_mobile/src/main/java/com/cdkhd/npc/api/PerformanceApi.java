@@ -2,10 +2,7 @@ package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.AddPerformanceDto;
-import com.cdkhd.npc.entity.dto.PerformancePageDto;
-import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
-import com.cdkhd.npc.entity.dto.UidDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +75,35 @@ public class PerformanceApi {
     @GetMapping("/performanceList")
     public ResponseEntity performanceList(UidDto uidDto) {
         RespBody body = performanceService.performanceList(uidDto);
+        return ResponseEntity.ok(body);
+    }
+    /**
+     * 查询履职详情
+     * @return
+     */
+    @GetMapping("/performanceDetail")
+    public ResponseEntity performanceDetail(UidDto uidDto) {
+        RespBody body = performanceService.performanceDetail(uidDto.getUid());
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 该我审核的履职列表
+     * @return
+     */
+    @GetMapping("/performanceAuditorPage")
+    public ResponseEntity performanceAuditorPage(@CurrentUser UserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
+        RespBody body = performanceService.performanceAuditorPage(userDetails, performancePageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 审核履职
+     * @return
+     */
+    @GetMapping("/auditPerformance")
+    public ResponseEntity auditPerformance(@CurrentUser UserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto) {
+        RespBody body = performanceService.auditPerformance(userDetails, auditPerformanceDto);
         return ResponseEntity.ok(body);
     }
 

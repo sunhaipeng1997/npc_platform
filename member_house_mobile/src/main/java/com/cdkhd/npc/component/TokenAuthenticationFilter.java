@@ -41,7 +41,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
         String accessToken = getToken(request);
-        String url = environment.getProperty("serverUrl") + accessToken;
+        String url = "127.0.0.1:8080/" + accessToken;
         //fixme url需要写在配置文件里面
 //        String url = "http://localhost:8080/api/manager/token/parseToken?token=" + accessToken;
 //        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken";

@@ -1,8 +1,6 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.NpcMemberRole;
-import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
 
 import java.util.List;
@@ -22,7 +20,7 @@ public interface NpcMemberRoleService {
      * @param level
      * @return
      */
-    List<NpcMember> findByKeyWordAndLevel(String keyword,Byte level);
+    List<NpcMember> findByKeyWordAndLevel(String keyword, Byte level);
 
     /**
      * 通过权限关键字和等级以及详细uid查询代表列表
@@ -31,7 +29,7 @@ public interface NpcMemberRoleService {
      * @param uid   区：区id；镇：镇id
      * @return
      */
-    List<NpcMember> findByKeyWordAndLevelAndUid(String keyword,Byte level,String uid);
+    List<NpcMember> findByKeyWordAndLevelAndUid(String keyword, Byte level, String uid);
 
 
     /**
@@ -41,7 +39,14 @@ public interface NpcMemberRoleService {
      * @param uid   小组uid
      * @return
      */
-    List<NpcMember> findByKeyWordAndUid(String keyword,Byte level, String uid);
+    List<NpcMember> findByKeyWordAndUid(String keyword, Byte level, String uid);
+
+    /**
+     * 通过代表uid查询其所有权限
+     * @param uid   代表
+     * @return
+     */
+    List<String> findKeyWordByUid(String uid);
 
     /**
      * 通过代表uid查询其所有权限

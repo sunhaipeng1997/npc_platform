@@ -4,12 +4,11 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
-import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
-import com.cdkhd.npc.repository.base.NpcMemberRoleRepository;
-import com.cdkhd.npc.repository.base.SystemSettingRepository;
-import com.cdkhd.npc.repository.member_house.*;
-import com.cdkhd.npc.service.*;
+import com.cdkhd.npc.repository.member_house.OpinionRepository;
+import com.cdkhd.npc.repository.member_house.PerformanceRepository;
+import com.cdkhd.npc.repository.member_house.SuggestionRepository;
+import com.cdkhd.npc.service.RankService;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -32,37 +31,16 @@ public class RankServiceImpl implements RankService {
 
     private PerformanceRepository performanceRepository;
 
-    private PerformanceTypeRepository performanceTypeRepository;
-
-    private SystemSettingRepository systemSettingRepository;
-
     private NpcMemberRepository npcMemberRepository;
-
-    private NpcMemberRoleRepository npcMemberRoleRepository;
-
-    private AccountRepository accountRepository;
-
-    private PerformanceImageRepository performanceImageRepository;
-
-    private NpcMemberRoleService npcMemberRoleService;
-
-    private SystemSettingService systemSettingService;
 
     private SuggestionRepository suggestionRepository;
 
     private OpinionRepository opinionRepository;
 
     @Autowired
-    public RankServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, SystemSettingService systemSettingService, SuggestionRepository suggestionRepository, OpinionRepository opinionRepository) {
+    public RankServiceImpl(PerformanceRepository performanceRepository, NpcMemberRepository npcMemberRepository, SuggestionRepository suggestionRepository, OpinionRepository opinionRepository) {
         this.performanceRepository = performanceRepository;
-        this.performanceTypeRepository = performanceTypeRepository;
-        this.systemSettingRepository = systemSettingRepository;
         this.npcMemberRepository = npcMemberRepository;
-        this.npcMemberRoleRepository = npcMemberRoleRepository;
-        this.accountRepository = accountRepository;
-        this.performanceImageRepository = performanceImageRepository;
-        this.npcMemberRoleService = npcMemberRoleService;
-        this.systemSettingService = systemSettingService;
         this.suggestionRepository = suggestionRepository;
         this.opinionRepository = opinionRepository;
     }

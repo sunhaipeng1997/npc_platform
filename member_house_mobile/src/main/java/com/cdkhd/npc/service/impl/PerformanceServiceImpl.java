@@ -7,7 +7,6 @@ import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.NpcMemberRoleEnum;
-import com.cdkhd.npc.enums.PermissionEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
@@ -19,10 +18,10 @@ import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.service.PushService;
-import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
+import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -69,11 +68,9 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private PushService pushService;
 
-    private SystemSettingService systemSettingService;
-
 
     @Autowired
-    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushService pushService, SystemSettingService systemSettingService) {
+    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushService pushService) {
         this.performanceRepository = performanceRepository;
         this.performanceTypeRepository = performanceTypeRepository;
         this.systemSettingRepository = systemSettingRepository;
@@ -83,7 +80,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.performanceImageRepository = performanceImageRepository;
         this.npcMemberRoleService = npcMemberRoleService;
         this.pushService = pushService;
-        this.systemSettingService = systemSettingService;
     }
 
     /**
@@ -114,20 +110,26 @@ public class PerformanceServiceImpl implements PerformanceService {
         Pageable page = PageRequest.of(begin, performancePageDto.getSize(), Sort.Direction.fromString(performancePageDto.getDirection()), performancePageDto.getProperty());
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));
+            predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), "dfhdrfwer23r2r3g45yu65h6546"));
             if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), performancePageDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())){
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), performancePageDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
-            //状态 已回复  未回复
+            //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status").as(Byte.class), performancePageDto.getStatus()));
+                if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核
+                    predicates.add(cb.isNull(root.get("status")));
+                }else {//已审核
+                    predicates.add(cb.isNotNull(root.get("status")));
+                }
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
-        body.setData(performanceVos);
+        PageVo<PerformanceListVo> vo = new PageVo<>(performancePage, performancePageDto);
+        vo.setContent(performanceVos);
+        body.setData(vo);
         return body;
     }
 
@@ -274,12 +276,12 @@ public class PerformanceServiceImpl implements PerformanceService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());//当前登录账户的代表信息
         List<String> roleKeywords = npcMember.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toList());
-        SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);//系统设置开关
+        SystemSetting systemSetting = this.getSystemSetting(userDetails);//系统设置开关
 
         //排序条件
         int begin = performancePageDto.getPage() - 1;
         Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
-        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createAt");//再按创建时间排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
         List<Sort.Order> orders = new ArrayList<>();
         orders.add(statusSort);
         orders.add(createAt);
@@ -293,9 +295,11 @@ public class PerformanceServiceImpl implements PerformanceService {
                 if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果是小组审核人人员，并且开关打开了，才查询同组的所有代表
                     npcMemberList = npcMemberRepository.findByNpcMemberGroupUidAndIsDelFalse(npcMember.getNpcMemberGroup().getUid());
+                    predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
                 }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit() ) {
                     //todo 如果总审核人员，开关开启，那么查询所有小组审核人员
                     npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(),performancePageDto.getLevel(),npcMember.getTown().getUid());
+                    predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
                 }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit() ) {
                     //todo 如果是总审核人员，并且开关关闭了，那么查询所有的
                     npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
@@ -306,19 +310,20 @@ public class PerformanceServiceImpl implements PerformanceService {
                     in.value(uids);
                     predicates.add(in);
                 }
-                predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), performancePageDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
             }else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())){
                 List<NpcMember> npcMemberList = Lists.newArrayList();
                 if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果是小组审核人人员，并且开关打开了，才查询同镇的所有代表
                     npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
+                    predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
                 }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit() ) {
                     //todo 如果总审核人员，开关开启，那么查询所有镇审核人员
                     npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(),performancePageDto.getLevel(),npcMember.getArea().getUid());
+                    predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
                 }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit() ) {
                     //todo 如果是总审核人员，并且开关关闭了，那么查询所有的
-                    npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
+                    npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(),performancePageDto.getLevel());
                 }
                 if (CollectionUtils.isNotEmpty(npcMemberList)){
                     List<String> uids = npcMemberList.stream().map(NpcMember::getUid).collect(Collectors.toList());
@@ -326,17 +331,22 @@ public class PerformanceServiceImpl implements PerformanceService {
                     in.value(uids);
                     predicates.add(in);
                 }
-                predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), performancePageDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             }
             //状态 已回复  未回复
             if (performancePageDto.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status").as(Byte.class), performancePageDto.getStatus()));
+                if (performancePageDto.getStatus() == 1) {
+                    predicates.add(cb.isNull(root.get("status").as(Byte.class)));
+                }else if (performancePageDto.getStatus() == 2){
+                    predicates.add(cb.isNotNull(root.get("status").as(Byte.class)));
+                }
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
-        body.setData(performanceVos);
+        PageVo<PerformanceListVo> vo = new PageVo<>(performancePage, performancePageDto);
+        vo.setContent(performanceVos);
+        body.setData(vo);
         return body;
     }
 
@@ -356,14 +366,17 @@ public class PerformanceServiceImpl implements PerformanceService {
             LOGGER.error("根据uid查询出的实体为空");
             return body;
         }
-        if (performance.getStatus().equals(StatusEnum.DISABLED) || performance.getStatus().equals(StatusEnum.ENABLED)){
+        if (null != performance.getStatus() && (performance.getStatus().equals(StatusEnum.DISABLED) || performance.getStatus().equals(StatusEnum.ENABLED))){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该条履职已经审核过了，不能再审核");
             LOGGER.error("该条履职已经审核过了，不能再审核");
             return body;
         }
+        Account auditor = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(performance.getLevel(),auditor.getNpcMembers());
         performance.setStatus(auditPerformanceDto.getStatus());
         performance.setReason(auditPerformanceDto.getReason());
+        performance.setAuditor(npcMember);
         if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)){//审核通过
             Account account = performance.getNpcMember().getAccount();
             pushService.pushMsg(account,"",1,"");
@@ -400,4 +413,15 @@ public class PerformanceServiceImpl implements PerformanceService {
         performanceImage.setPerformance(performance);
         performanceImageRepository.saveAndFlush(performanceImage);
     }
+
+    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+        SystemSetting systemSetting = new SystemSetting();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        return systemSetting;
+    }
+
 }

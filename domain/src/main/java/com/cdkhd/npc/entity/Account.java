@@ -81,7 +81,7 @@ public class Account extends BaseDomain {
                     @JoinColumn(name = "account_id", referencedColumnName = "id", nullable = false)
             },
             inverseJoinColumns = {
-                    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+                    @JoinColumn(name = "account_role_id", referencedColumnName = "id", nullable = false)
             }
     )
     private Set<AccountRole> accountRoles = new HashSet<>();

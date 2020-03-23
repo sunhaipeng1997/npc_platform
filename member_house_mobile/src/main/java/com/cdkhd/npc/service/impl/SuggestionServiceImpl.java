@@ -65,8 +65,6 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private final SuggestionImageRepository suggestionImageRepository;
 
-//    private final NpcMemberRepository npcMemberRepository;
-
     private final SuggestionBusinessRepository suggestionBusinessRepository;
 
     private final SuggestionReplyRepository suggestionReplyRepository;
@@ -161,18 +159,16 @@ public class SuggestionServiceImpl implements SuggestionService {
             suggestion.setArea(npcMember.getArea());
             suggestion.setTown(npcMember.getTown());
             suggestion.setRaiser(npcMember);
+            suggestion.setLeader(npcMember);
             suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
-
             //设置完基本信息后，给相应审核人员推送消息
 //            List<NpcMember> auditors;
-//
 //            if (dto.getLevel().equals(LevelEnum.TOWN.getValue())) {
 //                //如果是在镇上提建议，那么查询镇上的审核人员
 //                //首先判断端当前用户的角色是普通代表还是小组审核人员还是总审核人员
 //                Set<String> keyword = Sets.newHashSet();//权限的集合
 //                SystemSetting systemSetting =
-
-                //判断当前代表的权限
+            //判断当前代表的权限
 //                if (keyword.contains("小组履职审核权限") )
 //            } else {
 //                //如果是在区上提建议，那么查询区上的审核人员
@@ -181,11 +177,19 @@ public class SuggestionServiceImpl implements SuggestionService {
         }
         suggestion.setTitle(dto.getTitle());
         suggestion.setContent(dto.getContent());
+        suggestion.setRaiser(npcMember);
         suggestion.setRaiseTime(dto.getRaiseTime());
+        SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(dto.getBusiness());
+        if (suggestionBusiness == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("建议类型不能为空");
+            return body;
+        }
+        suggestion.setSuggestionBusiness(suggestionBusiness);
         suggestionRepository.saveAndFlush(suggestion);
 
-        if (dto.getImages() != null) {  //有附件，保存附件信息
-            this.saveCover(dto.getImages(), suggestion);
+        if (dto.getImage() != null) {  //有附件，保存附件信息
+            this.saveCover(dto.getImage(), suggestion);
         }
         return body;
     }
@@ -217,63 +221,17 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public String suggestionDetail(String uid) {
-        String result = "成功";
+    public RespBody suggestionDetail(String uid) {
+        RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(uid);
-        Map<String, Object> datas = new HashMap<>();
-        datas.put("name", suggestion.getRaiser().getName());
-        datas.put("mobile", suggestion.getRaiser().getMobile());
-        datas.put("title", suggestion.getTitle());
-        datas.put("content", suggestion.getContent());
-        Set<SuggestionReply> replySet = suggestion.getReplies();
-        if (CollectionUtils.isEmpty(replySet)) {
-            datas.put("returnInfo", "暂无回复");
-        } else {
-            List<TextRenderData> renderDataList = Lists.newArrayList();
-            Style style = StyleBuilder.newBuilder().buildFontSize(16).build();
-            for (SuggestionReply suggestionReply : replySet) {
-                suggestionReply.setView(1);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String repInfo = simpleDateFormat.format(suggestionReply.getCreateTime()) + " : " + suggestionReply.getReply();
-                renderDataList.add(new TextRenderData(repInfo, style));
-            }
-            datas.put("returnInfo", new NumbericRenderData(NumbericRenderData.FMT_DECIMAL, style, renderDataList));
-            suggestionReplyRepository.saveAll(replySet);
+        if (suggestion == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该条建议");
+            return body;
         }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(suggestion.getRaiseTime());
-        datas.put("year", calendar.get(Calendar.YEAR));
-        datas.put("month", calendar.get(Calendar.MONTH) + 1);
-        datas.put("day", calendar.get(Calendar.DATE));
-        XWPFTemplate template = XWPFTemplate.compile("template/suggest_word_emplate.docx").render(datas);
-        FileOutputStream out = null;
-        String parentPath = String.format("static/public/suggest/%s", suggestion.getRaiser().getUid());
-        File beforeFile = new File("template/suggest_word_emplate.docx");
-        File bgFile = new File(parentPath, "suggestion.docx");
-        try {
-            if (!bgFile.exists()) {
-                FileUtils.copyFile(beforeFile, bgFile);
-            }
-            result = bgFile.getPath().replace("static", "");
-            out = new FileOutputStream(bgFile.getPath());
-            template.write(out);
-            out.flush();
-        } catch (FileNotFoundException e) {
-            result = "失败";
-            e.printStackTrace();
-        } catch (IOException e) {
-            result = "失败";
-            e.printStackTrace();
-        } finally {
-            try {
-                out.close();
-                template.close();
-            } catch (IOException e) {
-                result = "失败";
-                e.printStackTrace();
-            }
-            return result;
-        }
+        SuggestionVo suggestionVo = SuggestionVo.convert(suggestion);
+        body.setData(suggestionVo);
+        return body;
     }
 
     @Override
@@ -333,10 +291,11 @@ public class SuggestionServiceImpl implements SuggestionService {
             Predicate predicate = root.isNotNull();
             predicate = cb.and(predicate, cb.equal(root.get("raiser").get("area").as(String.class), userDetails.getArea()));
             if (dto.getStatus() != null){
-                if (dto.getStatus().equals(MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue())){  //已审核
-                    predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue());
-                }else if (dto.getStatus().equals(MobileSugStatusEnum.TO_BE_AUDITED.getValue())){  //未审核
-                    predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue());
+                if (dto.getStatus().equals(MobileSugStatusEnum.All.getValue())){  //未审核
+                    predicate = cb.and(predicate,cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));
+                }else if (dto.getStatus().equals(MobileSugStatusEnum.TO_BE_AUDITED.getValue())){  //已审核
+                    Predicate or = cb.or(cb.equal(root.get("status"), SuggestionStatusEnum.SELF_HANDLE.getValue()),cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));
+                    predicate = cb.and(predicate,or);
                 }
             }
             return predicate;

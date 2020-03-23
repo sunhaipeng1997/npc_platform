@@ -8,18 +8,15 @@ import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.repository.member_house.*;
 import com.cdkhd.npc.service.MenuService;
-import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PropertyComparator;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -59,12 +56,8 @@ public class MenuServiceImpl implements MenuService {
 
     private SystemSettingRepository systemSettingRepository;
 
-    private SystemSettingService systemSettingService;
-
-
-
     @Autowired
-    public MenuServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, MenuRepository menuRepository, OpinionRepository opinionRepository, OpinionReplayRepository opinionReplayRepository, SuggestionRepository suggestionRepository, SuggestionReplyRepository suggestionReplyRepository, PerformanceRepository performanceRepository, NewsRepository newsRepository, SystemSettingRepository systemSettingRepository, SystemSettingService systemSettingService) {
+    public MenuServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, MenuRepository menuRepository, OpinionRepository opinionRepository, OpinionReplayRepository opinionReplayRepository, SuggestionRepository suggestionRepository, SuggestionReplyRepository suggestionReplyRepository, PerformanceRepository performanceRepository, NewsRepository newsRepository, SystemSettingRepository systemSettingRepository) {
         this.accountRepository = accountRepository;
         this.accountRoleRepository = accountRoleRepository;
         this.npcMemberRepository = npcMemberRepository;
@@ -77,7 +70,6 @@ public class MenuServiceImpl implements MenuService {
         this.performanceRepository = performanceRepository;
         this.newsRepository = newsRepository;
         this.systemSettingRepository = systemSettingRepository;
-        this.systemSettingService = systemSettingService;
     }
 
 
@@ -152,7 +144,7 @@ public class MenuServiceImpl implements MenuService {
             body.setStatus(HttpStatus.UNAUTHORIZED);
             return body;
         }
-        SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);
+        SystemSetting systemSetting = this.getSystemSetting(userDetails);
         List<Menu> menus = Lists.newArrayList();//当前用户应该展示的菜单
         Set<String> menuUid = new HashSet<>();
         List<Menu> systemMenus = menuRepository.findBySystemsUidAndEnabled(system, StatusEnum.ENABLED.getValue());//当前系统下的所有菜单
@@ -185,6 +177,15 @@ public class MenuServiceImpl implements MenuService {
         return body;
     }
 
+    private SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+        SystemSetting systemSetting = new SystemSetting();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        return systemSetting;
+    }
     /**
      * 将子菜单放到对应的模块下
      * @param menus
@@ -317,7 +318,7 @@ public class MenuServiceImpl implements MenuService {
         //小组审核人uid
         List<String> generalAuditorUids;
         List<Performance> performanceGeneralList = Lists.newArrayList();
-        SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);
+        SystemSetting systemSetting = this.getSystemSetting(userDetails);
         if (systemSetting.getPerformanceGroupAudit()){//开启了开关，只审核小组审核人的履职
             NpcMemberRole generalAuditorRole = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());
             generalAuditorUids = generalAuditorRole.getNpcMembers().stream().filter(member -> member.getLevel().equals(npcMember.getLevel()) && ((member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getArea().getUid().equals(npcMember.getArea().getUid())) || (member.getLevel().equals(LevelEnum.TOWN.getValue())) && member.getTown().getUid().equals(npcMember.getTown().getUid()))).map(NpcMember::getUid).collect(Collectors.toList());

@@ -6,11 +6,11 @@ import com.cdkhd.npc.entity.dto.StatisticalPageDto;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.repository.base.TownRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.StatisticalService;
-import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.util.ExcelCode;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
@@ -53,17 +53,18 @@ public class StatisticalServiceImpl implements StatisticalService {
 
     private NpcMemberRepository npcMemberRepository;
 
-    private SystemSettingService systemSettingService;
+    private SystemSettingRepository systemSettingRepository;
 
     private PerformanceTypeRepository performanceTypeRepository;
 
     private TownRepository townRepository;
 
     @Autowired
-    public StatisticalServiceImpl(PerformanceRepository performanceRepository, NpcMemberRepository npcMemberRepository, SystemSettingService systemSettingService, PerformanceTypeRepository performanceTypeRepository) {
+    public StatisticalServiceImpl(PerformanceRepository performanceRepository, NpcMemberRepository npcMemberRepository, SystemSettingRepository systemSettingRepository, PerformanceTypeRepository performanceTypeRepository, TownRepository townRepository) {
         this.performanceRepository = performanceRepository;
         this.npcMemberRepository = npcMemberRepository;
-        this.systemSettingService = systemSettingService;
+        this.townRepository = townRepository;
+        this.systemSettingRepository = systemSettingRepository;
         this.performanceTypeRepository = performanceTypeRepository;
     }
 
@@ -179,7 +180,7 @@ public class StatisticalServiceImpl implements StatisticalService {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-                SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);
+                SystemSetting systemSetting = this.getSystemSetting(userDetails);
                 if (systemSetting.getShowSubPerformance()) {
                     List<NpcMember> members = npcMemberRepository.findByLevel(LevelEnum.TOWN.getValue());
                     List<String> accountUids = Lists.newArrayList();
@@ -375,5 +376,15 @@ public class StatisticalServiceImpl implements StatisticalService {
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         },page);
         return townPage;
+    }
+
+    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+        SystemSetting systemSetting = new SystemSetting();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        return systemSetting;
     }
 }

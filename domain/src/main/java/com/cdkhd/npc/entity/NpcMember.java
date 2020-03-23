@@ -47,7 +47,7 @@ public class NpcMember extends BaseDomain {
 					@JoinColumn(name = "npc_member_id", referencedColumnName = "id", nullable = false)
 			},
 			inverseJoinColumns = {
-					@JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+					@JoinColumn(name = "npc_member_role_id", referencedColumnName = "id", nullable = false)
 			}
 	)
 	private Set<NpcMemberRole> npcMemberRoles = new HashSet<>();

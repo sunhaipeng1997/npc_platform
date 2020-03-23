@@ -1,7 +1,11 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.dto.LevelDto;
+import com.cdkhd.npc.entity.dto.UidDto;
+import com.cdkhd.npc.entity.vo.CommentVo;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.*;
@@ -13,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
@@ -32,13 +37,80 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     private AreaRepository areaRepository;
 
+    private NpcMemberGroupRepository npcMemberGroupRepository;
+
     @Autowired
-    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, TownRepository townRepository, AreaRepository areaRepository) {
+    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, TownRepository townRepository, AreaRepository areaRepository, NpcMemberGroupRepository npcMemberGroupRepository) {
         this.npcMemberRepository = npcMemberRepository;
         this.townRepository = townRepository;
         this.areaRepository = areaRepository;
+        this.npcMemberGroupRepository = npcMemberGroupRepository;
     }
 
+    /**
+     * 分页查询代表信息
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @Override
+    public RespBody pageOfNpcMembers(UserDetailsImpl userDetails) {
+        //其它查询条件
+        Specification<NpcMember> spec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+            //查询与bgAdmin同级的代表
+            predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
+            predicateList.add(cb.isFalse(root.get("isDel")));
+            //同镇的代表 or 同区的代表
+            predicateList.add(cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+        List<NpcMember> list = npcMemberRepository.findAll(spec);
+
+        //封装查询结果
+        List<NpcMemberVo> npcMemberVoList = list.stream().map(NpcMemberVo::convert).collect(Collectors.toList());
+
+        //返回数据
+        RespBody<List<NpcMemberVo>> body = new RespBody<>();
+        body.setData(npcMemberVoList);
+        return body;
+    }
+
+    @Override
+    public RespBody memberUnitDetails(LevelDto levelDto) {
+        RespBody body = new RespBody();
+        CommentVo commentVo = new CommentVo();
+        if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            NpcMemberGroup npcMemberGroup = npcMemberGroupRepository.findByUid(levelDto.getUid());
+            commentVo = CommentVo.convert(npcMemberGroup.getUid(),npcMemberGroup.getName(),npcMemberGroup.getDescription());
+        }else if(levelDto.getLevel().equals(LevelEnum.AREA.getValue())){
+            Town town = townRepository.findByUid(levelDto.getUid());
+            commentVo = CommentVo.convert(town.getUid(),town.getName(),town.getDescription());
+        }
+        body.setData(commentVo);
+        return body;
+    }
+
+    @Override
+    public RespBody npcMemberDetails(BaseDto baseDto) {
+        RespBody body = new RespBody();
+        if (StringUtils.isEmpty(baseDto.getUid())){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该代表！");
+            LOGGER.error("代表uid为空");
+            return body;
+        }
+        NpcMember npcMember = npcMemberRepository.findByUid(baseDto.getUid());
+        if (npcMember == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该代表！");
+            LOGGER.error("代表查询出来为null");
+            return body;
+        }
+        NpcMemberVo npcMemberVo = NpcMemberVo.convert(npcMember);
+        body.setData(npcMemberVo);
+        return body;
+    }
 
 
     /**

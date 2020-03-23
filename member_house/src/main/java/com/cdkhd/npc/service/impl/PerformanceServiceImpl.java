@@ -12,10 +12,10 @@ import com.cdkhd.npc.entity.vo.PerformanceTypeVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.PerformanceService;
-import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.util.Constant;
 import com.cdkhd.npc.util.ExcelCode;
 import com.cdkhd.npc.vo.CommonVo;
@@ -61,15 +61,15 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private PerformanceTypeRepository performanceTypeRepository;
 
-    private SystemSettingService systemSettingService;
+    private SystemSettingRepository systemSettingRepository;
 
     private NpcMemberRepository npcMemberRepository;
 
     @Autowired
-    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingService systemSettingService, NpcMemberRepository npcMemberRepository) {
+    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository) {
         this.performanceRepository = performanceRepository;
         this.performanceTypeRepository = performanceTypeRepository;
-        this.systemSettingService = systemSettingService;
+        this.systemSettingRepository = systemSettingRepository;
         this.npcMemberRepository = npcMemberRepository;
     }
 
@@ -289,14 +289,22 @@ public class PerformanceServiceImpl implements PerformanceService {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-                SystemSetting systemSetting = systemSettingService.getSystemSetting(userDetails);
+                SystemSetting systemSetting = this.getSystemSetting(userDetails);
                 if (systemSetting.getShowSubPerformance()) {
-                    List<NpcMember> members = npcMemberRepository.findByLevel(LevelEnum.TOWN.getValue());
-                    List<String> accountUids = Lists.newArrayList();
-                    for (NpcMember member : members) {
-                        accountUids.add(member.getAccount().getUid());
+                    List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
+                    List<NpcMember> allMembers = Lists.newArrayList();
+                    for (NpcMember areaMember : areaMembers) {
+                        if (areaMember.getAccount()!=null) {//注冊了的代表
+                            allMembers.addAll(areaMember.getAccount().getNpcMembers());
+                        }else{//未注册的代表
+                            allMembers.add(areaMember);
+                        }
                     }
-                    predicates.add(cb.in(root.get("npcMember").get("account").get("uid")).value(accountUids));
+                    List<String> memberUid = Lists.newArrayList();
+                    for (NpcMember member : areaMembers) {
+                        memberUid.add(member.getUid());
+                    }
+                    predicates.add(cb.in(root.get("npcMember").get("uid")).value(memberUid));
                 }
             }
             //标题
@@ -443,5 +451,15 @@ public class PerformanceServiceImpl implements PerformanceService {
         typeList.add(performanceType);
         typeList.add(targetType);
         return typeList;
+    }
+
+    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+        SystemSetting systemSetting = new SystemSetting();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        return systemSetting;
     }
 }
