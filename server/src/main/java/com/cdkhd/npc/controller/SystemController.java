@@ -23,7 +23,7 @@ public class SystemController {
 
 
     //获取能够进入的系统列表
-    @GetMapping//("getSystemList")
+    @GetMapping("getSystemList")
     public ResponseEntity getSystemList() {
         RespBody body = systemService.getSystemList();
         return ResponseEntity.ok(body);

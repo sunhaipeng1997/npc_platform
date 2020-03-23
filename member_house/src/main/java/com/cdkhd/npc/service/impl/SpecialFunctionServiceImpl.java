@@ -63,17 +63,20 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
 
         // 通知公告审核人员
         // NpcMemberRoleEnum.NOTICE_AUDITOR.getKeyword()
+        array = Lists.newArrayList();
         npcMembers = this.getMembers(NpcMemberRoleEnum.NOTICE_AUDITOR.getKeyword(),userDetails);
         constructItemList(array, npcMembers, userDetails.getLevel());
         obj.put(NpcMemberRoleEnum.NOTICE_AUDITOR.getKeyword(), array);
 
         // 建议接收人员
+        array = Lists.newArrayList();
         npcMembers = this.getMembers(NpcMemberRoleEnum.SUGGESTION_RECEIVER.getKeyword(),userDetails);
         constructItemList(array, npcMembers, userDetails.getLevel());
         obj.put(NpcMemberRoleEnum.SUGGESTION_RECEIVER.getKeyword(), array);
 
 
         // 代表履职总的审核人
+        array = Lists.newArrayList();
         NpcMemberRole performanceManager = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());
         if (performanceManager == null) {
             body.setMessage("找不到指定的角色");
@@ -81,12 +84,12 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
             return body;
         }
         List<NpcMember> npcMemberList = new ArrayList<>();
-        for (NpcMember performanceAuditors : performanceManager.getNpcMembers()) {
+        for (NpcMember performanceAuditors : performanceManager.getNpcMembers()) {//获取所有的履职总审核
             if (performanceAuditors != null && performanceAuditors.getStatus().equals(StatusEnum.ENABLED.getValue()) && !performanceAuditors.getIsDel()) {
-                if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {//镇上管理员设置镇上的特殊职能
-                    npcMemberList.removeIf(member -> !member.getTown().getUid().equals(userDetails.getTown().getUid()) && member.getLevel().equals(LevelEnum.TOWN.getValue()) && (member.getStatus().equals(StatusEnum.ENABLED.getValue()) || !member.getIsDel()));
-                } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                    npcMemberList.removeIf(member -> !member.getArea().getUid().equals(userDetails.getArea().getUid()) && member.getLevel().equals(LevelEnum.AREA.getValue()) && (member.getStatus().equals(StatusEnum.ENABLED.getValue()) || !member.getIsDel()));
+                if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && performanceAuditors.getTown().getUid().equals(userDetails.getTown().getUid()) && performanceAuditors.getLevel().equals(LevelEnum.TOWN.getValue())) {//镇上管理员设置镇上的特殊职能、把区上的过滤掉
+                    npcMemberList.add(performanceAuditors);
+                } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && performanceAuditors.getArea().getUid().equals(userDetails.getArea().getUid()) && performanceAuditors.getLevel().equals(LevelEnum.AREA.getValue())) {
+                    npcMemberList.add(performanceAuditors);
                 }
             }
         }
@@ -135,7 +138,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
         }else{
-            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getArea().getUid());
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
         }
         obj.put("SWITCHS", systemSetting.getPerformanceGroupAudit());
         body.setData(obj);
@@ -190,7 +193,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         }else{
             systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
         }
-        if (systemSetting.getPerformanceGroupAudit()) {//开关关闭的时候，就不验证审核人员
+        if (systemSetting.getPerformanceGroupAudit() && roleName.equals(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword())) {//开关关闭的时候，就不验证审核人员
             for (String uid : uids) {
                 String memberName = this.validateGroupAuditor(uid, roleName, userDetails.getLevel());
                 if (StringUtils.isNotEmpty(memberName)) {
@@ -421,7 +424,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
             systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
         }else{
-            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(), userDetails.getTown().getUid());
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(), userDetails.getArea().getUid());
         }
         systemSetting.setPerformanceGroupAudit(switches);
         if (switches){//如果开关是打开的，那么根据当前登录角色（县、镇管理员）找出相应的履职总审核人员，并且筛选下面的率只审核人员，将不合法的履职审核人员剔除

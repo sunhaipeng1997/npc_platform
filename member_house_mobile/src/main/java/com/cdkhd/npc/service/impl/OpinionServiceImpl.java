@@ -5,6 +5,7 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.OpinionListVo;
 import com.cdkhd.npc.entity.vo.OpinionVo;
+import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.ReplayStatusEnum;
 import com.cdkhd.npc.enums.StatusEnum;
@@ -17,6 +18,7 @@ import com.cdkhd.npc.service.OpinionService;
 import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
+import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -147,13 +149,12 @@ public class OpinionServiceImpl implements OpinionService {
         Pageable page = PageRequest.of(begin, opinionDto.getSize(), Sort.Direction.fromString(opinionDto.getDirection()), opinionDto.getProperty());
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("sender").get("uid").as(String.class), userDetails.getUid()));
+            predicates.add(cb.equal(root.get("sender").get("uid").as(String.class), "751806ea2d4211ea8f3f0242ac170005"));
             if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), opinionDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }else if (opinionDto.getLevel().equals(LevelEnum.AREA.getValue())){
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), opinionDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
-            predicates.add(cb.equal(root.get("sender").get("uid").as(String.class), userDetails.getUid()));
             //状态 已回复  未回复
             if (opinionDto.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status").as(Byte.class), opinionDto.getStatus()));
@@ -161,7 +162,9 @@ public class OpinionServiceImpl implements OpinionService {
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
-        body.setData(opinionVos);
+        PageVo<OpinionListVo> vo = new PageVo<>(opinions, opinionDto);
+        vo.setContent(opinionVos);
+        body.setData(vo);
         return body;
     }
 
@@ -223,9 +226,9 @@ public class OpinionServiceImpl implements OpinionService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
             if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), opinionDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }else if (opinionDto.getLevel().equals(LevelEnum.AREA.getValue())){
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), opinionDto.getAreaUid()));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             //状态 已回复  未回复
             if (opinionDto.getStatus() != null) {
@@ -234,7 +237,9 @@ public class OpinionServiceImpl implements OpinionService {
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
-        body.setData(opinionVos);
+        PageVo<OpinionListVo> vo = new PageVo<>(opinions, opinionDto);
+        vo.setContent(opinionVos);
+        body.setData(vo);
         return body;
     }
 
@@ -255,6 +260,8 @@ public class OpinionServiceImpl implements OpinionService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到该意见！");
         }
+        opinion.setStatus(ReplayStatusEnum.ANSWERED.getValue());
+        opinionRepository.saveAndFlush(opinion);
         OpinionReply opinionReply = new OpinionReply();
         opinionReply.setOpinion(opinion);
         opinionReply.setReply(opinionReplyDto.getContent());

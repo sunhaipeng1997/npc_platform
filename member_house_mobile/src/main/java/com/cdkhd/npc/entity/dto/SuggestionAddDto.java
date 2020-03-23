@@ -33,7 +33,7 @@ public class SuggestionAddDto extends BaseDto {
 
 //    private String mark;
 
-    private MultipartFile images;
+    private MultipartFile image;
 
     private String town;
 

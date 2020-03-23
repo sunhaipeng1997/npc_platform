@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
@@ -8,6 +9,7 @@ import com.cdkhd.npc.entity.vo.MemberListVo;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
 import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.service.SessionService;
@@ -364,6 +366,23 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         }
         body.setData(memberListVos);
         return body;
+    }
+
+    @Override
+    public RespBody npcMemberListByGroup(UserDetailsImpl userDetails, BaseDto baseDto) {
+        RespBody body = new RespBody();
+        Set<NpcMember> npcMemberList = Sets.newHashSet();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            NpcMemberGroup npcMemberGroup = npcMemberGroupRepository.findByUid(baseDto.getUid());
+            npcMemberList = npcMemberGroup.getMembers();
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            Town town = townRepository.findByUid(baseDto.getUid());
+            npcMemberList = town.getNpcMembers();
+        }
+        List<CommonVo> commonVos = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> CommonVo.convert(member.getUid(),member.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
+        return body;
+
     }
 
 }

@@ -2,7 +2,6 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.NpcMemberRole;
-import com.cdkhd.npc.entity.Permission;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRoleRepository;
@@ -37,8 +36,11 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
 
     @Override
     public List<NpcMember> findByKeyWord(String keyword) {
-        NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByKeyword(keyword);
-        Set<NpcMember> npcMemberSet = npcMemberRole.getNpcMembers();
+        List<NpcMemberRole> npcMemberRoleList = npcMemberRoleRepository.findByPermissionsKeyword(keyword);
+        Set<NpcMember> npcMemberSet = Sets.newHashSet();
+        for (NpcMemberRole npcMemberRole : npcMemberRoleList) {
+            npcMemberSet.addAll(npcMemberRole.getNpcMembers());
+        }
         return Lists.newArrayList(npcMemberSet);
     }
 
@@ -80,6 +82,17 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
             }
         }
         return npcMembers;
+    }
+
+
+    @Override
+    public List<String> findKeyWordByUid(String uid) {
+        NpcMember npcMember = npcMemberRepository.findByUid(uid);
+        List<String> permissionList = Lists.newArrayList();
+        for (NpcMemberRole npcMemberRole : npcMember.getNpcMemberRoles()) {
+                permissionList.add(npcMemberRole.getKeyword());
+        }
+        return permissionList;
     }
 
     @Override

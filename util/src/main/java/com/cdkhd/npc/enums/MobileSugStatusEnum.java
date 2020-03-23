@@ -14,8 +14,7 @@ public enum MobileSugStatusEnum {
         this.name = name;
     }
 
-
-    public byte getValue() {
+    public Byte getValue() {
         return value;
     }
 
@@ -33,10 +32,10 @@ public enum MobileSugStatusEnum {
         return null;
     }
 
-    public static String getName(byte value) {
+    public static String getName(Byte value) {
         MobileSugStatusEnum[] levels = values();
         for (MobileSugStatusEnum level : levels) {
-            if (level.getValue() == value) {
+            if (level.getValue().equals(value)) {
                 return level.getName();
             }
         }

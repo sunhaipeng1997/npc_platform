@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
 import com.cdkhd.npc.vo.RespBody;
@@ -19,4 +20,7 @@ public interface NpcMemberService {
     RespBody getWorkUnits(UserDetailsImpl userDetails);
 
     RespBody npcMemberList(UserDetailsImpl userDetails);
+
+    RespBody npcMemberListByGroup(UserDetailsImpl userDetails, BaseDto baseDto);
+
 }

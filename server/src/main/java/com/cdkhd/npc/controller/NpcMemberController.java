@@ -2,6 +2,7 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
 import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
 import com.cdkhd.npc.service.NpcMemberService;
@@ -91,6 +92,16 @@ public class NpcMemberController {
     @GetMapping("/npcMemberList")
     public ResponseEntity npcMemberList(@CurrentUser UserDetailsImpl userDetails) {
         RespBody body = npcMemberService.npcMemberList(userDetails);
+        return ResponseEntity.ok(body);
+    }
+    /**
+     * 獲取代表列表
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @GetMapping("/npcMemberListByGroup")
+    public ResponseEntity npcMemberListByGroup(@CurrentUser UserDetailsImpl userDetails, BaseDto baseDto) {
+        RespBody body = npcMemberService.npcMemberListByGroup(userDetails,baseDto);
         return ResponseEntity.ok(body);
     }
 
