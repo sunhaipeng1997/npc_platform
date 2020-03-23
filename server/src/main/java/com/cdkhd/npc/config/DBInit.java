@@ -194,11 +194,6 @@ public class DBInit {
         permission.setMenus(menuRepository.findMenusByName(MenuEnum.RECEIVE_OPINION.getName()));
         permissionRepository.save(permission);
 
-        //提出建议
-        permission = permissionRepository.findByKeyword(PermissionEnum.EDIT_SUGGESTION.getKeyword());
-        permission.setMenus(menuRepository.findMenusByName(MenuEnum.EDIT_SUGGESTION.getName()));
-        permissionRepository.save(permission);
-
         //我的建议
         permission = permissionRepository.findByKeyword(PermissionEnum.MY_SUGGESTION.getKeyword());
         permission.setMenus(menuRepository.findMenusByName(MenuEnum.MY_SUGGESTION.getName()));
@@ -207,16 +202,6 @@ public class DBInit {
         //审核建议
         permission = permissionRepository.findByKeyword(PermissionEnum.AUDIT_SUGGESTION.getKeyword());
         permission.setMenus(menuRepository.findMenusByName(MenuEnum.AUDIT_SUGGESTION.getName()));
-        permissionRepository.save(permission);
-
-        //我的附议建议
-        permission = permissionRepository.findByKeyword(PermissionEnum.SECONDED_SUGGESTION.getKeyword());
-        permission.setMenus(menuRepository.findMenusByName(MenuEnum.SECONDED_SUGGESTION.getName()));
-        permissionRepository.save(permission);
-
-        //添加履职
-        permission = permissionRepository.findByKeyword(PermissionEnum.EDIT_PERFORMANCE.getKeyword());
-        permission.setMenus(menuRepository.findMenusByName(MenuEnum.EDIT_PERFORMANCE.getName()));
         permissionRepository.save(permission);
 
         //我的履职
@@ -274,11 +259,6 @@ public class DBInit {
         permission.setMenus(menuRepository.findMenusByName(MenuEnum.TOWN_MANAGE.getName()));
         permissionRepository.save(permission);
 
-        //小组管理
-        permission = permissionRepository.findByKeyword(PermissionEnum.GROUP_MANAGE.getKeyword());
-        permission.setMenus(menuRepository.findMenusByName(MenuEnum.GROUP_MANAGE.getName()));
-        permissionRepository.save(permission);
-
         //村管理
         permission = permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword());
         permission.setMenus(menuRepository.findMenusByName(MenuEnum.VILLAGE_MANAGE.getName()));
@@ -299,11 +279,6 @@ public class DBInit {
         permission.setMenus(menuRepository.findMenusByName(MenuEnum.PERFORMANCE_MANAGE.getName()));
         permissionRepository.save(permission);
 
-        //统计分析
-        permission = permissionRepository.findByKeyword(PermissionEnum.STATISTICS.getKeyword());
-        permission.setMenus(menuRepository.findMenusByName(MenuEnum.STATISTICS.getName()));
-        permissionRepository.save(permission);
-
         //代表权限管理
         permission = permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword());
         permission.setMenus(menuRepository.findMenusByName(MenuEnum.PERMISSION_MANAGE.getName()));
@@ -322,9 +297,6 @@ public class DBInit {
             menuRepository.save(menu);
         }
 
-        Menu mySecondedSug = menuRepository.findByName(MenuEnum.SECONDED_SUGGESTION.getName());
-        mySecondedSug.setSystems(systemRepository.findByName("代表建议办理系统"));
-        menuRepository.save(mySecondedSug);
     }
 
     //初始化码表：民族，政治面貌，受教育程度
