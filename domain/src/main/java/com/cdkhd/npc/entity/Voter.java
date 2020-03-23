@@ -25,12 +25,12 @@ public class Voter extends BaseDomain {
     private String realname;
 
     //关联区
-    @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Area.class)//, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
 
     //关联镇
-    @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Town.class)//, fetch = FetchType.LAZY)
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
 

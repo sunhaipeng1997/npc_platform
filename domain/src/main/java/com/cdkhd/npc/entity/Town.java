@@ -52,4 +52,7 @@ public class Town extends BaseDomain {
     @OneToMany(targetEntity = NpcMember.class, mappedBy = "town", orphanRemoval = true)
     private Set<NpcMember> npcMembers = new HashSet<>();
 
+    @OneToMany(targetEntity = Voter.class, mappedBy = "town", orphanRemoval = true)
+    private Set<Voter> voters = new HashSet<>();
+
 }
