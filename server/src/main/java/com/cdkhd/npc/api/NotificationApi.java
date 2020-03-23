@@ -29,8 +29,8 @@ public class NotificationApi {
      * @return
      */
     @GetMapping
-    public ResponseEntity page( NotificationPageDto pageDto){
-        RespBody body = notificationService.pageForMobile(pageDto);
+    public ResponseEntity page(NotificationPageDto pageDto){
+        RespBody body = notificationService.pageForMobileTest(pageDto);
         return ResponseEntity.ok(body);
     }
 
@@ -41,21 +41,28 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/{uid}")
-    public ResponseEntity details(@PathVariable String uid){
-        RespBody body = notificationService.details(uid);
+    public ResponseEntity details(String userName,@PathVariable String uid){
+        RespBody body = notificationService.detailsForMobileTest(userName,uid);
         return ResponseEntity.ok(body);
     }
 
 
-    /**
-     * 审核人对通知进行审核
-     * @param userDetails 用户信息
-     * @param dto 通知审核参数封装对象
-     * @return
-     */
+//    /**
+//     * 审核人对通知进行审核
+//     * @param userDetails 用户信息
+//     * @param dto 通知审核参数封装对象
+//     * @return
+//     */
+//    @PostMapping("/review")
+//    public ResponseEntity review(@CurrentUser UserDetailsImpl userDetails, NotificationReviewDto dto){
+//        RespBody body = notificationService.review(userDetails,dto);
+//        return ResponseEntity.ok(body);
+//    }
+
+    //测试
     @PostMapping("/review")
-    public ResponseEntity review(@CurrentUser UserDetailsImpl userDetails, NotificationReviewDto dto){
-        RespBody body = notificationService.review(userDetails,dto);
+    public ResponseEntity review(NotificationReviewDto dto){
+        RespBody body = notificationService.reviewForMobileTest(dto);
         return ResponseEntity.ok(body);
     }
 
@@ -67,8 +74,8 @@ public class NotificationApi {
      * @return
      */
     @PutMapping("/publish")
-    public ResponseEntity publish(String uid){
-        RespBody body = notificationService.publish(uid);
+    public ResponseEntity publish(String userName,String uid){//测试
+        RespBody body = notificationService.publishForMobileTest(userName,uid);
         return ResponseEntity.ok(body);
     }
 }

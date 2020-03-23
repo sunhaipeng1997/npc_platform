@@ -43,8 +43,8 @@ public class NotificationController {
     }
 
     @PutMapping
-    public ResponseEntity update(NotificationAddDto dto) {
-        RespBody body = notificationService.update(dto);
+    public ResponseEntity update(UserDetailsImpl userDetails,NotificationAddDto dto) {
+        RespBody body = notificationService.update(userDetails,dto);
         return ResponseEntity.ok(body);
     }
 
