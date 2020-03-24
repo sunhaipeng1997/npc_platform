@@ -12,4 +12,7 @@ public class NotificationReviewDto extends BaseDto {
 
     //审核人的反馈意见
     private String feedback;
+
+    //暂时加这个字段测试
+    private String username;
 }

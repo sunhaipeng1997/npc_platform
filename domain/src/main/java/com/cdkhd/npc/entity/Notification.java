@@ -1,6 +1,5 @@
 package com.cdkhd.npc.entity;
 
-import com.cdkhd.npc.enums.NewsStatusEnum;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,36 +32,24 @@ public class Notification extends BaseDomain {
     @Column(name = "type")
     private Byte type;
 
+    //是否为全局公告
+    private boolean isBillboard = false;
+
     //附件
     @OneToMany(cascade = CascadeType.ALL) //表示级练操作
     @JoinColumn(name = "notification_id") //表示对应子表的关联外键，如果不使用这个注解则需要创建中间表
     private List<Attachment> attachments = new ArrayList<>();
 
-    //是否为全局公告
-    private boolean isBillboard = false;
-
-    //接收人
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "notification_npcMember_relation",
-            joinColumns = {
-                    @JoinColumn(name = "notification_id", referencedColumnName = "id")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "npcmember_id", referencedColumnName = "id")
-            }
-    )
-    private Set<NpcMember> receivers = new HashSet<>();
-
-    //通知状态
+    //通知的状态
     @Column(name = "status" )
     private Integer status = NotificationStatusEnum.DRAFT.ordinal();
 
-    //审核人
-    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewer_npcMember", referencedColumnName = "id")
-    private NpcMember reviewer;
+    //通知是否已经发布
+    private boolean published;
 
+    //发布时间
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date publishAt;
 
     //区(县)
     @OneToOne(targetEntity=Area.class, fetch = FetchType.LAZY)
@@ -77,20 +64,32 @@ public class Notification extends BaseDomain {
     @Column(name = "level" )
     private Byte level;
 
-    //通知是否已经发布
-    private boolean published;
+    //接收人
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "notification_npcMember_relation",
+            joinColumns = {
+                    @JoinColumn(name = "notification_id", referencedColumnName = "id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "npcmember_id", referencedColumnName = "id")
+            }
+    )
+    private Set<NpcMember> receivers = new HashSet<>();
 
-    //发布时间
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date publishAt;
+    //记录各位接收人的对通知阅读(查看)情况
+    @OneToMany(targetEntity = NotificationViewDetail.class, mappedBy = "notification", orphanRemoval = true, cascade = CascadeType.ALL)
+    private Set<NotificationViewDetail> details = new HashSet<>();
 
-    //TODO 审核与操作记录相关的字段要分离到单独的一张表中去
+    //当前的审核人
+    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewer_npcMember", referencedColumnName = "id")
+    private NpcMember reviewer;
 
-    //审核人的反馈意见
-    @Column(name = "feedback" )
-    private String feedback;
-
-    //审核人员查看状态
+    //审核人是否有查看该通知
     private int view;
 
+    //记录各位审核人或后台管理员对通知的操作记录
+    @OneToMany(targetEntity = NotificationOpeRecord.class, mappedBy = "notification", orphanRemoval = true, cascade = CascadeType.ALL)
+    private Set<NotificationOpeRecord> opeRecords = new HashSet<>();
 }

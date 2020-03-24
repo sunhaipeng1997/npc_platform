@@ -1,19 +1,14 @@
 package com.cdkhd.npc.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
-import com.cdkhd.npc.entity.vo.NewsPageVo;
 import com.cdkhd.npc.entity.vo.NotificationDetailsVo;
 import com.cdkhd.npc.entity.vo.NotificationPageVo;
 import com.cdkhd.npc.enums.NewsStatusEnum;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
-import com.cdkhd.npc.repository.base.AccountRepository;
-import com.cdkhd.npc.repository.base.AttachmentRepository;
-import com.cdkhd.npc.repository.base.NpcMemberRepository;
-import com.cdkhd.npc.repository.base.NotificationRepository;
+import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NotificationService;
 import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.service.SystemSettingService;
@@ -54,15 +49,19 @@ public class NotificationServiceImpl implements NotificationService {
     private AttachmentRepository attachmentRepository;
     private NpcMemberRepository npcMemberRepository;
     private AccountRepository accountRepository;
+    private NotificationOpeRecordRepository notificationOpeRecordRepository;
+    private NotificationViewDetailRepository notificationViewDetailRepository;
     private SystemSettingService systemSettingService;
     private PushService pushService;
 
     @Autowired
-    public NotificationServiceImpl(NotificationRepository notificationRepository, AttachmentRepository attachmentRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, SystemSettingService systemSettingService, PushService pushService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, AttachmentRepository attachmentRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, NotificationOpeRecordRepository notificationOpeRecordRepository, NotificationViewDetailRepository notificationViewDetailRepository, SystemSettingService systemSettingService, PushService pushService) {
         this.notificationRepository = notificationRepository;
         this.attachmentRepository = attachmentRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.accountRepository = accountRepository;
+        this.notificationOpeRecordRepository = notificationOpeRecordRepository;
+        this.notificationViewDetailRepository = notificationViewDetailRepository;
         this.systemSettingService = systemSettingService;
         this.pushService = pushService;
     }
@@ -220,7 +219,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public RespBody update(NotificationAddDto dto){
+    public RespBody update(UserDetailsImpl userDetails,NotificationAddDto dto){
         RespBody body = new RespBody();
 
         if(dto.getUid().isEmpty()){
@@ -286,11 +285,118 @@ public class NotificationServiceImpl implements NotificationService {
         return body;
     }
 
+
+    /**
+     * 后台管理员 或者 通知审核人 将通知公开
+     *
+     * @param uid 通知uid
+     * @return
+     */
     @Override
-    public RespBody publish(String uid){
+    public RespBody publish(UserDetailsImpl userDetails,String uid){
         RespBody body = new RespBody();
+        Notification notification = notificationRepository.findByUid(uid);
+
+        if (notification == null) {
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("指定的通知不存在");
+            LOGGER.warn("uid为 {} 的通知不存在，发布通知失败",uid);
+            return body;
+        }
+
+        if(notification.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该通知还未审核通过，不可发布");
+            LOGGER.warn("uid为 {} 的通知还未审核通过，发布通知失败",uid);
+            return body;
+        }
+
+        if(notification.isPublished()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该通知已经公开，不可重复公开");
+            LOGGER.warn("uid为 {} 的通知已经公开，不可重复设置为公开",uid);
+            return body;
+        }
+
+        //添加操作记录
+        NotificationOpeRecord notificationOpeRecord = new NotificationOpeRecord();
+        notificationOpeRecord.setOriginalStatus(notification.getStatus());
+
+        //将状态设置为已发布
+        notification.setStatus(NotificationStatusEnum.RELEASED.ordinal());
+
+        //将通知设置为公开状态
+        notification.setPublished(true);
+
+        notificationOpeRecord.setResultStatus(NotificationStatusEnum.RELEASED.ordinal());
+
+        //将调用该接口的当前用户记录为该通知的(操作者)
+        Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
+        notificationOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(userDetails.getLevel(),currentAccount.getNpcMembers()));
+        notificationOpeRecord.setNotification(notification);
+        notificationOpeRecordRepository.saveAndFlush(notificationOpeRecord);
+
+        notification.getOpeRecords().add(notificationOpeRecord);
+
+        notificationRepository.saveAndFlush(notification);
+
+        body.setMessage("通知公开发布成功");
         return body;
     }
+
+    //临时这样写，因为小程序的登录还没写好,所以暂时不要userDetails
+    @Override
+    public RespBody publishForMobileTest(String userName,String uid){
+        RespBody body = new RespBody();
+        Notification notification = notificationRepository.findByUid(uid);
+
+        if (notification == null) {
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("指定的通知不存在");
+            LOGGER.warn("uid为 {} 的通知不存在，发布通知失败",uid);
+            return body;
+        }
+
+        if(notification.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该通知还未审核通过，不可发布");
+            LOGGER.warn("uid为 {} 的通知还未审核通过，发布通知失败",uid);
+            return body;
+        }
+
+        if(notification.isPublished()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该通知已经公开，不可重复公开");
+            LOGGER.warn("uid为 {} 的通知已经公开，不可重复设置为公开",uid);
+            return body;
+        }
+
+        //添加操作记录
+        NotificationOpeRecord notificationOpeRecord = new NotificationOpeRecord();
+        notificationOpeRecord.setOriginalStatus(notification.getStatus());
+
+        //将状态设置为已发布
+        notification.setStatus(NotificationStatusEnum.RELEASED.ordinal());
+
+        //将通知设置为公开状态
+        notification.setPublished(true);
+
+        notificationOpeRecord.setResultStatus(NotificationStatusEnum.RELEASED.ordinal());
+
+        //将调用该接口的当前用户记录为该通知的(操作者)
+        Account currentAccount = accountRepository.findByUid(userName);
+        notificationOpeRecord.setOperator(NpcMemberUtil.getCurrentIden((byte) 2,currentAccount.getNpcMembers()));
+        notificationOpeRecord.setNotification(notification);
+        notificationOpeRecordRepository.saveAndFlush(notificationOpeRecord);
+
+        notification.getOpeRecords().add(notificationOpeRecord);
+
+        notificationRepository.saveAndFlush(notification);
+
+        body.setMessage("通知公开发布成功");
+        return body;
+    }
+
 
     @Override
     public RespBody page(UserDetailsImpl userDetails, NotificationPageDto pageDto){
@@ -304,10 +410,10 @@ public class NotificationServiceImpl implements NotificationService {
         Specification<Notification> specification = (root, query, cb)->{
             List<Predicate> predicateList = new ArrayList<>();
 
-            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-
+//            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+//
 //            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-
+//
 //            if(userDetails.getTown() != null){
 //                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
 //            }
@@ -317,7 +423,7 @@ public class NotificationServiceImpl implements NotificationService {
                 predicateList.add(cb.like(root.get("department").as(String.class), "%" + pageDto.getDepartment() + "%"));
             }
 
-            //按新闻标题模糊查询
+            //按通知标题模糊查询
             if (StringUtils.isNotEmpty(pageDto.getTitle())) {
                 predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
             }
@@ -327,9 +433,15 @@ public class NotificationServiceImpl implements NotificationService {
                 predicateList.add(cb.equal(root.get("status").as(Integer.class), pageDto.getStatus()));
             }
 
-            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
+//            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
 
-            predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
+//            predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
+
+            //            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
+
+            if(pageDto.getType() != null){
+                predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
+            }
 
             return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
         };
@@ -349,7 +461,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public RespBody pageForMobile(NotificationPageDto pageDto){
+    public RespBody pageForMobileTest(NotificationPageDto pageDto){
         //分页查询条件
         int begin = pageDto.getPage() - 1;
         Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
@@ -373,7 +485,7 @@ public class NotificationServiceImpl implements NotificationService {
                 predicateList.add(cb.like(root.get("department").as(String.class), "%" + pageDto.getDepartment() + "%"));
             }
 
-            //按新闻标题模糊查询
+            //按通知标题模糊查询
             if (StringUtils.isNotEmpty(pageDto.getTitle())) {
                 predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
             }
@@ -415,6 +527,54 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public RespBody details(String uid){
+        RespBody body = new RespBody();
+        if(uid.isEmpty()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("UID不能为空");
+            return body;
+        }
+
+        Notification notification = notificationRepository.findByUid(uid);
+        if(notification == null){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("该通知不存在");
+            LOGGER.warn("uid为 {} 的通知不存在，不能提交审核",uid);
+            return body;
+        }
+
+        NotificationDetailsVo vo = NotificationDetailsVo.convert(notification);
+        body.setData(vo);
+
+        body.setMessage("成功获取通知细节");
+        return body;
+    }
+
+    //小程序
+    public RespBody detailsForMobile(UserDetailsImpl userDetails,String uid){
+        RespBody body = new RespBody();
+        if(uid.isEmpty()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("UID不能为空");
+            return body;
+        }
+
+        Notification notification = notificationRepository.findByUid(uid);
+        if(notification == null){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("该通知不存在");
+            LOGGER.warn("uid为 {} 的通知不存在，不能提交审核",uid);
+            return body;
+        }
+
+        NotificationDetailsVo vo = NotificationDetailsVo.convert(notification);
+        body.setData(vo);
+
+        body.setMessage("成功获取通知细节");
+        return body;
+    }
+
+    //测试
+    public RespBody detailsForMobileTest(String userName,String uid){
         RespBody body = new RespBody();
         if(uid.isEmpty()){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -504,28 +664,90 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
+        //添加操作记录
+        NotificationOpeRecord notificationOpeRecord = new NotificationOpeRecord();
+        notificationOpeRecord.setOriginalStatus(notification.getStatus());
+
         //如果审核结果为:通过
         if(dto.isPass()){
             //将通知状态设置为"待发布"(可发布)状态
-            notification.setStatus(NewsStatusEnum.RELEASABLE.ordinal());
+            notification.setStatus(NotificationStatusEnum.RELEASABLE.ordinal());
+            notificationOpeRecord.setResultStatus(NotificationStatusEnum.RELEASABLE.ordinal());
         }else {
             //如果审核结果为:不通过
 
             //将通知状态设置为"不通过"状态
-            notification.setStatus(NewsStatusEnum.NOT_APPROVED.ordinal());
+            notification.setStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
+            notificationOpeRecord.setResultStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
         }
-
         //对通知的反馈意见
-        notification.setFeedback(dto.getFeedback());
+        notificationOpeRecord.setFeedback(dto.getFeedback());
 
-        //将当前用户记录为该通知的审核人
+        //将调用该接口的当前用户记录为该通知的审核人(操作者)
         Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
-
         notification.setReviewer(NpcMemberUtil.getCurrentIden(userDetails.getLevel(),currentAccount.getNpcMembers()));
 
-        notificationRepository.saveAndFlush(notification);
+        notificationOpeRecord.setOperator(notification.getReviewer());
+        notificationOpeRecord.setNotification(notification);
+        notificationOpeRecordRepository.saveAndFlush(notificationOpeRecord);
 
+        notification.getOpeRecords().add(notificationOpeRecord);
+
+        notificationRepository.saveAndFlush(notification);
         body.setMessage("完成通知审核");
         return body;
     }
+
+    //测试
+    public RespBody reviewForMobileTest(NotificationReviewDto dto){
+        RespBody body = new RespBody();
+        Notification notification = notificationRepository.findByUid(dto.getUid());
+        if (notification == null) {
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("指定的通知不存在");
+            LOGGER.warn("uid为 {} 的通知不存在，审核通知失败",dto.getUid());
+            return body;
+        }
+
+        if(notification.getStatus() != NewsStatusEnum.UNDER_REVIEW.ordinal()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("指定的通知不在[审核中]状态");
+            LOGGER.warn("uid为 {} 的通知不在[审核中]状态，审核通知失败",dto.getUid());
+            return body;
+        }
+
+        //添加操作记录
+        NotificationOpeRecord notificationOpeRecord = new NotificationOpeRecord();
+        notificationOpeRecord.setOriginalStatus(notification.getStatus());
+
+        //如果审核结果为:通过
+        if(dto.isPass()){
+            //将通知状态设置为"待发布"(可发布)状态
+            notification.setStatus(NotificationStatusEnum.RELEASABLE.ordinal());
+            notificationOpeRecord.setResultStatus(NotificationStatusEnum.RELEASABLE.ordinal());
+        }else {
+            //如果审核结果为:不通过
+
+            //将通知状态设置为"不通过"状态
+            notification.setStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
+            notificationOpeRecord.setResultStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
+        }
+        //对通知的反馈意见
+        notificationOpeRecord.setFeedback(dto.getFeedback());
+
+        //将调用该接口的当前用户记录为该通知的审核人(操作者)
+        Account currentAccount = accountRepository.findByUid(dto.getUsername());
+        notification.setReviewer(NpcMemberUtil.getCurrentIden((byte)2,currentAccount.getNpcMembers()));
+
+        notificationOpeRecord.setOperator(notification.getReviewer());
+        notificationOpeRecord.setNotification(notification);
+        notificationOpeRecordRepository.saveAndFlush(notificationOpeRecord);
+
+        notification.getOpeRecords().add(notificationOpeRecord);
+
+        notificationRepository.saveAndFlush(notification);
+        body.setMessage("完成通知审核");
+        return body;
+    }
+
 }
