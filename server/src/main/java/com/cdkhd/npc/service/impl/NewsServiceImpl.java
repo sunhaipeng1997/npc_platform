@@ -5,10 +5,7 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.News;
 import com.cdkhd.npc.entity.NewsType;
-import com.cdkhd.npc.entity.dto.NewsAddDto;
-import com.cdkhd.npc.entity.dto.NewsReviewDto;
-import com.cdkhd.npc.entity.dto.NewsPageDto;
-import com.cdkhd.npc.entity.dto.UploadPicDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.NewsDetailsVo;
 import com.cdkhd.npc.entity.vo.NewsPageVo;
 import com.cdkhd.npc.enums.NewsStatusEnum;
@@ -490,6 +487,23 @@ public class NewsServiceImpl implements NewsService {
         newsRepository.saveAndFlush(news);
 
         body.setMessage("新闻公开发布成功");
+        return body;
+    }
+
+    public RespBody setPriority(NewsWhereShowDto dto){
+        RespBody body = new RespBody();
+        News news = newsRepository.findByUid(dto.getUid());
+        if (news == null) {
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("指定的新闻不存在");
+            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",dto.getUid());
+            return body;
+        }
+
+        news.setWhereShow(dto.getWhereShow());
+        newsRepository.saveAndFlush(news);
+
+        body.setMessage("成功修改优先级");
         return body;
     }
 

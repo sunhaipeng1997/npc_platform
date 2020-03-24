@@ -5,6 +5,7 @@ import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.NewsAddDto;
 import com.cdkhd.npc.entity.dto.NewsPageDto;
+import com.cdkhd.npc.entity.dto.NewsWhereShowDto;
 import com.cdkhd.npc.entity.dto.UploadPicDto;
 import com.cdkhd.npc.service.NewsService;
 import com.cdkhd.npc.vo.RespBody;
@@ -84,5 +85,17 @@ public class NewsController {
         RespBody body = newsService.toReview(userDetails,uid);
         return ResponseEntity.ok(body);
     }
+
+    /**
+     *
+     * @param dto   新闻uid
+     * @return
+     */
+    @PostMapping("/priority")
+    public ResponseEntity setPriority(NewsWhereShowDto dto){
+        RespBody body = newsService.setPriority(dto);
+        return ResponseEntity.ok(body);
+    }
+
 
 }
