@@ -56,6 +56,7 @@ public class VillageServiceImpl implements VillageService {
                     predicate = cb.and(predicate, cb.equal(root.get("npcMemberGroup").get("uid").as(String.class), villagePageDto.getGroup()));
                 }
             }
+            predicate = cb.and(predicate, cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));  //只查询当前镇所属的村
             return predicate;
         }, page);
         PageVo<VillageVo> vo = new PageVo<>(villagePage, villagePageDto);
