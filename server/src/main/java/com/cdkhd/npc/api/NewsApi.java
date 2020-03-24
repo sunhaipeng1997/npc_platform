@@ -70,7 +70,7 @@ public class NewsApi {
      * @param uid 新闻uid
      * @return
      */
-    @PutMapping("/publish")
+    @PostMapping("/publish")
     public ResponseEntity publish(String uid){
         RespBody body = newsService.publish(uid);
         return ResponseEntity.ok(body);

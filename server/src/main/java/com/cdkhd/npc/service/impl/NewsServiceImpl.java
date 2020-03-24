@@ -458,7 +458,7 @@ public class NewsServiceImpl implements NewsService {
         News news = newsRepository.findByUid(uid);
 
         if (news == null) {
-            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("指定的新闻不存在");
             LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",uid);
             return body;
