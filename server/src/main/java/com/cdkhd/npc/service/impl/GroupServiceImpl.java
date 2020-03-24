@@ -63,7 +63,7 @@ public class GroupServiceImpl implements GroupService {
             return predicate;
         }, page);
         PageVo<GroupPageVo> vo = new PageVo<>(pageRes, groupPageDto);
-        LOGGER.info(pageRes.getContent().get(0).getTown().getName());
+//        LOGGER.info(pageRes.getContent().get(0).getTown().getName());
         vo.setContent(pageRes.stream().map(GroupPageVo::convert).collect(Collectors.toList()));
         body.setData(vo);
         return body;

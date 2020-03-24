@@ -16,4 +16,6 @@ public class NewsTypePageDto extends PageDto {
     private String areaUid;
 
     private String townUid;
+
+    private String test;
 }

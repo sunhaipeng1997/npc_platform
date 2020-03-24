@@ -24,6 +24,10 @@ public class WorkStationVo extends BaseVo {
 
     private String longitude;
 
+    private String linkman;
+
+    private String telephone;
+
     public static WorkStationVo convert(WorkStation workStation) {
         WorkStationVo vo = new WorkStationVo();
         BeanUtils.copyProperties(workStation, vo);

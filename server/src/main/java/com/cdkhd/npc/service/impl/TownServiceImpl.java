@@ -7,6 +7,8 @@ import com.cdkhd.npc.entity.dto.TownPageDto;
 import com.cdkhd.npc.entity.vo.TownDetailsVo;
 import com.cdkhd.npc.entity.vo.TownPageVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.LoginWayEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.TownService;
 import com.cdkhd.npc.vo.PageVo;
@@ -103,6 +105,7 @@ public class TownServiceImpl implements TownService {
         town = townAddDto.convert();
         Area area = userDetails.getArea();
         town.setArea(area);
+        townRepository.saveAndFlush(town);  //保存该镇
 
         final String accountSuffix = env.getProperty("account.suffix");
         final String accountPassword = env.getProperty("account.password");
@@ -121,20 +124,26 @@ public class TownServiceImpl implements TownService {
 
         Account account = new Account();
         account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
+        account.setStatus(StatusEnum.ENABLED.getValue());
+        account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         accountRepository.saveAndFlush(account);
 
         //科鸿达
         Account khd_account = new Account();
         khd_account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
+        khd_account.setStatus(StatusEnum.ENABLED.getValue());
+        khd_account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         accountRepository.saveAndFlush(khd_account);
 
         Voter voter = new Voter();
         voter.setAccount(account);
+        voter.setTown(town);
         voterRepository.saveAndFlush(voter);
 
         //科鸿达
         Voter khd_voter = new Voter();
         khd_voter.setAccount(khd_account);
+        khd_voter.setTown(town);
         voterRepository.saveAndFlush(khd_voter);
 
         loginUP.setAccount(account);
@@ -144,7 +153,6 @@ public class TownServiceImpl implements TownService {
         khd_loginUP.setAccount(khd_account);
         loginUPRepository.saveAndFlush(khd_loginUP);
 
-        townRepository.saveAndFlush(town);  //保存该镇
         SystemSetting systemSetting = new SystemSetting();
         systemSetting.setTown(town);
         systemSetting.setLevel(LevelEnum.TOWN.getValue());
