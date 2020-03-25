@@ -44,13 +44,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //保存认证信息到SecurityContext
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
-                    LoginUP loginUP = loginUPRepository.findByUsername(userInfo.get("username").toString());
-                    Account account =  loginUP.getAccount();
+                    Account account = accountRepository.findByUid(userInfo.get("uid").toString());
+                    LoginUP loginUP = account.getLoginUP();
 
                     UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    logger.info("合法访问，username: " + userInfo.get("username").toString());
+                    logger.info("合法访问，username: " + userInfo.get("uid").toString());
 
                 }
             } catch (ExpiredJwtException e) {

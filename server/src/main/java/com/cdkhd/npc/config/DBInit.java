@@ -5,7 +5,6 @@ import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.mapred.IFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -98,20 +97,20 @@ public class DBInit {
             account = new Account();
             account.setMobile(mobile);
             account.setLoginWay((byte)1);//账号密码方式登录
-            LoginUP loginUP = loginUPRepository.findByUsername("admin");
-            if (loginUP == null){
-                loginUP = new LoginUP();
-                loginUP.setMobile(mobile);
-                loginUP.setUsername("admin");
-                loginUP.setPassword("123456");
-                loginUPRepository.saveAndFlush(loginUP);
-            }
-            account.setLoginUP(loginUP);
             AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
             Set<AccountRole> accountRoles = Sets.newHashSet();
             accountRoles.add(accountRole);
             account.setAccountRoles(accountRoles);
             accountRepository.saveAndFlush(account);
+        }
+        LoginUP loginUP = loginUPRepository.findByUsername("admin");
+        if (loginUP == null){
+            loginUP = new LoginUP();
+            loginUP.setMobile(mobile);
+            loginUP.setUsername("admin");
+            loginUP.setPassword("123456");
+            loginUP.setAccount(account);
+            loginUPRepository.saveAndFlush(loginUP);
         }
         mobile = env.getProperty("npc_base_info.cdkhdMobile");
         account = accountRepository.findByMobile(mobile);
@@ -119,20 +118,20 @@ public class DBInit {
             account = new Account();
             account.setMobile(mobile);
             account.setLoginWay((byte)1);//账号密码方式登录
-            LoginUP loginUP = loginUPRepository.findByUsername("cdkhd");
-            if (loginUP == null){
-                loginUP = new LoginUP();
-                loginUP.setMobile(mobile);
-                loginUP.setUsername("cdkhd");
-                loginUP.setPassword("123456");
-                loginUPRepository.saveAndFlush(loginUP);
-            }
-            account.setLoginUP(loginUP);
             AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
             Set<AccountRole> accountRoles = Sets.newHashSet();
             accountRoles.add(accountRole);
             account.setAccountRoles(accountRoles);
             accountRepository.saveAndFlush(account);
+        }
+        loginUP = loginUPRepository.findByUsername("cdkhd");
+        if (loginUP == null){
+            loginUP = new LoginUP();
+            loginUP.setMobile(mobile);
+            loginUP.setUsername("cdkhd");
+            loginUP.setPassword("123456");
+            loginUP.setAccount(account);
+            loginUPRepository.saveAndFlush(loginUP);
         }
     }
 

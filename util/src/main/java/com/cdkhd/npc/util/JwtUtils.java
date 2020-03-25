@@ -24,7 +24,7 @@ public class JwtUtils {
                 .setSubject("npc_platform")
                 .setExpiration(token.getExpireAt())
                 .setIssuedAt(token.getSignAt())
-                .claim("username", token.getUsername())
+                .claim("uid", token.getUid())
                 .claim("accountRoles", token.getRoles())
                 .signWith(key)
                 .compact();

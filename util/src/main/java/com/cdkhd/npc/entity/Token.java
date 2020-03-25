@@ -18,6 +18,8 @@ public class Token {
 	//用户名
 	private String username;
 
+	private String uid;
+
 	//用户角色
 	private Set<String> roles;
 

@@ -170,7 +170,7 @@ public class AuthServiceImpl implements AuthService {
         }
         Date expireAt = DateUtils.addDays(signAt, expireDate);
         token.setExpireAt(expireAt);
-        token.setUsername(account.getLoginUP().getUsername());
+        token.setUid(account.getUid());
 
         //设置角色信息
         Set<String> roleKeywords = new HashSet<>();

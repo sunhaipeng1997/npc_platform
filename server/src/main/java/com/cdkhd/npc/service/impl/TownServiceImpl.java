@@ -126,6 +126,8 @@ public class TownServiceImpl implements TownService {
         account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
         account.setStatus(StatusEnum.ENABLED.getValue());
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
+        account.setMobile(townAddDto.getMobile());
+        account.setIsDel(false);
         accountRepository.saveAndFlush(account);
 
         //科鸿达
@@ -133,18 +135,20 @@ public class TownServiceImpl implements TownService {
         khd_account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
         khd_account.setStatus(StatusEnum.ENABLED.getValue());
         khd_account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
+        khd_account.setMobile(townAddDto.getMobile());
+        khd_account.setIsDel(false);
         accountRepository.saveAndFlush(khd_account);
 
-        Voter voter = new Voter();
-        voter.setAccount(account);
-        voter.setTown(town);
-        voterRepository.saveAndFlush(voter);
+//        Voter voter = new Voter();
+//        voter.setAccount(account);
+//        voter.setTown(town);
+//        voterRepository.saveAndFlush(voter);
 
         //科鸿达
-        Voter khd_voter = new Voter();
-        khd_voter.setAccount(khd_account);
-        khd_voter.setTown(town);
-        voterRepository.saveAndFlush(khd_voter);
+//        Voter khd_voter = new Voter();
+//        khd_voter.setAccount(khd_account);
+//        khd_voter.setTown(town);
+//        voterRepository.saveAndFlush(khd_voter);
 
         loginUP.setAccount(account);
         loginUPRepository.saveAndFlush(loginUP);
