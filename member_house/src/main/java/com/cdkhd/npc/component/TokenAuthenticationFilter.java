@@ -2,7 +2,6 @@ package com.cdkhd.npc.component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.LoginUPRepository;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -61,7 +60,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class);
                 JSONObject jsonObj = responseEntity.getBody();
 
-                String str = jsonObj.get("status").toString();
+//                String str = jsonObj.get("status").toString();
 
                 if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
                     userInfo = (Map<String, Object>) jsonObj.get("data");
@@ -74,7 +73,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
                     Account account =  loginUPRepository.findByUsername(userInfo.get("username").toString()).getAccount();
-                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), LevelEnum.AREA.getValue());
+                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), account.getBackgroundAdmin().getLevel());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     logger.info("合法访问，username: " + userInfo.get("username").toString());

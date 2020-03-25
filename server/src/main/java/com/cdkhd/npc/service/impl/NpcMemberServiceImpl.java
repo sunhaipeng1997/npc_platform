@@ -193,7 +193,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         member.setAddress(dto.getAddress());
         member.setBirthday(dto.getBirthday());
         member.setGender(dto.getGender());
-        NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByKeyword(dto.getType());
+        NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByUid(dto.getType());
         member.setType(npcMemberRole.getKeyword());
         member.setCode(dto.getCode());
         member.setIdcard(dto.getIdcard());
