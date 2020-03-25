@@ -25,6 +25,12 @@ spring:
       max-file-size: 10MB
       max-request-size: 24MB
 
+npc_base_info:
+  area: 双流区
+  mobile: 13551371473
+  cdkhdMobile: 13551371473
+
+
 service_app:
   #服务号 token
   token: BsrfGTLbef1Y7J2qhraCZVYk0SSMfAhH

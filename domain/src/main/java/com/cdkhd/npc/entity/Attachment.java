@@ -15,7 +15,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @Entity
-@Table(name = "t_attachment")
+@Table(name = "attachment")
 public class Attachment extends BaseDomain {
 
 	@Column(nullable = false, unique = true)

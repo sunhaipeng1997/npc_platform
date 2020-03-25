@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,7 +29,7 @@ public class Area extends BaseDomain {
 	private String remark;
 
    	@Column(name = "status" )
-	private Integer status;
+	private Byte status = StatusEnum.ENABLED.getValue();
 
     @OneToMany(targetEntity = Town.class, mappedBy = "area", orphanRemoval = true)
 	private Set<Town> towns = new HashSet<>();

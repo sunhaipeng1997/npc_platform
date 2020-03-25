@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,7 +28,7 @@ public class Account extends BaseDomain {
      * 2、锁定
      */
     @Column(name = "status")
-    private Byte status;
+    private Byte status = StatusEnum.ENABLED.getValue();
 
     /**
      * 登录次数
@@ -53,7 +54,7 @@ public class Account extends BaseDomain {
      * 逻辑刪除标识
      */
     @Column(name = "is_del")
-    private Integer isDel;
+    private Boolean isDel = false;
 
     /**
      * 登录方式 1、账号密码   2、微信小程序

@@ -57,7 +57,11 @@ public class PerformanceVo extends BaseVo {
         BeanUtils.copyProperties(performance, vo);
         vo.setMemberName(performance.getNpcMember().getName());
         vo.setMemberMobile(performance.getNpcMember().getMobile());
-        vo.setAuditor(performance.getAuditor().getName());
+        if (performance.getAuditor() != null) {
+            vo.setAuditor(performance.getAuditor().getName());
+        }else {
+            vo.setAuditor("未审核");
+        }
         vo.setPerformanceType(PerformanceTypeVo.convert(performance.getPerformanceType()));
         vo.setTypeName(performance.getPerformanceType().getName());
         return vo;

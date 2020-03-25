@@ -2,7 +2,6 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Notification;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
-import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;

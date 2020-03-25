@@ -20,6 +20,12 @@ spring:
   resources:
     static-locations: ["classpath:/static/", "./static"]
 
+npc_base_info:
+  area: 双流区
+  mobile: 13551371473
+  cdkhdMobile: 13551371473
+
+
 service_app:
   #服务号 token
   token: BsrfGTLbef1Y7J2qhraCZVYk0SSMfAhH

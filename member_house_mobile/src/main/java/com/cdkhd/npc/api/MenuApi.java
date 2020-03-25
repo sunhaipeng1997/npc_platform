@@ -30,7 +30,7 @@ public class MenuApi {
      * @param userDetails
      * @return
      */
-    @PostMapping("/getMenus")
+    @GetMapping("/getMenus")
     public ResponseEntity getMenus(@CurrentUser UserDetailsImpl userDetails, String system, Byte level) {
         RespBody body = menuService.getMenus(userDetails, system, level);
         return ResponseEntity.ok(body);
@@ -40,7 +40,7 @@ public class MenuApi {
      * @param userDetails
      * @return
      */
-    @PostMapping("/countUnRead")
+    @GetMapping("/countUnRead")
     public ResponseEntity countUnRead(@CurrentUser UserDetailsImpl userDetails, Byte level) {
         RespBody body = menuService.countUnRead(userDetails,level);
         return ResponseEntity.ok(body);

@@ -146,23 +146,21 @@ public class MenuServiceImpl implements MenuService {
         }
         SystemSetting systemSetting = this.getSystemSetting(userDetails);
         List<Menu> menus = Lists.newArrayList();//当前用户应该展示的菜单
-        Set<String> menuUid = new HashSet<>();
         List<Menu> systemMenus = menuRepository.findBySystemsUidAndEnabled(system, StatusEnum.ENABLED.getValue());//当前系统下的所有菜单
         if (CollectionUtils.isNotEmpty(roles)) {
-            for (NpcMemberRole role : roles) {
-                if (!role.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;
-                if (!systemSetting.getPerformanceGroupAudit() && (role.getKeyword().equals(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && level.equals(npcMember.getLevel()))) continue;
+            for (NpcMemberRole role : roles) {//代表拥有的角色
+                if (!role.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;//确保角色状态有效
+                if (!systemSetting.getPerformanceGroupAudit() && (role.getKeyword().equals(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && level.equals(npcMember.getLevel()))) continue;//开关关闭的时候，过滤掉小组审核人的审核菜单
                 Set<Permission> permissions = role.getPermissions();
                 if (permissions != null && !permissions.isEmpty()) {
                     for (Permission permission : permissions) {
-                        if (!permission.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;
-                        Set<Menu> miniAppMenus = permission.getMenus();
+                        if (!permission.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;//确保权限状态有效
+                        Set<Menu> miniAppMenus = permission.getMenus();//获取权限下的菜单
                         if (miniAppMenus != null && !miniAppMenus.isEmpty()) {
                             miniAppMenus.retainAll(systemMenus);//当前权限下的菜单和当前系统下的菜单取交集
                             for (Menu menu : miniAppMenus) {
-                                if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;
-                                // 用户已经绑定了手机就不再需要提供该功能
-                                if (!menuUid.add(menu.getUid())) continue;
+                                if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;//菜单可用才展示
+                                if (menu.getType().equals(StatusEnum.DISABLED.getValue())) continue;//如果是后台菜单，就过滤掉
                                 menus.add(menu);
                             }
                         }
@@ -193,15 +191,19 @@ public class MenuServiceImpl implements MenuService {
      */
     private List<MenuVo> dealChildren(List<Menu> menus) {
         List<MenuVo> menuVos = Lists.newArrayList();
-        for (Menu menu : menus) {
-            if (StringUtils.isEmpty(menu.getParentId())){//先把一级菜单装下
-                menuVos.add(MenuVo.convert(menu));
-            }
-        }
-        for (Menu menu : menus) {
-            if (StringUtils.isNotEmpty(menu.getParentId())){//再把二级菜单装在一级菜单下
-                for (MenuVo menuVo : menuVos) {
-                    if (menuVo.getUid().equals(menu.getParentId())){
+        for (Menu menu : menus) {//所有的子级菜单
+            if (menu.getParent()!= null){//把二级菜单装在一级菜单下
+                Boolean isHave = false;
+                for (MenuVo menuVo : menuVos) {//先处理一级菜单
+                    if (menuVo.getUid().equals(menu.getParent().getUid())){
+                        isHave = true;
+                    }
+                }
+                if (!isHave){
+                    menuVos.add(MenuVo.convert(menu.getParent()));
+                }
+                for (MenuVo menuVo : menuVos) {//再处理二级菜单
+                    if (menuVo.getUid().equals(menu.getParent().getUid())){
                         List<MenuVo> children = menuVo.getChildren();
                         children.add(MenuVo.convert(menu));
                         menuVo.setChildren(children);

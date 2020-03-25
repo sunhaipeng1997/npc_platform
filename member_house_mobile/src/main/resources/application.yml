@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8082
 spring:
   application:
     name: npc-member-house
@@ -29,3 +29,8 @@ spring:
 service_app:
   app_id: 1
   app_secret: secret
+
+npc_base_info:
+  area: 双流区
+  mobile: 13551371473
+  cdkhdMobile: 13551371473

@@ -60,7 +60,12 @@ public class SuggestionVo extends BaseVo {
         BeanUtils.copyProperties(suggestion, vo);
         vo.setMemberName(suggestion.getRaiser().getName());
         vo.setMemberMobile(suggestion.getRaiser().getMobile());
-        vo.setAuditor(suggestion.getAuditor().getName());
+        if (suggestion.getAuditor() != null) {
+            vo.setAuditor(suggestion.getAuditor().getName());
+        }
+        else {
+            vo.setAuditor("未审核");
+        }
         vo.setSuggestionBusiness(SuggestionBusinessVo.convert(suggestion.getSuggestionBusiness()));
         vo.setBusinessName(suggestion.getSuggestionBusiness().getName());
         return vo;

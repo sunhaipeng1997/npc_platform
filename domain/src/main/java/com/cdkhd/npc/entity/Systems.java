@@ -45,9 +45,15 @@ public class Systems extends BaseDomain {
     private String description;
 
     /**
-     *
+     * url
      */
     @Column(name = "url")
     private String url;
+
+	/**
+	 * url
+	 */
+	@Column(name = "keyword")
+	private String keyword;
 
 }
