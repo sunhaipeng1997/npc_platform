@@ -47,7 +47,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     LoginUP loginUP = loginUPRepository.findByUsername(userInfo.get("username").toString());
                     Account account =  loginUP.getAccount();
 
-                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), account.getBackgroundAdmin().getLevel());
+                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     logger.info("合法访问，username: " + userInfo.get("username").toString());
