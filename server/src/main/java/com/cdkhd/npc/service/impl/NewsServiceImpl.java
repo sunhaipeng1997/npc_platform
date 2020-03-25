@@ -17,7 +17,6 @@ import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.weaver.MemberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -449,32 +448,32 @@ public class NewsServiceImpl implements NewsService {
     /**
      * 后台管理员 或者 新闻审核人 将新闻公开
      *
-     * @param uid 新闻uid
+     * @param dto 新闻uid
      * @return
      */
     @Override
-    public RespBody publish(String uid){
+    public RespBody publish(UidDto dto){
         RespBody body = new RespBody();
-        News news = newsRepository.findByUid(uid);
+        News news = newsRepository.findByUid(dto.getUid());
 
         if (news == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("指定的新闻不存在");
-            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",uid);
+            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",dto.getUid());
             return body;
         }
 
         if(news.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该新闻还未审核通过，不可发布");
-            LOGGER.warn("uid为 {} 的新闻还未审核通过，发布新闻失败",uid);
+            LOGGER.warn("uid为 {} 的新闻还未审核通过，发布新闻失败",dto.getUid());
             return body;
         }
 
         if(news.getPublished()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该新闻已经公开，不可重复公开");
-            LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",uid);
+            LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",dto.getUid());
             return body;
         }
 

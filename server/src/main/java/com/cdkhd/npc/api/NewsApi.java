@@ -6,6 +6,7 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.NewsPageDto;
 import com.cdkhd.npc.entity.dto.NewsReviewDto;
 import com.cdkhd.npc.entity.dto.NewsTypePageDto;
+import com.cdkhd.npc.entity.dto.UidDto;
 import com.cdkhd.npc.service.NewsService;
 import com.cdkhd.npc.service.NewsTypeService;
 import com.cdkhd.npc.vo.RespBody;
@@ -67,12 +68,12 @@ public class NewsApi {
     /**
      * 后台管理员 或者 新闻审核人 将新闻公开
      *
-     * @param uid 新闻uid
+     * @param dto 新闻uid
      * @return
      */
     @PostMapping("/publish")
-    public ResponseEntity publish(String uid){
-        RespBody body = newsService.publish(uid);
+    public ResponseEntity publish(UidDto dto){
+        RespBody body = newsService.publish(dto);
         return ResponseEntity.ok(body);
     }
 

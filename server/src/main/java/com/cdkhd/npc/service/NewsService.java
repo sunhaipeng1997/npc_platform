@@ -14,7 +14,7 @@ public interface NewsService {
 
     RespBody update(NewsAddDto dto);
 
-    RespBody publish(String uid);
+    RespBody publish(UidDto dto);
 
     RespBody page(UserDetailsImpl userDetails, NewsPageDto pageDto);
 
