@@ -63,6 +63,12 @@ public class Account extends BaseDomain {
     private Byte loginWay;
 
     /**
+     * 用户名
+     */
+    @Column(name = "username")
+    private String username;
+
+    /**
      * 账号密码信息
      */
     @OneToOne(mappedBy = "account")//, targetEntity = LoginUP.class, fetch = FetchType.LAZY)

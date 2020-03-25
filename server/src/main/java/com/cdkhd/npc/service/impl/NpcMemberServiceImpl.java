@@ -239,7 +239,17 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             currentSessionId = currentSession.getUid();
         }
         defauleSessionId = defauleSession.getUid();
-        Account account = accountRepository.findByMobile(dto.getMobile());//代表对应的账号信息
+
+        List<Account> accounts = accountRepository.findByMobile(dto.getMobile());//这个手机号能查询出来的所有账号
+        Account account = null;//代表对应的账号信息
+        for (Account account1 : accounts) {//判断账号的身份，将后台管理员给过滤掉
+            List<String> keywords = account1.getAccountRoles().stream().map(AccountRole::getKeyword).collect(Collectors.toList());
+            if (keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() == null){//如果这个账号的身份包含后台管理员，并且没有注册过小程序
+                continue;
+            }else if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() != null){//账号没有包含后台管理员,并且注册了小程序
+                account = account1;//把这个账号跟代表身份关联起来
+            }
+        }
         if(dto.getSessionUids().contains(defauleSessionId)){//如果选择了其他届期，就清除掉非必选的角色，然后将账号角色改为选民
             Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
             npcMemberRoles.clear();//先把所有的角色删除掉，然后将本次选择的加上

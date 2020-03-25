@@ -2,6 +2,10 @@ package com.cdkhd.npc.repository.base;
 
 import com.cdkhd.npc.entity.Account;
 
+import java.util.List;
+
 public interface AccountRepository extends BaseRepository<Account> {
-    Account findByMobile(String mobile);
+    List<Account> findByMobile(String mobile);
+
+    Account findByUsernameAndMobile(String username, String mobile);
 }

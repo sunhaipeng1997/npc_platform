@@ -91,10 +91,12 @@ public class DBInit {
     }
 
     private void initAccount() {
-        String mobile = env.getProperty("npc_base_info.mobile");
-        Account account = accountRepository.findByMobile(mobile);
+        String username = env.getProperty("npc_base_info.user.name");
+        String mobile = env.getProperty("npc_base_info.user.mobile");
+        Account account = accountRepository.findByUsernameAndMobile(username,mobile);
         if (account == null){
             account = new Account();
+            account.setUsername(username);
             account.setMobile(mobile);
             account.setLoginWay((byte)1);//账号密码方式登录
             AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
@@ -103,19 +105,23 @@ public class DBInit {
             account.setAccountRoles(accountRoles);
             accountRepository.saveAndFlush(account);
         }
-        LoginUP loginUP = loginUPRepository.findByUsername("admin");
+
+        LoginUP loginUP = loginUPRepository.findByUsername(username);
         if (loginUP == null){
             loginUP = new LoginUP();
             loginUP.setMobile(mobile);
-            loginUP.setUsername("admin");
+            loginUP.setUsername(username);
             loginUP.setPassword("123456");
             loginUP.setAccount(account);
             loginUPRepository.saveAndFlush(loginUP);
         }
-        mobile = env.getProperty("npc_base_info.cdkhdMobile");
-        account = accountRepository.findByMobile(mobile);
+
+        username = env.getProperty("npc_base_info.cdkhd.name");
+        mobile = env.getProperty("npc_base_info.cdkhd.mobile");
+        account = accountRepository.findByUsernameAndMobile(username,mobile);
         if (account == null){
             account = new Account();
+            account.setUsername(username);
             account.setMobile(mobile);
             account.setLoginWay((byte)1);//账号密码方式登录
             AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
@@ -124,11 +130,11 @@ public class DBInit {
             account.setAccountRoles(accountRoles);
             accountRepository.saveAndFlush(account);
         }
-        loginUP = loginUPRepository.findByUsername("cdkhd");
+        loginUP = loginUPRepository.findByUsername(username);
         if (loginUP == null){
             loginUP = new LoginUP();
             loginUP.setMobile(mobile);
-            loginUP.setUsername("cdkhd");
+            loginUP.setUsername(username);
             loginUP.setPassword("123456");
             loginUP.setAccount(account);
             loginUPRepository.saveAndFlush(loginUP);
@@ -138,9 +144,10 @@ public class DBInit {
     private void initBackgroundAdmin() {
         String areaName = env.getProperty("npc_base_info.area");
         Area area = areaRepository.findByName(areaName);
-        String mobile = env.getProperty("npc_base_info.mobile");
-        Account account = accountRepository.findByMobile(mobile);
-        BackgroundAdmin backgroundAdmin = backgroundAdminRepository.findByAccountMobile(mobile);
+        String username = env.getProperty("npc_base_info.user.name");
+        String mobile = env.getProperty("npc_base_info.user.mobile");
+        Account account = accountRepository.findByUsernameAndMobile(username,mobile);
+        BackgroundAdmin backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
             backgroundAdmin.setAccount(account);
@@ -148,9 +155,10 @@ public class DBInit {
             backgroundAdmin.setArea(area);
             backgroundAdminRepository.saveAndFlush(backgroundAdmin);
         }
-        mobile = env.getProperty("npc_base_info.cdkhdMobile");
-        account = accountRepository.findByMobile(mobile);
-        backgroundAdmin = backgroundAdminRepository.findByAccountMobile(mobile);
+        username = env.getProperty("npc_base_info.cdkhd.name");
+        mobile = env.getProperty("npc_base_info.cdkhd.mobile");
+        account = accountRepository.findByUsernameAndMobile(username,mobile);
+        backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
             backgroundAdmin.setAccount(account);

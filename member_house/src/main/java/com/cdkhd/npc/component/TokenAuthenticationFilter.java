@@ -2,7 +2,7 @@ package com.cdkhd.npc.component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.repository.base.LoginUPRepository;
+import com.cdkhd.npc.repository.base.AccountRepository;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +30,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
     @Autowired
-    private LoginUPRepository loginUPRepository;
+    private AccountRepository accountRepository;
     @Autowired
     private RestTemplate restTemplate;
     @Autowired
@@ -72,11 +72,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //保存认证信息到SecurityContext
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
-                    Account account =  loginUPRepository.findByUsername(userInfo.get("username").toString()).getAccount();
-                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), account.getBackgroundAdmin().getLevel());
+                    Account account =  accountRepository.findByUid(userInfo.get("uid").toString());
+                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    logger.info("合法访问，username: " + userInfo.get("username").toString());
+                    logger.info("合法访问，uid: " + userInfo.get("uid").toString());
                 }
             } catch (ExpiredJwtException e) {
                 logger.warn("token已过期，请重新登录");

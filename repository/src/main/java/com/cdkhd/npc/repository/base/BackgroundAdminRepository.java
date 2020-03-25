@@ -5,4 +5,6 @@ import com.cdkhd.npc.entity.BackgroundAdmin;
 public interface BackgroundAdminRepository extends BaseRepository<BackgroundAdmin> {
 
     BackgroundAdmin findByAccountMobile(String mobile);
+
+    BackgroundAdmin findByAccountUsername(String username);
 }

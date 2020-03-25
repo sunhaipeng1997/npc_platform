@@ -50,7 +50,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    logger.info("合法访问，username: " + userInfo.get("uid").toString());
+                    logger.info("合法访问，uid: " + userInfo.get("uid").toString());
 
                 }
             } catch (ExpiredJwtException e) {
