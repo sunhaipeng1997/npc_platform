@@ -45,11 +45,13 @@ public class TownServiceImpl implements TownService {
 
     private final BackgroundAdminRepository backgroundAdminRepository;
 
+    private final SessionRepository sessionRepository;
+
     private Environment env;
 
 
     @Autowired
-    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, Environment env) {
+    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, SessionRepository sessionRepository, Environment env) {
         this.townRepository = townRepository;
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
@@ -57,6 +59,7 @@ public class TownServiceImpl implements TownService {
         this.voterRepository = voterRepository;
         this.systemSettingRepository = systemSettingRepository;
         this.backgroundAdminRepository = backgroundAdminRepository;
+        this.sessionRepository = sessionRepository;
         this.env = env;
     }
 
@@ -106,6 +109,12 @@ public class TownServiceImpl implements TownService {
         Area area = userDetails.getArea();
         town.setArea(area);
         townRepository.saveAndFlush(town);  //保存该镇
+
+        Session session = new Session();
+        session.setName("其它");
+        session.setTown(town);
+        session.setRemark("其他情况");
+        sessionRepository.saveAndFlush(session);
 
         final String accountSuffix = env.getProperty("account.suffix");
         final String accountPassword = env.getProperty("account.password");
