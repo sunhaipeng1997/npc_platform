@@ -40,9 +40,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
         String accessToken = getToken(request);
-        //fixme url需要写在配置文件里面
-        String url = "http://127.0.0.1:8080/api/manager/token/parseToken?token=" + accessToken;
-//        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken";
+//        fixme url需要写在配置文件里面
+//        String url = "http://127.0.0.1:8080/api/manager/token/parseToken?token=" + accessToken;
+        String url = environment.getProperty("serverUrl") + accessToken;
         if (StringUtils.isNotBlank(accessToken)) {
             try {
                 //验证token并解析用户信息
@@ -59,8 +59,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 //调用server接口，获取解析token后的用户信息
                 ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class);
                 JSONObject jsonObj = responseEntity.getBody();
-
-//                String str = jsonObj.get("status").toString();
 
                 if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
                     userInfo = (Map<String, Object>) jsonObj.get("data");
