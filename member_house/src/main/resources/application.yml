@@ -5,9 +5,9 @@ spring:
     name: npc-member-house
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://106.12.112.156:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: nian9695,,,
+    password: cdkhd@2020
   jpa:
     database: mysql
     show-sql: false

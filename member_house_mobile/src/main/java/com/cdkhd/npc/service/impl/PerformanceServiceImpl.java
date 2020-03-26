@@ -17,7 +17,6 @@ import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.cdkhd.npc.service.PerformanceService;
-import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;

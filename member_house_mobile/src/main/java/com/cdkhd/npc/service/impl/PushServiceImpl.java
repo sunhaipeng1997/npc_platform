@@ -34,16 +34,7 @@ public class PushServiceImpl implements PushService {
      */
     @Override
     public void pushMsg(Account account, String msg, Integer type, String keyWord) {
-//        //获取access_token
-//        WeichatAccessToken token = dbInit.getToken();
-//
-//        //验证access_token是否有效
-//        if (!dbInit.verifyToken(token)) {
-//            token = dbInit.getToken();
-//        }
-//
-//        //获取接收人的openID
-//        String openID = account.getOpenId();
+
         //获取模板id
         String templetedId = "";
         //first
@@ -164,8 +155,6 @@ public class PushServiceImpl implements PushService {
 
         String body1 = obj.toJSONString();
 
-        //发送
-//        Certification.send(token.getAccessToken(), body1);
     }
 
 }

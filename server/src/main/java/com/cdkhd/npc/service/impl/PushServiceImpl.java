@@ -1,8 +1,11 @@
 package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.cdkhd.npc.config.WeChatServiceAccountConfig;
 import com.cdkhd.npc.entity.Account;
+import com.cdkhd.npc.entity.WeChatAccessToken;
 import com.cdkhd.npc.service.PushService;
+import com.cdkhd.npc.util.Certification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -10,20 +13,17 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * @创建人
- * @创建时间 2018/10/26
- * @描述
- */
 @Service
 public class PushServiceImpl implements PushService {
 
     private final Environment env;
 
+    private final WeChatServiceAccountConfig weChatServiceAccountConfig;
 
     @Autowired
-    public PushServiceImpl(Environment env) {
+    public PushServiceImpl(Environment env, WeChatServiceAccountConfig weChatServiceAccountConfig) {
         this.env = env;
+        this.weChatServiceAccountConfig = weChatServiceAccountConfig;
     }
 
     /**
@@ -34,16 +34,17 @@ public class PushServiceImpl implements PushService {
      */
     @Override
     public void pushMsg(Account account, String msg, Integer type, String keyWord) {
-//        //获取access_token
-//        WeichatAccessToken token = dbInit.getToken();
-//
-//        //验证access_token是否有效
-//        if (!dbInit.verifyToken(token)) {
-//            token = dbInit.getToken();
-//        }
-//
-//        //获取接收人的openID
-//        String openID = account.getOpenId();
+        //获取access_token
+        WeChatAccessToken token = weChatServiceAccountConfig.getToken();
+
+        //验证access_token是否有效
+        if (!weChatServiceAccountConfig.verifyToken(token)) {
+            token = weChatServiceAccountConfig.getToken();
+        }
+
+        //获取接收人的openID
+        String openID = account.getLoginWeChat().getOpenId();
+
         //获取模板id
         String templetedId = "";
         //first
@@ -126,12 +127,12 @@ public class PushServiceImpl implements PushService {
             //模板id
             templetedId = env.getProperty("service_app.templetedId5");
             //first
-            keyword1.put("value","你提交的意见建议有新的回复");
+            first.put("value","你提交的意见建议有新的回复");
             //时间
             String time =new SimpleDateFormat("yyyy年MM月dd日 HH:mm").format(new Date());
-            keyword2.put("value",time);
-            //回复内容
-            keyword3.put("value",msg);
+            keyword1.put("value",time);
+            //回复方式
+            keyword2.put("value",msg);
             //备注
             remark.put("value","点击前往小程序查看详情！");
         }
@@ -143,8 +144,10 @@ public class PushServiceImpl implements PushService {
         String pagepath = env.getProperty("service_app.path");
 
         JSONObject obj = new JSONObject();
-//        obj.put("touser",openID);
+        obj.put("touser",openID);
         obj.put("template_id",templetedId);
+
+
         JSONObject obj1 = new JSONObject();
         obj1.put("appid",appId);
         obj1.put("pagepath",pagepath);
@@ -165,7 +168,7 @@ public class PushServiceImpl implements PushService {
         String body1 = obj.toJSONString();
 
         //发送
-//        Certification.send(token.getAccessToken(), body1);
+        Certification.send(token.getAccessToken(), body1);
     }
 
 }

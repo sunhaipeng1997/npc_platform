@@ -5,9 +5,9 @@ spring:
     name: npc-platform
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://106.12.112.156:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: cd@khd2018
+    password: cdkhd@2020
   jpa:
     database: mysql
     show-sql: false
@@ -76,4 +76,13 @@ account:
   suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
   password: 123456 #默认密码
   mobile: 13333333333 #默认手机号
+
+npc_base_info:
+  area: 双流区
+  user:
+    name: admin
+    mobile: 18940918501
+  cdkhd:
+    name: cdkhd
+    mobile: 13551371473
 
