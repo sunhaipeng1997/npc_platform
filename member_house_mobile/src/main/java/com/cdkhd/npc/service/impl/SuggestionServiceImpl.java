@@ -289,7 +289,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         PageVo<SuggestionVo> vo = new PageVo<>(dto);
         Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
             Predicate predicate = root.isNotNull();
-            predicate = cb.and(predicate, cb.equal(root.get("raiser").get("area").as(String.class), userDetails.getArea()));
+            predicate = cb.and(predicate, cb.equal(root.get("raiser").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (dto.getStatus() != null){
                 if (dto.getStatus().equals(MobileSugStatusEnum.All.getValue())){  //未审核
                     predicate = cb.and(predicate,cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));

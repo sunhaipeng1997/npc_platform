@@ -1,19 +1,24 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.AccountRole;
-import com.cdkhd.npc.entity.Code;
-import com.cdkhd.npc.entity.Token;
+import com.alibaba.fastjson.JSONObject;
+import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.dto.UidDto;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
+import com.cdkhd.npc.entity.vo.MenuVo;
+import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.CodeRepository;
 import com.cdkhd.npc.repository.base.LoginUPRepository;
+import com.cdkhd.npc.repository.base.MenuRepository;
 import com.cdkhd.npc.service.AuthService;
 import com.cdkhd.npc.util.BDSmsUtils;
 import com.cdkhd.npc.util.JwtUtils;
 import com.cdkhd.npc.vo.RespBody;
 import com.cdkhd.npc.vo.TokenVo;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
@@ -22,23 +27,22 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class AuthServiceImpl implements AuthService {
     private AccountRepository accountRepository;
     private LoginUPRepository loginUPRepository;
     private CodeRepository codeRepository;
+    private MenuRepository menuRepository;
     private Environment env;
 
     @Autowired
-    public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository, Environment env) {
+    public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository, MenuRepository menuRepository, Environment env) {
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
         this.codeRepository = codeRepository;
+        this.menuRepository = menuRepository;
         this.env = env;
     }
 
@@ -147,6 +151,92 @@ public class AuthServiceImpl implements AuthService {
         TokenVo tokenVo = generateToken(account);
         body.setData(tokenVo);
         return body;
+    }
+
+    //根据相应的用户身份和选择的系统返回菜单
+    @Override
+    public RespBody menus(UserDetailsImpl userDetails, UidDto uidDto) {
+        RespBody body = new RespBody();
+        if (userDetails == null) {
+            body.setMessage("用户未登录");
+            body.setStatus(HttpStatus.UNAUTHORIZED);
+            return body;
+        }
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (account == null) {
+            body.setMessage("账户不存在");
+            body.setStatus(HttpStatus.UNAUTHORIZED);
+            return body;
+        }
+        if (account.getStatus().equals(StatusEnum.DISABLED.getValue())) {
+            body.setMessage("账号被禁用");
+            body.setStatus(HttpStatus.UNAUTHORIZED);
+            JSONObject obj = new JSONObject();
+            // 1 正常  2 被禁用
+            obj.put("status", 2);
+            body.setData(obj);
+            return body;
+        }
+        if (StringUtils.isEmpty(uidDto.getUid())){
+            body.setMessage("请选择系统");
+            body.setStatus(HttpStatus.UNAUTHORIZED);
+            return body;
+        }
+        List<Menu> menus = Lists.newArrayList();//当前用户应该展示的菜单
+        List<Menu> systemMenus = menuRepository.findBySystemsUidAndEnabled(uidDto.getUid(), StatusEnum.ENABLED.getValue());//当前系统下的所有菜单
+        Set<AccountRole> accountRoles = account.getAccountRoles();
+        if (CollectionUtils.isNotEmpty(accountRoles)) {
+            for (AccountRole role : accountRoles) {//代表拥有的角色
+                if (!role.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;//确保角色状态有效
+                Set<Permission> permissions = role.getPermissions();
+                for (Permission permission : permissions) {
+                    if (!permission.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;//确保权限状态有效
+                    Set<Menu> backMenus = permission.getMenus();//获取权限下的菜单
+                    if (CollectionUtils.isNotEmpty(backMenus)) {
+                        backMenus.retainAll(systemMenus);//当前权限下的菜单和当前系统下的菜单取交集
+                        for (Menu menu : backMenus) {
+                            if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;//菜单可用才展示
+                            if (menu.getType().equals(StatusEnum.ENABLED.getValue())) continue;//如果是小程序菜单，就过滤掉
+                            menus.add(menu);
+                        }
+                    }
+                }
+            }
+        }
+        menus.sort(Comparator.comparing(Menu::getId));//按id排序
+        List<MenuVo> menuVos = this.dealChildren(menus);
+        body.setData(menuVos);
+        return body;
+    }
+
+    /**
+     * 将子菜单放到对应的模块下
+     * @param menus
+     * @return
+     */
+    private List<MenuVo> dealChildren(List<Menu> menus) {
+        List<MenuVo> menuVos = Lists.newArrayList();
+        for (Menu menu : menus) {//所有的子级菜单
+            if (menu.getParent()!= null){//把二级菜单装在一级菜单下
+                Boolean isHave = false;
+                for (MenuVo menuVo : menuVos) {//先处理一级菜单
+                    if (menuVo.getUid().equals(menu.getParent().getUid())){
+                        isHave = true;
+                    }
+                }
+                if (!isHave){
+                    menuVos.add(MenuVo.convert(menu.getParent()));
+                }
+                for (MenuVo menuVo : menuVos) {//再处理二级菜单
+                    if (menuVo.getUid().equals(menu.getParent().getUid())){
+                        List<MenuVo> children = menuVo.getChildren();
+                        children.add(MenuVo.convert(menu));
+                        menuVo.setChildren(children);
+                    }
+                }
+            }
+        }
+        return menuVos;
     }
 
     /**

@@ -113,4 +113,15 @@ public class SuggestionController {
     public void exportSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionDto suggestionDto, HttpServletRequest req, HttpServletResponse res) {
         suggestionService.exportSuggestion(userDetails, suggestionDto, req, res);
     }
+
+    /**
+     * 获取已提建议信息列表
+     * @return
+     */
+//    @GetMapping("/findSuggestion")
+//    public ResponseEntity findSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionDto suggestionDto) {
+//        RespBody body = suggestionService.findSuggestion(userDetails, suggestionDto);
+//        return ResponseEntity.ok(body);
+//    }
+
 }

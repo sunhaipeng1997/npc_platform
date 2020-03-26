@@ -87,7 +87,8 @@ public class Notification extends BaseDomain {
     private NpcMember reviewer;
 
     //审核人是否有查看该通知
-    private int view;
+    @Column(name = "view" )
+    private Boolean view = false;
 
     //记录各位审核人或后台管理员对通知的操作记录
     @OneToMany(targetEntity = NotificationOpeRecord.class, mappedBy = "notification", orphanRemoval = true, cascade = CascadeType.ALL)

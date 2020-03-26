@@ -18,6 +18,9 @@ public class MenuVo extends BaseVo {
     //菜单图标
     private String icon;
 
+    //菜单关键字
+    private String keyword;
+
     //页面跳转的url地址
     private String url;
 

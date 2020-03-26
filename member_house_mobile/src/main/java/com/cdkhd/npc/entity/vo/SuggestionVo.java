@@ -3,6 +3,7 @@ package com.cdkhd.npc.entity.vo;
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionReply;
+import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,6 +37,13 @@ public class SuggestionVo extends BaseVo {
 
     private int timeout;
 
+    //状态
+    private Byte status;
+    private String statusName;
+
+    //审核原因
+    private String auditReason;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
 
@@ -60,6 +68,7 @@ public class SuggestionVo extends BaseVo {
             }).collect(Collectors.toSet());
             vo.setMy_suggestion_number(vieww.get());
         }
+        vo.setStatusName(SuggestionStatusEnum.getName(suggestion.getStatus()));
 
         Integer timeout = 2;
         //fixme 这个地方小程序返回的时间有点问题

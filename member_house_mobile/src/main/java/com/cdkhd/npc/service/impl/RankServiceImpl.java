@@ -2,6 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.vo.RankVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -58,11 +60,12 @@ public class RankServiceImpl implements RankService {
         List<Suggestion> suggestions = this.getSuggestions(userDetails,level);
         Map<String,String> memberMap = this.dealNpcMember(npcMembers);
         Map<String,Integer> suggestionMap = this.dealSuggestions(suggestions,true);
-        Map<String, Integer> nameMap = Maps.newHashMap();
+        List<RankVo> rankVos = Lists.newArrayList();
         for (String key : memberMap.keySet()) {
-            nameMap.put(memberMap.get(key),suggestionMap.getOrDefault(key,0));
+            rankVos.add(RankVo.convert(key, memberMap.get(key), suggestionMap.getOrDefault(key,0)));
         }
-        body.setData(nameMap);
+        rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
+        body.setData(rankVos);
         return body;
     }
 
@@ -79,11 +82,12 @@ public class RankServiceImpl implements RankService {
         List<Suggestion> suggestions = this.getSuggestions(userDetails,level);
         Map<String,String> townMap = this.dealTowns(towns);
         Map<String,Integer> suggestionMap = this.dealSuggestions(suggestions,false);
-        Map<String, Integer> nameMap = Maps.newHashMap();
+        List<RankVo> rankVos = Lists.newArrayList();
         for (String key : townMap.keySet()) {
-            nameMap.put(townMap.get(key),suggestionMap.getOrDefault(key,0));
+            rankVos.add(RankVo.convert(key, townMap.get(key), suggestionMap.getOrDefault(key,0)));
         }
-        body.setData(nameMap);
+        rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
+        body.setData(rankVos);
         return body;
     }
 
@@ -100,11 +104,12 @@ public class RankServiceImpl implements RankService {
         List<Opinion> opinions = this.getOpinions(userDetails, level);
         Map<String,String> memberMap = this.dealNpcMember(npcMembers);
         Map<String,Integer> opinionsMap = this.dealOpinions(opinions,true);
-        Map<String, Integer> nameMap = Maps.newHashMap();
+        List<RankVo> rankVos = Lists.newArrayList();
         for (String key : memberMap.keySet()) {
-            nameMap.put(memberMap.get(key),opinionsMap.getOrDefault(key,0));
+            rankVos.add(RankVo.convert(key, memberMap.get(key), opinionsMap.getOrDefault(key,0)));
         }
-        body.setData(nameMap);
+        rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
+        body.setData(rankVos);
         return body;
     }
 
@@ -121,11 +126,12 @@ public class RankServiceImpl implements RankService {
         List<Opinion> opinions = this.getOpinions(userDetails, level);
         Map<String,String> townMap = this.dealTowns(towns);
         Map<String,Integer> opinionsMap = this.dealOpinions(opinions,false);
-        Map<String, Integer> nameMap = Maps.newHashMap();
-        for (String key :townMap.keySet()) {
-            nameMap.put(townMap.get(key),opinionsMap.getOrDefault(key,0));
+        List<RankVo> rankVos = Lists.newArrayList();
+        for (String key : townMap.keySet()) {
+            rankVos.add(RankVo.convert(key, townMap.get(key), opinionsMap.getOrDefault(key,0)));
         }
-        body.setData(nameMap);
+        rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
+        body.setData(rankVos);
         return body;
     }
 
@@ -142,11 +148,12 @@ public class RankServiceImpl implements RankService {
         List<Performance> performances = this.getPerformance(userDetails, level);
         Map<String,String> npcMemberMap = this.dealNpcMember(npcMembers);
         Map<String,Integer> performanceMap = this.dealPerformance(performances,true);
-        Map<String, Integer> nameMap = Maps.newHashMap();
-        for (String key :npcMemberMap.keySet()) {
-            nameMap.put(npcMemberMap.get(key), performanceMap.getOrDefault(key,0));
+        List<RankVo> rankVos = Lists.newArrayList();
+        for (String key : npcMemberMap.keySet()) {
+            rankVos.add(RankVo.convert(key, npcMemberMap.get(key), performanceMap.getOrDefault(key,0)));
         }
-        body.setData(nameMap);
+        rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
+        body.setData(rankVos);
         return body;
     }
 
@@ -178,11 +185,12 @@ public class RankServiceImpl implements RankService {
         List<Performance> performances = this.getPerformance(userDetails, level);
         Map<String,String> townMap = this.dealTowns(towns);
         Map<String,Integer> performanceMap = this.dealPerformance(performances,false);
-        Map<String, Integer> nameMap = Maps.newHashMap();
-        for (String key :townMap.keySet()) {
-            nameMap.put(townMap.get(key),performanceMap.getOrDefault(key,0));
+        List<RankVo> rankVos = Lists.newArrayList();
+        for (String key : townMap.keySet()) {
+            rankVos.add(RankVo.convert(key, townMap.get(key), performanceMap.getOrDefault(key,0)));
         }
-        body.setData(nameMap);
+        rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
+        body.setData(rankVos);
         return body;
     }
 
