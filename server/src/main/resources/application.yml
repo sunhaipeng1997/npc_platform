@@ -5,9 +5,9 @@ spring:
     name: npc-platform
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://localhost:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: cd@khd2018
+    password: nian9695,,,
   jpa:
     database: mysql
     show-sql: false
@@ -27,33 +27,17 @@ spring:
 
 npc_base_info:
   area: 双流区
-  mobile: 13551371473
-  cdkhdMobile: 13551371473
+  user:
+    name: admin
+    mobile: 18940918501
+  cdkhd:
+    name: cdkhd
+    mobile: 13551371473
 
 
 service_app:
-  #服务号 token
-  token: BsrfGTLbef1Y7J2qhraCZVYk0SSMfAhH
-  #服务号 appid
-  appid: wxccd744724816d007
-  #服务号secret
-  appsecret: 7803cbe48b2690f92ae5f7135afcfa1d
-  #待审核提醒
-  templetedId1: 2ub03cEFpCiUyHJ190mNdX_Pd9oxBp4xEAQfq8DErig
-  #审核通过通知
-  templetedId2: B3LOoDk-_fAAlQkFOUReHgi9dOFoCbdr79JnVIvt30k
-  #投诉建议通知
-  templetedId3: 0sip6Pk_xa0-8-pkrRjeb0a8zI3P7eaGnHPpI6mcVvU
-  #会议通知
-  templetedId4: Y5GB2IPveZ8Qgi-JfG1s9hHkVf-xHLlCClU9uvnMWFY
-  #意见建议回复提醒
-  templetedId5: 8eHC74FDLspB5z5bm0E52CKuT3gfj_8k-2P2DyEDQkY
-  #跳转到小程序的页面
-  pagepath: pages/user/user
-  #登录公众号授权路径
-  redirect_url: https://www.hjjdrd.cn/api/mini_app/auth/access_token
-  #小程序 appid  推送消息时需要
-  miniapp_appid: wx6f6052b68ee8e7f0
+  app_id: 1
+  app_secret: secret
 
 code:
   #百度云安全认证key
@@ -68,3 +52,9 @@ code:
   templateCode: smsTpl:35dbca99-ae04-47ac-8e79-51f567820bbb
   #验证码有效时间 单位：分钟
   timeout: 5 #分钟
+
+account:
+  suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
+  password: 123456 #默认密码
+  mobile: 13333333333 #默认手机号
+

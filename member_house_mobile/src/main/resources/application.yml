@@ -1,13 +1,13 @@
 server:
-  port: 8082
+  port: 8083
 spring:
   application:
     name: npc-member-house
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://localhost:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: cd@khd2018
+    password: nian9695,,,
   jpa:
     database: mysql
     show-sql: false
@@ -29,8 +29,14 @@ spring:
 service_app:
   app_id: 1
   app_secret: secret
+serverUrl:
+  http://localhost:8080/api/manager/token/parseToken?token=
 
 npc_base_info:
   area: 双流区
-  mobile: 13551371473
-  cdkhdMobile: 13551371473
+  user:
+    name: admin
+    mobile: 18940918501
+  cdkhd:
+    name: cdkhd
+    mobile: 13551371473
