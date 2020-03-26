@@ -5,9 +5,9 @@ spring:
     name: npc-platform
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: nian9695,,,
+    password: cd@khd2018
   jpa:
     database: mysql
     show-sql: false
@@ -25,20 +25,39 @@ spring:
       max-file-size: 10MB
       max-request-size: 24MB
 
-npc_base_info:
-  area: 双流区
-  user:
-    name: admin
-    mobile: 18940918501
-  cdkhd:
-    name: cdkhd
-    mobile: 13551371473
-
-
+# 微信服务号相关配置，科宏达测试号
 service_app:
-  app_id: 1
-  app_secret: secret
+  #服务号 token
+  token: BsrfGTLbef1Y7J2qhraCZVYk0SSMfAhH
+  #服务号 appid
+  appid: wx6f4bd0fb61bf0232
+  #服务号secret
+  appsecret: 7e828db5f6ff0e8dca6ba44198ada7c4
+  #待审核提醒
+  templetedId1: 2ub03cEFpCiUyHJ190mNdX_Pd9oxBp4xEAQfq8DErig
+  #审核通过通知
+  templetedId2: B3LOoDk-_fAAlQkFOUReHgi9dOFoCbdr79JnVIvt30k
+  #投诉建议通知
+  templetedId3: 0sip6Pk_xa0-8-pkrRjeb0a8zI3P7eaGnHPpI6mcVvU
+  #会议通知
+  templetedId4: Y5GB2IPveZ8Qgi-JfG1s9hHkVf-xHLlCClU9uvnMWFY
+  #意见建议回复提醒
+  templetedId5: 8eHC74FDLspB5z5bm0E52CKuT3gfj_8k-2P2DyEDQkY
+  #跳转到小程序的页面
+  pagepath: pages/index/index
+  #登录公众号授权路径
+  redirect_url: https://www.khdpro1.top/api/mini_app/auth/access_token
+  #小程序 appid  推送消息时需要
+  miniapp_appid: wx6f6052b68ee8e7f0
 
+# 微信小程序相关配置，科宏达测试号
+miniapp:
+  authurl: https://api.weixin.qq.com/sns/jscode2session
+  appid: wx6f6052b68ee8e7f0
+  appsecret: b94b0968a041f64552da46fbd7bdc980
+  updatetimes: 3 #小程序允许修改所属村的次数
+
+#百度云相关配置
 code:
   #百度云安全认证key
   accessKeyId: a8d78d24102445d9a29557ad3f1fdd31

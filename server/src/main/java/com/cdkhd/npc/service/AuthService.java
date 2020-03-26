@@ -10,5 +10,9 @@ public interface AuthService {
 
     RespBody login(UsernamePasswordDto upDto);
 
+    RespBody auth(String nickName, String token,String encryptedData, String iv);
+
+    String accessToken(String code, String state);
+
     RespBody menus(UserDetailsImpl userDetails, UidDto uidDto);
 }

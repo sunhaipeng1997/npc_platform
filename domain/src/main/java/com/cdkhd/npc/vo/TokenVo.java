@@ -17,7 +17,8 @@ public class TokenVo {
     @Temporal(TemporalType.TIMESTAMP)
     private Date signAt;
 
-    private long expireAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expireAt;
 
     private String token;
 

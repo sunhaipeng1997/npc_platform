@@ -23,10 +23,16 @@ public class LoginWeChat extends BaseDomain {
     private String openId;
 
     /**
+     * 开放平台下的unionId
+     */
+    @Column(name = "union_id")
+    private String unionId;
+
+    /**
      * 微信号
      */
-    @Column(name = "weichat")
-    private String weichat;
+    @Column(name = "wechat_id")
+    private String wechatId;
 
     /**
      * 账号表id
