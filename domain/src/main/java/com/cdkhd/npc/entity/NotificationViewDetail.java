@@ -3,15 +3,12 @@ package com.cdkhd.npc.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "t_notification_detail")
+@Table(name = "t_notification_view_detail")
 public class NotificationViewDetail extends BaseDomain {
 
     //所属通知
@@ -22,6 +19,7 @@ public class NotificationViewDetail extends BaseDomain {
     @ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
     private NpcMember receiver;
 
-    //代表查看状态
-    private int myView;
+    //代表是否已读该通知
+    @Column(name = "read" )
+    private Boolean read;
 }

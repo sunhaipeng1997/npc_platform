@@ -21,4 +21,6 @@ public class NotificationPageDto extends PageDto {
 
     private Integer status;
 
+    private Byte level;
+
 }

@@ -79,12 +79,7 @@ public class Notification extends BaseDomain {
 
     //记录各位接收人的对通知阅读(查看)情况
     @OneToMany(targetEntity = NotificationViewDetail.class, mappedBy = "notification", orphanRemoval = true, cascade = CascadeType.ALL)
-    private Set<NotificationViewDetail> details = new HashSet<>();
-
-    //当前的审核人
-    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewer_npcMember", referencedColumnName = "id")
-    private NpcMember reviewer;
+    private Set<NotificationViewDetail> receiversViewDetails = new HashSet<>();
 
     //审核人是否有查看该通知
     @Column(name = "view" )
@@ -92,5 +87,5 @@ public class Notification extends BaseDomain {
 
     //记录各位审核人或后台管理员对通知的操作记录
     @OneToMany(targetEntity = NotificationOpeRecord.class, mappedBy = "notification", orphanRemoval = true, cascade = CascadeType.ALL)
-    private Set<NotificationOpeRecord> opeRecords = new HashSet<>();
+    private List<NotificationOpeRecord> opeRecords = new ArrayList<>();
 }

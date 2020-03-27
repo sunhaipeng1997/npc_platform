@@ -15,4 +15,6 @@ public class NotificationReviewDto extends BaseDto {
 
     //暂时加这个字段测试
     private String username;
+
+    private Byte level;
 }

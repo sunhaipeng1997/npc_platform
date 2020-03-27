@@ -1,6 +1,5 @@
 package com.cdkhd.npc.entity.vo;
 
-
 import com.cdkhd.npc.entity.Attachment;
 import com.cdkhd.npc.entity.Notification;
 import com.cdkhd.npc.entity.NpcMember;
@@ -17,12 +16,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-/*
- * 后台通知详情
- */
 @Getter
 @Setter
-public class NotificationDetailsVo extends BaseVo {
+public class NotificationDetailsForMobileVo extends BaseVo {
     private String title;
 
     private String content;
@@ -46,8 +42,11 @@ public class NotificationDetailsVo extends BaseVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date publishAt;
 
-    public static NotificationDetailsVo convert(Notification notification) {
-        NotificationDetailsVo vo = new NotificationDetailsVo();
+    //操作记录
+    private List<NotificationOpeRecordVo> opeRecords;
+
+    public static NotificationDetailsForMobileVo convert(Notification notification) {
+        NotificationDetailsForMobileVo vo = new NotificationDetailsForMobileVo();
 
         BeanUtils.copyProperties(notification, vo);
         vo.setStatusName(NotificationStatusEnum.values()[notification.getStatus()].getName());

@@ -19,7 +19,7 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table ( name ="weichat_menu" )
+@Table ( name ="wechat_menu" )
 public class WeChatMenu extends BaseDomain {
 
 	/**

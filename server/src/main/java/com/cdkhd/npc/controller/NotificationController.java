@@ -86,4 +86,10 @@ public class NotificationController {
         return ResponseEntity.ok(body);
     }
 
+    @PostMapping("/publish/{uid}")
+    public ResponseEntity publish(@CurrentUser UserDetailsImpl userDetails,@PathVariable String uid){
+        RespBody body = notificationService.publish(userDetails,uid);
+        return ResponseEntity.ok(body);
+    }
+
 }
