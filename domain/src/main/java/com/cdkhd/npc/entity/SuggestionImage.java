@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  * @创建人
@@ -26,4 +27,5 @@ public class SuggestionImage extends BaseDomain{
     //图片uid
     @Column(name = "trans_uid" )
     private String transUid;
+
 }

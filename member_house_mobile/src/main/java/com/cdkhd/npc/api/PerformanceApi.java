@@ -2,6 +2,7 @@ package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.vo.RespBody;
@@ -82,8 +83,8 @@ public class PerformanceApi {
      * @return
      */
     @GetMapping("/performanceDetail")
-    public ResponseEntity performanceDetail(UidDto uidDto) {
-        RespBody body = performanceService.performanceDetail(uidDto.getUid());
+    public ResponseEntity performanceDetail(BaseDto baseDto) {
+        RespBody body = performanceService.performanceDetail(baseDto.getUid());
         return ResponseEntity.ok(body);
     }
 

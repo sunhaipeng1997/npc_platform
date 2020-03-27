@@ -17,6 +17,7 @@ import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.cdkhd.npc.service.PerformanceService;
+import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
@@ -109,11 +110,11 @@ public class PerformanceServiceImpl implements PerformanceService {
         Pageable page = PageRequest.of(begin, performancePageDto.getSize(), Sort.Direction.fromString(performancePageDto.getDirection()), performancePageDto.getProperty());
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), "dfhdrfwer23r2r3g45yu65h6546"));
+            predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
+            predicates.add(cb.equal(root.get("level").as(Byte.class), npcMember.getLevel()));
             if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            }else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())){
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
             }
             //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {

@@ -2,7 +2,8 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.UidDto;
+import com.cdkhd.npc.dto.BaseDto;
+import com.cdkhd.npc.entity.dto.PasswordDto;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
 import com.cdkhd.npc.service.AuthService;
 import com.cdkhd.npc.vo.RespBody;
@@ -35,8 +36,14 @@ public class AuthController {
     }
 
     @PostMapping("/menus")
-    public ResponseEntity menus(@CurrentUser UserDetailsImpl userDetails, UidDto uidDto) {
-        RespBody body = authService.menus(userDetails,uidDto);
+    public ResponseEntity menus(@CurrentUser UserDetailsImpl userDetails, BaseDto baseDto) {
+        RespBody body = authService.menus(userDetails,baseDto);
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/updatePwd")
+    public ResponseEntity updatePwd(@CurrentUser UserDetailsImpl userDetails, PasswordDto passwordDto) {
+        RespBody body = authService.updatePwd(userDetails,passwordDto);
         return ResponseEntity.ok(body);
     }
 }

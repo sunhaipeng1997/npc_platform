@@ -3,17 +3,20 @@ package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.NewsPageDto;
 import com.cdkhd.npc.entity.dto.NewsReviewDto;
 import com.cdkhd.npc.entity.dto.NewsTypePageDto;
-import com.cdkhd.npc.entity.dto.UidDto;
 import com.cdkhd.npc.service.NewsService;
 import com.cdkhd.npc.service.NewsTypeService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/api/mobile/news")
@@ -72,7 +75,7 @@ public class NewsApi {
      * @return
      */
     @PostMapping("/publish")
-    public ResponseEntity publish(UidDto dto){
+    public ResponseEntity publish(BaseDto dto){
         RespBody body = newsService.publish(dto);
         return ResponseEntity.ok(body);
     }

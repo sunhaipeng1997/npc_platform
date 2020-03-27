@@ -2,21 +2,15 @@ package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.cdkhd.npc.entity.*;
-import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.UidDto;
+import com.cdkhd.npc.entity.dto.PasswordDto;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
-import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.entity.vo.MenuVo;
-import com.cdkhd.npc.enums.NpcMemberRoleEnum;
+import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
-import com.cdkhd.npc.repository.base.AccountRepository;
-import com.cdkhd.npc.repository.base.CodeRepository;
-import com.cdkhd.npc.repository.base.LoginUPRepository;
-import com.cdkhd.npc.repository.base.MenuRepository;
 import com.cdkhd.npc.service.AuthService;
 import com.cdkhd.npc.util.BDSmsUtils;
 import com.cdkhd.npc.util.JwtUtils;
@@ -126,7 +120,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Account account =  loginUPRepository.findByUsername(upDto.getUsername()).getAccount();
-//        Account account = accountRepository.findByLoginUPUsername(upDto.getUsername());
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在");
@@ -177,7 +170,7 @@ public class AuthServiceImpl implements AuthService {
 
     //根据相应的用户身份和选择的系统返回菜单
     @Override
-    public RespBody menus(UserDetailsImpl userDetails, UidDto uidDto) {
+    public RespBody menus(UserDetailsImpl userDetails, BaseDto baseDto) {
         RespBody body = new RespBody();
         if (userDetails == null) {
             body.setMessage("用户未登录");
@@ -199,13 +192,13 @@ public class AuthServiceImpl implements AuthService {
             body.setData(obj);
             return body;
         }
-        if (StringUtils.isEmpty(uidDto.getUid())){
+        if (StringUtils.isEmpty(baseDto.getUid())){
             body.setMessage("请选择系统");
             body.setStatus(HttpStatus.UNAUTHORIZED);
             return body;
         }
         List<Menu> menus = Lists.newArrayList();//当前用户应该展示的菜单
-        List<Menu> systemMenus = menuRepository.findBySystemsUidAndEnabled(uidDto.getUid(), StatusEnum.ENABLED.getValue());//当前系统下的所有菜单
+        List<Menu> systemMenus = menuRepository.findBySystemsUidAndEnabled(baseDto.getUid(), StatusEnum.ENABLED.getValue());//当前系统下的所有菜单
         Set<AccountRole> accountRoles = account.getAccountRoles();
         if (CollectionUtils.isNotEmpty(accountRoles)) {
             for (AccountRole role : accountRoles) {//代表拥有的角色
@@ -228,6 +221,40 @@ public class AuthServiceImpl implements AuthService {
         menus.sort(Comparator.comparing(Menu::getId));//按id排序
         List<MenuVo> menuVos = this.dealChildren(menus);
         body.setData(menuVos);
+        return body;
+    }
+
+    @Override
+    public RespBody updatePwd(UserDetailsImpl userDetails, PasswordDto passwordDto) {
+        RespBody body = new RespBody();
+        if (StringUtils.isEmpty(passwordDto.getOldPwd()) || StringUtils.isEmpty(passwordDto.getConfirmOld())){
+            body.setMessage("旧密码不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        if (StringUtils.isEmpty(passwordDto.getNewPwd())){
+            body.setMessage("新密码不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        if (!passwordDto.getOldPwd().equals(passwordDto.getConfirmOld())){
+            body.setMessage("两次输入旧密码不一致");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        if (passwordDto.getNewPwd().length()<6){
+            body.setMessage("新密码长度至少6位");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        LoginUP loginUP = loginUPRepository.findByAccountUid(passwordDto.getUid());
+        if (loginUP.getPassword().equals(passwordDto.getOldPwd())){
+            body.setMessage("旧密码错误");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        loginUP.setPassword(passwordDto.getNewPwd());
+        loginUPRepository.saveAndFlush(loginUP);
         return body;
     }
 

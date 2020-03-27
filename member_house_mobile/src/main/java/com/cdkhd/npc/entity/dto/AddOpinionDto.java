@@ -37,4 +37,8 @@ public class AddOpinionDto {
      */
     private MultipartFile image;
 
+    /**
+     * 等级
+     */
+    private Byte level;
 }

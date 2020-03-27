@@ -2,6 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.News;
 import com.cdkhd.npc.entity.NewsType;
@@ -452,7 +453,7 @@ public class NewsServiceImpl implements NewsService {
      * @return
      */
     @Override
-    public RespBody publish(UidDto dto){
+    public RespBody publish(BaseDto dto){
         RespBody body = new RespBody();
         News news = newsRepository.findByUid(dto.getUid());
 

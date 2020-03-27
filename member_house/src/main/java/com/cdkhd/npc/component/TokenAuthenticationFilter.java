@@ -3,6 +3,7 @@ package com.cdkhd.npc.component;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.repository.base.AccountRepository;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.lang3.StringUtils;
@@ -40,9 +41,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
         String accessToken = getToken(request);
-//        fixme url需要写在配置文件里面
-//        String url = "http://127.0.0.1:8080/api/manager/token/parseToken?token=" + accessToken;
-        String url = environment.getProperty("serverUrl") + accessToken;
+        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken?token={token}";
+        System.out.println("url  :        "+url);
         if (StringUtils.isNotBlank(accessToken)) {
             try {
                 //验证token并解析用户信息
@@ -55,10 +55,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 JSONObject requestBody = new JSONObject();
                 requestBody.put("token", accessToken);
                 HttpEntity<String> httpEntity = new HttpEntity<>(requestBody.toJSONString(), headers);
-
+                Map<String, String> map = Maps.newHashMap();
+                map.put("token",accessToken);
                 //调用server接口，获取解析token后的用户信息
-                ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class);
+                System.out.println("accessToken      :    " + accessToken);
+                ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class,map);
                 JSONObject jsonObj = responseEntity.getBody();
+                System.out.println("status     :       "+jsonObj.get("status").toString());
+//                String str = jsonObj.get("status").toString();
 
                 if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
                     userInfo = (Map<String, Object>) jsonObj.get("data");

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-@RequestMapping("/api/server/study")
+@RequestMapping("/api/manager/study")
 public class StudyController {
 
     private StudyService studyService;

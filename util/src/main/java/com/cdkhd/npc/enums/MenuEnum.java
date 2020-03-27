@@ -26,7 +26,7 @@ public enum MenuEnum {
 
     //特殊职能
     AUDIT_NEWS("新闻审核",(byte)1, "auditNews", "news/news-review-list","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),
-    AUDIT_SUGGESTION("审核建议",(byte)1, "auditSuggestion", "suggestion/my-suggestion","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),
+    AUDIT_SUGGESTION("审核建议",(byte)1, "auditSuggestion", "suggestion/audit-pending-suggestion","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),
     AUDIT_PERFORMANCE("履职审核",(byte)1, "auditDuty", "performance/audit-performance","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),
     AUDIT_NOTICE("通知审核",(byte)1, "audit-notifition", "notification/notify-review-list","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),
 

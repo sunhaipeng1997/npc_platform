@@ -215,6 +215,11 @@ public class TownServiceImpl implements TownService {
             body.setMessage("当前镇还包含代表小组/村的信息不能删除");
             return body;
         }
+        if (town.getNpcMembers().size() > 0 || town.getVoters().size() > 0){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前镇还包含代表/选民信息不能删除");
+            return body;
+        }
         townRepository.delete(town);
         return body;
     }

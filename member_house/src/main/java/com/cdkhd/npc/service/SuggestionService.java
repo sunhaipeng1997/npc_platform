@@ -69,4 +69,10 @@ public interface SuggestionService {
      */
     void exportSuggestion(UserDetailsImpl userDetails, SuggestionDto suggestionDto, HttpServletRequest req, HttpServletResponse res);
 
+    /**
+     * 代表建议统计
+     * @param userDetails
+     * @return
+     */
+    RespBody countSuggestion(UserDetailsImpl userDetails);
 }

@@ -46,9 +46,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         //从请求中获取token
 //        String accessToken = getToken(request);
 //        String url = "http://127.0.0.1:8080/" + accessToken;
-        //fixme url需要写在配置文件里面
-//        String url = "http://127.0.0.1:8080/api/manager/token/parseToken?token=" + accessToken;
-//        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken";
+//        String url = environment.getProperty("serverUrl");
 //        if (StringUtils.isNotBlank(accessToken)) {
 //            try {
                 //验证token并解析用户信息

@@ -7,9 +7,11 @@ import com.cdkhd.npc.entity.SuggestionBusiness;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
 import com.cdkhd.npc.entity.dto.SuggestionDto;
+import com.cdkhd.npc.entity.vo.AnalysisVo;
 import com.cdkhd.npc.entity.vo.SuggestionBusinessVo;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.SuggestionService;
@@ -374,6 +376,38 @@ public class SuggestionServiceImpl implements SuggestionService {
             e1.printStackTrace();
             LOGGER.error("导出代表建议出错 \n {}", e1);
         }
+    }
+
+    @Override
+    public RespBody countSuggestion(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        List<SuggestionBusiness> suggestionBusinessPage = suggestionBusinessRepository.findAll((Specification<SuggestionBusiness>) (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+            }
+            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        });
+        //所有可用的建议类型
+        AnalysisVo analysisVo = new AnalysisVo();
+        List<AnalysisVo> analysisVos = Lists.newArrayList();
+        Integer count = 0;
+        for (SuggestionBusiness suggestionBusiness : suggestionBusinessPage) {
+            Integer size = suggestionBusiness.getSuggestions().size();
+            AnalysisVo children = new AnalysisVo();
+            children.setName(suggestionBusiness.getName());
+            children.setCount(size);
+            analysisVos.add(children);
+            count += size;
+        }
+        analysisVo.setName("总计");
+        analysisVo.setCount(count);
+        analysisVo.setAnalysisVoList(analysisVos);
+        return body;
     }
 
     /**

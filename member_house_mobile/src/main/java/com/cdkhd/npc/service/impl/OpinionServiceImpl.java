@@ -14,6 +14,7 @@ import com.cdkhd.npc.repository.member_house.OpinionImageRepository;
 import com.cdkhd.npc.repository.member_house.OpinionReplayRepository;
 import com.cdkhd.npc.repository.member_house.OpinionRepository;
 import com.cdkhd.npc.service.OpinionService;
+import com.cdkhd.npc.service.PushService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.PageVo;
@@ -97,7 +98,7 @@ public class OpinionServiceImpl implements OpinionService {
             opinion = new Opinion();
             opinion.setArea(userDetails.getArea());
             opinion.setTown(userDetails.getTown());
-            opinion.setLevel(userDetails.getLevel());
+            opinion.setLevel(addOpinionDto.getLevel());
             opinion.setView(false);//接受代表是否查阅，默认新提交的未查阅
             opinion.setContent(addOpinionDto.getContent());//意见内容
             opinion.setReceiver(npcMember);//接受代表

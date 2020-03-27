@@ -42,7 +42,7 @@ public class NpcMemberApi {
     /**
      * 获取当前区域下的行政列表
      * @param userDetails
-     * @param level 等级 区 返回贞烈镇列表 镇 返回小组列表
+     * @param level 等级 区 返回镇列表 镇 返回小组列表
      * @param uid 区、县uid
      * @return 查询结果
      */

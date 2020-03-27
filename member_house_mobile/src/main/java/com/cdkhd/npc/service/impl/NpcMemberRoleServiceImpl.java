@@ -36,11 +36,9 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
 
     @Override
     public List<NpcMember> findByKeyWord(String keyword) {
-        List<NpcMemberRole> npcMemberRoleList = npcMemberRoleRepository.findByPermissionsKeyword(keyword);
+        NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByKeyword(keyword);
         Set<NpcMember> npcMemberSet = Sets.newHashSet();
-        for (NpcMemberRole npcMemberRole : npcMemberRoleList) {
-            npcMemberSet.addAll(npcMemberRole.getNpcMembers());
-        }
+        npcMemberSet.addAll(npcMemberRole.getNpcMembers());
         return Lists.newArrayList(npcMemberSet);
     }
 

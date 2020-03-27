@@ -38,8 +38,8 @@ public class SpecialFunctionController {
      * @return
      */
     @PostMapping("/newsAuditor")
-    public ResponseEntity newsAuditor(@CurrentUser UserDetailsImpl userDetails, ListUidDto uidDto) {
-        RespBody body = specialFunctionService.newsAuditor(userDetails,uidDto.getUids());
+    public ResponseEntity newsAuditor(@CurrentUser UserDetailsImpl userDetails, ListUidDto baseDto) {
+        RespBody body = specialFunctionService.newsAuditor(userDetails,baseDto.getUids());
         return ResponseEntity.ok(body);
     }
 
@@ -48,8 +48,8 @@ public class SpecialFunctionController {
      * @return
      */
     @PostMapping("/notificationAuditor")
-    public ResponseEntity notificationAuditor(@CurrentUser UserDetailsImpl userDetails, ListUidDto uidDto) {
-        RespBody body = specialFunctionService.notificationAuditor(userDetails,uidDto.getUids());
+    public ResponseEntity notificationAuditor(@CurrentUser UserDetailsImpl userDetails, ListUidDto baseDto) {
+        RespBody body = specialFunctionService.notificationAuditor(userDetails,baseDto.getUids());
         return ResponseEntity.ok(body);
     }
 
@@ -58,8 +58,8 @@ public class SpecialFunctionController {
      * @return
      */
     @PostMapping("/adviceReceiver")
-    public ResponseEntity adviceReceiver(@CurrentUser UserDetailsImpl userDetails, ListUidDto uidDto) {
-        RespBody body = specialFunctionService.adviceReceiver(userDetails,uidDto.getUids());
+    public ResponseEntity adviceReceiver(@CurrentUser UserDetailsImpl userDetails, ListUidDto baseDto) {
+        RespBody body = specialFunctionService.adviceReceiver(userDetails,baseDto.getUids());
         return ResponseEntity.ok(body);
     }
 
@@ -69,8 +69,8 @@ public class SpecialFunctionController {
      * @return
      */
     @PostMapping("/performanceAuditorManager")
-    public ResponseEntity performanceAuditorManager(@CurrentUser UserDetailsImpl userDetails, ListUidDto uidDto) {
-        RespBody body = specialFunctionService.performanceAuditorManager(userDetails,uidDto.getUids());
+    public ResponseEntity performanceAuditorManager(@CurrentUser UserDetailsImpl userDetails, ListUidDto baseDto) {
+        RespBody body = specialFunctionService.performanceAuditorManager(userDetails,baseDto.getUids());
         return ResponseEntity.ok(body);
     }
 

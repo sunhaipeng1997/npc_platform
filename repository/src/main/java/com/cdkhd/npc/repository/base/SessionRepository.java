@@ -30,4 +30,8 @@ public interface SessionRepository extends BaseRepository<Session> {
     Session findAreaCurrentSession(String areaUid, Byte level, Date date);
 
     Set<Session> findByUidIn(List<String> sessionUids);
+
+    List<Session> findByTownUidAndLevelAndStartDateIsNotNullAndEndDateIsNotNull(String uid, Byte level);
+
+    List<Session> findByAreaUidAndLevelAndStartDateIsNotNullAndEndDateIsNotNull(String uid, Byte level);
 }

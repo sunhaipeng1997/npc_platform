@@ -1,7 +1,6 @@
 package com.cdkhd.npc.entity.dto;
 
 import com.cdkhd.npc.dto.PageDto;
-import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
 

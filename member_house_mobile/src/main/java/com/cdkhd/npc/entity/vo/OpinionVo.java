@@ -1,9 +1,6 @@
 package com.cdkhd.npc.entity.vo;
 
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.Opinion;
-import com.cdkhd.npc.entity.OpinionReply;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.enums.ReplayStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
@@ -33,7 +30,7 @@ public class OpinionVo extends BaseVo {
     private String receiver;
 
     //图片
-    private List<String> image;
+    private List<String> images;
 
     //提出人
     private String  sender;
@@ -55,6 +52,7 @@ public class OpinionVo extends BaseVo {
         OpinionVo vo = new OpinionVo();
         BeanUtils.copyProperties(opinion, vo);
         vo.setStatusName(ReplayStatusEnum.getName(opinion.getStatus()));
+        vo.setImages(opinion.getImages().stream().map(OpinionImage::getPicture).collect(Collectors.toList()));
         // 需要特殊处理的属性
         Account account = opinion.getSender();
         if (account != null){

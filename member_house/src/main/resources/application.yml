@@ -5,9 +5,9 @@ spring:
     name: npc-member-house
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://106.12.112.156:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: cdkhd@2020
+    password: cd@khd2018
   jpa:
     database: mysql
     show-sql: false
@@ -67,5 +67,6 @@ code:
   templateCode: smsTpl:35dbca99-ae04-47ac-8e79-51f567820bbb
   #验证码有效时间 单位：分钟
   timeout: 5 #分钟
+
 serverUrl:
   http://localhost:8080/api/manager/token/parseToken?token=

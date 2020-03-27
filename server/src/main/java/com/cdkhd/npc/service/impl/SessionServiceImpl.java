@@ -81,7 +81,7 @@ public class SessionServiceImpl implements SessionService {
         //其它查询条件
         Page<Session> sessionPage = sessionRepository.findAll((Specification<Session>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.isNotNull(root.get("startDate").as(Date.class)));
+//            predicates.add(cb.isNotNull(root.get("startDate").as(Date.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -122,9 +122,9 @@ public class SessionServiceImpl implements SessionService {
             session.setArea(userDetails.getArea());
             session.setTown(userDetails.getTown());
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {//镇代表
-                sessionList = sessionRepository.findByTownUidAndLevelAndStartDateIsNotNull(userDetails.getTown().getUid(),userDetails.getLevel());
+                sessionList = sessionRepository.findByTownUidAndLevelAndStartDateIsNotNullAndEndDateIsNotNull(userDetails.getTown().getUid(),userDetails.getLevel());
             }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {//区代表
-                sessionList = sessionRepository.findByAreaUidAndLevelAndStartDateIsNotNull(userDetails.getArea().getUid(),userDetails.getLevel());
+                sessionList = sessionRepository.findByAreaUidAndLevelAndStartDateIsNotNullAndEndDateIsNotNull(userDetails.getArea().getUid(),userDetails.getLevel());
             }
         }
         result = this.validateSessionDate(sessionAddDto,sessionList);//验证届期之间的日期是否有交叉

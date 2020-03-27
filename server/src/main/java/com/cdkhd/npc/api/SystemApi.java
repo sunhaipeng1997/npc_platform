@@ -1,4 +1,4 @@
-package com.cdkhd.npc.controller;
+package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/manager/system")
-public class SystemController {
+@RequestMapping("/api/mobile/system")
+public class SystemApi {
     private SystemService systemService;
 
     @Autowired
-    public SystemController(SystemService systemService) {
+    public SystemApi(SystemService systemService) {
         this.systemService = systemService;
     }
 

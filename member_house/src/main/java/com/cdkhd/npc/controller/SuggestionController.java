@@ -118,10 +118,10 @@ public class SuggestionController {
      * 获取已提建议信息列表
      * @return
      */
-//    @GetMapping("/findSuggestion")
-//    public ResponseEntity findSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionDto suggestionDto) {
-//        RespBody body = suggestionService.findSuggestion(userDetails, suggestionDto);
-//        return ResponseEntity.ok(body);
-//    }
+    @GetMapping("/countSuggestion")
+    public ResponseEntity countSuggestion(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = suggestionService.countSuggestion(userDetails);
+        return ResponseEntity.ok(body);
+    }
 
 }

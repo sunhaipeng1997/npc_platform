@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @Description
@@ -88,6 +89,11 @@ public class Performance extends BaseDomain {
     @Column(name = "trans_uid" )
     private String transUid;
 
+    //是否删除
     @Column(name = "is_del" )
     private Boolean isDel;
+
+    //履职图片
+    @OneToMany(targetEntity = PerformanceImage.class, mappedBy = "performance")
+    private Set<PerformanceImage> performanceImages;
 }

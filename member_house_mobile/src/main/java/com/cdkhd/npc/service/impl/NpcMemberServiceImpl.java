@@ -2,13 +2,19 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
-import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.Area;
+import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.NpcMemberGroup;
+import com.cdkhd.npc.entity.Town;
 import com.cdkhd.npc.entity.dto.LevelDto;
-import com.cdkhd.npc.entity.dto.UidDto;
 import com.cdkhd.npc.entity.vo.CommentVo;
+import com.cdkhd.npc.entity.vo.MemberUnitVo;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
 import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.repository.base.*;
+import com.cdkhd.npc.repository.base.AreaRepository;
+import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.TownRepository;
 import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
@@ -148,7 +154,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     @Override
     public RespBody npcMemberUnits(UserDetailsImpl userDetails, Byte level, String uid) {
         RespBody body = new RespBody();
-        List<CommonVo> commonVos;
+        List<MemberUnitVo> memberUnitVos;
         if (level.equals(LevelEnum.TOWN.getValue())){
             //如果是镇上，就查询小组
             //如果传了需要查询的镇的小组那么就按照产过来的查询，如果没有传过来，那么就按照当前登录人所在的镇来查询
@@ -160,7 +166,14 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             }
             Town town = townRepository.findByUid(townUid);
             Set<NpcMemberGroup> groupList = town.getNpcMemberGroups();
-            commonVos = groupList.stream().map(group -> CommonVo.convert(group.getUid(),group.getName())).collect(Collectors.toList());
+            memberUnitVos = groupList.stream().map(group -> MemberUnitVo.convert(group.getUid(),group.getName(),level)).collect(Collectors.toList());
+            if (StringUtils.isEmpty(uid)){
+                MemberUnitVo memberUnitVo = new MemberUnitVo();
+                memberUnitVo.setLevel(LevelEnum.AREA.getValue());
+                memberUnitVo.setName("区代表");
+                memberUnitVo.setUid(townUid);
+                memberUnitVos.add(0,memberUnitVo);
+            }
         }else{
             String areaUid;
             if (StringUtils.isEmpty(uid)){
@@ -170,9 +183,9 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             }
             Area area = areaRepository.findByUid(areaUid);
             Set<Town> towns = area.getTowns();
-            commonVos = towns.stream().map(town -> CommonVo.convert(town.getUid(),town.getName())).collect(Collectors.toList());
+            memberUnitVos = towns.stream().map(town -> MemberUnitVo.convert(town.getUid(),town.getName(),level)).collect(Collectors.toList());
         }
-        body.setData(commonVos);
+        body.setData(memberUnitVos);
         return body;
     }
 

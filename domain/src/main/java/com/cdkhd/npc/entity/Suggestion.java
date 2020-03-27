@@ -149,4 +149,9 @@ public class Suggestion extends BaseDomain {
     @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "npcMemberGroup", referencedColumnName = "id")
     private NpcMemberGroup npcMemberGroup;
+
+
+	//建议图片
+	@OneToMany(targetEntity = SuggestionImage.class, mappedBy = "suggestion")
+	private Set<SuggestionImage> suggestionImages;
 }

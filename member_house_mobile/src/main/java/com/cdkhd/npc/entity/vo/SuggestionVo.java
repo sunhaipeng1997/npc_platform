@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.Suggestion;
+import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.entity.SuggestionReply;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -44,18 +46,18 @@ public class SuggestionVo extends BaseVo {
     //审核原因
     private String auditReason;
 
+    private List<String> images;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
-
         // 拷贝一些基本属性
         BeanUtils.copyProperties(suggestion, vo);
-
         //提出人
         NpcMember npcMember = suggestion.getRaiser();
+        vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
         if (npcMember != null){
             vo.setNpcMemberVo(NpcMemberVo.convert(npcMember));
         }
-
         Set<SuggestionReply> replies = suggestion.getReplies();
         if (replies != null && !replies.isEmpty()){
             AtomicInteger vieww = new AtomicInteger();
@@ -71,7 +73,6 @@ public class SuggestionVo extends BaseVo {
         vo.setStatusName(SuggestionStatusEnum.getName(suggestion.getStatus()));
 
         Integer timeout = 2;
-        //fixme 这个地方小程序返回的时间有点问题
         Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);
         int view = suggestion.getView();
         if (expireAt.before(new Date()) || view == 1){

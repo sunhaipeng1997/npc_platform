@@ -111,15 +111,21 @@ public class SuggestionServiceImpl implements SuggestionService {
         PageVo<SuggestionVo> vo = new PageVo<>(dto);
         if (npcMember != null) {
             Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
-                Predicate predicate = cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid());
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
+                predicates.add(cb.equal(root.get("level").as(Byte.class), npcMember.getLevel()));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
+                if (dto.getLevel().equals(LevelEnum.TOWN.getValue())){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
+                }
                 if (dto.getStatus() != null){
                     if (dto.getStatus().equals(MobileSugStatusEnum.TO_BE_AUDITED.getValue())){  //未审核
-                        predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue());
+                        predicates.add(cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue()));
                     }else if (dto.getStatus().equals(MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue())){  //已审核
-                        predicate = cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue());
+                        predicates.add(cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue()));
                     }
                 }
-                return predicate;
+                return query.where(predicates.toArray(new Predicate[0])).getRestriction();
             }, page);
             vo.setContent(pageRes.stream().map(SuggestionVo::convert).collect(Collectors.toList()));
             vo.copy(pageRes);

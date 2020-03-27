@@ -1,6 +1,7 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Performance;
+import com.cdkhd.npc.entity.PerformanceImage;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description
@@ -51,12 +54,19 @@ public class PerformanceVo extends BaseVo {
     //审核人
     private String auditor;
 
+    private List<String> images;
+
     public static PerformanceVo convert(Performance performance) {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);
         vo.setMemberName(performance.getNpcMember().getName());
         vo.setMemberMobile(performance.getNpcMember().getMobile());
-        vo.setAuditor(performance.getAuditor().getName());
+        if (performance.getAuditor() != null) {
+            vo.setAuditor(performance.getAuditor().getName());
+        }else{
+            vo.setAuditor("未审核");
+        }
+        vo.setImages(performance.getPerformanceImages().stream().map(PerformanceImage::getUrl).collect(Collectors.toList()));
         vo.setPerformanceType(performance.getPerformanceType().getUid());
         vo.setTypeName(performance.getPerformanceType().getName());
         return vo;
