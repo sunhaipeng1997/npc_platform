@@ -62,7 +62,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class,map);
                 JSONObject jsonObj = responseEntity.getBody();
                 System.out.println("status     :       "+jsonObj.get("status").toString());
-//                String str = jsonObj.get("status").toString();
 
                 if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
                     userInfo = (Map<String, Object>) jsonObj.get("data");

@@ -1,6 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
@@ -88,7 +88,7 @@ public class PerformanceServiceImpl implements PerformanceService {
      * @return
      */
     @Override
-    public RespBody performanceTypes(UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
+    public RespBody performanceTypes(MobileUserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
         if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
@@ -102,7 +102,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public RespBody performancePage(UserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
+    public RespBody performancePage(MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());
@@ -160,7 +160,7 @@ public class PerformanceServiceImpl implements PerformanceService {
      * @return
      */
     @Override
-    public RespBody addOrUpdatePerformance(UserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
+    public RespBody addOrUpdatePerformance(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
         RespBody body = new RespBody();
 
         Account account = accountRepository.findByUid(userDetails.getUid());
@@ -271,12 +271,12 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public RespBody performanceAuditorPage(UserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
+    public RespBody performanceAuditorPage(MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());//当前登录账户的代表信息
         List<String> roleKeywords = npcMember.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toList());
-        SystemSetting systemSetting = this.getSystemSetting(userDetails);//系统设置开关
+        SystemSetting systemSetting = this.getSystemSetting(userDetails, performancePageDto);//系统设置开关
 
         //排序条件
         int begin = performancePageDto.getPage() - 1;
@@ -351,7 +351,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public RespBody auditPerformance(UserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto) {
+    public RespBody auditPerformance(MobileUserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto) {
         RespBody body = new RespBody();
         if (StringUtils.isEmpty(auditPerformanceDto.getUid())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -414,12 +414,12 @@ public class PerformanceServiceImpl implements PerformanceService {
         performanceImageRepository.saveAndFlush(performanceImage);
     }
 
-    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+    public SystemSetting getSystemSetting(MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
         SystemSetting systemSetting = new SystemSetting();
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
-            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(performancePageDto.getLevel(),userDetails.getTown().getUid());
+        }else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(performancePageDto.getLevel(),userDetails.getArea().getUid());
         }
         return systemSetting;
     }

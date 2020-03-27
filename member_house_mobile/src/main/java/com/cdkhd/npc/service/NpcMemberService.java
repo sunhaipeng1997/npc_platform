@@ -1,6 +1,6 @@
 package com.cdkhd.npc.service;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.LevelDto;
 import com.cdkhd.npc.vo.RespBody;
@@ -21,9 +21,9 @@ public interface NpcMemberService {
      * @params level 等级  区上返回各镇划分 镇上返回各小组划分
      * @return
      */
-    RespBody npcMemberUnits(UserDetailsImpl userDetails, Byte level, String uid);
+    RespBody npcMemberUnits(MobileUserDetailsImpl userDetails, Byte level, String uid);
 
-    RespBody pageOfNpcMembers(UserDetailsImpl userDetails);
+    RespBody pageOfNpcMembers(MobileUserDetailsImpl userDetails, Byte level);
 
     RespBody memberUnitDetails(LevelDto levelDto);
 

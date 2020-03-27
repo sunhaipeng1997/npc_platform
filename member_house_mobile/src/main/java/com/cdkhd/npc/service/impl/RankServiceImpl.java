@@ -1,6 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.RankVo;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -54,7 +54,7 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody memberSuggestionRank(UserDetailsImpl userDetails, Byte level) {
+    public RespBody memberSuggestionRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<NpcMember> npcMembers = this.getMembers(userDetails,level);
         List<Suggestion> suggestions = this.getSuggestions(userDetails,level);
@@ -76,7 +76,7 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody townSuggestionRank(UserDetailsImpl userDetails, Byte level) {
+    public RespBody townSuggestionRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
         List<Suggestion> suggestions = this.getSuggestions(userDetails,level);
@@ -98,7 +98,7 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody memberOpinionRank(UserDetailsImpl userDetails, Byte level) {
+    public RespBody memberOpinionRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<NpcMember> npcMembers = this.getMembers(userDetails,level);
         List<Opinion> opinions = this.getOpinions(userDetails, level);
@@ -120,7 +120,7 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody townOpinionRank(UserDetailsImpl userDetails, Byte level) {
+    public RespBody townOpinionRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
         List<Opinion> opinions = this.getOpinions(userDetails, level);
@@ -142,7 +142,7 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody memberPerformanceRank(UserDetailsImpl userDetails, Byte level) {
+    public RespBody memberPerformanceRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<NpcMember> npcMembers = this.getMembers(userDetails,level);
         List<Performance> performances = this.getPerformance(userDetails, level);
@@ -179,7 +179,7 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody townPerformanceRank(UserDetailsImpl userDetails, Byte level) {
+    public RespBody townPerformanceRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
         List<Performance> performances = this.getPerformance(userDetails, level);
@@ -200,7 +200,7 @@ public class RankServiceImpl implements RankService {
      * @param userDetails
      * @return
      */
-    private List<NpcMember> getMembers(UserDetailsImpl userDetails, Byte level) {
+    private List<NpcMember> getMembers(MobileUserDetailsImpl userDetails, Byte level) {
         List<NpcMember> npcMemberList = Lists.newArrayList();
         if (level.equals(LevelEnum.TOWN.getValue())) {//等级为镇上，获取所有镇代表
             npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(userDetails.getTown().getUid(), level);
@@ -211,14 +211,14 @@ public class RankServiceImpl implements RankService {
         return npcMemberList;
     }
 
-    private List<Suggestion> getSuggestions(UserDetailsImpl userDetails,Byte level) {
+    private List<Suggestion> getSuggestions(MobileUserDetailsImpl userDetails, Byte level) {
         List<Suggestion> suggestionList = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), level));
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+            } else if (level.equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             predicates.add(cb.greaterThanOrEqualTo(root.get("status").as(Byte.class),(byte)3));//todo 建议状态在提交到政府以后
@@ -227,14 +227,14 @@ public class RankServiceImpl implements RankService {
         return suggestionList;
     }
 
-    private List<Opinion> getOpinions(UserDetailsImpl userDetails, Byte level){
+    private List<Opinion> getOpinions(MobileUserDetailsImpl userDetails, Byte level){
         List<Opinion> opinionList = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), level));
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+            } else if (level.equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
@@ -303,7 +303,7 @@ public class RankServiceImpl implements RankService {
         return opinionMaps;
     }
 
-    private List<Performance> getPerformance(UserDetailsImpl userDetails, Byte level){
+    private List<Performance> getPerformance(MobileUserDetailsImpl userDetails, Byte level){
         List<Performance> performances = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
@@ -311,7 +311,7 @@ public class RankServiceImpl implements RankService {
             predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+            } else if (level.equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();

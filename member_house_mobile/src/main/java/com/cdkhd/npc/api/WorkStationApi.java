@@ -1,7 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.service.WorkStationService;
 import com.cdkhd.npc.vo.RespBody;
@@ -24,7 +24,7 @@ public class WorkStationApi {
 
     //获取我任职所在地的工作站
     @GetMapping("/getWorkStations")
-    public ResponseEntity getWorkStations(@CurrentUser UserDetailsImpl userDetails, Byte level){
+    public ResponseEntity getWorkStations(@CurrentUser MobileUserDetailsImpl userDetails, Byte level){
         String uid = "";
         if (level.equals(LevelEnum.TOWN.getValue())){
             uid = userDetails.getTown().getUid();

@@ -43,8 +43,8 @@ public class AuthApi {
             @ApiResponse(code = 200, message = "获取token成功", response = TokenVo.class)
     })
     @GetMapping("/token")
-    public ResponseEntity auth(String nickName, String code,String encryptedData, String iv) {
-        RespBody body = authService.auth(nickName, code,encryptedData,iv);
+    public ResponseEntity auth(String nickName, String code, String encryptedData, String iv) {
+        RespBody body = authService.auth(nickName, code, encryptedData, iv);
         return ResponseEntity.ok(body);
     }
 
@@ -53,6 +53,5 @@ public class AuthApi {
     public String accessToken(String code, String state) {
         return authService.accessToken(code, state);
     }
-
 
 }

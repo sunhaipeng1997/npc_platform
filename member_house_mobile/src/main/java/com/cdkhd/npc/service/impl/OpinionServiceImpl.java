@@ -1,6 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.OpinionListVo;
@@ -66,7 +66,7 @@ public class OpinionServiceImpl implements OpinionService {
     }
 
     @Override
-    public RespBody addOpinion(UserDetailsImpl userDetails, AddOpinionDto addOpinionDto) {
+    public RespBody addOpinion(MobileUserDetailsImpl userDetails, AddOpinionDto addOpinionDto) {
         RespBody body = new RespBody();
         if (StringUtils.isEmpty(addOpinionDto.getContent())){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -142,7 +142,7 @@ public class OpinionServiceImpl implements OpinionService {
      * @return
      */
     @Override
-    public RespBody myOpinions(UserDetailsImpl userDetails, OpinionDto opinionDto) {
+    public RespBody myOpinions(MobileUserDetailsImpl userDetails, OpinionDto opinionDto) {
         RespBody body = new RespBody();
         int begin = opinionDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, opinionDto.getSize(), Sort.Direction.fromString(opinionDto.getDirection()), opinionDto.getProperty());
@@ -215,7 +215,7 @@ public class OpinionServiceImpl implements OpinionService {
      * @return
      */
     @Override
-    public RespBody receiveOpinions(UserDetailsImpl userDetails, OpinionDto opinionDto) {
+    public RespBody receiveOpinions(MobileUserDetailsImpl userDetails, OpinionDto opinionDto) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(opinionDto.getLevel(), account.getNpcMembers());

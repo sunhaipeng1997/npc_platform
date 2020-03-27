@@ -2,11 +2,8 @@ package com.cdkhd.npc.component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.Area;
-import com.cdkhd.npc.entity.Town;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.repository.base.LoginUPRepository;
-import com.cdkhd.npc.repository.base.TownRepository;
+import com.cdkhd.npc.repository.base.AccountRepository;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.lang3.StringUtils;
@@ -33,64 +30,72 @@ import java.util.Map;
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
-//    @Autowired
-//    private LoginUPRepository loginUPRepository;
-//    @Autowired
-//    private RestTemplate restTemplate;
-//    @Autowired
-//    private Environment environment;
     @Autowired
-    private TownRepository townRepository;
+    private AccountRepository accountRepository;
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private Environment environment;
+
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//        Town town = townRepository.findByUid("ce9028c82dd811ea8f3f0242ac170005");
+//        UserDetailsImpl userDetails1 = new UserDetailsImpl("751806ea2d4211ea8f3f0242ac170005", "admin", "123456", Sets.newHashSet("NPC_MEMBER"), town.getArea(), town, LevelEnum.AREA.getValue());
+//        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
+//        SecurityContextHolder.getContext().setAuthentication(authToken);
+//        filterChain.doFilter(request, response);
+//    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //从请求中获取token
-//        String accessToken = getToken(request);
-//        String url = "http://127.0.0.1:8080/" + accessToken;
-//        String url = environment.getProperty("serverUrl");
-//        if (StringUtils.isNotBlank(accessToken)) {
-//            try {
+        String accessToken = getToken(request);
+        String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken?token={token}";
+        System.out.println("url  :        "+url);
+        if (StringUtils.isNotBlank(accessToken)) {
+            try {
                 //验证token并解析用户信息
-//                Map<String, Object> userInfo = new HashMap<>();
-//
+                Map<String, Object> userInfo = new HashMap<>();
+
                 //设置http头
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
                 //构造的参数作为请求体
-//                JSONObject requestBody = new JSONObject();
-//                requestBody.put("token", accessToken);
-//                HttpEntity<String> httpEntity = new HttpEntity<>(requestBody.toJSONString(), headers);
-//
+                JSONObject requestBody = new JSONObject();
+                requestBody.put("token", accessToken);
+                HttpEntity<String> httpEntity = new HttpEntity<>(requestBody.toJSONString(), headers);
+                Map<String, String> map = Maps.newHashMap();
+                map.put("token",accessToken);
                 //调用server接口，获取解析token后的用户信息
-//                ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class);
-//                JSONObject jsonObj = responseEntity.getBody();
+                System.out.println("accessToken      :    " + accessToken);
+                ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class,map);
+                JSONObject jsonObj = responseEntity.getBody();
+                System.out.println("status     :       "+jsonObj.get("status").toString());
 
-//                String str = jsonObj.get("status").toString();
-//
-//                if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
-//                    userInfo = (Map<String, Object>) jsonObj.get("data");
-//                }else {
-//                    logger.info("token解析失败");
-//                }
+                if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
+                    userInfo = (Map<String, Object>) jsonObj.get("data");
+                }else {
+                    logger.info("token解析失败");
+                }
 
-//                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     //保存认证信息到SecurityContext
                     //从token中解析用户的角色信息
-//                    List<String> roles = (List<String>) userInfo.get("accountRoles");
-//                    Account account =  loginUPRepository.findByUsername(userInfo.get("username").toString()).getAccount();
-        Town town = townRepository.findByUid("ce9028c82dd811ea8f3f0242ac170005");
-                    UserDetailsImpl userDetails1 = new UserDetailsImpl("751806ea2d4211ea8f3f0242ac170005", "admin", "123456", Sets.newHashSet("NPC_MEMBER"), town.getArea(), town, LevelEnum.AREA.getValue());
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
+                    List<String> roles = (List<String>) userInfo.get("accountRoles");
+                    Account account =  accountRepository.findByUid(userInfo.get("uid").toString());
+                    MobileUserDetailsImpl userDetails = new MobileUserDetailsImpl(account.getUid(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown());
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-//                    logger.info("合法访问，username: " + userInfo.get("username").toString());
-//                }
-//            } catch (ExpiredJwtException e) {
-//                logger.warn("token已过期，请重新登录");
-//                e.printStackTrace();
-//            } catch (Exception e) {
-//                logger.warn("token解析失败");
-//                e.printStackTrace();
-//            }
-//        }
+                    logger.info("合法访问，uid: " + userInfo.get("uid").toString());
+                }
+            } catch (ExpiredJwtException e) {
+                logger.warn("token已过期，请重新登录");
+                e.printStackTrace();
+            } catch (Exception e) {
+                logger.warn("token解析失败");
+                e.printStackTrace();
+            }
+        }
         //不管token验证通过与否，继续下一个过滤
         filterChain.doFilter(request, response);
     }

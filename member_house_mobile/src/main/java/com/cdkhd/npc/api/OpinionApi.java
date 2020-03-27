@@ -1,7 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.service.OpinionService;
 import com.cdkhd.npc.vo.RespBody;
@@ -30,7 +30,7 @@ public class OpinionApi {
      * @return
      */
     @PostMapping("/addOpinion")
-    public ResponseEntity addOpinion(@CurrentUser UserDetailsImpl userDetails, AddOpinionDto addOpinionDto) {
+    public ResponseEntity addOpinion(@CurrentUser MobileUserDetailsImpl userDetails, AddOpinionDto addOpinionDto) {
         RespBody body = opinionService.addOpinion(userDetails, addOpinionDto);
         return ResponseEntity.ok(body);
     }
@@ -42,7 +42,7 @@ public class OpinionApi {
      * @return
      */
     @GetMapping("/myOpinions")
-    public ResponseEntity myOpinions(@CurrentUser UserDetailsImpl userDetails, OpinionDto opinionDto) {
+    public ResponseEntity myOpinions(@CurrentUser MobileUserDetailsImpl userDetails, OpinionDto opinionDto) {
         RespBody body = opinionService.myOpinions(userDetails, opinionDto);
         return ResponseEntity.ok(body);
     }
@@ -67,7 +67,7 @@ public class OpinionApi {
      * @return
      */
     @GetMapping("/receiveOpinions")
-    public ResponseEntity receiveOpinions(@CurrentUser UserDetailsImpl userDetails, OpinionDto opinionDto) {
+    public ResponseEntity receiveOpinions(@CurrentUser MobileUserDetailsImpl userDetails, OpinionDto opinionDto) {
         RespBody body = opinionService.receiveOpinions(userDetails, opinionDto);
         return ResponseEntity.ok(body);
     }

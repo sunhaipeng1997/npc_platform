@@ -1,6 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.SuggestionAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
@@ -22,14 +22,7 @@ import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
-import com.deepoove.poi.XWPFTemplate;
-import com.deepoove.poi.data.NumbericRenderData;
-import com.deepoove.poi.data.TextRenderData;
-import com.deepoove.poi.data.builder.StyleBuilder;
-import com.deepoove.poi.data.style.Style;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -46,11 +39,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +76,7 @@ public class SuggestionServiceImpl implements SuggestionService {
      * @return
      */
     @Override
-    public RespBody sugBusList(UserDetailsImpl userDetails, SuggestionBusinessDto dto) {
+    public RespBody sugBusList(MobileUserDetailsImpl userDetails, SuggestionBusinessDto dto) {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
         if (dto.getLevel().equals(LevelEnum.AREA.getValue())){
@@ -102,12 +90,12 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public RespBody npcMemberSug(UserDetailsImpl userDetails, SuggestionPageDto dto) {
+    public RespBody npcMemberSug(MobileUserDetailsImpl userDetails, SuggestionPageDto dto) {
         RespBody<PageVo<SuggestionVo>> body = new RespBody<>();
         int begin = dto.getPage() - 1;
         Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
         Account account = accountRepository.findByUid(userDetails.getUid());
-        NpcMember npcMember = NpcMemberUtil.getCurrentIden(userDetails.getLevel(), account.getNpcMembers());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(dto.getLevel(), account.getNpcMembers());
         PageVo<SuggestionVo> vo = new PageVo<>(dto);
         if (npcMember != null) {
             Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
@@ -135,7 +123,7 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public RespBody addOrUpdateSuggestion(UserDetailsImpl userDetails, SuggestionAddDto dto) {
+    public RespBody addOrUpdateSuggestion(MobileUserDetailsImpl userDetails, SuggestionAddDto dto) {
         RespBody body = new RespBody();
 
         Account account = accountRepository.findByUid(userDetails.getUid());
@@ -241,7 +229,7 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public RespBody audit(UserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto) {
+    public RespBody audit(MobileUserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(suggestionAuditDto.getUid());
         if (suggestion == null) {
@@ -288,7 +276,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
 
     @Override
-    public RespBody auditorSug(UserDetailsImpl userDetails, SuggestionPageDto dto) {
+    public RespBody auditorSug(MobileUserDetailsImpl userDetails, SuggestionPageDto dto) {
         RespBody<PageVo<SuggestionVo>> body = new RespBody<>();
         int begin = dto.getPage() - 1;
         Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());

@@ -1,7 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.service.MenuService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class MenuApi {
      * @return
      */
     @GetMapping("/getMenus")
-    public ResponseEntity getMenus(@CurrentUser UserDetailsImpl userDetails, String system, Byte level) {
+    public ResponseEntity getMenus(@CurrentUser MobileUserDetailsImpl userDetails, String system, Byte level) {
         RespBody body = menuService.getMenus(userDetails, system, level);
         return ResponseEntity.ok(body);
     }
@@ -38,7 +38,7 @@ public class MenuApi {
      * @return
      */
     @GetMapping("/countUnRead")
-    public ResponseEntity countUnRead(@CurrentUser UserDetailsImpl userDetails, Byte level) {
+    public ResponseEntity countUnRead(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = menuService.countUnRead(userDetails,level);
         return ResponseEntity.ok(body);
     }

@@ -1,8 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.PerformanceType;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 
@@ -15,7 +14,7 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody performanceTypes(UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto);
+    RespBody performanceTypes(MobileUserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto);
 
     //履职信息相关接口
 
@@ -24,7 +23,7 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody performancePage(UserDetailsImpl userDetails, PerformancePageDto performancePageDto);
+    RespBody performancePage(MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto);
 
 
     /**
@@ -39,7 +38,7 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody addOrUpdatePerformance(@CurrentUser UserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
+    RespBody addOrUpdatePerformance(@CurrentUser MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
 
     /**
      * 删除履职信息
@@ -55,14 +54,14 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody performanceAuditorPage(UserDetailsImpl userDetails, PerformancePageDto performancePageDto);
+    RespBody performanceAuditorPage(MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto);
 
     /**
      * 审核履职
      * @param userDetails
      * @return
      */
-    RespBody auditPerformance(UserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto);
+    RespBody auditPerformance(MobileUserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto);
 
     /**
      * 代表提交的履职列表

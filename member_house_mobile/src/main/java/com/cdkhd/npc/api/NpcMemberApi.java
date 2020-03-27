@@ -1,7 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.service.NpcMemberService;
@@ -47,7 +47,7 @@ public class NpcMemberApi {
      * @return 查询结果
      */
     @GetMapping("/npcMemberUnits")
-    public ResponseEntity npcMemberUnits(@CurrentUser UserDetailsImpl userDetails, Byte level, String uid) {
+    public ResponseEntity npcMemberUnits(@CurrentUser MobileUserDetailsImpl userDetails, Byte level, String uid) {
         RespBody body = npcMemberService.npcMemberUnits(userDetails, level,uid);
         return ResponseEntity.ok(body);
     }
@@ -69,8 +69,8 @@ public class NpcMemberApi {
      * @return 查询结果
      */
     @GetMapping("/pageOfNpcMember")
-    public ResponseEntity pageOfNpcMember(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = npcMemberService.pageOfNpcMembers(userDetails);
+    public ResponseEntity pageOfNpcMember(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
+        RespBody body = npcMemberService.pageOfNpcMembers(userDetails, level);
         return ResponseEntity.ok(body);
     }
 

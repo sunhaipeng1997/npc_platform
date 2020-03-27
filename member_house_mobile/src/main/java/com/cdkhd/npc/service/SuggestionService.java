@@ -1,6 +1,6 @@
 package com.cdkhd.npc.service;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.SuggestionAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
@@ -12,7 +12,7 @@ public interface SuggestionService {
     /**
      * 全部建议类型列表
      * */
-    RespBody sugBusList(UserDetailsImpl userDetails, SuggestionBusinessDto dto);
+    RespBody sugBusList(MobileUserDetailsImpl userDetails, SuggestionBusinessDto dto);
 
     /**
      * 代表提出的建议
@@ -20,7 +20,7 @@ public interface SuggestionService {
      * @param dto
      * @return
      */
-    RespBody npcMemberSug(UserDetailsImpl userDetails, SuggestionPageDto dto);
+    RespBody npcMemberSug(MobileUserDetailsImpl userDetails, SuggestionPageDto dto);
 
     /**
      * 添加/修改 建议
@@ -28,7 +28,7 @@ public interface SuggestionService {
      * @param dto
      * @return
      */
-    RespBody addOrUpdateSuggestion(UserDetailsImpl userDetails, SuggestionAddDto dto);
+    RespBody addOrUpdateSuggestion(MobileUserDetailsImpl userDetails, SuggestionAddDto dto);
 
 
     /**
@@ -37,7 +37,7 @@ public interface SuggestionService {
      * @param
      * @return
      */
-    RespBody audit(UserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto);
+    RespBody audit(MobileUserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto);
 
 
     /**
@@ -65,7 +65,7 @@ public interface SuggestionService {
      * @param dto
      * @return
      */
-    RespBody auditorSug(UserDetailsImpl userDetails, SuggestionPageDto dto);
+    RespBody auditorSug(MobileUserDetailsImpl userDetails, SuggestionPageDto dto);
 
     //rfx
     //上级查看下级代表建议列表详情

@@ -1,7 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.service.PerformanceService;
@@ -31,7 +31,7 @@ public class PerformanceApi {
      * @return
      */
     @GetMapping("/performanceTypeList")
-    public ResponseEntity performanceTypeList(@CurrentUser UserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
+    public ResponseEntity performanceTypeList(@CurrentUser MobileUserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
         RespBody body = performanceService.performanceTypes(userDetails, performanceTypeDto);
         return ResponseEntity.ok(body);
     }
@@ -42,7 +42,7 @@ public class PerformanceApi {
      * @return
      */
     @GetMapping("/performancePage")
-    public ResponseEntity performancePage(@CurrentUser UserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
+    public ResponseEntity performancePage(@CurrentUser MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
         RespBody body = performanceService.performancePage(userDetails, performancePageDto);
         return ResponseEntity.ok(body);
     }
@@ -54,7 +54,7 @@ public class PerformanceApi {
      * @return
      */
     @PostMapping("/addOrUpdatePerformance")
-    public ResponseEntity addOrUpdatePerformance(@CurrentUser UserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
+    public ResponseEntity addOrUpdatePerformance(@CurrentUser MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
         RespBody body = performanceService.addOrUpdatePerformance(userDetails,addPerformanceDto);
         return ResponseEntity.ok(body);
     }
@@ -93,7 +93,7 @@ public class PerformanceApi {
      * @return
      */
     @GetMapping("/performanceAuditorPage")
-    public ResponseEntity performanceAuditorPage(@CurrentUser UserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
+    public ResponseEntity performanceAuditorPage(@CurrentUser MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
         RespBody body = performanceService.performanceAuditorPage(userDetails, performancePageDto);
         return ResponseEntity.ok(body);
     }
@@ -103,7 +103,7 @@ public class PerformanceApi {
      * @return
      */
     @GetMapping("/auditPerformance")
-    public ResponseEntity auditPerformance(@CurrentUser UserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto) {
+    public ResponseEntity auditPerformance(@CurrentUser MobileUserDetailsImpl userDetails, AuditPerformanceDto auditPerformanceDto) {
         RespBody body = performanceService.auditPerformance(userDetails, auditPerformanceDto);
         return ResponseEntity.ok(body);
     }

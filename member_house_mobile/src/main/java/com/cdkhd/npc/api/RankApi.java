@@ -1,7 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.service.RankService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class RankApi {
      * @return
      */
     @GetMapping("/memberSuggestionRank")
-    public ResponseEntity memberSuggestionRank(@CurrentUser UserDetailsImpl userDetails, Byte level) {
+    public ResponseEntity memberSuggestionRank(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = rankService.memberSuggestionRank(userDetails, level);
         return ResponseEntity.ok(body);
     }
@@ -40,7 +40,7 @@ public class RankApi {
      * @return
      */
     @GetMapping("/townSuggestionRank")
-    public ResponseEntity townSuggestionRank(@CurrentUser UserDetailsImpl userDetails, Byte level) {
+    public ResponseEntity townSuggestionRank(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = rankService.townSuggestionRank(userDetails, level);
         return ResponseEntity.ok(body);
     }
@@ -52,7 +52,7 @@ public class RankApi {
      * @return
      */
     @GetMapping("/memberOpinionRank")
-    public ResponseEntity memberOpinionRank(@CurrentUser UserDetailsImpl userDetails, Byte level) {
+    public ResponseEntity memberOpinionRank(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = rankService.memberOpinionRank(userDetails, level);
         return ResponseEntity.ok(body);
     }
@@ -64,7 +64,7 @@ public class RankApi {
      * @return
      */
     @GetMapping("/townOpinionRank")
-    public ResponseEntity townOpinionRank(@CurrentUser UserDetailsImpl userDetails, Byte level) {
+    public ResponseEntity townOpinionRank(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = rankService.townOpinionRank(userDetails, level);
         return ResponseEntity.ok(body);
     }
@@ -76,7 +76,7 @@ public class RankApi {
      * @return
      */
     @GetMapping("/memberPerformanceRank")
-    public ResponseEntity memberPerformanceRank(@CurrentUser UserDetailsImpl userDetails, Byte level) {
+    public ResponseEntity memberPerformanceRank(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = rankService.memberPerformanceRank(userDetails, level);
         return ResponseEntity.ok(body);
     }
@@ -88,7 +88,7 @@ public class RankApi {
      * @return
      */
     @GetMapping("/townPerformanceRank")
-    public ResponseEntity townPerformanceRank(@CurrentUser UserDetailsImpl userDetails, Byte level) {
+    public ResponseEntity townPerformanceRank(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = rankService.townPerformanceRank(userDetails, level);
         return ResponseEntity.ok(body);
     }

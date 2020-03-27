@@ -47,11 +47,13 @@ public class TownServiceImpl implements TownService {
 
     private final SessionRepository sessionRepository;
 
+    private final SystemRepository systemRepository;
+
     private Environment env;
 
 
     @Autowired
-    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, SessionRepository sessionRepository, Environment env) {
+    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, SessionRepository sessionRepository, SystemRepository systemRepository, Environment env) {
         this.townRepository = townRepository;
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
@@ -60,6 +62,7 @@ public class TownServiceImpl implements TownService {
         this.systemSettingRepository = systemSettingRepository;
         this.backgroundAdminRepository = backgroundAdminRepository;
         this.sessionRepository = sessionRepository;
+        this.systemRepository = systemRepository;
         this.env = env;
     }
 
@@ -137,6 +140,7 @@ public class TownServiceImpl implements TownService {
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         account.setMobile(townAddDto.getMobile());
         account.setIsDel(false);
+        account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
         accountRepository.saveAndFlush(account);
 
         //科鸿达
@@ -146,6 +150,7 @@ public class TownServiceImpl implements TownService {
         khd_account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         khd_account.setMobile(townAddDto.getMobile());
         khd_account.setIsDel(false);
+        khd_account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
         accountRepository.saveAndFlush(khd_account);
 
 //        Voter voter = new Voter();

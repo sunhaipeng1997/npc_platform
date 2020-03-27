@@ -1,6 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.Area;
 import com.cdkhd.npc.entity.NpcMember;
@@ -16,7 +16,6 @@ import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.TownRepository;
 import com.cdkhd.npc.service.NpcMemberService;
-import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -59,12 +58,12 @@ public class NpcMemberServiceImpl implements NpcMemberService {
      * @return 查询结果
      */
     @Override
-    public RespBody pageOfNpcMembers(UserDetailsImpl userDetails) {
+    public RespBody pageOfNpcMembers(MobileUserDetailsImpl userDetails, Byte level) {
         //其它查询条件
         Specification<NpcMember> spec = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
             //查询与bgAdmin同级的代表
-            predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
+            predicateList.add(cb.equal(root.get("level"), level));
             predicateList.add(cb.isFalse(root.get("isDel")));
             //同镇的代表 or 同区的代表
             predicateList.add(cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
@@ -152,7 +151,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     }
 
     @Override
-    public RespBody npcMemberUnits(UserDetailsImpl userDetails, Byte level, String uid) {
+    public RespBody npcMemberUnits(MobileUserDetailsImpl userDetails, Byte level, String uid) {
         RespBody body = new RespBody();
         List<MemberUnitVo> memberUnitVos;
         if (level.equals(LevelEnum.TOWN.getValue())){

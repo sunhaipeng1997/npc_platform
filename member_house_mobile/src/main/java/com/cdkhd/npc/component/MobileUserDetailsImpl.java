@@ -9,10 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-public class UserDetailsImpl implements UserDetails {
+public class MobileUserDetailsImpl implements UserDetails {
     private final String uid;
-    private final String username;
-    private String password;
     private final Set<String> roles;
     private final Set<GrantedAuthority> authorities;
     private final boolean accountNonExpired;
@@ -21,20 +19,17 @@ public class UserDetailsImpl implements UserDetails {
     private final boolean enabled;
     private final Area area;
     private final Town town;
-    private final Byte level;
 
-    public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Area area, Town town, Byte level) {
-        this(uid, username, password, roles, Collections.emptySet(), area, town, level);
+    public MobileUserDetailsImpl(String uid, Set<String> roles, Area area, Town town) {
+        this(uid, roles, Collections.emptySet(), area, town);
     }
 
-    public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities, Area area, Town town, Byte level) {
-        this(uid, username, password, roles, authorities, true, true, true, true, area, town, level);
+    public MobileUserDetailsImpl(String uid, Set<String> roles, Set<? extends GrantedAuthority> authorities, Area area, Town town) {
+        this(uid, roles, authorities, true, true, true, true, area, town);
     }
 
-    public UserDetailsImpl(String uid, String username, String password, Set<String> roles, Set<? extends GrantedAuthority> authorities, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, Area area, Town town, Byte level) {
+    public MobileUserDetailsImpl(String uid, Set<String> roles, Set<? extends GrantedAuthority> authorities, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, Area area, Town town) {
         this.uid = uid;
-        this.username = username;
-        this.password = password;
         this.roles = roles;
         this.authorities = (Set<GrantedAuthority>) authorities;
         this.accountNonExpired = accountNonExpired;
@@ -43,7 +38,6 @@ public class UserDetailsImpl implements UserDetails {
         this.enabled = enabled;
         this.area = area;
         this.town = town;
-        this.level = level;
     }
 
     public String getUid() {
@@ -61,12 +55,12 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return null;
     }
 
     @Override
@@ -95,9 +89,5 @@ public class UserDetailsImpl implements UserDetails {
 
     public Town getTown() {
         return town;
-    }
-
-    public Byte getLevel() {
-        return level;
     }
 }

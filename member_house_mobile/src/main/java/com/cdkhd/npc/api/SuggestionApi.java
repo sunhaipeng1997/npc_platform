@@ -1,7 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.SuggestionAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
@@ -32,7 +32,7 @@ public class SuggestionApi {
      * @return
      * */
     @GetMapping("/sugBusList")
-    public ResponseEntity sugBusList(@CurrentUser UserDetailsImpl userDetails, SuggestionBusinessDto dto){
+    public ResponseEntity sugBusList(@CurrentUser MobileUserDetailsImpl userDetails, SuggestionBusinessDto dto){
         RespBody body = suggestionService.sugBusList(userDetails, dto);
         return ResponseEntity.ok(body);
     }
@@ -45,7 +45,7 @@ public class SuggestionApi {
      * @return
      */
     @GetMapping("/npcMemberSug")
-    public ResponseEntity npcMemberSug(@CurrentUser UserDetailsImpl userDetails, SuggestionPageDto dto) {
+    public ResponseEntity npcMemberSug(@CurrentUser MobileUserDetailsImpl userDetails, SuggestionPageDto dto) {
         RespBody body = suggestionService.npcMemberSug(userDetails, dto);
         return ResponseEntity.ok(body);
     }
@@ -56,7 +56,7 @@ public class SuggestionApi {
      * @param suggestionAddDto
      * */
     @PostMapping("/addOrUpdateSuggestion")
-    public ResponseEntity addOrUpdateSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionAddDto suggestionAddDto) {
+    public ResponseEntity addOrUpdateSuggestion(@CurrentUser MobileUserDetailsImpl userDetails, SuggestionAddDto suggestionAddDto) {
         RespBody body = suggestionService.addOrUpdateSuggestion(userDetails,suggestionAddDto);
         return ResponseEntity.ok(body);
     }
@@ -78,7 +78,7 @@ public class SuggestionApi {
      * @param suggestionAuditDto
      * */
     @PostMapping("/audit")
-    public ResponseEntity audit(@CurrentUser UserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto) {
+    public ResponseEntity audit(@CurrentUser MobileUserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto) {
         RespBody body = suggestionService.audit(userDetails, suggestionAuditDto);
         return ResponseEntity.ok(body);
     }
@@ -113,7 +113,7 @@ public class SuggestionApi {
      * @param dto
      * */
     @GetMapping("/auditorSug")
-    public ResponseEntity auditorSug(@CurrentUser UserDetailsImpl userDetails, SuggestionPageDto dto) {
+    public ResponseEntity auditorSug(@CurrentUser MobileUserDetailsImpl userDetails, SuggestionPageDto dto) {
         RespBody body = suggestionService.auditorSug(userDetails, dto);
         return ResponseEntity.ok(body);
     }
