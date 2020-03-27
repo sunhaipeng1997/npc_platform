@@ -23,7 +23,7 @@ public interface NpcMemberService {
      */
     RespBody npcMemberUnits(MobileUserDetailsImpl userDetails, Byte level, String uid);
 
-    RespBody pageOfNpcMembers(MobileUserDetailsImpl userDetails, Byte level);
+    RespBody relationOfNpcMember(MobileUserDetailsImpl userDetails, LevelDto levelDto);
 
     RespBody memberUnitDetails(LevelDto levelDto);
 

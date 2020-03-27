@@ -10,6 +10,7 @@ import com.cdkhd.npc.entity.dto.LevelDto;
 import com.cdkhd.npc.entity.vo.CommentVo;
 import com.cdkhd.npc.entity.vo.MemberUnitVo;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
+import com.cdkhd.npc.entity.vo.RelationVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.AreaRepository;
 import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;
@@ -17,6 +18,7 @@ import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.TownRepository;
 import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,31 +55,42 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     }
 
     /**
-     * 分页查询代表信息
+     * 获取镇、组的列表及下面的代表列表
      * @param userDetails 当前用户
      * @return 查询结果
      */
     @Override
-    public RespBody pageOfNpcMembers(MobileUserDetailsImpl userDetails, Byte level) {
-        //其它查询条件
-        Specification<NpcMember> spec = (root, query, cb) -> {
-            List<Predicate> predicateList = new ArrayList<>();
-            //查询与bgAdmin同级的代表
-            predicateList.add(cb.equal(root.get("level"), level));
-            predicateList.add(cb.isFalse(root.get("isDel")));
-            //同镇的代表 or 同区的代表
-            predicateList.add(cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
-            return cb.and(predicateList.toArray(new Predicate[0]));
-        };
-
-        List<NpcMember> list = npcMemberRepository.findAll(spec);
-
-        //封装查询结果
-        List<NpcMemberVo> npcMemberVoList = list.stream().map(NpcMemberVo::convert).collect(Collectors.toList());
-
-        //返回数据
-        RespBody<List<NpcMemberVo>> body = new RespBody<>();
-        body.setData(npcMemberVoList);
+    public RespBody relationOfNpcMember(MobileUserDetailsImpl userDetails, LevelDto levelDto) {
+        RespBody body = new RespBody();
+        List<RelationVo> relationVos = Lists.newArrayList();
+        if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            //如果是镇上，就查询小组
+            //如果传了需要查询的镇的小组那么就按照产过来的查询，如果没有传过来，那么就按照当前登录人所在的镇来查询
+            String townUid = userDetails.getTown().getUid();
+            Town town = townRepository.findByUid(townUid);
+            Set<NpcMemberGroup> groupList = town.getNpcMemberGroups();
+            for (NpcMemberGroup npcMemberGroup : groupList) {//每个小组里面的代表信息
+                RelationVo relationVo = RelationVo.convert(npcMemberGroup.getUid(),npcMemberGroup.getName());
+                List<RelationVo> members = npcMemberGroup.getMembers().stream().map(member -> RelationVo.convert(member.getUid(),member.getName())).collect(Collectors.toList());
+                relationVo.setChildren(members);
+                relationVos.add(relationVo);
+            }
+            RelationVo relationVo = RelationVo.convert(townUid,"区代表");
+            List<NpcMember> npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(townUid,LevelEnum.AREA.getValue());
+            relationVo.setChildren(npcMembers.stream().map(member -> RelationVo.convert(member.getUid(),member.getName())).collect(Collectors.toList()));
+            relationVos.add(0,relationVo);
+        }else{
+            String areaUid = userDetails.getArea().getUid();
+            Area area = areaRepository.findByUid(areaUid);
+            Set<Town> towns = area.getTowns();
+            for (Town town : towns) {
+                RelationVo relationVo = RelationVo.convert(town.getUid(),town.getName());
+                List<RelationVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue())).map(member -> RelationVo.convert(member.getUid(),member.getName())).collect(Collectors.toList());
+                relationVo.setChildren(members);
+                relationVos.add(relationVo);
+            }
+        }
+        body.setData(relationVos);
         return body;
     }
 

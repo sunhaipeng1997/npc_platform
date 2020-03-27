@@ -26,7 +26,7 @@ public class NpcMemberApi {
 
     /**
      * 分页查询代表信息
-     * @param
+     * @desc 代表风采这里展示某个镇或者某个区的代表信息
      * @param level 等级
      * @param uid 区、县uid
      * @return 查询结果
@@ -41,7 +41,7 @@ public class NpcMemberApi {
 
     /**
      * 获取当前区域下的行政列表
-     * @param userDetails
+     * @param userDetails  代表风采这里展示代表镇分组或者区代表分镇
      * @param level 等级 区 返回镇列表 镇 返回小组列表
      * @param uid 区、县uid
      * @return 查询结果
@@ -54,7 +54,7 @@ public class NpcMemberApi {
 
     /**
      * 获取当前区域下的行政列表
-     * levelDto
+     * levelDto 获取区下面的镇 或者 镇下面的小组列表
      * @return 查询结果
      */
     @GetMapping("/memberUnitDetails")
@@ -64,13 +64,13 @@ public class NpcMemberApi {
     }
 
     /**
-     * 分页查询代表信息
+     * 分页查询代表信息  快捷提意见的时候，获取代表的机构和代表的列表
      * @param userDetails 当前用户
      * @return 查询结果
      */
-    @GetMapping("/pageOfNpcMember")
-    public ResponseEntity pageOfNpcMember(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
-        RespBody body = npcMemberService.pageOfNpcMembers(userDetails, level);
+    @GetMapping("/relationOfNpcMember")
+    public ResponseEntity relationOfNpcMember(@CurrentUser MobileUserDetailsImpl userDetails, LevelDto levelDto) {
+        RespBody body = npcMemberService.relationOfNpcMember(userDetails,levelDto);
         return ResponseEntity.ok(body);
     }
 
