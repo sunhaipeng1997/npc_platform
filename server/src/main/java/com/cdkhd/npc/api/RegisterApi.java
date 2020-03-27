@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/member_house_mobile/register")
+@RequestMapping("/api/mobile/register")
 public class RegisterApi {
 
     private RegisterService registerService;
