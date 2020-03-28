@@ -1,5 +1,6 @@
 package com.cdkhd.npc.api;
 
+import com.cdkhd.npc.entity.dto.PhoneNumberDto;
 import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.service.RegisterService;
 import com.cdkhd.npc.vo.RespBody;
@@ -21,7 +22,6 @@ public class RegisterApi {
         this.registerService = registerService;
     }
 
-
     /**
      * 获取当前区、镇、村、关系
      * @return
@@ -31,6 +31,13 @@ public class RegisterApi {
         RespBody body = registerService.getRelations();
         return ResponseEntity.ok(body);
     }
+
+    @PostMapping("/code")
+    public ResponseEntity getVerificationCode(PhoneNumberDto dto) {
+        RespBody body = registerService.getVerificationCode(dto);
+        return ResponseEntity.ok(body);
+    }
+
     /**
      * 注册账号
      * @return
@@ -40,6 +47,7 @@ public class RegisterApi {
         RespBody body = registerService.register(userInfoDto);
         return ResponseEntity.ok(body);
     }
+
 
 
 }

@@ -341,7 +341,7 @@ public class AuthServiceImpl implements AuthService {
      * 注：小程序认证比较特殊，
      * 使用appid、appsecret和临时code作为参数向微信接口服务器请求session_key和openid
      */
-    private ResponseEntity<String> toLogin(String code){
+    private ResponseEntity<String> code2session(String code){
         String authUrl = env.getProperty("miniapp.authurl");
         String appId = env.getProperty("miniapp.appid");
         String appSecret = env.getProperty("miniapp.appsecret");
@@ -364,7 +364,7 @@ public class AuthServiceImpl implements AuthService {
         RespBody<TokenVo> body = new RespBody<>();
 
         //登录凭证校验结果
-        ResponseEntity<String> resp = this.toLogin(code);
+        ResponseEntity<String> resp = this.code2session(code);
 
         if (HttpStatus.OK == resp.getStatusCode()) {
             JSONObject json = JSON.parseObject(resp.getBody());
@@ -388,7 +388,7 @@ public class AuthServiceImpl implements AuthService {
                 unionid = resultJson.getString("unionId");
             }
 
-            // 保存account
+
             String openid = json.getString("openid");
 
             LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);

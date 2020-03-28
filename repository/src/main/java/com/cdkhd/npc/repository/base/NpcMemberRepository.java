@@ -23,4 +23,6 @@ public interface NpcMemberRepository extends BaseRepository<NpcMember> {
     NpcMember findByLevelAndMobileAndIsDelFalse(Byte level, String mobile);
 
     Set<NpcMember> findByUidIn(List<String> uids);
+
+    List<NpcMember> findByMobile(String mobile);
 }
