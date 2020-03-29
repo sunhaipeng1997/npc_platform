@@ -237,9 +237,19 @@ public class RegisterServiceImpl implements RegisterService {
         //任何人都有选民身份
         Voter voter = new Voter();
         voter.setMobile(dto.getMobile());
-        voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
-        voter.setTown(townRepository.findByUid(dto.getTownUid()));
-        voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
+
+        if(!dto.getAreaUid().isEmpty()){
+            voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
+        }
+
+        if(!dto.getTownUid().isEmpty()){
+            voter.setTown(townRepository.findByUid(dto.getTownUid()));
+        }
+
+        if(!dto.getVillageUid().isEmpty()){
+            voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
+        }
+
         voter.setRealname(dto.getName());
         voter.setAccount(account);
         voterRepository.saveAndFlush(voter);

@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity.dto;
 
+import com.alibaba.fastjson.JSONArray;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.dto.PageDto;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class UserInfoDto extends BaseDto {
     private String villageUid;
 
     //任职情况
-    private List<String> workInfo;
+    private JSONArray workInfo;
 
     //微信昵称、临时code和加密数据以及加密算法向量
     private String nickName;

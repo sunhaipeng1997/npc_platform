@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/mobile/register")
+@RequestMapping("/api/mobile/basic_services")
 public class RegisterApi {
 
     private RegisterService registerService;
@@ -23,7 +23,7 @@ public class RegisterApi {
     }
 
     /**
-     * 获取当前区、镇、村、关系
+     * 获取当前区、镇、村关系
      * @return
      */
     @GetMapping("/getRelations")
@@ -32,7 +32,7 @@ public class RegisterApi {
         return ResponseEntity.ok(body);
     }
 
-    @PostMapping("/code")
+    @GetMapping("/getCode")
     public ResponseEntity getVerificationCode(PhoneNumberDto dto) {
         RespBody body = registerService.getVerificationCode(dto);
         return ResponseEntity.ok(body);
@@ -47,7 +47,4 @@ public class RegisterApi {
         RespBody body = registerService.register(userInfoDto);
         return ResponseEntity.ok(body);
     }
-
-
-
 }
