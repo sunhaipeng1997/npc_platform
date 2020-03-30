@@ -42,7 +42,7 @@ public class RegisterApi {
      * 注册账号
      * @return
      */
-    @PostMapping("/register")
+    @GetMapping("/register")
     public ResponseEntity register(UserInfoDto userInfoDto) {
         RespBody body = registerService.register(userInfoDto);
         return ResponseEntity.ok(body);

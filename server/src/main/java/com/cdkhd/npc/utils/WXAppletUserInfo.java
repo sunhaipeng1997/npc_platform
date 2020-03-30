@@ -14,11 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.spec.InvalidParameterSpecException;
 
-/**
- * 微信小程序信息获取
- * @author Administrator
- * @Date 2017年2月16日 11:56:08
- */
 public class WXAppletUserInfo {
 
     /**
