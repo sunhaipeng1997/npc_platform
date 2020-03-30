@@ -248,6 +248,7 @@ public class DBInit {
                 menu.setUrl(menuEnum.getUrl());
                 menu.setIcon(menuEnum.getIcon());
                 menu.setKeyword(menuEnum.toString());
+                menu.setRoute(menuEnum.getRoute());
                 menu.setType(menuEnum.getType());
                 if (StringUtils.isNotEmpty(menuEnum.getParentId())) {
                     menu.setParent(menuRepository.findByKeyword(menuEnum.getParentId()));

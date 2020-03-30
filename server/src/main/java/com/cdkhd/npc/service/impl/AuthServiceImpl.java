@@ -158,6 +158,14 @@ public class AuthServiceImpl implements AuthService {
             body.setMessage("账号已被禁用");
             return body;
         }
+        //登录次数
+        account.setLoginTimes(account.getLoginTimes() + 1);
+        if (account.getLoginTime() != null){
+            account.setLastLoginTime(account.getLoginTime());
+        }
+        account.setLoginTime(new Date());
+        account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
+        accountRepository.saveAndFlush(account);
 
         //成功验证码验证过一次后设置为失效
         code.setValid(false);
@@ -290,6 +298,9 @@ public class AuthServiceImpl implements AuthService {
                         menuVo.setChildren(children);
                     }
                 }
+            }
+            else{
+                menuVos.add(MenuVo.convert(menu));
             }
         }
         return menuVos;

@@ -4,6 +4,8 @@ import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * @Description
  * @Author  rfx
@@ -17,6 +19,8 @@ public class MemberUnitVo extends BaseVo {
     private String name;
 
     private Byte level;
+
+    private List<MemberUnitVo> children;
 
     public static MemberUnitVo convert(String uid, String name, Byte level) {
         MemberUnitVo vo = new MemberUnitVo();

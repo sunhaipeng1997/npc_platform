@@ -33,6 +33,9 @@ public class Menu extends BaseDomain {
     @Column(name = "type")
     private Byte type;
 
+    @Column(name = "route")
+    private String route;
+
     @Column(name = "keyword")
     private String keyword;
 

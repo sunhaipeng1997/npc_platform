@@ -43,7 +43,7 @@ public class NotificationMobileReceivedPageVo {
         vo.setStatus(notificationViewDetail.getNotification().getStatus());
 
         //该代表是否有查看该通知
-        vo.setRead(notificationViewDetail.getRead());
+        vo.setRead(notificationViewDetail.getIsRead());
         return vo;
     }
 }

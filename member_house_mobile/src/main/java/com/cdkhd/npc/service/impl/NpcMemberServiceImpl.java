@@ -62,7 +62,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     @Override
     public RespBody relationOfNpcMember(MobileUserDetailsImpl userDetails, LevelDto levelDto) {
         RespBody body = new RespBody();
-        List<RelationVo> relationVos = Lists.newArrayList();
+        List<MemberUnitVo> MemberUnitVos = Lists.newArrayList();
         if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())){
             //如果是镇上，就查询小组
             //如果传了需要查询的镇的小组那么就按照产过来的查询，如果没有传过来，那么就按照当前登录人所在的镇来查询
@@ -70,27 +70,27 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             Town town = townRepository.findByUid(townUid);
             Set<NpcMemberGroup> groupList = town.getNpcMemberGroups();
             for (NpcMemberGroup npcMemberGroup : groupList) {//每个小组里面的代表信息
-                RelationVo relationVo = RelationVo.convert(npcMemberGroup.getUid(),npcMemberGroup.getName());
-                List<RelationVo> members = npcMemberGroup.getMembers().stream().map(member -> RelationVo.convert(member.getUid(),member.getName())).collect(Collectors.toList());
-                relationVo.setChildren(members);
-                relationVos.add(relationVo);
+                MemberUnitVo memberUnitVo = MemberUnitVo.convert(npcMemberGroup.getUid(),npcMemberGroup.getName(),levelDto.getLevel());
+                List<MemberUnitVo> members = npcMemberGroup.getMembers().stream().map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel())).collect(Collectors.toList());
+                memberUnitVo.setChildren(members);
+                MemberUnitVos.add(memberUnitVo);
             }
-            RelationVo relationVo = RelationVo.convert(townUid,"区代表");
+            MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"区代表",LevelEnum.AREA.getValue());
             List<NpcMember> npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(townUid,LevelEnum.AREA.getValue());
-            relationVo.setChildren(npcMembers.stream().map(member -> RelationVo.convert(member.getUid(),member.getName())).collect(Collectors.toList()));
-            relationVos.add(0,relationVo);
+            memberUnitVo.setChildren(npcMembers.stream().map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),LevelEnum.AREA.getValue())).collect(Collectors.toList()));
+            MemberUnitVos.add(0,memberUnitVo);
         }else{
             String areaUid = userDetails.getArea().getUid();
             Area area = areaRepository.findByUid(areaUid);
             Set<Town> towns = area.getTowns();
             for (Town town : towns) {
-                RelationVo relationVo = RelationVo.convert(town.getUid(),town.getName());
-                List<RelationVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue())).map(member -> RelationVo.convert(member.getUid(),member.getName())).collect(Collectors.toList());
-                relationVo.setChildren(members);
-                relationVos.add(relationVo);
+                MemberUnitVo memberUnitVo = MemberUnitVo.convert(town.getUid(),town.getName(),levelDto.getLevel());
+                List<MemberUnitVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel())).collect(Collectors.toList());
+                memberUnitVo.setChildren(members);
+                MemberUnitVos.add(memberUnitVo);
             }
         }
-        body.setData(relationVos);
+        body.setData(MemberUnitVos);
         return body;
     }
 

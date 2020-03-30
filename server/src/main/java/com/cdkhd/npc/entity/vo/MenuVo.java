@@ -20,6 +20,9 @@ public class MenuVo extends BaseVo {
     //页面跳转的url地址
     private String url;
 
+    //前端路由名称
+    private String route;
+
     private List<MenuVo> children;
 
     public static MenuVo convert(Menu menu) {

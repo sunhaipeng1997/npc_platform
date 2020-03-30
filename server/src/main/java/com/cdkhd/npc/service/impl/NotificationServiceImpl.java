@@ -627,7 +627,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         //记录已读
-        viewDetail.setRead(true);
+        viewDetail.setIsRead(true);
         notificationViewDetailRepository.saveAndFlush(viewDetail);
 
         NotificationDetailsForMobileVo vo = NotificationDetailsForMobileVo.convert(notification);

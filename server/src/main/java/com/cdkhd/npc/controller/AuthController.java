@@ -10,6 +10,7 @@ import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -35,7 +36,7 @@ public class AuthController {
         return ResponseEntity.ok(body);
     }
 
-    @PostMapping("/menus")
+    @GetMapping("/menus")
     public ResponseEntity menus(@CurrentUser UserDetailsImpl userDetails, BaseDto baseDto) {
         RespBody body = authService.menus(userDetails,baseDto);
         return ResponseEntity.ok(body);
