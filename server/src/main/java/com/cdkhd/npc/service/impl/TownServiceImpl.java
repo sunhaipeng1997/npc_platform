@@ -115,6 +115,7 @@ public class TownServiceImpl implements TownService {
 
         Session session = new Session();
         session.setName("其它");
+        session.setLevel((byte)1);
         session.setTown(town);
         session.setRemark("其他情况");
         sessionRepository.saveAndFlush(session);
