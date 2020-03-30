@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_notification_ope_record")
+@Table(name = "notification_ope_record")
 public class NotificationOpeRecord  extends BaseDomain{
 
     //所属通知

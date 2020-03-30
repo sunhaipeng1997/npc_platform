@@ -30,7 +30,7 @@ public class Systems extends BaseDomain {
 	 * 是否可用
 	 */
 	@Column(name = "enabled")
-	private Byte enabled;
+	private Boolean enabled;
 
 	/**
 	 * 系统图标

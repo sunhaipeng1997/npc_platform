@@ -19,7 +19,7 @@ public class SystemRepositoryTest {
     public void testSaveAndFlush() {
         Systems systems = new Systems();
         systems.setName("test");
-        systems.setEnabled(StatusEnum.ENABLED.getValue());
+        systems.setEnabled(true);
         //测试可知，调用saveAndFlush方法后会改变参数（systems对象）的值
         Systems s = systemRepository.saveAndFlush(systems);
 

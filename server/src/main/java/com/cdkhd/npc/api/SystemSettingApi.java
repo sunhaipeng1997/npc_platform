@@ -27,7 +27,7 @@ public class SystemSettingApi {
      * @param userDetails
      * @return
      */
-    @GetMapping("getSystemSetting")
+    @GetMapping("/getSystemSetting")
     public ResponseEntity getSystemSetting(@CurrentUser UserDetailsImpl userDetails) {
         RespBody body = systemSettingService.getSystemSettings(userDetails);
         return ResponseEntity.ok(body);

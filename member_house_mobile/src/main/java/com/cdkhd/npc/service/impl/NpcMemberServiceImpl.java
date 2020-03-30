@@ -10,7 +10,6 @@ import com.cdkhd.npc.entity.dto.LevelDto;
 import com.cdkhd.npc.entity.vo.CommentVo;
 import com.cdkhd.npc.entity.vo.MemberUnitVo;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
-import com.cdkhd.npc.entity.vo.RelationVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.AreaRepository;
 import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;

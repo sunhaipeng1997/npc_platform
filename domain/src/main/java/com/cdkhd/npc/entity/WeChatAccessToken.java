@@ -9,7 +9,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "t_wechat_access_token")
+@Table(name = "wechat_access_token")
 public class WeChatAccessToken extends BaseDomain {
 
     private String appid;

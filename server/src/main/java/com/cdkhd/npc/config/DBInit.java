@@ -124,6 +124,7 @@ public class DBInit {
             account = new Account();
             account.setUsername(username);
             account.setMobile(mobile);
+            account.setLoginTimes(0);  //登录次数初始化为0
             account.setLoginWay((byte)1);//账号密码方式登录
             AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
             Set<AccountRole> accountRoles = Sets.newHashSet();
@@ -230,7 +231,7 @@ public class DBInit {
                 systems.setDescription(systemEnum.getDescription());
                 systems.setSvg(systemEnum.getSvg());
                 systems.setUrl(systemEnum.getUrl());
-                systems.setEnabled(StatusEnum.ENABLED.getValue());
+                systems.setEnabled(true);
                 systems.setKeyword(systemEnum.toString());
                 systemRepository.save(systems);
             }
