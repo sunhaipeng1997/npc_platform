@@ -231,13 +231,13 @@ public class RegisterServiceImpl implements RegisterService {
             }
 
             account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getName()));
-            accountRepository.saveAndFlush(account);
+
         }
 
         //任何人都有选民身份
         Voter voter = new Voter();
         voter.setMobile(dto.getMobile());
-
+        voter.setRealname(dto.getName());
         if(!dto.getAreaUid().isEmpty()){
             voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
         }
@@ -249,15 +249,12 @@ public class RegisterServiceImpl implements RegisterService {
         if(!dto.getVillageUid().isEmpty()){
             voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
         }
-
-        voter.setRealname(dto.getName());
-        voter.setAccount(account);
         voterRepository.saveAndFlush(voter);
 
-        account.setVoter(voter);
-        account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getName()));
-        accountRepository.saveAndFlush(account);
 
+        account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getName()));
+        account.setVoter(voter);
+        accountRepository.saveAndFlush(account);
         return account;
     }
 
@@ -382,19 +379,18 @@ public class RegisterServiceImpl implements RegisterService {
             LoginWeChat loginWeChat = new LoginWeChat();
             loginWeChat.setOpenId(openid);
             loginWeChat.setUnionId(unionid);
+            loginWeChatRepository.saveAndFlush(loginWeChat);
 
             Account account = accountRepository.findByUid(currentAccountUid);
             if(account == null){
                 body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
                 body.setMessage("账户创建失败，服务器内部错误");
+            }else {
+                account.setLoginWay((byte) 2);
+                account.setLoginWeChat(loginWeChat);
+                account.setStatus(StatusEnum.ENABLED.getValue());
+                accountRepository.saveAndFlush(account);
             }
-            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
-            account.setLoginWeChat(loginWeChat);
-            account.setStatus(StatusEnum.ENABLED.getValue());
-            accountRepository.saveAndFlush(account);
-
-            loginWeChat.setAccount(account);
-            loginWeChatRepository.saveAndFlush(loginWeChat);
 
             //生成token
             TokenVo tokenVo = generateToken(account);
