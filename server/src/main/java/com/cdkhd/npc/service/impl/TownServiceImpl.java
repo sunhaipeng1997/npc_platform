@@ -140,6 +140,7 @@ public class TownServiceImpl implements TownService {
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         account.setMobile(townAddDto.getMobile());
         account.setIsDel(false);
+        account.setLoginTimes(0);
         account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
         accountRepository.saveAndFlush(account);
 
@@ -150,6 +151,7 @@ public class TownServiceImpl implements TownService {
         khd_account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         khd_account.setMobile(townAddDto.getMobile());
         khd_account.setIsDel(false);
+        khd_account.setLoginTimes(0);
         khd_account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
         accountRepository.saveAndFlush(khd_account);
 

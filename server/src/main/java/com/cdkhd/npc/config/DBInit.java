@@ -98,6 +98,7 @@ public class DBInit {
             account = new Account();
             account.setUsername(username);
             account.setMobile(mobile);
+            account.setLoginTimes(0);  //登录次数初始化为0
             account.setLoginWay((byte)1);//账号密码方式登录
             AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
             Set<AccountRole> accountRoles = Sets.newHashSet();

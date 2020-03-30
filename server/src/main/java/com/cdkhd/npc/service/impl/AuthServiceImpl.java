@@ -164,6 +164,13 @@ public class AuthServiceImpl implements AuthService {
         codeRepository.saveAndFlush(code);
         //生成token字符串
         TokenVo tokenVo = generateToken(account);
+
+        //登录后数据更新操作
+        account.setLastLoginTime(account.getLoginTime());
+        account.setLoginTime(new Date());
+        account.setLoginTimes(account.getLoginTimes() + 1);
+        accountRepository.saveAndFlush(account);
+
         body.setData(tokenVo);
         return body;
     }
@@ -405,6 +412,7 @@ public class AuthServiceImpl implements AuthService {
                 account = new Account();
                 account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
                 account.setLoginWeChat(loginWeChat);
+                account.setLoginTimes(1);
                 account.setStatus(StatusEnum.ENABLED.getValue());
 
                 //初始时只有选民权限
@@ -415,6 +423,9 @@ public class AuthServiceImpl implements AuthService {
                 loginWeChatRepository.saveAndFlush(loginWeChat);
 
             }
+            account.setLastLoginTime(account.getLoginTime());
+            account.setLoginTimes(account.getLoginTimes() + 1);
+            account.setLoginTime(new Date());
 
             if (account.getStatus() == StatusEnum.DISABLED.getValue()) {
                 body.setMessage("账号被禁用");

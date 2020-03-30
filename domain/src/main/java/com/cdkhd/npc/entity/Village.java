@@ -5,6 +5,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Description
@@ -32,5 +34,8 @@ public class Village extends BaseDomain {
    	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
+
+	@OneToMany(targetEntity = Voter.class, mappedBy = "village", orphanRemoval = true)
+	private Set<Voter> voters = new HashSet<>();
 
 }

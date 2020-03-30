@@ -101,6 +101,11 @@ public class VillageServiceImpl implements VillageService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
+        if (village.getVoters().size() > 0){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前镇还包含选民信息不能删除");
+            return body;
+        }
         villageRepository.delete(village);
         body.setMessage("删除成功");
         return body;
