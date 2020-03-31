@@ -158,18 +158,18 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         RespBody body = new RespBody();
         NpcMember member;
         if (StringUtils.isNotEmpty(dto.getUid())){
-            member = npcMemberRepository.findByUid(dto.getUid());
-            if (member == null) {
-                body.setStatus(HttpStatus.BAD_REQUEST);
-                body.setMessage("要修改的代表不存在");
-                LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
-                return body;
-            }
             member = npcMemberRepository.findByLevelAndMobileAndUidIsNotAndIsDelFalse(userDetails.getLevel(),dto.getMobile(),dto.getUid());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
             if (member != null) {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("该代表已经存在");
                 LOGGER.warn("手机号为 {} 代表已经存在，修改代表信息失败", dto.getMobile());
+                return body;
+            }
+            member = npcMemberRepository.findByUid(dto.getUid());
+            if (member == null) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("要修改的代表不存在");
+                LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
                 return body;
             }
             body.setMessage("修改代表成功");
@@ -194,7 +194,8 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         member.setBirthday(dto.getBirthday());
         member.setGender(dto.getGender());
         NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByUid(dto.getType());
-        member.setType(npcMemberRole.getKeyword());
+        member.setType(npcMemberRole.getUid());
+        member.setTypeName(npcMemberRole.getName());
         member.setCode(dto.getCode());
         member.setIdcard(dto.getIdcard());
         member.setAvatar(dto.getAvatar());

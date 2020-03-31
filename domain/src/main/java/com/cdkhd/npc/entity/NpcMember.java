@@ -105,6 +105,9 @@ public class NpcMember extends BaseDomain {
 	@Column(name = "type" )
 	private String type;
 
+	@Column(name = "type_name" )
+	private String typeName;
+
 	/**
 	 * 代表证号
 	 */

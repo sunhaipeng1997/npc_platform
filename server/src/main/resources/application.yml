@@ -5,9 +5,9 @@ spring:
     name: npc-platform
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://localhost:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: cd@khd2018
+    password: nian9695,,,
   jpa:
     database: mysql
     show-sql: false
@@ -25,16 +25,7 @@ spring:
       max-file-size: 150MB
       max-request-size: 150MB
 
-npc_base_info:
-  area: 双流区
-  user:
-    name: admin
-    mobile: 18940918501
-  cdkhd:
-    name: cdkhd
-    mobile: 13551371473
-
-
+# 微信服务号相关配置，科宏达测试号
 service_app:
   #服务号 token
   token: BsrfGTLbef1Y7J2qhraCZVYk0SSMfAhH
@@ -85,4 +76,12 @@ account:
   suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
   password: 123456 #默认密码
   mobile: 13333333333 #默认手机号
+npc_base_info:
+  area: 双流区
+  user:
+    name: admin
+    mobile: 18940918501
+  cdkhd:
+    name: cdkhd
+    mobile: 13551371473
 

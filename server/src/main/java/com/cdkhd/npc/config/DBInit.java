@@ -3,6 +3,7 @@ package com.cdkhd.npc.config;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
+import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,10 @@ public class DBInit {
     private BackgroundAdminRepository backgroundAdminRepository;
     private SystemSettingRepository systemSettingRepository;
     private SessionRepository sessionRepository;
+    private PerformanceTypeRepository performanceTypeRepository;
 
     @Autowired
-    public DBInit(AccountRoleRepository accountRoleRepository, NpcMemberRoleRepository npcMemberRoleRepository, PermissionRepository permissionRepository, SystemRepository systemRepository, MenuRepository menuRepository, CommonDictRepository commonDictRepository, Environment env, AreaRepository areaRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, BackgroundAdminRepository backgroundAdminRepository, SystemSettingRepository systemSettingRepository, SessionRepository sessionRepository) {
+    public DBInit(AccountRoleRepository accountRoleRepository, NpcMemberRoleRepository npcMemberRoleRepository, PermissionRepository permissionRepository, SystemRepository systemRepository, MenuRepository menuRepository, CommonDictRepository commonDictRepository, Environment env, AreaRepository areaRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, BackgroundAdminRepository backgroundAdminRepository, SystemSettingRepository systemSettingRepository, SessionRepository sessionRepository, PerformanceTypeRepository performanceTypeRepository) {
         this.accountRoleRepository = accountRoleRepository;
         this.npcMemberRoleRepository = npcMemberRoleRepository;
         this.permissionRepository = permissionRepository;
@@ -45,6 +47,7 @@ public class DBInit {
         this.backgroundAdminRepository = backgroundAdminRepository;
         this.systemSettingRepository = systemSettingRepository;
         this.sessionRepository = sessionRepository;
+        this.performanceTypeRepository = performanceTypeRepository;
     }
 
     @PostConstruct
@@ -56,12 +59,35 @@ public class DBInit {
         initCommonDict();
         mapRoleAndPermission();
         mapPermissionMenu();
-//        mapMenuSystem();
+//      mapMenuSystem();
         initArea();
         initAccount();
         initBackgroundAdmin();
         initSession();
         initSystemSetting();
+        initPerformanceType();
+    }
+
+    private void initPerformanceType() {
+        //初始化AccountRole
+        String areaName = env.getProperty("npc_base_info.area");
+        Area area = areaRepository.findByName(areaName);
+        for (PerformanceTypeEnum performanceTypeEnum : PerformanceTypeEnum.values()) {
+            PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(),LevelEnum.AREA.getValue(),area.getUid(),StatusEnum.ENABLED.getValue());
+            if (performanceType == null) {
+                Integer maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(), area.getUid());
+                performanceType = new PerformanceType();
+                performanceType.setSequence(maxSequence==null ? 1: maxSequence + 1);
+                performanceType.setName(performanceTypeEnum.getValue());
+                performanceType.setRemark("初始化数据，不可删除");
+                performanceType.setArea(area);
+                performanceType.setLevel(LevelEnum.AREA.getValue());
+                performanceType.setIsDel(false);
+                performanceType.setStatus(StatusEnum.ENABLED.getValue());
+                performanceType.setIsDefault(true);
+                performanceTypeRepository.saveAndFlush(performanceType);
+            }
+        }
     }
 
     private void initSystemSetting() {
@@ -277,6 +303,7 @@ public class DBInit {
         //后台管理员
         AccountRole bgAdmin = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword());
         Set<Permission> bgAdminPermissions = bgAdmin.getPermissions();
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE.getKeyword()));//首页
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.ACCOUNT_MANAGE.getKeyword()));//账号管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NEWS_MANAGE.getKeyword()));//新闻管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NOTICE_MANAGE.getKeyword()));//通知管理
@@ -454,6 +481,13 @@ public class DBInit {
         //审核通知
         menu = menuRepository.findByName(MenuEnum.AUDIT_NOTICE.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.AUDIT_NOTICE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //****************后台菜单
+
+        //首页
+        menu = menuRepository.findByName(MenuEnum.HOMEPAGE.getName());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //账号管理

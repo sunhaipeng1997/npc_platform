@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -36,7 +37,7 @@ public class PerformanceType extends BaseDomain {
 
     //类型状态 1、启用 2、禁用
     @Column(name = "status" )
-    private Byte status = 1;
+    private Byte status = StatusEnum.ENABLED.getValue();
 
     //排序号
     @Column(name = "sequence" )
@@ -49,5 +50,9 @@ public class PerformanceType extends BaseDomain {
     //备注
     @Column(name = "remark" )
     private String remark;
+
+    //是否默认的类型，默认的不可删除
+    @Column(name = "is_default" )
+    private Boolean isDefault = false;
 
 }

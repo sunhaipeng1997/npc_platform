@@ -24,9 +24,6 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
 
     PerformanceType findByNameAndLevelAndAreaUidAndIsDelFalse(String name, Byte level, String areaUid);
 
-    @Query(value = "select max(type.sequence) from PerformanceType type")
-    Integer findMaxSequence();
-
     List<PerformanceType> findByLevelAndTownUidAndIsDelFalse(Byte level, String townUid);
 
     List<PerformanceType> findByLevelAndAreaUidAndIsDelFalse(Byte level, String areaUid);
@@ -35,4 +32,18 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
 
     List<PerformanceType> findByLevelAndAreaUidAndStatusAndIsDelFalse(Byte level, String areaUid,Byte status);
 
+    //查询是否初始化区上的履职类型
+    PerformanceType findByNameAndLevelAndAreaUidAndStatusAndIsDelFalse(String name, Byte level, String uid,Byte status);
+
+    //查询是否初始化某个镇上的履职类型
+    PerformanceType findByNameAndLevelAndTownUidAndStatusAndIsDelFalse(String name, Byte level,String town, Byte status);
+
+    @Query(value = "select max(type.sequence) from PerformanceType type where type.level = ?1 and type.town.uid = ?2")
+    Integer findMaxSequenceByLevelAndTownUid(Byte level, String uid);
+
+    @Query(value = "select max(type.sequence) from PerformanceType type where type.level = ?1 and type.area.uid = ?2")
+    Integer findMaxSequenceByLevelAndAreaUid(Byte value, String uid);
+
+    @Query(value = "select max(type.sequence) from PerformanceType type where type.level = ?1 and type.area.name = ?2")
+    Integer findMaxSequenceByLevelAndAreaName(Byte value, String name);
 }

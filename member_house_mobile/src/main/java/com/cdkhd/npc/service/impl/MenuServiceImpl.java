@@ -34,8 +34,6 @@ public class MenuServiceImpl implements MenuService {
 
     private AccountRepository accountRepository;
 
-    private AccountRoleRepository accountRoleRepository;
-
     private NpcMemberRepository npcMemberRepository;
 
     private NpcMemberRoleRepository npcMemberRoleRepository;
@@ -59,9 +57,8 @@ public class MenuServiceImpl implements MenuService {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    public MenuServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, MenuRepository menuRepository, OpinionRepository opinionRepository, OpinionReplayRepository opinionReplayRepository, SuggestionRepository suggestionRepository, SuggestionReplyRepository suggestionReplyRepository, PerformanceRepository performanceRepository, NewsRepository newsRepository, SystemSettingRepository systemSettingRepository, NotificationRepository notificationRepository) {
+    public MenuServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, MenuRepository menuRepository, OpinionRepository opinionRepository, OpinionReplayRepository opinionReplayRepository, SuggestionRepository suggestionRepository, SuggestionReplyRepository suggestionReplyRepository, PerformanceRepository performanceRepository, NewsRepository newsRepository, SystemSettingRepository systemSettingRepository, NotificationRepository notificationRepository) {
         this.accountRepository = accountRepository;
-        this.accountRoleRepository = accountRoleRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.npcMemberRoleRepository = npcMemberRoleRepository;
         this.menuRepository = menuRepository;
