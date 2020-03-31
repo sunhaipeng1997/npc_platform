@@ -42,7 +42,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,7 +70,6 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private PushService pushService;
 
-
     @Autowired
     public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushService pushService) {
         this.performanceRepository = performanceRepository;
@@ -84,6 +85,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     /**
      * 履职类型列表
+     *
      * @param userDetails
      * @return
      */
@@ -91,11 +93,11 @@ public class PerformanceServiceImpl implements PerformanceService {
     public RespBody performanceTypes(MobileUserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
-        performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+        performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
-        List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
+        List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(), type.getName())).collect(Collectors.toList());
         body.setData(types);
         return body;
     }
@@ -112,14 +114,14 @@ public class PerformanceServiceImpl implements PerformanceService {
             predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             predicates.add(cb.equal(root.get("level").as(Byte.class), npcMember.getLevel()));
-            if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
             }
             //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
                 if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核
                     predicates.add(cb.isNull(root.get("status")));
-                }else {//已审核
+                } else {//已审核
                     predicates.add(cb.isNotNull(root.get("status")));
                 }
             }
@@ -142,7 +144,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             return body;
         }
         Performance performance = performanceRepository.findByUid(uid);
-        if (null == performance){
+        if (null == performance) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到该条履职");
             LOGGER.error("根据uid查询出的实体为空");
@@ -155,6 +157,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     /**
      * 添加或修改履职
+     *
      * @param userDetails
      * @return
      */
@@ -177,7 +180,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             //没有uid表示添加履职
             //查询是否是的第一次提交
             performance = performanceRepository.findByTransUid(addPerformanceDto.getTransUid());
-        }else{
+        } else {
             //有uid表示修改履职
             //查询是否是的第一次提交
             performance = performanceRepository.findByUidAndTransUid(addPerformanceDto.getUid(), addPerformanceDto.getTransUid());
@@ -194,36 +197,35 @@ public class PerformanceServiceImpl implements PerformanceService {
             SystemSetting systemSetting = systemSettingRepository.findAll().get(0);
             //如果是在镇上履职，那么查询镇上的审核人员
             String uid;
-            if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 uid = npcMember.getTown().getUid();
-            }else{
+            } else {
                 uid = npcMember.getArea().getUid();
             }
             //首先判断端当前用户的角色是普通代表还是小组审核人员还是总审核人员
             if (systemSetting.getPerformanceGroupAudit()) {//开启了小组审核人员
-                List<String> permissions = npcMemberRoleService.findKeyWordByUid(npcMember.getUid(),false);
-                if (CollectionUtils.isNotEmpty(permissions) && permissions.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword())){//如果当前登录人是履职小组审核人，那么查询履职总审核人
-                    auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(),addPerformanceDto.getLevel(),uid);
-                }
-                else {
+                List<String> permissions = npcMemberRoleService.findKeyWordByUid(npcMember.getUid(), false);
+                if (CollectionUtils.isNotEmpty(permissions) && permissions.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword())) {//如果当前登录人是履职小组审核人，那么查询履职总审核人
+                    auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(), addPerformanceDto.getLevel(), uid);
+                } else {
                     //如果不是小组审核人
                     //查询出所有的小组审核人
-                    List<NpcMember> allGroupAuditors = npcMemberRoleService.findByKeyWordAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(), addPerformanceDto.getLevel() ,uid);
+                    List<NpcMember> allGroupAuditors = npcMemberRoleService.findByKeyWordAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(), addPerformanceDto.getLevel(), uid);
                     //查询与我同组的所有小组审核人
                     for (NpcMember allGroupAuditor : allGroupAuditors) {
-                        if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue()) && allGroupAuditor.getNpcMemberGroup().getUid().equals(npcMember.getNpcMemberGroup().getUid())){
+                        if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue()) && allGroupAuditor.getNpcMemberGroup().getUid().equals(npcMember.getNpcMemberGroup().getUid())) {
                             auditors.add(allGroupAuditor);
-                        }else if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue()) && allGroupAuditor.getTown().getUid().equals(npcMember.getTown().getUid())){
+                        } else if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue()) && allGroupAuditor.getTown().getUid().equals(npcMember.getTown().getUid())) {
                             auditors.add(allGroupAuditor);
                         }
                     }
                 }
-            }else{
+            } else {
                 //小组审核人员没有开启，那么直接有总审核人员审核
-                auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(),addPerformanceDto.getLevel(),uid);
+                auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(), addPerformanceDto.getLevel(), uid);
             }
             for (NpcMember auditor : auditors) {
-                pushService.pushMsg(auditor.getAccount(),"",1,"");
+                pushService.pushMsg(auditor.getAccount(), "", 1, "");
             }
         }
         performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
@@ -233,36 +235,41 @@ public class PerformanceServiceImpl implements PerformanceService {
         performanceRepository.saveAndFlush(performance);
 
         if (addPerformanceDto.getImage() != null) {//有附件，就保存附件信息
-            this.saveCover(addPerformanceDto.getImage(),performance);
+            this.saveCover(addPerformanceDto.getImage(), performance);
         }
         return body;
     }
 
     @Override
-    public RespBody addPerformanceFormSug(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
+    public RespBody addPerformanceFormSug(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto, Set<SuggestionImage> suggestionImages) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(addPerformanceDto.getLevel(), account.getNpcMembers());
-        Performance performance = performanceRepository.findByTransUid(addPerformanceDto.getTransUid());
-        if (performance == null) {//如果是第一次提交，就保存基本信息
-            performance = new Performance();
-            performance.setLevel(addPerformanceDto.getLevel());
-            performance.setArea(npcMember.getArea());
-            performance.setTown(npcMember.getTown());
-            performance.setNpcMember(npcMemberRepository.findByUid(addPerformanceDto.getUid()));//提出人，就存在uid里面
-            performance.setAuditor(npcMember);//审核人
-            performance.setStatus(StatusEnum.ENABLED.getValue());//默认已通过
-            performance.setTransUid(addPerformanceDto.getTransUid());
-            performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
-            performance.setTitle(addPerformanceDto.getTitle());
-            performance.setWorkAt(addPerformanceDto.getWorkAt());
-            performance.setContent(addPerformanceDto.getContent());
-            performanceRepository.saveAndFlush(performance);
+        Performance performance = new Performance();
+        performance.setLevel(addPerformanceDto.getLevel());
+        performance.setArea(npcMember.getArea());
+        performance.setTown(npcMember.getTown());
+        performance.setNpcMember(npcMemberRepository.findByUid(addPerformanceDto.getUid()));//提出人，就存在uid里面
+        performance.setAuditor(npcMember);//审核人
+        performance.setStatus(StatusEnum.ENABLED.getValue());//默认已通过
+        performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
+        performance.setTitle(addPerformanceDto.getTitle());
+        performance.setWorkAt(addPerformanceDto.getWorkAt());
+        performance.setContent(addPerformanceDto.getContent());
+        Set<PerformanceImage> performanceImages = new HashSet<>();
+        for (SuggestionImage suggestionImage : suggestionImages){
+            PerformanceImage performanceImage = new PerformanceImage();
+            performanceImage.setPerformance(performance);
+            performanceImage.setUrl(suggestionImage.getUrl());
+            performanceImages.add(performanceImage);
         }
+        performanceImageRepository.saveAll(performanceImages);
+        performance.setPerformanceImages(performanceImages);
+        performanceRepository.saveAndFlush(performance);
 
-        if (addPerformanceDto.getImage() != null) {//有附件，就保存附件信息
-            this.saveCover(addPerformanceDto.getImage(),performance);
-        }
+//        if (addPerformanceDto.getImage() != null) {//有附件，就保存附件信息
+//            this.saveCover(addPerformanceDto.getImage(), performance);
+//        }
         return body;
     }
 
@@ -276,13 +283,13 @@ public class PerformanceServiceImpl implements PerformanceService {
             return body;
         }
         Performance performance = performanceRepository.findByUid(uid);
-        if (null == performance){
+        if (null == performance) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到该条履职");
             LOGGER.error("根据uid查询出的实体为空");
             return body;
         }
-        if (!performance.getStatus().equals(StatusEnum.DISABLED)){
+        if (!performance.getStatus().equals(StatusEnum.DISABLED)) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("不能删除该条履职");
             LOGGER.error("履职状态不是审核失败，不能删除");
@@ -316,42 +323,42 @@ public class PerformanceServiceImpl implements PerformanceService {
         Pageable page = PageRequest.of(begin, performancePageDto.getSize(), sort);
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 List<NpcMember> npcMemberList = Lists.newArrayList();
                 if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果是小组审核人人员，并且开关打开了，才查询同组的所有代表
                     npcMemberList = npcMemberRepository.findByNpcMemberGroupUidAndIsDelFalse(npcMember.getNpcMemberGroup().getUid());
                     predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
-                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit() ) {
+                } else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果总审核人员，开关开启，那么查询所有小组审核人员
-                    npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(),performancePageDto.getLevel(),npcMember.getTown().getUid());
+                    npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(), performancePageDto.getLevel(), npcMember.getTown().getUid());
                     predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
-                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit() ) {
+                } else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果是总审核人员，并且开关关闭了，那么查询所有的
-                    npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
+                    npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), performancePageDto.getLevel());
                 }
-                if (CollectionUtils.isNotEmpty(npcMemberList)){
+                if (CollectionUtils.isNotEmpty(npcMemberList)) {
                     List<String> uids = npcMemberList.stream().map(NpcMember::getUid).collect(Collectors.toList());
                     CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
                     in.value(uids);
                     predicates.add(in);
                 }
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
-            }else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())){
+            } else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())) {
                 List<NpcMember> npcMemberList = Lists.newArrayList();
                 if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果是小组审核人人员，并且开关打开了，才查询同镇的所有代表
-                    npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(),performancePageDto.getLevel());
+                    npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), performancePageDto.getLevel());
                     predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
-                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit() ) {
+                } else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果总审核人员，开关开启，那么查询所有镇审核人员
-                    npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(),performancePageDto.getLevel(),npcMember.getArea().getUid());
+                    npcMemberList = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword(), performancePageDto.getLevel(), npcMember.getArea().getUid());
                     predicates.add(cb.notEqual(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));//小组审核人的话，只需要在本组排除自己就行
-                }else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit() ) {
+                } else if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword()) && !systemSetting.getPerformanceGroupAudit()) {
                     //todo 如果是总审核人员，并且开关关闭了，那么查询所有的
-                    npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(),performancePageDto.getLevel());
+                    npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(), performancePageDto.getLevel());
                 }
-                if (CollectionUtils.isNotEmpty(npcMemberList)){
+                if (CollectionUtils.isNotEmpty(npcMemberList)) {
                     List<String> uids = npcMemberList.stream().map(NpcMember::getUid).collect(Collectors.toList());
                     CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
                     in.value(uids);
@@ -363,7 +370,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             if (performancePageDto.getStatus() != null) {
                 if (performancePageDto.getStatus() == 1) {
                     predicates.add(cb.isNull(root.get("status").as(Byte.class)));
-                }else if (performancePageDto.getStatus() == 2){
+                } else if (performancePageDto.getStatus() == 2) {
                     predicates.add(cb.isNotNull(root.get("status").as(Byte.class)));
                 }
             }
@@ -386,26 +393,26 @@ public class PerformanceServiceImpl implements PerformanceService {
             return body;
         }
         Performance performance = performanceRepository.findByUid(auditPerformanceDto.getUid());
-        if (null == performance){
+        if (null == performance) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到该条履职");
             LOGGER.error("根据uid查询出的实体为空");
             return body;
         }
-        if (null != performance.getStatus() && (performance.getStatus().equals(StatusEnum.DISABLED) || performance.getStatus().equals(StatusEnum.ENABLED))){
+        if (null != performance.getStatus() && (performance.getStatus().equals(StatusEnum.DISABLED) || performance.getStatus().equals(StatusEnum.ENABLED))) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该条履职已经审核过了，不能再审核");
             LOGGER.error("该条履职已经审核过了，不能再审核");
             return body;
         }
         Account auditor = accountRepository.findByUid(userDetails.getUid());
-        NpcMember npcMember = NpcMemberUtil.getCurrentIden(performance.getLevel(),auditor.getNpcMembers());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(performance.getLevel(), auditor.getNpcMembers());
         performance.setStatus(auditPerformanceDto.getStatus());
         performance.setReason(auditPerformanceDto.getReason());
         performance.setAuditor(npcMember);
-        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)){//审核通过
+        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过
             Account account = performance.getNpcMember().getAccount();
-            pushService.pushMsg(account,"",1,"");
+            pushService.pushMsg(account, "", 1, "");
         }
         return body;
     }
@@ -426,10 +433,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         return body;
     }
 
-
-    public void saveCover(MultipartFile cover,Performance performance){
+    public void saveCover(MultipartFile cover, Performance performance) {
         //保存图片到文件系统
-        String url = ImageUploadUtil.saveImage("experienceImage", cover,500,500);
+        String url = ImageUploadUtil.saveImage("experienceImage", cover, 500, 500);
         if (url.equals("error")) {
             LOGGER.error("保存图片到文件系统失败");
         }
@@ -442,10 +448,10 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     public SystemSetting getSystemSetting(MobileUserDetailsImpl userDetails, PerformancePageDto performancePageDto) {
         SystemSetting systemSetting = new SystemSetting();
-        if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-            systemSetting = systemSettingRepository.findByLevelAndTownUid(performancePageDto.getLevel(),userDetails.getTown().getUid());
-        }else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())){
-            systemSetting = systemSettingRepository.findByLevelAndAreaUid(performancePageDto.getLevel(),userDetails.getArea().getUid());
+        if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(performancePageDto.getLevel(), userDetails.getTown().getUid());
+        } else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())) {
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(performancePageDto.getLevel(), userDetails.getArea().getUid());
         }
         return systemSetting;
     }

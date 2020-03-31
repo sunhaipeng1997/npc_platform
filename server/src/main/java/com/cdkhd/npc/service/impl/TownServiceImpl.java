@@ -8,8 +8,10 @@ import com.cdkhd.npc.entity.vo.TownDetailsVo;
 import com.cdkhd.npc.entity.vo.TownPageVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.LoginWayEnum;
+import com.cdkhd.npc.enums.PerformanceTypeEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
+import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.TownService;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
@@ -49,11 +51,13 @@ public class TownServiceImpl implements TownService {
 
     private final SystemRepository systemRepository;
 
+    private final PerformanceTypeRepository performanceTypeRepository;
+
     private Environment env;
 
 
     @Autowired
-    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, SessionRepository sessionRepository, SystemRepository systemRepository, Environment env) {
+    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, SessionRepository sessionRepository, SystemRepository systemRepository, PerformanceTypeRepository performanceTypeRepository, Environment env) {
         this.townRepository = townRepository;
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
@@ -63,6 +67,7 @@ public class TownServiceImpl implements TownService {
         this.backgroundAdminRepository = backgroundAdminRepository;
         this.sessionRepository = sessionRepository;
         this.systemRepository = systemRepository;
+        this.performanceTypeRepository = performanceTypeRepository;
         this.env = env;
     }
 
@@ -191,6 +196,24 @@ public class TownServiceImpl implements TownService {
         khd_backgroundAdmin.setTown(town);
         khd_backgroundAdmin.setLevel(LevelEnum.TOWN.getValue());
         backgroundAdminRepository.saveAndFlush(khd_backgroundAdmin);
+
+        //给该镇初始化两个默认的履职类型
+        for (PerformanceTypeEnum performanceTypeEnum : PerformanceTypeEnum.values()) {
+            PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(),LevelEnum.TOWN.getValue(),town.getUid(),StatusEnum.ENABLED.getValue());
+            if (performanceType == null) {
+                Integer maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(), area.getUid());
+                performanceType = new PerformanceType();
+                performanceType.setSequence(maxSequence==null ? 1: maxSequence + 1);
+                performanceType.setName(performanceTypeEnum.getValue());
+                performanceType.setRemark("初始化数据，不可删除");
+                performanceType.setTown(town);
+                performanceType.setLevel(LevelEnum.TOWN.getValue());
+                performanceType.setIsDel(false);
+                performanceType.setStatus(StatusEnum.ENABLED.getValue());
+                performanceType.setIsDefault(true);
+                performanceTypeRepository.saveAndFlush(performanceType);
+            }
+        }
         return body;
     }
 

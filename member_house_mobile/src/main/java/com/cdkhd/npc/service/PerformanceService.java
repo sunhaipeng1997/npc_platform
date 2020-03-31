@@ -1,8 +1,11 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
+import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
+
+import java.util.Set;
 
 public interface PerformanceService {
 
@@ -44,7 +47,7 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody addPerformanceFormSug(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
+    RespBody addPerformanceFormSug(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto, Set<SuggestionImage> suggestionImages);
 
 
     /**

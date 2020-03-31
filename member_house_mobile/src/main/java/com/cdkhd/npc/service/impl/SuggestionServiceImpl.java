@@ -2,13 +2,11 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.SuggestionAddDto;
-import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
-import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
-import com.cdkhd.npc.entity.dto.SuggestionPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.MobileSugStatusEnum;
+import com.cdkhd.npc.enums.PerformanceTypeEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
@@ -16,6 +14,7 @@ import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionImageRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
+import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.service.SuggestionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
@@ -39,7 +38,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,15 +59,18 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private final SuggestionReplyRepository suggestionReplyRepository;
 
+    private final PerformanceService performanceService;
+
     private final Environment env;
 
     @Autowired
-    public SuggestionServiceImpl(SuggestionRepository suggestionRepository, AccountRepository accountRepository, SuggestionImageRepository suggestionImageRepository, NpcMemberRepository npcMemberRepository, SuggestionBusinessRepository suggestionBusinessRepository, SuggestionReplyRepository suggestionReplyRepository, Environment env) {
+    public SuggestionServiceImpl(SuggestionRepository suggestionRepository, AccountRepository accountRepository, SuggestionImageRepository suggestionImageRepository, NpcMemberRepository npcMemberRepository, SuggestionBusinessRepository suggestionBusinessRepository, SuggestionReplyRepository suggestionReplyRepository, PerformanceService performanceService, Environment env) {
         this.suggestionRepository = suggestionRepository;
         this.accountRepository = accountRepository;
         this.suggestionImageRepository = suggestionImageRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
         this.suggestionReplyRepository = suggestionReplyRepository;
+        this.performanceService = performanceService;
         this.env = env;
     }
 
@@ -230,6 +235,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     @Override
     public RespBody audit(MobileUserDetailsImpl userDetails, SuggestionAuditDto suggestionAuditDto) {
+        //提建议的时候审核通过了，要加到履职里面去
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(suggestionAuditDto.getUid());
         if (suggestion == null) {
@@ -237,6 +243,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             body.setMessage("建议不存在");
             return body;
         }
+
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(suggestionAuditDto.getLevel(), account.getNpcMembers());
         suggestion.setStatus(SuggestionStatusEnum.SELF_HANDLE.getValue());  //将建议状态设置成“自行办理”
@@ -244,6 +251,17 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestion.setAuditTime(new Date());
         suggestion.setAuditor(npcMember);
         suggestionRepository.saveAndFlush(suggestion);
+
+        //生成一条履职
+        AddPerformanceDto addPerformanceDto = new AddPerformanceDto();
+        addPerformanceDto.setContent(suggestion.getContent());
+        addPerformanceDto.setLevel(suggestionAuditDto.getLevel());
+        addPerformanceDto.setPerformanceType(PerformanceTypeEnum.SUGGESTION.getValue());
+        addPerformanceDto.setTitle(suggestion.getTitle());
+        addPerformanceDto.setWorkAt(suggestion.getRaiseTime());
+        addPerformanceDto.setUid(suggestion.getRaiser().getUid());
+        Set<SuggestionImage> suggestionImages = suggestion.getSuggestionImages();
+        performanceService.addPerformanceFormSug(userDetails, addPerformanceDto, suggestionImages);
         return body;
     }
 
