@@ -18,6 +18,9 @@ import lombok.ToString;
 @Table(name = "attachment")
 public class Attachment extends BaseDomain {
 
+	@ManyToOne(targetEntity = Notification.class, fetch = FetchType.LAZY)
+	private Notification notification;
+
 	@Column(nullable = false, unique = true)
 	private String url;
 

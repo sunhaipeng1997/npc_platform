@@ -107,14 +107,14 @@ public class NotificationApi {
 
 
     /**
-     * 后台管理员 或者 通知审核人 将通知公开
+     * 通知审核人 将通知公开
      *
      * @param uid 通知uid
      * @return
      */
     @PutMapping("/publish")
-    public ResponseEntity publish(String userName,String uid){//测试
-        RespBody body = notificationService.publishForMobileTest(userName,uid);
+    public ResponseEntity publish(@CurrentUser MobileUserDetailsImpl userDetails,String uid,Byte level){
+        RespBody body = notificationService.publishForMobile(userDetails,uid, level);
         return ResponseEntity.ok(body);
     }
 

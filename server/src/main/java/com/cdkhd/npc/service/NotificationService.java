@@ -21,8 +21,7 @@ public interface NotificationService {
     RespBody details(String uid);//pc后台前端获取细节
 
     //移动端
-    //临时这样写，因为小程序的登录还没写好,所以暂时不要userDetails
-    RespBody publishForMobileTest(String userName,String uid);
+    RespBody publishForMobile(MobileUserDetailsImpl userDetails,String uid,Byte level);
 
     //移动端审核人收到的通知列表，临时这样写，因为小程序的登录还没写好,所以暂时不要userDetails
     RespBody pageForMobileTest(NotificationPageDto pageDto);

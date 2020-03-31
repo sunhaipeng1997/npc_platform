@@ -36,9 +36,13 @@ public class Notification extends BaseDomain {
     private boolean isBillboard = false;
 
     //附件
-    @OneToMany(cascade = CascadeType.ALL) //表示级练操作
-    @JoinColumn(name = "notification_id") //表示对应子表的关联外键，如果不使用这个注解则需要创建中间表
-    private List<Attachment> attachments = new ArrayList<>();
+//    @OneToMany(cascade = CascadeType.ALL) //表示级练操作
+//    @JoinColumn(name = "notification_id") //表示对应子表的关联外键，如果不使用这个注解则需要创建中间表
+//    private List<Attachment> attachments = new ArrayList<>();
+
+    //附件
+    @OneToMany(targetEntity = Attachment.class, mappedBy = "notification", orphanRemoval = true, cascade = CascadeType.ALL)
+    private Set<Attachment> attachments = new HashSet<>();
 
     //通知的状态
     @Column(name = "status" )
