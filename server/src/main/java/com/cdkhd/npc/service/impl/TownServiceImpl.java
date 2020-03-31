@@ -116,6 +116,7 @@ public class TownServiceImpl implements TownService {
         town = townAddDto.convert();
         Area area = userDetails.getArea();
         town.setArea(area);
+        town.setStatus(StatusEnum.ENABLED.getValue());
         townRepository.saveAndFlush(town);  //保存该镇
 
         Session session = new Session();
@@ -147,6 +148,7 @@ public class TownServiceImpl implements TownService {
         account.setMobile(townAddDto.getMobile());
         account.setIsDel(false);
         account.setLoginTimes(0);
+        account.setUsername(townAddDto.getAccount());
         account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
         accountRepository.saveAndFlush(account);
 
@@ -158,6 +160,7 @@ public class TownServiceImpl implements TownService {
         khd_account.setMobile(townAddDto.getMobile());
         khd_account.setIsDel(false);
         khd_account.setLoginTimes(0);
+        khd_account.setUsername(townAddDto.getAccount() + accountSuffix);
         khd_account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
         accountRepository.saveAndFlush(khd_account);
 
@@ -187,6 +190,7 @@ public class TownServiceImpl implements TownService {
         BackgroundAdmin backgroundAdmin = new BackgroundAdmin();
         backgroundAdmin.setAccount(account);
         backgroundAdmin.setTown(town);
+        backgroundAdmin.setArea(area);
         backgroundAdmin.setLevel(LevelEnum.TOWN.getValue());
         backgroundAdminRepository.saveAndFlush(backgroundAdmin);
 
@@ -194,6 +198,7 @@ public class TownServiceImpl implements TownService {
         BackgroundAdmin khd_backgroundAdmin = new BackgroundAdmin();
         khd_backgroundAdmin.setAccount(khd_account);
         khd_backgroundAdmin.setTown(town);
+        khd_backgroundAdmin.setArea(area);
         khd_backgroundAdmin.setLevel(LevelEnum.TOWN.getValue());
         backgroundAdminRepository.saveAndFlush(khd_backgroundAdmin);
 
