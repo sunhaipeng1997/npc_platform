@@ -11,9 +11,9 @@ public class PasswordDto extends BaseDto {
     //旧密码
     private String oldPwd;
 
-    //确认旧密码
-    private String confirmOld;
-
     //新密码
     private String newPwd;
+
+    //确认新密码
+    private String confirmPwd;
 }

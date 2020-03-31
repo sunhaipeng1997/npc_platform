@@ -96,7 +96,7 @@ public class NpcMemberVo extends BaseVo {
         vo.setWorkUnit(npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getNpcMemberGroup().getUid():npcMember.getTown().getUid());
         vo.setWorkUnitName(npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getNpcMemberGroup().getName():npcMember.getTown().getName());
         vo.setJobType(npcMember.getType());
-        vo.setTypeName(JobsEnum.getName(npcMember.getType()));
+        vo.setTypeName(npcMember.getTypeName());
         vo.setBornAt(npcMember.getBirthday());
         vo.setSessions(npcMember.getSessions().stream().map(SessionVo::convert).collect(Collectors.toList()));
         vo.setRemark(npcMember.getIntroduction());

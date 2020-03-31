@@ -58,12 +58,9 @@ public class SessionServiceImpl implements SessionService {
         List<Session> sessions;
         //如果当前后台管理员是镇后台管理员，则查询该镇的所有小组
         //如果当前后台管理员是区后台管理员，则查询该区的所有镇
+        sessions = sessionRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             sessions = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(),userDetails.getLevel());
-        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-            sessions = sessionRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
-        } else {
-            throw new RuntimeException("当前后台管理员level不合法");
         }
         List<CommonVo> vos = sessions.stream().map(session ->
                 CommonVo.convert(session.getUid(), session.getName())).collect(Collectors.toList());
@@ -81,12 +78,12 @@ public class SessionServiceImpl implements SessionService {
         //其它查询条件
         Page<Session> sessionPage = sessionRepository.findAll((Specification<Session>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-//            predicates.add(cb.isNotNull(root.get("startDate").as(Date.class)));
+            predicates.add(cb.isNotNull(root.get("startDate").as(Date.class)));
+            predicates.add(cb.isNotNull(root.get("endDate").as(Date.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             //按名称查询
             if (StringUtils.isNotEmpty(sessionPageDto.getName())) {

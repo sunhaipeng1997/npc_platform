@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,16 +39,17 @@ public class AccountServiceImpl implements AccountService {
         int begin = accountPageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, accountPageDto.getSize(), Sort.Direction.fromString(accountPageDto.getDirection()), accountPageDto.getProperty());
         Page<Account> accountPage = accountRepository.findAll((Specification<Account>)(root, query, cb) -> {
-            Predicate predicate = root.isNotNull();
-            predicate = cb.and(predicate, cb.isFalse(root.get("isDel").as(Boolean.class)));
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(root.get("voter").isNotNull());
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
 //            predicate = cb.and(predicate, cb.equal(root.get("loginWay").as(Byte.class), (byte)2));
             if (StringUtils.isNotEmpty(accountPageDto.getRealname())){
-                predicate = cb.and(predicate, cb.like(root.get("voter").get("realname").as(String.class), "%" + accountPageDto.getRealname() + "%"));
+                predicates.add(cb.like(root.get("voter").get("realname").as(String.class), "%" + accountPageDto.getRealname() + "%"));
             }
             if (StringUtils.isNotEmpty(accountPageDto.getMobile())){
-                predicate = cb.and(predicate, cb.equal(root.get("voter").get("mobile").as(String.class), "%" + accountPageDto.getMobile() + "%"));
+                predicates.add(cb.equal(root.get("voter").get("mobile").as(String.class), "%" + accountPageDto.getMobile() + "%"));
             }
-            return predicate;
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         PageVo<AccountVo> vo = new PageVo<>(accountPage, accountPageDto);
         List<AccountVo> accountVos = accountPage.getContent().stream().map(AccountVo :: convert).collect(Collectors.toList());
@@ -74,8 +76,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public RespBody getMyInfo(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
-//        Account account = accountRepository.findByUid(userDetails.getUid());
-        Account account = accountRepository.findByUid("751806ea2d4211ea8f3f0242ac170005");
+        Account account = accountRepository.findByUid(userDetails.getUid());
+//        Account account = accountRepository.findByUid("751806ea2d4211ea8f3f0242ac170005");
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到此账号！");

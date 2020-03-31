@@ -23,6 +23,7 @@ public enum PermissionEnum {
     AUDIT_NOTICE("审核通知"),
 
     //后台
+    HOMEPAGE("首页"),
     ACCOUNT_MANAGE("账号管理"),
     NEWS_MANAGE("新闻管理"),
     NOTICE_MANAGE("通知管理"),

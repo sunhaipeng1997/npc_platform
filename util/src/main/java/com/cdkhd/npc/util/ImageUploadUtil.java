@@ -52,7 +52,7 @@ public class ImageUploadUtil {
                 Thumbnails.of(is).size(500, 300).outputFormat("jpg").toFile(imageFile);
             }else {
                 //照片，裁剪尺寸width*height
-                Thumbnails.of(is).sourceRegion(Positions.CENTER, width, height).size(width, height).outputFormat("jpg").toFile(imageFile);
+                Thumbnails.of(is).size(width, height).outputFormat("jpg").toFile(imageFile);
             }
 
         } catch (IOException e) {

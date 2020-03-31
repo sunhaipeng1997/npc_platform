@@ -159,7 +159,7 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
         //登录次数
-        account.setLoginTimes(account.getLoginTimes() + 1);
+        account.setLoginTimes(account.getLoginTimes()==null?1:account.getLoginTimes() + 1);
         if (account.getLoginTime() != null){
             account.setLastLoginTime(account.getLoginTime());
         }
@@ -242,7 +242,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RespBody updatePwd(UserDetailsImpl userDetails, PasswordDto passwordDto) {
         RespBody body = new RespBody();
-        if (StringUtils.isEmpty(passwordDto.getOldPwd()) || StringUtils.isEmpty(passwordDto.getConfirmOld())){
+        if (StringUtils.isEmpty(passwordDto.getOldPwd())){
             body.setMessage("旧密码不能为空");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
@@ -252,19 +252,19 @@ public class AuthServiceImpl implements AuthService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        if (!passwordDto.getOldPwd().equals(passwordDto.getConfirmOld())){
+        if (!passwordDto.getNewPwd().equals(passwordDto.getConfirmPwd())){
             body.setMessage("两次输入旧密码不一致");
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            return body;
-        }
-        if (passwordDto.getNewPwd().length()<6){
-            body.setMessage("新密码长度至少6位");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
         LoginUP loginUP = loginUPRepository.findByAccountUid(passwordDto.getUid());
         if (loginUP.getPassword().equals(passwordDto.getOldPwd())){
             body.setMessage("旧密码错误");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        if (passwordDto.getNewPwd().length()<6){
+            body.setMessage("新密码长度至少6位");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }

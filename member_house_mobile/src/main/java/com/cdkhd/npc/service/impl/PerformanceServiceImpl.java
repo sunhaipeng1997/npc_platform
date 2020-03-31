@@ -91,10 +91,9 @@ public class PerformanceServiceImpl implements PerformanceService {
     public RespBody performanceTypes(MobileUserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
+        performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
             performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
-        }else if (performanceTypeDto.getLevel().equals(LevelEnum.AREA.getValue())){
-            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
         body.setData(types);
@@ -223,7 +222,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 //小组审核人员没有开启，那么直接有总审核人员审核
                 auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(),addPerformanceDto.getLevel(),uid);
             }
-            for (NpcMember auditor : auditors) {//todo 推送消息得重寫
+            for (NpcMember auditor : auditors) {
                 pushService.pushMsg(auditor.getAccount(),"",1,"");
             }
         }
@@ -236,7 +235,31 @@ public class PerformanceServiceImpl implements PerformanceService {
         if (addPerformanceDto.getImage() != null) {//有附件，就保存附件信息
             this.saveCover(addPerformanceDto.getImage(),performance);
         }
+        return body;
+    }
 
+    @Override
+    public RespBody addPerformanceFormSug(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
+        RespBody body = new RespBody();
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(addPerformanceDto.getLevel(), account.getNpcMembers());
+        Performance performance = performanceRepository.findByTransUid(addPerformanceDto.getTransUid());
+        if (performance == null) {//如果是第一次提交，就保存基本信息
+            performance = new Performance();
+            performance.setLevel(addPerformanceDto.getLevel());
+            performance.setArea(npcMember.getArea());
+            performance.setTown(npcMember.getTown());
+            performance.setNpcMember(npcMember);
+            performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
+            performance.setTitle(addPerformanceDto.getTitle());
+            performance.setWorkAt(addPerformanceDto.getWorkAt());
+            performance.setContent(addPerformanceDto.getContent());
+            performanceRepository.saveAndFlush(performance);
+        }
+
+        if (addPerformanceDto.getImage() != null) {//有附件，就保存附件信息
+            this.saveCover(addPerformanceDto.getImage(),performance);
+        }
         return body;
     }
 

@@ -153,11 +153,17 @@ public class PerformanceServiceImpl implements PerformanceService {
             performanceType.setLevel(userDetails.getLevel());
             performanceType.setArea(userDetails.getArea());
             performanceType.setTown(userDetails.getTown());
-            Integer maxSequence = performanceTypeRepository.findMaxSequence();
+            Integer maxSequence = 0;
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+                maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndTownUid(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
+            }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+                maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(),userDetails.getArea().getUid());
+            }
             if(maxSequence == null){//防治数据库初始为空时报错，所以将初始序号设置为0。（李亚林）
                 maxSequence = 0;
             }
             performanceType.setSequence(maxSequence + 1);
+            performanceType.setIsDefault(false);
         }
         performanceType.setName(performanceTypeAddDto.getName());
         performanceType.setRemark(performanceTypeAddDto.getName());

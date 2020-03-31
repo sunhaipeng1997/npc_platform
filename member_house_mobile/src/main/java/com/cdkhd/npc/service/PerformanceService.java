@@ -1,6 +1,5 @@
 package com.cdkhd.npc.service;
 
-import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
@@ -38,7 +37,15 @@ public interface PerformanceService {
      * @param userDetails
      * @return
      */
-    RespBody addOrUpdatePerformance(@CurrentUser MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
+    RespBody addOrUpdatePerformance(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
+
+    /**
+     * 将审核通过的建议添加到履职
+     * @param userDetails
+     * @return
+     */
+    RespBody addPerformanceFormSug(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto);
+
 
     /**
      * 删除履职信息
