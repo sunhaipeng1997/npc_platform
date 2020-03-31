@@ -257,8 +257,8 @@ public class AuthServiceImpl implements AuthService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        LoginUP loginUP = loginUPRepository.findByAccountUid(passwordDto.getUid());
-        if (loginUP.getPassword().equals(passwordDto.getOldPwd())){
+        LoginUP loginUP = accountRepository.findByUid(userDetails.getUid()).getLoginUP();
+        if (!loginUP.getPassword().equals(passwordDto.getOldPwd())){
             body.setMessage("旧密码错误");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
