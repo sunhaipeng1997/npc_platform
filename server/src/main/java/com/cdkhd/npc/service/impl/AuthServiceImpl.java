@@ -421,32 +421,19 @@ public class AuthServiceImpl implements AuthService {
 
             LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
             if(loginWeChat == null){
-                loginWeChat = new LoginWeChat();
-                loginWeChat.setOpenId(openid);
-                loginWeChat.setUnionId(unionid);
-
-                loginWeChatRepository.saveAndFlush(loginWeChat);
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("还未注册，请您先注册");
+                return body;
             }
 
             Account account =  loginWeChat.getAccount();
             if(account == null){
-                account = new Account();
-                account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
-                account.setLoginWeChat(loginWeChat);
-                account.setLoginTimes(1);
-                account.setStatus(StatusEnum.ENABLED.getValue());
+                loginWeChatRepository.delete(loginWeChat);
 
-                //初始时只有选民权限
-                account.getAccountRoles().add(accountRoleRepository.findByKeyword("VOTER"));
-                accountRepository.saveAndFlush(account);
-
-                loginWeChat.setAccount(account);
-                loginWeChatRepository.saveAndFlush(loginWeChat);
-
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("还未注册，请您先注册");
+                return body;
             }
-            account.setLastLoginTime(account.getLoginTime());
-            account.setLoginTimes(account.getLoginTimes() + 1);
-            account.setLoginTime(new Date());
 
             if (account.getStatus() == StatusEnum.DISABLED.getValue()) {
                 body.setMessage("账号被禁用");
@@ -459,6 +446,10 @@ public class AuthServiceImpl implements AuthService {
                 respBody.setData(obj);
                 return respBody;
             }
+
+            account.setLastLoginTime(account.getLoginTime());
+            account.setLoginTimes(account.getLoginTimes() + 1);
+            account.setLoginTime(new Date());
 
             //生成token
             TokenVo tokenVo = generateToken(account);
