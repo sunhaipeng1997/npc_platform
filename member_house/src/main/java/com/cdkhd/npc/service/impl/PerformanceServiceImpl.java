@@ -187,6 +187,11 @@ public class PerformanceServiceImpl implements PerformanceService {
             body.setMessage("找不到履职类型！");
             return body;
         }
+        if (performanceType.getIsDefault()) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该履职类型不允许删除！");
+            return body;
+        }
         performanceType.setIsDel(true);
         performanceTypeRepository.saveAndFlush(performanceType);
         return body;

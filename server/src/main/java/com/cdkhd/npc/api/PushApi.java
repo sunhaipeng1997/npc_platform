@@ -20,12 +20,11 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 /**
- * @创建人 lizi
  * @创建时间 2018/10/16
  * @描述
  */
 @Controller
-@RequestMapping("/api/mini_app/push")
+@RequestMapping("/api/mobile/push")
 public class PushApi {
 
     private final Environment env;
