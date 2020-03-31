@@ -8,7 +8,9 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.PasswordDto;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
 import com.cdkhd.npc.entity.vo.MenuVo;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.LoginWayEnum;
+import com.cdkhd.npc.enums.MenuEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.AuthService;
@@ -116,6 +118,12 @@ public class AuthServiceImpl implements AuthService {
         if (StringUtils.isEmpty(upDto.getUsername()) || StringUtils.isEmpty(upDto.getPassword())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名或密码不能为空");
+            return body;
+        }
+
+        if (loginUPRepository.findByUsername(upDto.getUsername()) == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("用户名不存在");
             return body;
         }
 
@@ -227,6 +235,8 @@ public class AuthServiceImpl implements AuthService {
                         for (Menu menu : backMenus) {
                             if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;//菜单可用才展示
                             if (menu.getType().equals(StatusEnum.ENABLED.getValue())) continue;//如果是小程序菜单，就过滤掉
+                            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && menu.getName().equals(MenuEnum.TOWN_MANAGE.getName())) continue;//镇后台管理员没有镇管理
+                            if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && (menu.getName().equals(MenuEnum.VILLAGE_MANAGE.getName()) || menu.getName().equals(MenuEnum.NPC_MEMBER_GROUP.getName()))) continue;//区后台管理员没有村管理
                             menus.add(menu);
                         }
                     }
