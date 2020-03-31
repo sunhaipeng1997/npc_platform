@@ -60,8 +60,6 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private NpcMemberRepository npcMemberRepository;
 
-    private NpcMemberRoleRepository npcMemberRoleRepository;
-
     private AccountRepository accountRepository;
 
     private PerformanceImageRepository performanceImageRepository;
@@ -71,12 +69,11 @@ public class PerformanceServiceImpl implements PerformanceService {
     private PushService pushService;
 
     @Autowired
-    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleRepository npcMemberRoleRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushService pushService) {
+    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushService pushService) {
         this.performanceRepository = performanceRepository;
         this.performanceTypeRepository = performanceTypeRepository;
         this.systemSettingRepository = systemSettingRepository;
         this.npcMemberRepository = npcMemberRepository;
-        this.npcMemberRoleRepository = npcMemberRoleRepository;
         this.accountRepository = accountRepository;
         this.performanceImageRepository = performanceImageRepository;
         this.npcMemberRoleService = npcMemberRoleService;
