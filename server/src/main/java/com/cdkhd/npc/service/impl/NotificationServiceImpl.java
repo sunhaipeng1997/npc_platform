@@ -11,7 +11,7 @@ import com.cdkhd.npc.enums.NotificationStatusEnum;
 import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NotificationService;
-import com.cdkhd.npc.service.PushService;
+import com.cdkhd.npc.service.PushMessageService;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.util.SysUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
@@ -55,10 +55,10 @@ public class NotificationServiceImpl implements NotificationService {
     private NotificationOpeRecordRepository notificationOpeRecordRepository;
     private NotificationViewDetailRepository notificationViewDetailRepository;
     private SystemSettingService systemSettingService;
-    private PushService pushService;
+    private PushMessageService pushMessageService;
 
     @Autowired
-    public NotificationServiceImpl(NotificationRepository notificationRepository, AttachmentRepository attachmentRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, NotificationOpeRecordRepository notificationOpeRecordRepository, NotificationViewDetailRepository notificationViewDetailRepository, SystemSettingService systemSettingService, PushService pushService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, AttachmentRepository attachmentRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, NotificationOpeRecordRepository notificationOpeRecordRepository, NotificationViewDetailRepository notificationViewDetailRepository, SystemSettingService systemSettingService, PushMessageService pushMessageService) {
         this.notificationRepository = notificationRepository;
         this.attachmentRepository = attachmentRepository;
         this.npcMemberRepository = npcMemberRepository;
@@ -66,7 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
         this.notificationOpeRecordRepository = notificationOpeRecordRepository;
         this.notificationViewDetailRepository = notificationViewDetailRepository;
         this.systemSettingService = systemSettingService;
-        this.pushService = pushService;
+        this.pushMessageService = pushMessageService;
     }
 
     @Override
@@ -317,13 +317,14 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        //TODO 查找与本账号同地区/镇的具有通知审核权限的用户
+        //查找与本账号同地区/镇的具有通知审核权限的用户
 
         //将状态设置为"审核中"
         notification.setStatus(NotificationStatusEnum.UNDER_REVIEW.ordinal());
         notificationRepository.save(notification);
 
-        //TODO 向审核人推送消息
+        //向审核人推送消息
+//        pushMessageService.pushMsg();
 
         body.setMessage("成功提交通知审核");
         return body;

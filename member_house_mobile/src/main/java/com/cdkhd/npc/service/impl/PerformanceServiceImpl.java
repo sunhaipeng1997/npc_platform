@@ -10,14 +10,13 @@ import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
-import com.cdkhd.npc.repository.base.NpcMemberRoleRepository;
 import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceImageRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.cdkhd.npc.service.PerformanceService;
-import com.cdkhd.npc.service.PushService;
+import com.cdkhd.npc.service.PushMessageService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
@@ -66,10 +65,10 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private NpcMemberRoleService npcMemberRoleService;
 
-    private PushService pushService;
+    private PushMessageService pushMessageService;
 
     @Autowired
-    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushService pushService) {
+    public PerformanceServiceImpl(PerformanceRepository performanceRepository, PerformanceTypeRepository performanceTypeRepository, SystemSettingRepository systemSettingRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, PerformanceImageRepository performanceImageRepository, NpcMemberRoleService npcMemberRoleService, PushMessageService pushMessageService) {
         this.performanceRepository = performanceRepository;
         this.performanceTypeRepository = performanceTypeRepository;
         this.systemSettingRepository = systemSettingRepository;
@@ -77,7 +76,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.accountRepository = accountRepository;
         this.performanceImageRepository = performanceImageRepository;
         this.npcMemberRoleService = npcMemberRoleService;
-        this.pushService = pushService;
+        this.pushMessageService = pushMessageService;
     }
 
     /**
@@ -222,7 +221,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(), addPerformanceDto.getLevel(), uid);
             }
             for (NpcMember auditor : auditors) {
-                pushService.pushMsg(auditor.getAccount(), "", 1, "");
+//                pushMessageService.pushMsg(auditor.getAccount(), "", 1, "");
             }
         }
         performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
@@ -409,7 +408,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setAuditor(npcMember);
         if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过
             Account account = performance.getNpcMember().getAccount();
-            pushService.pushMsg(account, "", 1, "");
+//            pushMessageService.pushMsg(account, "", 1, "");
         }
         return body;
     }

@@ -20,8 +20,8 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 /**
- * @创建时间 2018/10/16
- * @描述
+ * @创建时间
+ * @描述 开发者服务器接入微信服务号
  */
 @Controller
 @RequestMapping("/api/mobile/push")
@@ -39,7 +39,7 @@ public class PushApi {
         //验证的token
         String token = env.getProperty("service_app.token");
 
-        // 微信加密签名
+        //微信加密签名
         String signature = dto.getSignature();
         //时间戳
         String timestamp = dto.getTimestamp();
@@ -67,7 +67,7 @@ public class PushApi {
             String fromUserName = map.get("FromUserName");
             String msgType = map.get("MsgType");
             String content = map.get("Content");
-        //判断请求是否事件类型 event
+            //判断请求是否事件类型 event
             if (MessageUtil.MESSAGE_EVENT.equals(msgType)) {
                 String eventType = map.get("Event");
                 //若是关注事件  subscribe

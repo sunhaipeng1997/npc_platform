@@ -1,11 +1,13 @@
 package com.cdkhd.npc.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.OpinionListVo;
 import com.cdkhd.npc.entity.vo.OpinionVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.MsgTypeEnum;
 import com.cdkhd.npc.enums.ReplayStatusEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
@@ -14,7 +16,7 @@ import com.cdkhd.npc.repository.member_house.OpinionImageRepository;
 import com.cdkhd.npc.repository.member_house.OpinionReplayRepository;
 import com.cdkhd.npc.repository.member_house.OpinionRepository;
 import com.cdkhd.npc.service.OpinionService;
-import com.cdkhd.npc.service.PushService;
+import com.cdkhd.npc.service.PushMessageService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.PageVo;
@@ -53,16 +55,16 @@ public class OpinionServiceImpl implements OpinionService {
 
     private OpinionReplayRepository opinionReplayRepository;
 
-    private PushService pushService;
+    private PushMessageService pushMessageService;
 
     @Autowired
-    public OpinionServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, OpinionRepository opinionRepository, OpinionImageRepository opinionImageRepository, OpinionReplayRepository opinionReplayRepository, PushService pushService) {
+    public OpinionServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, OpinionRepository opinionRepository, OpinionImageRepository opinionImageRepository, OpinionReplayRepository opinionReplayRepository, PushMessageService pushMessageService) {
         this.accountRepository = accountRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.opinionRepository = opinionRepository;
         this.opinionImageRepository = opinionImageRepository;
         this.opinionReplayRepository = opinionReplayRepository;
-        this.pushService = pushService;
+        this.pushMessageService = pushMessageService;
     }
 
     @Override
@@ -111,8 +113,13 @@ public class OpinionServiceImpl implements OpinionService {
             this.saveImg(addOpinionDto.getImage(),opinion);
         }
         //给对应的接受代表推送服务号信息
-        String msg = "您有一条新的消息，请前往小程序查看。";
-        pushService.pushMsg(account, msg, 3, "选民意见");
+        JSONObject opinionMsg = new JSONObject();
+        opinionMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
+        opinionMsg.put("accountName",opinion.getReceiver().getName());
+        opinionMsg.put("mobile",opinion.getReceiver().getMobile());
+        opinionMsg.put("content",opinion.getContent());
+        opinionMsg.put("remarkInfo","点击进入小程序查看详情");
+        pushMessageService.pushMsg(opinion.getReceiver().getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),opinionMsg);
         return body;
     }
 
