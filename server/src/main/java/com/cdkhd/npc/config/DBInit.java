@@ -323,6 +323,7 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword()));//村管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));//代表权限管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SESSION_MANAGE.getKeyword()));//届期管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//届期管理
         bgAdmin.setPermissions(bgAdminPermissions);
         accountRoleRepository.save(bgAdmin);
 
@@ -525,7 +526,7 @@ public class DBInit {
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.OPINION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
-        //学习资料管理
+        //学习类型管理
         menu = menuRepository.findByName(MenuEnum.STUDY_TYPE_MANAGE.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.STUDY_TYPE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);

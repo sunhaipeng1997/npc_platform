@@ -31,8 +31,8 @@ public class NpcMemberPageDto extends PageDto {
     //工作单位uid
     private String workUnitUid;
 
-    //职务类型
-    private Byte jobType;
+    //职务类型uid
+    private String jobType;
 
     //届期uid
     private String sessionUid;

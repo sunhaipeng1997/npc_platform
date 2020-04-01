@@ -22,6 +22,7 @@ import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -315,7 +316,9 @@ public class PerformanceServiceImpl implements PerformanceService {
                     for (NpcMember member : areaMembers) {
                         memberUid.add(member.getUid());
                     }
-                    predicates.add(cb.in(root.get("npcMember").get("uid")).value(memberUid));
+                    if (CollectionUtils.isNotEmpty(memberUid)) {
+                        predicates.add(cb.in(root.get("npcMember").get("uid")).value(memberUid));
+                    }
                 }
             }
             //标题
