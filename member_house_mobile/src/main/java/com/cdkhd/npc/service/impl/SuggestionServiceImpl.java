@@ -1,13 +1,11 @@
 package com.cdkhd.npc.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.MobileSugStatusEnum;
-import com.cdkhd.npc.enums.PerformanceTypeEnum;
-import com.cdkhd.npc.enums.SuggestionStatusEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
@@ -15,6 +13,7 @@ import com.cdkhd.npc.repository.member_house.SuggestionImageRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.PerformanceService;
+import com.cdkhd.npc.service.PushMessageService;
 import com.cdkhd.npc.service.SuggestionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
@@ -61,16 +60,22 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private final PerformanceService performanceService;
 
+    private final NpcMemberRepository npcMemberRepository;
+
+    private final PushMessageService pushMessageService;
+
     private final Environment env;
 
     @Autowired
-    public SuggestionServiceImpl(SuggestionRepository suggestionRepository, AccountRepository accountRepository, SuggestionImageRepository suggestionImageRepository, NpcMemberRepository npcMemberRepository, SuggestionBusinessRepository suggestionBusinessRepository, SuggestionReplyRepository suggestionReplyRepository, PerformanceService performanceService, Environment env) {
+    public SuggestionServiceImpl(SuggestionRepository suggestionRepository, AccountRepository accountRepository, SuggestionImageRepository suggestionImageRepository, NpcMemberRepository npcMemberRepository, SuggestionBusinessRepository suggestionBusinessRepository, SuggestionReplyRepository suggestionReplyRepository, PerformanceService performanceService, NpcMemberRepository npcMemberRepository1, PushMessageService pushMessageService, Environment env) {
         this.suggestionRepository = suggestionRepository;
         this.accountRepository = accountRepository;
         this.suggestionImageRepository = suggestionImageRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
         this.suggestionReplyRepository = suggestionReplyRepository;
         this.performanceService = performanceService;
+        this.npcMemberRepository = npcMemberRepository1;
+        this.pushMessageService = pushMessageService;
         this.env = env;
     }
 
@@ -160,19 +165,36 @@ public class SuggestionServiceImpl implements SuggestionService {
             suggestion.setRaiser(npcMember);
             suggestion.setLeader(npcMember);
             suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
+
+
             //设置完基本信息后，给相应审核人员推送消息
-//            List<NpcMember> auditors;
-//            if (dto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-//                //如果是在镇上提建议，那么查询镇上的审核人员
-//                //首先判断端当前用户的角色是普通代表还是小组审核人员还是总审核人员
-//                Set<String> keyword = Sets.newHashSet();//权限的集合
-//                SystemSetting systemSetting =
-            //判断当前代表的权限
-//                if (keyword.contains("小组履职审核权限") )
-//            } else {
-//                //如果是在区上提建议，那么查询区上的审核人员
-//
-//            }
+
+            JSONObject suggestionMsg = new JSONObject();
+            List<NpcMember> npcMembers;
+            if (dto.getLevel().equals(LevelEnum.TOWN.getValue())){  //如果是在镇上提建议，那么查询镇上的审核人员
+                npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(userDetails.getTown().getUid(), LevelEnum.TOWN.getValue());
+            }else {  //如果是在区上提建议，那么查询区上的审核人员
+                npcMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
+            }
+            for (NpcMember npcMember1 : npcMembers){
+                boolean flag = false;
+                Set<NpcMemberRole> npcMemberRoles = npcMember1.getNpcMemberRoles();
+                for (NpcMemberRole npcMemberRole : npcMemberRoles){
+                    if (npcMemberRole.getKeyword().equals(NpcMemberRoleEnum.SUGGESTION_RECEIVER.getKeyword())){
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag){
+                    suggestionMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
+                    suggestionMsg.put("accountName",npcMember.getAccount().getUsername());
+                    suggestionMsg.put("mobile",npcMember.getAccount().getMobile());
+                    suggestionMsg.put("content",suggestion.getContent());
+                    suggestionMsg.put("remarkInfo","点击进入小程序查看详情");
+                    pushMessageService.pushMsg(npcMember.getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),suggestionMsg);
+                }
+            }
+            return body;
         }
         suggestion.setTitle(dto.getTitle());
         suggestion.setContent(dto.getContent());
