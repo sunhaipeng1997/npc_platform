@@ -246,6 +246,9 @@ public class StudyServiceImpl implements StudyService {
         Page<Study> studyPage = studyRepository.findAll((Specification<Study>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.equal(root.get("studyType").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.isFalse(root.get("studyType").get("isDel").as(Boolean.class)));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
@@ -299,6 +302,21 @@ public class StudyServiceImpl implements StudyService {
     public RespBody addOrUpdateStudy(UserDetailsImpl userDetails, StudyAddDto studyAddDto) {
         RespBody body = new RespBody();
         Study study;
+        if(StringUtils.isEmpty(studyAddDto.getName())){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("学习资料名称不能为空！");
+            return body;
+        }
+        if(StringUtils.isEmpty(studyAddDto.getStudyType())){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("学习类型不能为空！");
+            return body;
+        }
+        if(StringUtils.isEmpty(studyAddDto.getUrl())){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("学习资料文件不能为空！");
+            return body;
+        }
         if (StringUtils.isEmpty(studyAddDto.getUid())) {//添加学习资料
             study = new Study();
             study.setLevel(userDetails.getLevel());
@@ -441,7 +459,7 @@ public class StudyServiceImpl implements StudyService {
             studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getArea().getUid());
         }
         List<StudyTypeVo> studyTypeVos = studyTypeList.stream()
-                .filter(type -> !type.getIsDel())
+                .filter(type -> !type.getIsDel() && type.getStatus().equals(StatusEnum.ENABLED.getValue()))
                 .map(StudyTypeVo::convert)
                 .sorted(Comparator.comparing(StudyTypeVo::getSequence))
                 .collect(Collectors.toList());
