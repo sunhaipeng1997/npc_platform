@@ -27,7 +27,7 @@ public class NotificationDetailsForMobileVo extends BaseVo {
 
     private Byte type;
 
-    private List<Attachment> fileList;
+    private Set<Attachment> fileList;
 //    private List<Map<String,String>> fileList;
 
     private String reviewerName;
