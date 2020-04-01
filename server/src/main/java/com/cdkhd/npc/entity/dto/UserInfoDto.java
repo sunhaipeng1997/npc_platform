@@ -24,6 +24,8 @@ public class UserInfoDto extends BaseDto {
     //性别
     private Byte gender;
 
+    private Integer age;
+
     //手机号
     private String mobile;
 

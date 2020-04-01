@@ -8,9 +8,7 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.entity.dto.PhoneNumberDto;
 import com.cdkhd.npc.entity.vo.RelationVo;
-import com.cdkhd.npc.enums.AccountRoleEnum;
-import com.cdkhd.npc.enums.LoginWayEnum;
-import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.repository.member_house.VillageRepository;
 import com.cdkhd.npc.service.RegisterService;
@@ -40,7 +38,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class RegisterServiceImpl implements RegisterService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegisterServiceImpl.class);
-
+    private SystemRepository systemRepository;
     private AccountRepository accountRepository;
     private AccountRoleRepository accountRoleRepository;
     private NpcMemberRepository npcMemberRepository;
@@ -52,11 +50,14 @@ public class RegisterServiceImpl implements RegisterService {
 
     private CodeRepository codeRepository;
     private LoginWeChatRepository loginWeChatRepository;
+    private LoginUPRepository loginUPRepository;
+    private MobileUserPreferencesRepository mobileUserPreferencesRepository;
 
     private final Environment env;
 
     @Autowired
-    public RegisterServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, NpcMemberRepository npcMemberRepository, VoterRepository voterRepository, AreaRepository areaRepository, TownRepository townRepository, VillageRepository villageRepository, CodeRepository codeRepository, LoginWeChatRepository loginWeChatRepository, Environment env) {
+    public RegisterServiceImpl(SystemRepository systemRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, NpcMemberRepository npcMemberRepository, VoterRepository voterRepository, AreaRepository areaRepository, TownRepository townRepository, VillageRepository villageRepository, CodeRepository codeRepository, LoginWeChatRepository loginWeChatRepository, LoginUPRepository loginUPRepository, MobileUserPreferencesRepository mobileUserPreferencesRepository, Environment env) {
+        this.systemRepository = systemRepository;
         this.accountRepository = accountRepository;
         this.accountRoleRepository = accountRoleRepository;
         this.npcMemberRepository = npcMemberRepository;
@@ -66,8 +67,12 @@ public class RegisterServiceImpl implements RegisterService {
         this.villageRepository = villageRepository;
         this.codeRepository = codeRepository;
         this.loginWeChatRepository = loginWeChatRepository;
+        this.loginUPRepository = loginUPRepository;
+        this.mobileUserPreferencesRepository = mobileUserPreferencesRepository;
         this.env = env;
     }
+
+
 
 
     @Override
@@ -217,46 +222,60 @@ public class RegisterServiceImpl implements RegisterService {
     private Account createAccount(UserInfoDto dto,String keyword){
         Account account = new Account();
         account.setStatus(StatusEnum.ENABLED.getValue());
-
         account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
         account.setMobile(dto.getMobile());
+        account.setLoginTimes(account.getLoginTimes()+1);
+        account.setLoginTime(new Date());
+        account.setLastLoginTime(account.getLoginTime());
+        account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
+        account.getAccountRoles().add(accountRoleRepository.findByKeyword("VOTER"));
+        account.setMobileUserPreferences(new MobileUserPreferences());
+        account.setGovernmentUser(null);
+        account.setUnitUser(null);
+        account.setLoginWeChat(new LoginWeChat());
+        account.setLoginUP(loginUPRepository.findByMobile(dto.getMobile()));
+        account.setVoter(new Voter());
+        accountRepository.save(account);
 
-        //如果是建立代表账户
-        Set<AccountRole> accountRoles = new HashSet<>();
+        //任何人都有选民身份
+        Voter voter = account.getVoter();
+        voter.setMobile(dto.getMobile());
+        voter.setRealname(dto.getName());
+        voter.setGender(dto.getGender());
+        voter.setAge(dto.getAge());
+        if(StringUtils.isNotEmpty(dto.getAreaUid())){
+            voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
+        }
 
+        if(StringUtils.isNotEmpty(dto.getTownUid())){
+            voter.setTown(townRepository.findByUid(dto.getTownUid()));
+        }
 
+        if(StringUtils.isNotEmpty(dto.getVillageUid())){
+            voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
+        }
+        voter.setAccount(accountRepository.findByUid(account.getUid()));
+        voterRepository.save(voter);
+
+        MobileUserPreferences mobileUserPreferences = account.getMobileUserPreferences();
+        mobileUserPreferences.setShortcutAction(ShortcutActionEnum.GIVE_ADVICE.getName());
+
+        //如果是代表身份
         if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
             List<NpcMember> npcMembers = npcMemberRepository.findByMobile(dto.getMobile());
             for (NpcMember npcMember:npcMembers){
                 npcMember.setAccount(account);
-                npcMemberRepository.saveAndFlush(npcMember);
+                npcMemberRepository.save(npcMember);
                 account.getNpcMembers().add(npcMember);
             }
-
-            accountRoles.add(accountRoleRepository.findByKeyword("NPC_MEMBER"));
+            account.getAccountRoles().add(accountRoleRepository.findByKeyword("NPC_MEMBER"));
+            mobileUserPreferences.setShortcutAction(ShortcutActionEnum.MAKE_SUGGESTION.getName());
         }
+        mobileUserPreferences.setAccount(accountRepository.findByUid(account.getUid()));
+        mobileUserPreferencesRepository.save(mobileUserPreferences);
 
-        //任何人都有选民身份
-        Voter voter = new Voter();
-        voter.setMobile(dto.getMobile());
-        voter.setRealname(dto.getName());
-        if(!dto.getAreaUid().isEmpty()){
-            voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
-        }
+        accountRepository.save(account);
 
-        if(!dto.getTownUid().isEmpty()){
-            voter.setTown(townRepository.findByUid(dto.getTownUid()));
-        }
-
-        if(!dto.getVillageUid().isEmpty()){
-            voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
-        }
-        voterRepository.saveAndFlush(voter);
-
-        accountRoles.add(accountRoleRepository.findByKeyword("VOTER"));
-        account.setAccountRoles(accountRoles);
-        account.setVoter(voter);
-        accountRepository.saveAndFlush(account);
         return account;
     }
 
@@ -344,13 +363,6 @@ public class RegisterServiceImpl implements RegisterService {
             return body;
         }
 
-        //再校验其他表单信息
-        body = verifyUserInfo(dto);
-        if(!body.getStatus().equals(HttpStatus.OK)){
-            return body;
-        }
-        String currentAccountUid = (String) body.getData();
-
         //接下来与微信接口服务器交互
 
         //登录凭证校验结果
@@ -380,12 +392,21 @@ public class RegisterServiceImpl implements RegisterService {
 
             String openid = json.getString("openid");
 
+            LoginWeChat theWeChat = loginWeChatRepository.findByUnionId(unionid);
 
-            LoginWeChat loginWeChat = new LoginWeChat();
-            loginWeChat.setOpenId(openid);
-            loginWeChat.setUnionId(unionid);
-            loginWeChatRepository.saveAndFlush(loginWeChat);
+            if(theWeChat != null){
+                body.setMessage("账户已经注册，请登录");
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                return body;
+            }
 
+            //再校验其他表单信息,并创建账户
+            body = verifyUserInfo(dto);
+            if(!body.getStatus().equals(HttpStatus.OK)){
+                return body;
+            }
+            //成功创建好的账户
+            String currentAccountUid = (String) body.getData();
             Account account = accountRepository.findByUid(currentAccountUid);
             if(account == null){
                 body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -393,19 +414,35 @@ public class RegisterServiceImpl implements RegisterService {
                 return body;
             }
 
+            //再创建loginWeChat，并与账户关联起来
+            LoginWeChat loginWeChat = account.getLoginWeChat();
+            loginWeChat.setNickname(dto.getNickName());
+            loginWeChat.setOpenId(openid);
+            loginWeChat.setUnionId(unionid);
+            loginWeChat.setAccount(accountRepository.findByUid(currentAccountUid));
+            loginWeChatRepository.saveAndFlush(loginWeChat);
+
             account.setLoginWay((byte) 2);
             account.setLoginWeChat(loginWeChat);
-            account.setLoginTimes(1);
+            account.setUsername(dto.getNickName());
             accountRepository.saveAndFlush(account);
 
-            //生成token
+            //由账户生成token
             TokenVo tokenVo = generateToken(account);
-
-            body.setMessage("注册并登录成功");
-            body.setStatus(HttpStatus.OK);
+            if(tokenVo == null){
+                //之前建立的相关数据要全部删除
+                loginWeChatRepository.delete(loginWeChat);
+                voterRepository.delete(account.getVoter());
+                mobileUserPreferencesRepository.delete(account.getMobileUserPreferences());
+                accountRepository.delete(account);
+                body.setMessage("生成Token失败");
+                body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                return body;
+            }
 
             body.setData(tokenVo);
-
+            body.setMessage("注册并登录成功");
+            body.setStatus(HttpStatus.OK);
             return body;
         }
 

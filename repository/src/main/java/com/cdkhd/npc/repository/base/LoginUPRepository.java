@@ -6,4 +6,6 @@ public interface LoginUPRepository extends BaseRepository<LoginUP>{
     LoginUP findByUsername(String username);
 
     LoginUP findByAccountUid(String uid);
+
+    LoginUP findByMobile(String mobile);
 }

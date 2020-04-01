@@ -19,6 +19,9 @@ import javax.persistence.*;
 @Table(name = "login_wechat")
 public class LoginWeChat extends BaseDomain {
 
+    @Column(name = "nickname")
+    private String nickname;
+
     @Column(name = "open_id")
     private String openId;
 
@@ -37,7 +40,7 @@ public class LoginWeChat extends BaseDomain {
     /**
      * 账号表id
      */
-    @OneToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Account.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "account", referencedColumnName = "id")
     private Account account;
 

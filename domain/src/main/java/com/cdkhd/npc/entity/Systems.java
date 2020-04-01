@@ -56,4 +56,7 @@ public class Systems extends BaseDomain {
 	@Column(name = "keyword")
 	private String keyword;
 
+
+
+
 }

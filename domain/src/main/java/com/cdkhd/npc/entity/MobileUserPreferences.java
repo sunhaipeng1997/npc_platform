@@ -26,7 +26,7 @@ public class MobileUserPreferences extends BaseDomain {
     /**
      * 账号表id
      */
-   @OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
+   @OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
    @JoinColumn(name = "account", referencedColumnName = "id")
    private Account account;
 }

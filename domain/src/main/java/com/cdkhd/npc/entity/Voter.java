@@ -24,6 +24,19 @@ public class Voter extends BaseDomain {
     @Column(name = "realname" )
     private String realname;
 
+    /**
+     * 1、男
+     * 2、女
+     */
+    @Column(name = "gender" )
+    private Byte gender;
+
+    /**
+     * 年龄
+     */
+    @Column(name = "age" )
+    private Integer age;
+
     //关联区
     @ManyToOne(targetEntity = Area.class)//, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")
@@ -43,7 +56,7 @@ public class Voter extends BaseDomain {
     private Integer updateInfo = 0;
 
     //关联的账号信息
-    @OneToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Account.class, fetch = FetchType.LAZY,cascade  = CascadeType.ALL)
     @JoinColumn(name = "account", referencedColumnName = "id")
     private Account account;
 }
