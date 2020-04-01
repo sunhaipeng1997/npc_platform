@@ -1,11 +1,13 @@
 package com.cdkhd.npc.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.MsgTypeEnum;
 import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
@@ -221,7 +223,14 @@ public class PerformanceServiceImpl implements PerformanceService {
                 auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(), addPerformanceDto.getLevel(), uid);
             }
             for (NpcMember auditor : auditors) {
-//                pushMessageService.pushMsg(auditor.getAccount(), "", 1, "");
+                //给对应的接受代表推送服务号信息
+                JSONObject performanceMsg = new JSONObject();
+                performanceMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
+                performanceMsg.put("accountName",auditor.getName());
+                performanceMsg.put("mobile",auditor.getMobile());
+                performanceMsg.put("content",addPerformanceDto.getTitle());
+                performanceMsg.put("remarkInfo","点击进入小程序查看详情");
+//                pushMessageService.pushMsg(auditor.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),performanceMsg);
             }
         }
         performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
@@ -406,10 +415,17 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setStatus(auditPerformanceDto.getStatus());
         performance.setReason(auditPerformanceDto.getReason());
         performance.setAuditor(npcMember);
-        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过
-            Account account = performance.getNpcMember().getAccount();
+//        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过
+            Account account = performance.getNpcMember().getAccount();//无论审核通不通过，都通知代表一声
 //            pushMessageService.pushMsg(account, "", 1, "");
-        }
+            JSONObject performanceMsg = new JSONObject();
+            performanceMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
+            performanceMsg.put("accountName",performance.getNpcMember().getName());
+            performanceMsg.put("mobile",performance.getNpcMember().getMobile());
+            performanceMsg.put("content",performance.getTitle());
+            performanceMsg.put("remarkInfo","点击进入小程序查看详情");
+//            pushMessageService.pushMsg(account, MsgTypeEnum.AUDIT_RESULT.ordinal(),performanceMsg);
+//        }
         return body;
     }
 

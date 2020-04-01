@@ -5,7 +5,7 @@ spring:
     name: npc-member-house
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.1.100:3306/npc_platform?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://192.168.1.100:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
     password: cd@khd2018
   jpa:
@@ -30,27 +30,28 @@ npc_base_info:
     mobile: 13551371473
 
 
+# 微信服务号相关配置，科宏达测试号
 service_app:
   #服务号 token
-  token: BsrfGTLbef1Y7J2qhraCZVYk0SSMfAhH
+  token: fedf056b58c94c34acd2dcd9741b3038
   #服务号 appid
-  appid: wxccd744724816d007
+  appid: wx6f4bd0fb61bf0232
   #服务号secret
-  appsecret: 7803cbe48b2690f92ae5f7135afcfa1d
+  appsecret: 7e828db5f6ff0e8dca6ba44198ada7c4
   #待审核提醒
-  templetedId1: 2ub03cEFpCiUyHJ190mNdX_Pd9oxBp4xEAQfq8DErig
+  templetedId1: rtj7Pi26B75d1gMUnVwQFX-j4Iy8CJ5td9R18v2L0kc
   #审核通过通知
-  templetedId2: B3LOoDk-_fAAlQkFOUReHgi9dOFoCbdr79JnVIvt30k
+  templetedId2: vYFPBbNrds0bH2Wu3ZUA3Bf_AqkJlTdpghViVwatiT8
   #投诉建议通知
-  templetedId3: 0sip6Pk_xa0-8-pkrRjeb0a8zI3P7eaGnHPpI6mcVvU
+  templetedId3: S27PWGRD-Ze_OgLcyaqIgB4l57VBmX-p58s0MAAkWZ0
   #会议通知
-  templetedId4: Y5GB2IPveZ8Qgi-JfG1s9hHkVf-xHLlCClU9uvnMWFY
+  templetedId4: sjHook3xqJ8rc0ScQzQLDa0KY1C0r7DtXQ766EYUreI
   #意见建议回复提醒
-  templetedId5: 8eHC74FDLspB5z5bm0E52CKuT3gfj_8k-2P2DyEDQkY
+  templetedId5: MpARgtznaTiKs5kqHL6d4QXnB44uc8zfE_WVWNCoOyw
   #跳转到小程序的页面
-  pagepath: pages/user/user
+  pagepath: pages/index/index
   #登录公众号授权路径
-  redirect_url: https://www.hjjdrd.cn/api/mini_app/auth/access_token
+  redirect_url: https://www.khdpro1.top/api/mobile/auth/access_token
   #小程序 appid  推送消息时需要
   miniapp_appid: wx6f6052b68ee8e7f0
 
@@ -69,4 +70,4 @@ code:
   timeout: 5 #分钟
 
 serverUrl:
-  http://localhost:8080/api/manager/token/parseToken?token=
+  http://localhost:8080

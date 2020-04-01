@@ -5,9 +5,9 @@ spring:
     name: npc-platform
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    url: jdbc:mysql://192.168.1.100:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
     username: root
-    password: nian9695,,,
+    password: cd@khd2018
   jpa:
     database: mysql
     show-sql: false
@@ -28,7 +28,7 @@ spring:
 # 微信服务号相关配置，科宏达测试号
 service_app:
   #服务号 token
-  token: BsrfGTLbef1Y7J2qhraCZVYk0SSMfAhH
+  token: fedf056b58c94c34acd2dcd9741b3038
   #服务号 appid
   appid: wx6f4bd0fb61bf0232
   #服务号secret
