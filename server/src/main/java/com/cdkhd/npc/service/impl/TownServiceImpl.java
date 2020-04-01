@@ -157,7 +157,7 @@ public class TownServiceImpl implements TownService {
         khd_account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
         khd_account.setStatus(StatusEnum.ENABLED.getValue());
         khd_account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
-        khd_account.setMobile(townAddDto.getMobile());
+        khd_account.setMobile(accountMobile);
         khd_account.setIsDel(false);
         khd_account.setLoginTimes(0);
         khd_account.setUsername(townAddDto.getAccount() + accountSuffix);
@@ -183,6 +183,7 @@ public class TownServiceImpl implements TownService {
         loginUPRepository.saveAndFlush(khd_loginUP);
 
         SystemSetting systemSetting = new SystemSetting();
+        systemSetting.setArea(area);
         systemSetting.setTown(town);
         systemSetting.setLevel(LevelEnum.TOWN.getValue());
         systemSettingRepository.saveAndFlush(systemSetting);
