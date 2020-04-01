@@ -348,6 +348,8 @@ public class NewsServiceImpl implements NewsService {
             LOGGER.warn("uid为 {} 的新闻不存在，不能提交审核",uid);
             return body;
         }
+        news.setReadTimes(news.getReadTimes() + 1L);
+        newsRepository.saveAndFlush(news);
 
         NewsDetailsVo vo = NewsDetailsVo.convert(news);
         body.setData(vo);

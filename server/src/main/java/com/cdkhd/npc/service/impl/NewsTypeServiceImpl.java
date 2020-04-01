@@ -215,7 +215,7 @@ public class NewsTypeServiceImpl implements NewsTypeService {
             //按地区编码查询
             predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
 
-            if (pageDto.getTownUid().isEmpty()) {
+            if (StringUtils.isNotEmpty(pageDto.getTownUid())) {
                 //按镇/社区名称模糊查询
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), pageDto.getTownUid()));
             }
