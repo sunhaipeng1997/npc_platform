@@ -107,11 +107,11 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 predicateList.add(cb.lessThanOrEqualTo(root.get("birthday"), pageDto.getEndAt()));
             }
             //按职务类型查询
-            if (pageDto.getJobType() != null) {
+            if (StringUtils.isNotEmpty(pageDto.getJobType())) {
                 predicateList.add(cb.equal(root.get("type"), pageDto.getJobType()));
             }
             //按工作单位查询
-            if (StringUtils.isNotBlank(pageDto.getWorkUnitUid())) {
+            if (StringUtils.isNotEmpty(pageDto.getWorkUnitUid())) {
                 String workUnit = "";
                 if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                     workUnit = "npcMemberGroup";
@@ -128,9 +128,13 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 for (NpcMember npcMember : members) {
                     memberIds.add(npcMember.getUid());
                 }
-                CriteriaBuilder.In<Object> in = cb.in(root.get("uid"));
-                in.value(memberIds);
-                predicateList.add(in);
+                if (CollectionUtils.isNotEmpty(memberIds)) {
+                    CriteriaBuilder.In<Object> in = cb.in(root.get("uid"));
+                    in.value(memberIds);
+                    predicateList.add(in);
+                }else{
+                    predicateList.add(cb.isNull(root.get("uid")));//届期里面没有人就不应该查询出东西来
+                }
             }
             return cb.and(predicateList.toArray(new Predicate[0]));
         };

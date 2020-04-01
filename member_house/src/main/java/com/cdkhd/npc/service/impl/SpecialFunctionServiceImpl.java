@@ -147,7 +147,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
 
     private List<NpcMember> getMembers(String key, UserDetailsImpl userDetails){
         NpcMemberRole newsAuditor = npcMemberRoleRepository.findByKeyword(key);//新闻审核人角色
-        List<NpcMember> npcMemberList = Lists.newArrayList(newsAuditor.getNpcMembers());
+        List<NpcMember> npcMemberList = newsAuditor.getNpcMembers().stream().filter(npcMember -> npcMember.getLevel().equals(userDetails.getLevel())).collect(Collectors.toList());
         if (userDetails.getRoles().contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {//后台管理员身份才能设置特殊职能
             npcMemberList.removeIf(member -> !member.getTown().getUid().equals(userDetails.getTown().getUid()) && member.getLevel().equals(LevelEnum.TOWN.getValue()) && (member.getStatus().equals(StatusEnum.ENABLED.getValue()) || !member.getIsDel()));
         } else if (userDetails.getRoles().contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
@@ -342,6 +342,19 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         Town memberTown = npcMember.getTown();
         if (!npcTown.getUid().equals(memberTown.getUid())) {
             body.setMessage("该代表不属于该镇");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        NpcMemberRole Auditor = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());
+        Boolean validate = true;
+        for (NpcMember member : Auditor.getNpcMembers()) {
+            if (member.getUid().equals(uid)){
+                validate = false;
+            }
+        }
+        if (!validate){
+            body.setMessage("该代表已经是总审核，不能添加为小组审核人！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }

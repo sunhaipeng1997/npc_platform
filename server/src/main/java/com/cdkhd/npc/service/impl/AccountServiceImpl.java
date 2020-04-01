@@ -4,6 +4,7 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.dto.AccountPageDto;
 import com.cdkhd.npc.entity.vo.AccountVo;
+import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.service.AccountService;
 import com.cdkhd.npc.vo.PageVo;
@@ -42,6 +43,7 @@ public class AccountServiceImpl implements AccountService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(root.get("voter").isNotNull());
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+            predicates.add(cb.equal(root.get("loginWay").as(Byte.class), LoginWayEnum.LOGIN_WECHAT.getValue()));
 //            predicate = cb.and(predicate, cb.equal(root.get("loginWay").as(Byte.class), (byte)2));
             if (StringUtils.isNotEmpty(accountPageDto.getRealname())){
                 predicates.add(cb.like(root.get("voter").get("realname").as(String.class), "%" + accountPageDto.getRealname() + "%"));
