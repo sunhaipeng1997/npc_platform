@@ -44,7 +44,7 @@ public enum MenuEnum {
     NPC_MEMBER_GROUP("groups", "代表小组管理",(byte)2, "menu-group", "/member_house/groups",null, "MEMBER_HOUSE"),
     WORKSTATION_MANAGE("workStation", "工作站管理",(byte)2, "menu-workstation", "/member_house/workStation",null, "MEMBER_HOUSE"),
     OPINION_MANAGE("opinions", "选民意见管理",(byte)2, "menu-opinion", "/member_house/opinions",null, "MEMBER_HOUSE"),
-    STUDY_TYPE_MANAGE("route", "学习类型管理",(byte)2, "menu-studyType", "/member_house/studyCate",null, "MEMBER_HOUSE"),
+    STUDY_TYPE_MANAGE("studyCate", "学习类型管理",(byte)2, "menu-studyType", "/member_house/studyCate",null, "MEMBER_HOUSE"),
     STUDY_MANAGE("studyFile", "学习资料管理",(byte)2, "menu-studyFile", "/member_house/studyFile",null, "MEMBER_HOUSE"),
     SUGGESTION_TYPE_MANAGE("suggestionBusiness", "建议类型管理",(byte)2, "menu-suggestionType", "/member_house/suggestionBusiness",null, "MEMBER_HOUSE"),
     SUGGESTION_MANAGE("suggestion", "代表建议管理",(byte)2, "menu-suggestion", "/member_house/suggestion",null, "MEMBER_HOUSE"),

@@ -43,6 +43,9 @@ public class AccountVo extends BaseVo {
         if (account.getVoter() != null){
             vo.setRealname(account.getVoter().getRealname());
             vo.setMobile(account.getVoter().getMobile());
+        }else{
+            vo.setRealname(account.getUsername());
+            vo.setMobile(account.getMobile());
         }
         vo.setLoginTimes(account.getLoginTimes());
         vo.setLastLoginTime(account.getLastLoginTime());
