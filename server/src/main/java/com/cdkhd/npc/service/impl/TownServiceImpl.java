@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
@@ -55,9 +56,11 @@ public class TownServiceImpl implements TownService {
 
     private Environment env;
 
+    private PasswordEncoder passwordEncoder;
+
 
     @Autowired
-    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, SessionRepository sessionRepository, SystemRepository systemRepository, PerformanceTypeRepository performanceTypeRepository, Environment env) {
+    public TownServiceImpl(TownRepository townRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, AccountRoleRepository accountRoleRepository, VoterRepository voterRepository, SystemSettingRepository systemSettingRepository, BackgroundAdminRepository backgroundAdminRepository, SessionRepository sessionRepository, SystemRepository systemRepository, PerformanceTypeRepository performanceTypeRepository, Environment env, PasswordEncoder passwordEncoder) {
         this.townRepository = townRepository;
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
@@ -69,6 +72,7 @@ public class TownServiceImpl implements TownService {
         this.systemRepository = systemRepository;
         this.performanceTypeRepository = performanceTypeRepository;
         this.env = env;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -132,13 +136,13 @@ public class TownServiceImpl implements TownService {
 
         LoginUP loginUP = new LoginUP();
         loginUP.setUsername(townAddDto.getAccount());
-        loginUP.setPassword(townAddDto.getPassword());
+        loginUP.setPassword(passwordEncoder.encode(townAddDto.getPassword()));
         loginUP.setMobile(townAddDto.getMobile());
 
         //镇管理员公司默认账号
         LoginUP khd_loginUP = new LoginUP();
         khd_loginUP.setUsername(townAddDto.getAccount() + accountSuffix);
-        khd_loginUP.setPassword(accountPassword);
+        khd_loginUP.setPassword(passwordEncoder.encode(accountPassword));
         khd_loginUP.setMobile(accountMobile);
 
         Account account = new Account();

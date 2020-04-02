@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -32,8 +33,10 @@ public class DBInit {
     private SessionRepository sessionRepository;
     private PerformanceTypeRepository performanceTypeRepository;
 
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
-    public DBInit(AccountRoleRepository accountRoleRepository, NpcMemberRoleRepository npcMemberRoleRepository, PermissionRepository permissionRepository, SystemRepository systemRepository, MenuRepository menuRepository, CommonDictRepository commonDictRepository, Environment env, AreaRepository areaRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, BackgroundAdminRepository backgroundAdminRepository, SystemSettingRepository systemSettingRepository, SessionRepository sessionRepository, PerformanceTypeRepository performanceTypeRepository) {
+    public DBInit(AccountRoleRepository accountRoleRepository, NpcMemberRoleRepository npcMemberRoleRepository, PermissionRepository permissionRepository, SystemRepository systemRepository, MenuRepository menuRepository, CommonDictRepository commonDictRepository, Environment env, AreaRepository areaRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, BackgroundAdminRepository backgroundAdminRepository, SystemSettingRepository systemSettingRepository, SessionRepository sessionRepository, PerformanceTypeRepository performanceTypeRepository, PasswordEncoder passwordEncoder) {
         this.accountRoleRepository = accountRoleRepository;
         this.npcMemberRoleRepository = npcMemberRoleRepository;
         this.permissionRepository = permissionRepository;
@@ -48,6 +51,7 @@ public class DBInit {
         this.systemSettingRepository = systemSettingRepository;
         this.sessionRepository = sessionRepository;
         this.performanceTypeRepository = performanceTypeRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostConstruct
@@ -117,56 +121,16 @@ public class DBInit {
     }
 
     private void initAccount() {
+        //初始化账号信息
         String username = env.getProperty("npc_base_info.user.name");
         String mobile = env.getProperty("npc_base_info.user.mobile");
-        Account account = accountRepository.findByUsernameAndMobile(username,mobile);
-        if (account == null){
-            account = new Account();
-            account.setUsername(username);
-            account.setMobile(mobile);
-            account.setLoginTimes(0);  //登录次数初始化为0
-            account.setLoginWay((byte)1);//账号密码方式登录
-            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
-            Set<AccountRole> accountRoles = Sets.newHashSet();
-            accountRoles.add(accountRole);
-            account.setAccountRoles(accountRoles);
-            accountRepository.saveAndFlush(account);
-        }
+        String defaultRawPwd = env.getProperty("account.password"); //获取默认的明文密码
+        initOneAccount(username, mobile, defaultRawPwd);
 
-        LoginUP loginUP = loginUPRepository.findByUsername(username);
-        if (loginUP == null){
-            loginUP = new LoginUP();
-            loginUP.setMobile(mobile);
-            loginUP.setUsername(username);
-            loginUP.setPassword("123456");
-            loginUP.setAccount(account);
-            loginUPRepository.saveAndFlush(loginUP);
-        }
-
+        //为公司初始化账号信息
         username = env.getProperty("npc_base_info.cdkhd.name");
         mobile = env.getProperty("npc_base_info.cdkhd.mobile");
-        account = accountRepository.findByUsernameAndMobile(username,mobile);
-        if (account == null){
-            account = new Account();
-            account.setUsername(username);
-            account.setMobile(mobile);
-            account.setLoginTimes(0);  //登录次数初始化为0
-            account.setLoginWay((byte)1);//账号密码方式登录
-            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
-            Set<AccountRole> accountRoles = Sets.newHashSet();
-            accountRoles.add(accountRole);
-            account.setAccountRoles(accountRoles);
-            accountRepository.saveAndFlush(account);
-        }
-        loginUP = loginUPRepository.findByUsername(username);
-        if (loginUP == null){
-            loginUP = new LoginUP();
-            loginUP.setMobile(mobile);
-            loginUP.setUsername(username);
-            loginUP.setPassword("123456");
-            loginUP.setAccount(account);
-            loginUPRepository.saveAndFlush(loginUP);
-        }
+        initOneAccount(username, mobile, defaultRawPwd);
     }
 
     private void initBackgroundAdmin() {
@@ -1209,6 +1173,33 @@ public class DBInit {
 
             //保存
             commonDictRepository.saveAll(jobs);
+        }
+    }
+
+    //初始化一个Account
+    private void initOneAccount(String username, String mobile, String rawPwd) {
+        Account account = accountRepository.findByUsernameAndMobile(username, mobile);
+        if (account == null) {
+            account = new Account();
+            account.setUsername(username);
+            account.setMobile(mobile);
+            account.setLoginTimes(0);  //登录次数初始化为0
+            account.setLoginWay((byte) 1);//账号密码方式登录
+            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
+            Set<AccountRole> accountRoles = Sets.newHashSet();
+            accountRoles.add(accountRole);
+            account.setAccountRoles(accountRoles);
+            accountRepository.saveAndFlush(account);
+        }
+
+        LoginUP loginUP = loginUPRepository.findByUsername(username);
+        if (loginUP == null) {
+            loginUP = new LoginUP();
+            loginUP.setMobile(mobile);
+            loginUP.setUsername(username);
+            loginUP.setPassword(passwordEncoder.encode(rawPwd)); //保存hash后的密码
+            loginUP.setAccount(account);
+            loginUPRepository.saveAndFlush(loginUP);
         }
     }
 }

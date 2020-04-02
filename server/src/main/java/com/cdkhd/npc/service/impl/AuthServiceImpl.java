@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,8 +51,10 @@ public class AuthServiceImpl implements AuthService {
     private final String CURRENT_APPSECRET;
     private MenuRepository menuRepository;
 
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
-    public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository, LoginWeChatRepository loginWeChatRepository, AccountRoleRepository accountRoleRepository, Environment env, RestTemplate restTemplate, MenuRepository menuRepository) {
+    public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository, LoginWeChatRepository loginWeChatRepository, AccountRoleRepository accountRoleRepository, Environment env, RestTemplate restTemplate, MenuRepository menuRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
         this.codeRepository = codeRepository;
@@ -62,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
         this.restTemplate = restTemplate;
         CURRENT_APPID = env.getProperty("service_app.appid");
         CURRENT_APPSECRET = env.getProperty("service_app.appsecret");
+        this.passwordEncoder = passwordEncoder;
     }
 
     //生成并发送短信验证码
@@ -140,7 +144,7 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        if (!account.getLoginUP().getPassword().equals(upDto.getPassword())) {
+        if (!passwordEncoder.matches(upDto.getPassword(), account.getLoginUP().getPassword())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("密码错误");
             return body;
@@ -266,12 +270,12 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
         if (!passwordDto.getNewPwd().equals(passwordDto.getConfirmPwd())) {
-            body.setMessage("两次输入旧密码不一致");
+            body.setMessage("两次输入密码不一致");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
         LoginUP loginUP = accountRepository.findByUid(userDetails.getUid()).getLoginUP();
-        if (!loginUP.getPassword().equals(passwordDto.getOldPwd())) {
+        if (!passwordEncoder.matches(passwordDto.getOldPwd(), loginUP.getPassword())) {
             body.setMessage("旧密码错误");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
@@ -281,7 +285,7 @@ public class AuthServiceImpl implements AuthService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        loginUP.setPassword(passwordDto.getNewPwd());
+        loginUP.setPassword(passwordEncoder.encode(passwordDto.getNewPwd()));
         loginUPRepository.saveAndFlush(loginUP);
         return body;
     }
