@@ -118,6 +118,12 @@ public class GroupServiceImpl implements GroupService {
             body.setMessage("找不到该小组");
             return body;
         }
+        NpcMemberGroup npcMemberGroup = npcMemberGroupRepository.findByTownUidAndNameAndUidIsNot(userDetails.getTown().getUid(), groupAddDto.getName(), group.getUid());
+        if (npcMemberGroup != null){
+            body.setMessage("该小组已存在");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
         group.setName(groupAddDto.getName());
         group.setDescription(groupAddDto.getDescription());
         //将包含的村重新关联

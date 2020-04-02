@@ -2,6 +2,7 @@ package com.cdkhd.npc.component;
 
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.LoginUP;
+import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.LoginUPRepository;
 import com.cdkhd.npc.util.JwtUtils;
@@ -45,12 +46,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
                     Account account = accountRepository.findByUid(userInfo.get("uid").toString());
-                    LoginUP loginUP = account.getLoginUP();
-
-                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                    logger.info("合法访问，uid: " + userInfo.get("uid").toString());
+                    if (account.getLoginWay().equals(LoginWayEnum.LOGIN_UP.getValue())){
+                        //后台管理员的请求
+                        LoginUP loginUP = account.getLoginUP();
+                        UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                        logger.info("合法访问，uid: " + userInfo.get("uid").toString());
+                    }else {
+                        //小程序用户请求
+                        MobileUserDetailsImpl userDetails = new MobileUserDetailsImpl(account.getUid(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown());
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptySet());
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                        logger.info("合法访问，uid: " + userInfo.get("uid").toString());
+                    }
 
                 }
             } catch (ExpiredJwtException e) {

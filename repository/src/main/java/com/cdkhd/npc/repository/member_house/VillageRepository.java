@@ -8,4 +8,8 @@ import java.util.List;
 public interface VillageRepository extends BaseRepository<Village> {
 
     List<Village> findByTownUidAndNpcMemberGroupIsNull(String townUid);
+
+    Village findByTownUidAndName(String uid, String name);
+
+    Village findByTownUidAndNameAndUidIsNot(String townUid, String name, String uid);
 }

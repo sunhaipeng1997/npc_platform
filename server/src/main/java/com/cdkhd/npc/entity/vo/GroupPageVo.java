@@ -40,12 +40,12 @@ public class GroupPageVo extends BaseVo {
         int count = 0;
         Set<NpcMember> thisMembers = new HashSet<>();//本届代表
         Set<NpcMember> members = npcMemberGroup.getMembers();
-        if (members != null && !members.isEmpty()) {
+        if (members != null) {
             for (NpcMember member : members) {
-                if (member.getStatus() == 0 && member.getSpecial() == 0) {
+//                if (member.getStatus() == 0 && member.getSpecial() == 0) {
                     count++;
                     thisMembers.add(member);
-                }
+//                }
             }
             vo.setMemberCount(count);
             vo.setMembers(thisMembers.stream().map(GroupMemberVo::convert).collect(Collectors.toSet()));

@@ -74,8 +74,14 @@ public class AuthServiceImpl implements AuthService {
             body.setMessage("用户名不能为空");
             return body;
         }
+
+        if (loginUPRepository.findByUsername(username) == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("用户名不存在, 拒绝发送验证码");
+            return body;
+        }
+
         Account account = loginUPRepository.findByUsername(username).getAccount();
-//        Account account = accountRepository.findByLoginUPUsername(username);
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在，拒绝发送验证码");
