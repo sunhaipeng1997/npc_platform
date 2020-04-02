@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private MenuRepository menuRepository;
 
     @Autowired
-    public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository,LoginWeChatRepository loginWeChatRepository,AccountRoleRepository accountRoleRepository, Environment env, RestTemplate restTemplate,MenuRepository menuRepository) {
+    public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository, LoginWeChatRepository loginWeChatRepository, AccountRoleRepository accountRoleRepository, Environment env, RestTemplate restTemplate, MenuRepository menuRepository) {
         this.accountRepository = accountRepository;
         this.loginUPRepository = loginUPRepository;
         this.codeRepository = codeRepository;
@@ -74,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
             body.setMessage("用户名不能为空");
             return body;
         }
-        Account account =  loginUPRepository.findByUsername(username).getAccount();
+        Account account = loginUPRepository.findByUsername(username).getAccount();
 //        Account account = accountRepository.findByLoginUPUsername(username);
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -121,13 +121,13 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        if (loginUPRepository.findByUsername(upDto.getUsername()) == null){
+        if (loginUPRepository.findByUsername(upDto.getUsername()) == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在");
             return body;
         }
 
-        Account account =  loginUPRepository.findByUsername(upDto.getUsername()).getAccount();
+        Account account = loginUPRepository.findByUsername(upDto.getUsername()).getAccount();
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在");
@@ -167,11 +167,11 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
         //登录次数
-        account.setLoginTimes(account.getLoginTimes()==null?1:account.getLoginTimes() + 1);
-        if (account.getLoginTime() != null){
-            account.setLastLoginTime(account.getLoginTime());
-        }
-        account.setLoginTime(new Date());
+//        account.setLoginTimes(account.getLoginTimes() == null ? 1 : account.getLoginTimes() + 1);
+//        if (account.getLoginTime() != null) {
+//            account.setLastLoginTime(account.getLoginTime());
+//        }
+//        account.setLoginTime(new Date());
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         accountRepository.saveAndFlush(account);
 
@@ -215,7 +215,7 @@ public class AuthServiceImpl implements AuthService {
             body.setData(obj);
             return body;
         }
-        if (StringUtils.isEmpty(baseDto.getUid())){
+        if (StringUtils.isEmpty(baseDto.getUid())) {
             body.setMessage("请选择系统");
             body.setStatus(HttpStatus.UNAUTHORIZED);
             return body;
@@ -235,8 +235,10 @@ public class AuthServiceImpl implements AuthService {
                         for (Menu menu : backMenus) {
                             if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;//菜单可用才展示
                             if (menu.getType().equals(StatusEnum.ENABLED.getValue())) continue;//如果是小程序菜单，就过滤掉
-                            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && menu.getName().equals(MenuEnum.TOWN_MANAGE.getName())) continue;//镇后台管理员没有镇管理
-                            if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && (menu.getName().equals(MenuEnum.VILLAGE_MANAGE.getName()) || menu.getName().equals(MenuEnum.NPC_MEMBER_GROUP.getName()))) continue;//区后台管理员没有村管理
+                            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && menu.getName().equals(MenuEnum.TOWN_MANAGE.getName()))
+                                continue;//镇后台管理员没有镇管理
+                            if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && (menu.getName().equals(MenuEnum.VILLAGE_MANAGE.getName()) || menu.getName().equals(MenuEnum.NPC_MEMBER_GROUP.getName())))
+                                continue;//区后台管理员没有村管理
                             menus.add(menu);
                         }
                     }
@@ -252,28 +254,28 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RespBody updatePwd(UserDetailsImpl userDetails, PasswordDto passwordDto) {
         RespBody body = new RespBody();
-        if (StringUtils.isEmpty(passwordDto.getOldPwd())){
+        if (StringUtils.isEmpty(passwordDto.getOldPwd())) {
             body.setMessage("旧密码不能为空");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        if (StringUtils.isEmpty(passwordDto.getNewPwd())){
+        if (StringUtils.isEmpty(passwordDto.getNewPwd())) {
             body.setMessage("新密码不能为空");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        if (!passwordDto.getNewPwd().equals(passwordDto.getConfirmPwd())){
+        if (!passwordDto.getNewPwd().equals(passwordDto.getConfirmPwd())) {
             body.setMessage("两次输入旧密码不一致");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
         LoginUP loginUP = accountRepository.findByUid(userDetails.getUid()).getLoginUP();
-        if (!loginUP.getPassword().equals(passwordDto.getOldPwd())){
+        if (!loginUP.getPassword().equals(passwordDto.getOldPwd())) {
             body.setMessage("旧密码错误");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        if (passwordDto.getNewPwd().length()<6){
+        if (passwordDto.getNewPwd().length() < 6) {
             body.setMessage("新密码长度至少6位");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
@@ -285,31 +287,31 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 将子菜单放到对应的模块下
+     *
      * @param menus
      * @return
      */
     private List<MenuVo> dealChildren(List<Menu> menus) {
         List<MenuVo> menuVos = Lists.newArrayList();
         for (Menu menu : menus) {//所有的子级菜单
-            if (menu.getParent()!= null){//把二级菜单装在一级菜单下
+            if (menu.getParent() != null) {//把二级菜单装在一级菜单下
                 Boolean isHave = false;
                 for (MenuVo menuVo : menuVos) {//先处理一级菜单
-                    if (menuVo.getUid().equals(menu.getParent().getUid())){
+                    if (menuVo.getUid().equals(menu.getParent().getUid())) {
                         isHave = true;
                     }
                 }
-                if (!isHave){
+                if (!isHave) {
                     menuVos.add(MenuVo.convert(menu.getParent()));
                 }
                 for (MenuVo menuVo : menuVos) {//再处理二级菜单
-                    if (menuVo.getUid().equals(menu.getParent().getUid())){
+                    if (menuVo.getUid().equals(menu.getParent().getUid())) {
                         List<MenuVo> children = menuVo.getChildren();
                         children.add(MenuVo.convert(menu));
                         menuVo.setChildren(children);
                     }
                 }
-            }
-            else{
+            } else {
                 menuVos.add(MenuVo.convert(menu));
             }
         }
@@ -340,9 +342,9 @@ public class AuthServiceImpl implements AuthService {
 
         //李亚林
         //登录方式不同，则用户名的设置也不同，尽可能保证用户名唯一
-        if(account.getLoginWay().equals(LoginWayEnum.LOGIN_UP.getValue())){
+        if (account.getLoginWay().equals(LoginWayEnum.LOGIN_UP.getValue())) {
             token.setUsername(account.getLoginUP().getUsername());
-        }else if(account.getLoginWay().equals(LoginWayEnum.LOGIN_WECHAT.getValue())){
+        } else if (account.getLoginWay().equals(LoginWayEnum.LOGIN_WECHAT.getValue())) {
             //如果是微信登录方式，则用户名暂时设定为UnionId
             token.setUsername(account.getLoginWeChat().getUnionId());
         }
@@ -365,11 +367,11 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 微信小程序登录凭证校验
-     *
+     * <p>
      * 注：小程序认证比较特殊，
      * 使用appid、appsecret和临时code作为参数向微信接口服务器请求session_key和openid
      */
-    private ResponseEntity<String> code2session(String code){
+    private ResponseEntity<String> code2session(String code) {
         String authUrl = env.getProperty("miniapp.authurl");
         String appId = env.getProperty("miniapp.appid");
         String appSecret = env.getProperty("miniapp.appsecret");
@@ -388,7 +390,7 @@ public class AuthServiceImpl implements AuthService {
      *
      */
     @Override
-    public RespBody auth(String nickName, String code,String encryptedData, String iv) {
+    public RespBody auth(String nickName, String code, String encryptedData, String iv) {
         RespBody<TokenVo> body = new RespBody<>();
 
         //登录凭证校验结果
@@ -409,25 +411,24 @@ public class AuthServiceImpl implements AuthService {
             }
 
             //如果unionid为空
-            if(StringUtils.isEmpty(unionid)) {
+            if (StringUtils.isEmpty(unionid)) {
                 String sessionKey = json.getString("session_key");
-                String result = WXAppletUserInfo.getUserInfo(encryptedData,sessionKey,iv);//String encryptedData,String sessionKey,String iv
+                String result = WXAppletUserInfo.getUserInfo(encryptedData, sessionKey, iv);//String encryptedData,String sessionKey,String iv
                 JSONObject resultJson = JSON.parseObject(result);
                 unionid = resultJson.getString("unionId");
             }
 
-
             String openid = json.getString("openid");
 
             LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
-            if(loginWeChat == null){
+            if (loginWeChat == null) {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("还未注册，请您先注册");
                 return body;
             }
 
-            Account account =  loginWeChat.getAccount();
-            if(account == null){
+            Account account = loginWeChat.getAccount();
+            if (account == null) {
                 loginWeChatRepository.delete(loginWeChat);
 
                 body.setStatus(HttpStatus.BAD_REQUEST);
@@ -507,29 +508,30 @@ public class AuthServiceImpl implements AuthService {
         String openid = obj.getString("openid");
         String nickname = obj.getString("nickname");
 
-//        LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
-//        if(loginWeChat == null){
-//            loginWeChat = new LoginWeChat();
-//            loginWeChat.setOpenId(openid);
-//            loginWeChat.setUnionId(unionid);
-//            loginWeChat.setNickname(nickname);
-//            loginWeChatRepository.saveAndFlush(loginWeChat);
-//        }
-//
-//        Account account =  loginWeChat.getAccount();
-//        if(account == null){
-//            account = new Account();
-//            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
-//            account.setLoginWeChat(loginWeChat);
-//            account.setStatus(StatusEnum.ENABLED.getValue());
-//
-//            //初始时只有选民权限
-//            account.getAccountRoles().add(accountRoleRepository.findByKeyword("VOTER"));
-//            accountRepository.saveAndFlush(account);
-//
-//            loginWeChat.setAccount(accountRepository.findByUid(account.getUid()));
-//            loginWeChatRepository.saveAndFlush(loginWeChat);
-//        }
+        LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
+        if (loginWeChat == null) {
+            loginWeChat = new LoginWeChat();
+            loginWeChat.setOpenId(openid);
+            loginWeChat.setUnionId(unionid);
+
+            loginWeChatRepository.saveAndFlush(loginWeChat);
+        }
+
+        Account account = loginWeChat.getAccount();
+        if (account == null) {
+            account = new Account();
+            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
+            account.setLoginWeChat(loginWeChat);
+            account.setStatus(StatusEnum.ENABLED.getValue());
+
+            //初始时只有选民权限
+            account.getAccountRoles().add(accountRoleRepository.findByKeyword("VOTER"));
+            accountRepository.saveAndFlush(account);
+
+            loginWeChat.setAccount(account);
+            loginWeChatRepository.saveAndFlush(loginWeChat);
+
+        }
 
         return "authSuccess";
     }
