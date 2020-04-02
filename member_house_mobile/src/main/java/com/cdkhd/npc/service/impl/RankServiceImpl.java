@@ -79,7 +79,7 @@ public class RankServiceImpl implements RankService {
     public RespBody townSuggestionRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
-        List<Suggestion> suggestions = this.getSuggestions(userDetails,level);
+        List<Suggestion> suggestions = this.getSuggestions(userDetails,LevelEnum.TOWN.getValue());
         Map<String,String> townMap = this.dealTowns(towns);
         Map<String,Integer> suggestionMap = this.dealSuggestions(suggestions,false);
         List<RankVo> rankVos = Lists.newArrayList();
@@ -123,7 +123,7 @@ public class RankServiceImpl implements RankService {
     public RespBody townOpinionRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
-        List<Opinion> opinions = this.getOpinions(userDetails, level);
+        List<Opinion> opinions = this.getOpinions(userDetails, LevelEnum.TOWN.getValue());
         Map<String,String> townMap = this.dealTowns(towns);
         Map<String,Integer> opinionsMap = this.dealOpinions(opinions,false);
         List<RankVo> rankVos = Lists.newArrayList();
@@ -182,7 +182,7 @@ public class RankServiceImpl implements RankService {
     public RespBody townPerformanceRank(MobileUserDetailsImpl userDetails, Byte level) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
-        List<Performance> performances = this.getPerformance(userDetails, level);
+        List<Performance> performances = this.getPerformance(userDetails, LevelEnum.TOWN.getValue());
         Map<String,String> townMap = this.dealTowns(towns);
         Map<String,Integer> performanceMap = this.dealPerformance(performances,false);
         List<RankVo> rankVos = Lists.newArrayList();

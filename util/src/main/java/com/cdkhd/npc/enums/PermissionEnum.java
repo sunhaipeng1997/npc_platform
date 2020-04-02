@@ -12,7 +12,7 @@ public enum PermissionEnum {
 //    SECONDED_SUGGESTION("附议建议"),
 
     RECEIVE_NOTICE("接收通知"),
-    ANNOUNCEMENT("接收公告"),
+//    ANNOUNCEMENT("接收公告"),
 
     MEMBER_RANK("代表排名"),
     TOWN_RANK("各镇排名"),

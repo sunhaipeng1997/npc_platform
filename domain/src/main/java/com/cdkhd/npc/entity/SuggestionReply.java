@@ -28,10 +28,12 @@ public class SuggestionReply extends BaseDomain {
 
 	// 关联的建议
 	@ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "suggestion", referencedColumnName = "id")
 	private Suggestion suggestion;
 
 	//回复的代表
 	@ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "replyer", referencedColumnName = "id")
 	private NpcMember replyer;
 
 }

@@ -3,6 +3,8 @@ package com.cdkhd.npc.config;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -14,4 +16,11 @@ public class RestClientConfig {
         return builder.build();
 //        return new RestTemplate();
     }
+
+    //手动配置一个PasswordEncoder对明文密码做hash和验证
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
 }

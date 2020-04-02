@@ -2,10 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.Opinion;
-import com.cdkhd.npc.entity.Performance;
-import com.cdkhd.npc.entity.PerformanceType;
-import com.cdkhd.npc.entity.Suggestion;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.HomePageVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
@@ -15,6 +12,7 @@ import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.HomePageService;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -63,6 +61,11 @@ public class HomePageServiceImpl implements HomePageService {
         Integer performance = 0;
         LocalDate todayLocal = LocalDate.now();//当前日期/  yyyy-MM-dd  java8 新的日期库
         Date today = Date.from(todayLocal.atStartOfDay(ZoneOffset.ofHours(8)).toInstant());
+//        Area area = new Area();
+//        area.setUid("5ecd7851d8ed4877afc6b80285046418");
+//        Town town = new Town();
+//        town.setUid("c25e2c20e69e4cd9b3402d8263f7ab47");
+//        userDetails = new UserDetailsImpl("","","", Sets.newHashSet(),area,town,LevelEnum.AREA.getValue());
         if(userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
             suggestion = suggestionRepository.countTownTodayNumber(today,userDetails.getLevel(), userDetails.getTown().getUid());
             opinion = opinionRepository.countTownTodayNumber(today,userDetails.getLevel(), userDetails.getTown().getUid());

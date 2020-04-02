@@ -13,10 +13,10 @@ public interface PerformanceRepository extends BaseRepository<Performance> {
 
     Performance findByUidAndTransUid(String uid, String transUid);
 
-    @Query(value = "select count(per.uid) from Performance as per where per.createTime = ?1 and per.level = ?2 and per.town.uid = ?3")
+    @Query(value = "select count(per.uid) from Performance as per where per.createTime >= ?1 and per.level = ?2 and per.town.uid = ?3")
     Integer countTownTodayNumber(Date today, Byte level, String uid);
 
-    @Query(value = "select count(per.uid) from Performance as per where per.createTime = ?1 and per.level = ?2 and per.area.uid = ?3")
+    @Query(value = "select count(per.uid) from Performance as per where per.createTime >= ?1 and per.level = ?2 and per.area.uid = ?3")
     Integer countAreaTodayNumber(Date today, Byte level, String uid);
 
     List<Performance> findByPerformanceTypeUid(String uid);

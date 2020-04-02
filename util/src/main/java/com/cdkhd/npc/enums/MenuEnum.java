@@ -18,7 +18,7 @@ public enum MenuEnum {
 
     //通知公告
     NOTIFICATION_INFO(null, "通知信息",(byte)1, "notifition", "notification/notify-list","NOTIFICATION", "MEMBER_HOUSE"),
-    ANNOUNCEMENT(null, "公告信息",(byte)1, "announcement", "notification/announceList","NOTIFICATION", "MEMBER_HOUSE"),
+//    ANNOUNCEMENT(null, "公告信息",(byte)1, "announcement", "notification/announceList","NOTIFICATION", "MEMBER_HOUSE"),
 
     //统计排名
     MEMBER_RANK(null, "代表排名",(byte)1, "opinionVoter", "statistics/statistics-representative","STATISTICAL_RANKING", "MEMBER_HOUSE"),

@@ -33,6 +33,7 @@ public class DBInit {
     private SessionRepository sessionRepository;
     private PerformanceTypeRepository performanceTypeRepository;
 
+
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -258,7 +259,6 @@ public class DBInit {
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_INFO.getKeyword()));   //代表风采
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VIEW_WORKSTATION.getKeyword()));   //查看联络点
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));   //我的意见
-        voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.ANNOUNCEMENT.getKeyword()));   //接收公告
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));   //代表排名
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));   //各镇排名
         voter.setPermissions(voterPermissions);
@@ -301,7 +301,6 @@ public class DBInit {
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_SUGGESTION.getKeyword()));//我的建议
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_PERFORMANCE.getKeyword()));//我的履职
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));//接收通知
-        memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.ANNOUNCEMENT.getKeyword()));//接收公告
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
         member.setPermissions(memberPermissions);
@@ -317,7 +316,6 @@ public class DBInit {
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_SUGGESTION.getKeyword()));//我的建议
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_PERFORMANCE.getKeyword()));//我的履职
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));//接收通知
-        chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.ANNOUNCEMENT.getKeyword()));//接收公告
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
         chairman.setPermissions(chairmanPermissions);
@@ -331,7 +329,6 @@ public class DBInit {
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));//我的意见
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_SUGGESTION.getKeyword()));//我的建议
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));//接收通知
-        specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.ANNOUNCEMENT.getKeyword()));//接收公告
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
         specialMan.setPermissions(specialPermissions);
@@ -411,11 +408,6 @@ public class DBInit {
         //接收通知
         menu = menuRepository.findByName(MenuEnum.NOTIFICATION_INFO.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));
-        menuRepository.saveAndFlush(menu);
-
-        //接收公告
-        menu = menuRepository.findByName(MenuEnum.ANNOUNCEMENT.getName());
-        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.ANNOUNCEMENT.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表排名

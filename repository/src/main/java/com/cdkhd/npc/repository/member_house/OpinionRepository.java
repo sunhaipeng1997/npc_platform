@@ -14,9 +14,9 @@ public interface OpinionRepository extends BaseRepository<Opinion> {
 
     Opinion findByTransUid(String uid);
 
-    @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime = ?1 and opinion.level = ?2 and opinion.town.uid = ?3")
+    @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime >= ?1 and opinion.level = ?2 and opinion.town.uid = ?3")
     Integer countTownTodayNumber(Date today, Byte level, String uid);
 
-    @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime = ?1 and opinion.level = ?2 and opinion.area.uid = ?3")
+    @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime >= ?1 and opinion.level = ?2 and opinion.area.uid = ?3")
     Integer countAreaTodayNumber(Date today, Byte level, String uid);
 }
