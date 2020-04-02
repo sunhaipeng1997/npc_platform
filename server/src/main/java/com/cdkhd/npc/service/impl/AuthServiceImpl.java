@@ -167,13 +167,12 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
         //登录次数
-//        account.setLoginTimes(account.getLoginTimes() == null ? 1 : account.getLoginTimes() + 1);
-//        if (account.getLoginTime() != null) {
-//            account.setLastLoginTime(account.getLoginTime());
-//        }
-//        account.setLoginTime(new Date());
+        account.setLoginTimes(account.getLoginTimes() == null ? 1 : account.getLoginTimes() + 1);
+        if (account.getLoginTime() != null) {
+            account.setLastLoginTime(account.getLoginTime());
+        }
+        account.setLoginTime(new Date());
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
-        accountRepository.saveAndFlush(account);
 
         //成功验证码验证过一次后设置为失效
         code.setValid(false);
@@ -181,10 +180,6 @@ public class AuthServiceImpl implements AuthService {
         //生成token字符串
         TokenVo tokenVo = generateToken(account);
 
-        //登录后数据更新操作
-        account.setLastLoginTime(account.getLoginTime());
-        account.setLoginTime(new Date());
-        account.setLoginTimes(account.getLoginTimes() + 1);
         accountRepository.saveAndFlush(account);
 
         body.setData(tokenVo);

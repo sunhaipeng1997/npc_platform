@@ -14,11 +14,17 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
 
     List<PerformanceType> findByStatus(Byte status);
 
-    @Query(value = "select type from PerformanceType as type where type.sequence < ?1 order by type.sequence desc ")
-    Page<PerformanceType> findBySequenceDesc(Integer sequence, Pageable page);
+    @Query(value = "select type from PerformanceType as type where type.sequence < ?1 and type.level = ?2 and type.area.uid = ?3 order by type.sequence desc ")
+    Page<PerformanceType> findBySequenceAndLevelAreaUidDesc(Integer sequence,Byte level, String uid, Pageable page);
 
-    @Query(value = "select type from PerformanceType as type where type.sequence > ?1 order by type.sequence asc ")
-    Page<PerformanceType> findBySequenceAsc(Integer sequence, Pageable page);
+    @Query(value = "select type from PerformanceType as type where type.sequence < ?1 and type.level = ?2 and type.town.uid = ?3 order by type.sequence desc ")
+    Page<PerformanceType> findBySequenceAndLevelTownUidDesc(Integer sequence,Byte level, String uid, Pageable page);
+
+    @Query(value = "select type from PerformanceType as type where type.sequence > ?1 and type.level = ?2 and type.area.uid = ?3 order by type.sequence asc ")
+    Page<PerformanceType> findBySequenceAndLevelAreaUidAsc(Integer sequence,Byte level, String uid, Pageable page);
+
+    @Query(value = "select type from PerformanceType as type where type.sequence > ?1 and type.level = ?2 and type.town.uid = ?3 order by type.sequence asc ")
+    Page<PerformanceType> findBySequenceAndLevelTownUidAsc(Integer sequence,Byte level, String uid, Pageable page);
 
     PerformanceType findByNameAndLevelAndTownUidAndIsDelFalse(String name, Byte level, String townUid);
 

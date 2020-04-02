@@ -14,7 +14,6 @@ public interface StudyRepository extends BaseRepository<Study> {
     @Query(value = "select max(study.sequence) from Study as study where study.studyType.uid = ?1")
     Integer findMaxSequence(String type);
 
-
     @Query(value = "select study from Study as study where study.sequence < ?1 and study.studyType.uid = ?2 order by study.sequence desc ")
     Page<Study> findBySequenceDesc(Integer sequence, String type, Pageable page);
 

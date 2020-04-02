@@ -30,6 +30,7 @@ public class StudyVo extends BaseVo {
     private Integer sequence;
 
     //学习类型名称
+    private String type;
     private String typeName;
 
     //状态
@@ -41,6 +42,7 @@ public class StudyVo extends BaseVo {
         BeanUtils.copyProperties(study, vo);
         vo.setStatus(study.getStatus());
         vo.setStatusName(StatusEnum.getName(study.getStatus()));
+        vo.setType(study.getStudyType().getUid());
         vo.setTypeName(study.getStudyType().getName());
         return vo;
     }

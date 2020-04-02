@@ -42,7 +42,7 @@ public interface PerformanceService {
      * @param type
      * @return
      */
-    RespBody changeTypeSequence(String uid, Byte type);
+    RespBody changeTypeSequence(UserDetailsImpl userDetails, String uid, Byte type);
 
     /**
      * 修改类型状态

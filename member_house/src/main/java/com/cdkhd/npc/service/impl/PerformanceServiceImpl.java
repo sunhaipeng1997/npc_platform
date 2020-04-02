@@ -206,7 +206,7 @@ public class PerformanceServiceImpl implements PerformanceService {
      * @return
      */
     @Override
-    public RespBody changeTypeSequence(String uid, Byte type) {
+    public RespBody changeTypeSequence(UserDetailsImpl userDetails, String uid, Byte type) {
         RespBody body = new RespBody();
         PerformanceType performanceType = performanceTypeRepository.findByUid(uid);
         if (performanceType == null) {
@@ -214,15 +214,28 @@ public class PerformanceServiceImpl implements PerformanceService {
             body.setMessage("找不到履职类型！");
             return body;
         }
-        PerformanceType targetType;
+        PerformanceType targetType = null;
         if (type.equals(Constant.LOGIN_WAY_UP)) {//1 上移
             Sort sort = new Sort(Sort.Direction.DESC, "sequence");
             Pageable page = PageRequest.of(0, 1, sort);
-            targetType = performanceTypeRepository.findBySequenceDesc(performanceType.getSequence(), page).getContent().get(0);
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                targetType = performanceTypeRepository.findBySequenceAndLevelTownUidDesc(performanceType.getSequence(),userDetails.getLevel(),userDetails.getTown().getUid(), page).getContent().get(0);
+            }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                targetType = performanceTypeRepository.findBySequenceAndLevelAreaUidDesc(performanceType.getSequence(),userDetails.getLevel(),userDetails.getArea().getUid(), page).getContent().get(0);
+            }
         } else {
             Sort sort = new Sort(Sort.Direction.ASC, "sequence");
             Pageable page = PageRequest.of(0, 1, sort);
-            targetType = performanceTypeRepository.findBySequenceAsc(performanceType.getSequence(), page).getContent().get(0);
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                targetType = performanceTypeRepository.findBySequenceAndLevelTownUidAsc(performanceType.getSequence(),userDetails.getLevel(),userDetails.getTown().getUid(), page).getContent().get(0);
+            }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                targetType = performanceTypeRepository.findBySequenceAndLevelAreaUidAsc(performanceType.getSequence(),userDetails.getLevel(),userDetails.getArea().getUid(), page).getContent().get(0);
+            }
+        }
+        if (targetType == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("移动失败！");
+            return body;
         }
         List<PerformanceType> types = this.changeSequence(performanceType, targetType);
         performanceTypeRepository.saveAll(types);

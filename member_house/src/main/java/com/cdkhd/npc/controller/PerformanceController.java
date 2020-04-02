@@ -68,8 +68,8 @@ public class PerformanceController {
      * @return
      */
     @PostMapping("/changeTypeSequence")
-    public ResponseEntity changeTypeSequence(String uid, Byte type) {
-        RespBody body = performanceService.changeTypeSequence(uid, type);
+    public ResponseEntity changeTypeSequence(@CurrentUser UserDetailsImpl userDetails, String uid, Byte type) {
+        RespBody body = performanceService.changeTypeSequence(userDetails, uid, type);
         return ResponseEntity.ok(body);
     }
 
