@@ -59,33 +59,6 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public RespBody add(UserDetailsImpl userDetails, NewsAddDto dto){
-        RespBody body = new RespBody();
-
-        News news = new News();
-        BeanUtils.copyProperties(dto, news);
-        news.setArea(userDetails.getArea());
-        news.setTown(userDetails.getTown());
-        news.setLevel(userDetails.getLevel());
-
-        NewsType newsType = newsTypeRepository.findByUid(dto.getNewsTypeUid());
-        if(newsType == null){
-            body.setMessage("该新闻栏目不存在");
-            body.setStatus(HttpStatus.NOT_FOUND);
-            LOGGER.warn("uid为{}的该新闻栏目不存在,创建新闻失败",dto.getNewsTypeUid());
-            return body;
-        }
-
-        news.setNewsType(newsType);
-
-        //保存数据
-        newsRepository.save(news);
-
-        body.setMessage("添加新闻成功");
-        return body;
-    }
-
-    @Override
     public RespBody uploadImage(UploadPicDto dto) {
         RespBody<JSONObject> body = new RespBody<>();
         JSONObject jsonObj = new JSONObject();
@@ -121,6 +94,33 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    public RespBody add(UserDetailsImpl userDetails, NewsAddDto dto){
+        RespBody body = new RespBody();
+
+        News news = new News();
+        BeanUtils.copyProperties(dto, news);
+        news.setArea(userDetails.getArea());
+        news.setTown(userDetails.getTown());
+        news.setLevel(userDetails.getLevel());
+
+        NewsType newsType = newsTypeRepository.findByUid(dto.getNewsTypeUid());
+        if(newsType == null){
+            body.setMessage("该新闻栏目不存在");
+            body.setStatus(HttpStatus.NOT_FOUND);
+            LOGGER.warn("uid为{}的该新闻栏目不存在,创建新闻失败",dto.getNewsTypeUid());
+            return body;
+        }
+
+        news.setNewsType(newsType);
+
+        //保存数据
+        newsRepository.save(news);
+
+        body.setMessage("添加新闻成功");
+        return body;
+    }
+
+    @Override
     public RespBody delete(String uid) {
         RespBody body = new RespBody();
         News news = newsRepository.findByUid(uid);
@@ -146,6 +146,8 @@ public class NewsServiceImpl implements NewsService {
         body.setMessage("删除新闻成功");
         return body;
     }
+
+
 
     @Override
     public RespBody update(NewsAddDto dto) {
@@ -193,6 +195,50 @@ public class NewsServiceImpl implements NewsService {
         return body;
     }
 
+    /**
+     * 后台管理员 或者 新闻审核人 将新闻公开
+     *
+     * @param dto 新闻uid
+     * @return
+     */
+    @Override
+    public RespBody publish(BaseDto dto){
+        RespBody body = new RespBody();
+        News news = newsRepository.findByUid(dto.getUid());
+
+        if (news == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("指定的新闻不存在");
+            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",dto.getUid());
+            return body;
+        }
+
+        if(news.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该新闻还未审核通过，不可发布");
+            LOGGER.warn("uid为 {} 的新闻还未审核通过，发布新闻失败",dto.getUid());
+            return body;
+        }
+
+        if(news.getPublished()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该新闻已经公开，不可重复公开");
+            LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",dto.getUid());
+            return body;
+        }
+
+        //将状态设置为已发布
+        news.setStatus(NewsStatusEnum.RELEASED.ordinal());
+
+        //将新闻设置为公开状态
+        news.setPublished(true);
+
+        newsRepository.saveAndFlush(news);
+
+        body.setMessage("新闻公开发布成功");
+        return body;
+    }
+
 
     /**
      * 分页查询
@@ -219,76 +265,6 @@ public class NewsServiceImpl implements NewsService {
             //按镇/社区名称模糊查询
             if(userDetails.getTown() != null){
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
-            }
-
-            //按栏目查询
-            if (StringUtils.isNotEmpty(pageDto.getNewsTypeName())) {
-                predicateList.add(cb.equal(root.get("newsType").get("name").as(String.class),  pageDto.getNewsTypeName()));
-            }
-
-            //按新闻标题模糊查询
-            if (StringUtils.isNotEmpty(pageDto.getTitle())) {
-                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
-            }
-
-            //按新闻作者模糊查询
-            if (StringUtils.isNotEmpty(pageDto.getAuthor())) {
-                predicateList.add(cb.like(root.get("author").as(String.class), "%" + pageDto.getAuthor() + "%"));
-            }
-
-            //按新闻状态查询
-            if (pageDto.getStatus() != null) {
-                predicateList.add(cb.equal(root.get("status").as(Integer.class), pageDto.getStatus()));
-            }
-
-            //按显示位置/优先级查询
-            if(pageDto.getWhereShow() != null){
-                predicateList.add(cb.equal(root.get("whereShow").as(Integer.class), pageDto.getWhereShow()));
-            }
-
-            return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
-        };
-
-        //查询数据库
-        Page<News> page = newsRepository.findAll(specification,pageable);
-
-        //封装查询结果
-        PageVo<NewsPageVo> pageVo = new PageVo<>(page, pageDto);
-        pageVo.setContent(page.getContent().stream().map(NewsPageVo::convert).collect(Collectors.toList()));
-
-        //返回数据
-        RespBody<PageVo> body = new RespBody<>();
-        body.setData(pageVo);
-
-        return body;
-    }
-
-
-    /**
-     * 分页查询
-     * @param
-     * @param pageDto 新闻页面dto
-     * @return
-     */
-    @Override
-    public RespBody pageForMobile(NewsPageDto pageDto){
-
-        //分页查询条件
-        int begin = pageDto.getPage() - 1;
-        Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
-                Sort.Direction.fromString(pageDto.getDirection()),
-                pageDto.getProperty());
-
-        //用户查询条件
-        Specification<News> specification = (root, query, cb)->{
-            List<Predicate> predicateList = new ArrayList<>();
-
-            //按地区编码查询
-            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
-
-            //按镇/社区名称模糊查询
-            if(!pageDto.getTownUid().isEmpty()){
-                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getTownUid()));
             }
 
             //按栏目查询
@@ -400,6 +376,104 @@ public class NewsServiceImpl implements NewsService {
         return body;
     }
 
+    @Override
+    public RespBody setPriority(NewsWhereShowDto dto){
+        RespBody body = new RespBody();
+        News news = newsRepository.findByUid(dto.getUid());
+        if (news == null) {
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("指定的新闻不存在");
+            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",dto.getUid());
+            return body;
+        }
+
+        news.setWhereShow(dto.getWhereShow());
+        newsRepository.saveAndFlush(news);
+
+        body.setMessage("成功修改优先级");
+        return body;
+    }
+
+    /**
+     * 分页查询
+     * @param
+     * @param pageDto 新闻页面dto
+     * @return
+     */
+    @Override
+    public RespBody pageForMobile(NewsPageDto pageDto){
+
+        //分页查询条件
+        int begin = pageDto.getPage() - 1;
+        Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
+                Sort.Direction.fromString(pageDto.getDirection()),
+                pageDto.getProperty());
+
+        //用户查询条件
+        Specification<News> specification = (root, query, cb)->{
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //按地区编码查询
+            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
+
+            //按镇/社区名称模糊查询
+            if(!pageDto.getTownUid().isEmpty()){
+                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getTownUid()));
+            }
+
+            //按栏目查询
+            if (StringUtils.isNotEmpty(pageDto.getNewsTypeName())) {
+                predicateList.add(cb.equal(root.get("newsType").get("name").as(String.class),  pageDto.getNewsTypeName()));
+            }
+
+            //按新闻标题模糊查询
+            if (StringUtils.isNotEmpty(pageDto.getTitle())) {
+                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
+            }
+
+            //按新闻作者模糊查询
+            if (StringUtils.isNotEmpty(pageDto.getAuthor())) {
+                predicateList.add(cb.like(root.get("author").as(String.class), "%" + pageDto.getAuthor() + "%"));
+            }
+
+            //按新闻状态查询
+            if (pageDto.getStatus() != null) {
+                predicateList.add(cb.equal(root.get("status").as(Integer.class), pageDto.getStatus()));
+            }
+
+            //按显示位置/优先级查询
+            if(pageDto.getWhereShow() != null){
+                predicateList.add(cb.equal(root.get("whereShow").as(Integer.class), pageDto.getWhereShow()));
+            }
+
+            return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
+        };
+
+        //查询数据库
+        Page<News> page = newsRepository.findAll(specification,pageable);
+
+        //封装查询结果
+        PageVo<NewsPageVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(page.getContent().stream().map(NewsPageVo::convert).collect(Collectors.toList()));
+
+        //返回数据
+        RespBody<PageVo> body = new RespBody<>();
+        body.setData(pageVo);
+
+        return body;
+    }
+
+    @Override
+    public RespBody mobileReviewPage(MobileUserDetailsImpl userDetails, NewsPageDto pageDto){
+        RespBody body = new RespBody();
+
+        return body;
+    }
+
+
+
+
+
     /**
      * 审核人对新闻进行审核
      * @param userDetails 用户信息
@@ -449,64 +523,10 @@ public class NewsServiceImpl implements NewsService {
         return body;
     }
 
-    /**
-     * 后台管理员 或者 新闻审核人 将新闻公开
-     *
-     * @param dto 新闻uid
-     * @return
-     */
     @Override
-    public RespBody publish(BaseDto dto){
+    public RespBody detailsForMobileReviewer(MobileUserDetailsImpl userDetails,String uid,Byte level){
         RespBody body = new RespBody();
-        News news = newsRepository.findByUid(dto.getUid());
 
-        if (news == null) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("指定的新闻不存在");
-            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",dto.getUid());
-            return body;
-        }
-
-        if(news.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("该新闻还未审核通过，不可发布");
-            LOGGER.warn("uid为 {} 的新闻还未审核通过，发布新闻失败",dto.getUid());
-            return body;
-        }
-
-        if(news.getPublished()){
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("该新闻已经公开，不可重复公开");
-            LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",dto.getUid());
-            return body;
-        }
-
-        //将状态设置为已发布
-        news.setStatus(NewsStatusEnum.RELEASED.ordinal());
-
-        //将新闻设置为公开状态
-        news.setPublished(true);
-
-        newsRepository.saveAndFlush(news);
-
-        body.setMessage("新闻公开发布成功");
-        return body;
-    }
-
-    public RespBody setPriority(NewsWhereShowDto dto){
-        RespBody body = new RespBody();
-        News news = newsRepository.findByUid(dto.getUid());
-        if (news == null) {
-            body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("指定的新闻不存在");
-            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",dto.getUid());
-            return body;
-        }
-
-        news.setWhereShow(dto.getWhereShow());
-        newsRepository.saveAndFlush(news);
-
-        body.setMessage("成功修改优先级");
         return body;
     }
 

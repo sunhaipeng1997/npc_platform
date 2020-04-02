@@ -44,6 +44,18 @@ public class NewsApi {
     }
 
     /**
+     * 移动端审核人收到的通知，分页查询
+     * @param userDetails 用户信息
+     * @param pageDto 通知页面dto
+     * @return
+     */
+    @GetMapping("/review_page")
+    public ResponseEntity mobileReviewPage(@CurrentUser MobileUserDetailsImpl userDetails,NewsPageDto pageDto){
+        RespBody body = newsService.mobileReviewPage(userDetails,pageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
      * 获取某一新闻的细节
      *
      * @param uid 新闻uid
@@ -52,6 +64,18 @@ public class NewsApi {
     @GetMapping("/{uid}")
     public ResponseEntity details(@PathVariable String uid){
         RespBody body = newsService.details(uid);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 审核人获取某一通知的细节
+     *
+     * @param uid 通知uid
+     * @return
+     */
+    @GetMapping("/details_for_reviewer/{uid}")
+    public ResponseEntity detailsForMobileReviewer(@CurrentUser MobileUserDetailsImpl userDetails,@PathVariable String uid,Byte level){
+        RespBody body = newsService.detailsForMobileReviewer(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
 
