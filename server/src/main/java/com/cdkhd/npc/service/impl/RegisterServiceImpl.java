@@ -233,7 +233,7 @@ public class RegisterServiceImpl implements RegisterService {
         account.setGovernmentUser(null);
         account.setUnitUser(null);
         account.setLoginWeChat(new LoginWeChat());
-        account.setLoginUP(loginUPRepository.findByMobile(dto.getMobile()));
+        account.setLoginUP(null);//暂时不用管后台管理员，即便是同一人也不关联
         account.setVoter(new Voter());
         accountRepository.save(account);
 
