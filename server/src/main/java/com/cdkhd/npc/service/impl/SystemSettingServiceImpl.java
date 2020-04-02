@@ -33,26 +33,26 @@ public class SystemSettingServiceImpl implements SystemSettingService {
 
 
     @Override
-    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+    public SystemSetting getSystemSetting(Byte level, String uid) {
         SystemSetting systemSetting = new SystemSetting();
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
-            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        if (level.equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(level,uid);
+        }else if (level.equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(level,uid);
         }
         return systemSetting;
     }
 
     @Override
-    public RespBody getSystemSettings(UserDetailsImpl userDetails) {
+    public RespBody getSystemSettings(Byte level, String uid) {
         RespBody body = new RespBody();
-        SystemSettingVo systemSettingVo = SystemSettingVo.convert(this.getSystemSetting(userDetails));
+        SystemSettingVo systemSettingVo = SystemSettingVo.convert(this.getSystemSetting(level,uid));
         body.setData(systemSettingVo);
         return body;
     }
 
     @Override
-    public RespBody saveSystemSetting(UserDetailsImpl userDetails, SystemSettingDto systemSettingDto) {
+    public RespBody saveSystemSetting(SystemSettingDto systemSettingDto) {
         RespBody body = new RespBody();
         if (StringUtils.isEmpty(systemSettingDto.getUid())){
             body.setMessage("保存系统设置失败！");

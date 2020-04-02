@@ -4,6 +4,7 @@ import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.SystemSetting;
 import com.cdkhd.npc.entity.dto.SystemSettingDto;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.service.SystemService;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.vo.RespBody;
@@ -32,19 +33,24 @@ public class SystemSettingController {
      */
     @GetMapping("getSystemSetting")
     public ResponseEntity getSystemSetting(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = systemSettingService.getSystemSettings(userDetails);
+        String uid = "";
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            uid = userDetails.getTown().getUid();
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            uid = userDetails.getArea().getUid();
+        }
+        RespBody body = systemSettingService.getSystemSettings(userDetails.getLevel(),uid);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 保存系统配置
-     * @param userDetails
      * @param systemSettingDto
      * @return
      */
     @PostMapping("saveSystemSetting")
-    public ResponseEntity saveSystemSetting(@CurrentUser UserDetailsImpl userDetails, SystemSettingDto systemSettingDto) {
-        RespBody body = systemSettingService.saveSystemSetting(userDetails, systemSettingDto);
+    public ResponseEntity saveSystemSetting(SystemSettingDto systemSettingDto) {
+        RespBody body = systemSettingService.saveSystemSetting(systemSettingDto);
         return ResponseEntity.ok(body);
     }
 

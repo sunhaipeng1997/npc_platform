@@ -102,12 +102,14 @@ public class MenuServiceImpl implements MenuService {
         }
         //代表的具体职能身份
         Set<NpcMemberRole> roles = Sets.newHashSet();
+        List<AccountRole> accountRoles = Lists.newArrayList();
+
         NpcMember npcMember = new NpcMember();
         //返回的json数据
         JSONObject object = new JSONObject();
         if (CollectionUtils.isEmpty(account.getNpcMembers())) {
             //非代表可能是政府人员或者是办理单位人员
-            List<AccountRole> accountRoles = Lists.newArrayList(account.getAccountRoles());
+            accountRoles = Lists.newArrayList(account.getAccountRoles());
             if (accountRoles.size() > 1) {
                 for (AccountRole accountRole : accountRoles) {
                     if (!accountRole.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword())) {
@@ -151,6 +153,25 @@ public class MenuServiceImpl implements MenuService {
                 if (!role.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;//确保角色状态有效
                 if (!systemSetting.getPerformanceGroupAudit() && (role.getKeyword().equals(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && level.equals(npcMember.getLevel())))
                     continue;//开关关闭的时候，过滤掉小组审核人的审核菜单
+                Set<Permission> permissions = role.getPermissions();
+                if (permissions != null && !permissions.isEmpty()) {
+                    for (Permission permission : permissions) {
+                        if (!permission.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;//确保权限状态有效
+                        Set<Menu> miniAppMenus = permission.getMenus();//获取权限下的菜单
+                        if (miniAppMenus != null && !miniAppMenus.isEmpty()) {
+                            miniAppMenus.retainAll(systemMenus);//当前权限下的菜单和当前系统下的菜单取交集
+                            for (Menu menu : miniAppMenus) {
+                                if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;//菜单可用才展示
+                                if (menu.getType().equals(StatusEnum.DISABLED.getValue())) continue;//如果是后台菜单，就过滤掉
+                                menus.add(menu);
+                            }
+                        }
+                    }
+                }
+            }
+        }else if (CollectionUtils.isNotEmpty(accountRoles)){
+            for (AccountRole role : accountRoles) {//代表拥有的角色
+                if (!role.getStatus().equals(StatusEnum.ENABLED.getValue())) continue;//确保角色状态有效
                 Set<Permission> permissions = role.getPermissions();
                 if (permissions != null && !permissions.isEmpty()) {
                     for (Permission permission : permissions) {

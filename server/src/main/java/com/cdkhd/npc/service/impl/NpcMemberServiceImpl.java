@@ -374,10 +374,10 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         List<MemberListVo> memberListVos = Lists.newArrayList();
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             List<NpcMemberGroup>  memberGroups = npcMemberGroupRepository.findByTownUid(userDetails.getTown().getUid());
-            memberListVos = memberGroups.stream().map(group -> MemberListVo.convert(group.getUid(),group.getName(),group.getMembers())).collect(Collectors.toList());
+            memberListVos = memberGroups.stream().map(group -> MemberListVo.convert(group.getUid(),group.getName(),group.getMembers(),userDetails.getLevel())).collect(Collectors.toList());
         }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
             Set<Town> towns = userDetails.getArea().getTowns();
-            memberListVos = towns.stream().map(town -> MemberListVo.convert(town.getUid(),town.getName(),town.getNpcMembers())).collect(Collectors.toList());
+            memberListVos = towns.stream().map(town -> MemberListVo.convert(town.getUid(),town.getName(),town.getNpcMembers(),userDetails.getLevel())).collect(Collectors.toList());
         }
         body.setData(memberListVos);
         return body;

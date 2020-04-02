@@ -2,7 +2,9 @@ package com.cdkhd.npc.api;
 
 
 import com.cdkhd.npc.annotation.CurrentUser;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.LevelDto;
 import com.cdkhd.npc.entity.dto.NewsPageDto;
 import com.cdkhd.npc.entity.dto.NewsReviewDto;
 import com.cdkhd.npc.service.NewsService;
@@ -28,8 +30,8 @@ public class StudyApi {
      * @return
      */
     @GetMapping("/studyList")
-    public ResponseEntity studyList(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = studyService.studyList(userDetails);
+    public ResponseEntity studyList(@CurrentUser UserDetailsImpl userDetails, LevelDto levelDto) {
+        RespBody body = studyService.studyList(userDetails,levelDto);
         return ResponseEntity.ok(body);
     }
 

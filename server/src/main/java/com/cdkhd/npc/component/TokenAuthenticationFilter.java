@@ -49,13 +49,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     if (account.getLoginWay().equals(LoginWayEnum.LOGIN_UP.getValue())){
                         //后台管理员的请求
                         LoginUP loginUP = account.getLoginUP();
-                        UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
+                        UserDetailsImpl userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptySet());
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                         logger.info("合法访问，uid: " + userInfo.get("uid").toString());
                     }else {
                         //小程序用户请求
-                        MobileUserDetailsImpl userDetails = new MobileUserDetailsImpl(account.getUid(), Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown());
+                        UserDetailsImpl userDetails = new UserDetailsImpl(account.getUid(), null, null, Sets.newHashSet(roles), account.getVoter().getArea(), account.getVoter().getTown(), null);
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptySet());
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                         logger.info("合法访问，uid: " + userInfo.get("uid").toString());

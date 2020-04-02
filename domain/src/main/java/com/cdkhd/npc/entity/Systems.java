@@ -51,12 +51,21 @@ public class Systems extends BaseDomain {
     private String url;
 
 	/**
-	 * url
+	 * keyword
 	 */
 	@Column(name = "keyword")
 	private String keyword;
 
+	/**
+	 * 小程序系统图标
+	 */
+	@Column(name = "img_url")
+	private String imgUrl;
 
-
+	/**
+	 * 小程序跳转路径
+	 */
+	@Column(name = "page_path")
+	private String pagePath;
 
 }

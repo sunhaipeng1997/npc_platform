@@ -22,6 +22,13 @@ public class NpcMemberVo extends BaseVo {
     //手机号
     private String mobile;
 
+    //代表头像
+    private String avatar;
+
+    //代表头像
+    private String introduction;
+
+
     public static NpcMemberVo convert(NpcMember npcMember) {
         NpcMemberVo vo = new NpcMemberVo();
         BeanUtils.copyProperties(npcMember, vo);

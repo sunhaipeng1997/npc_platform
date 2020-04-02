@@ -42,9 +42,9 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public RespBody cacheSystem(UserDetailsImpl userDetails, String systemId) {
+    public RespBody cacheSystem(String uid, String systemId) {
         RespBody body = new RespBody();
-        Account account = accountRepository.findByUid(userDetails.getUid());
+        Account account = accountRepository.findByUid(uid);
         Systems systems = systemRepository.findByUid(systemId);
         account.setSystems(systems);
         accountRepository.saveAndFlush(account);
@@ -52,9 +52,9 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public RespBody getCacheSystem(UserDetailsImpl userDetails) {
+    public RespBody getCacheSystem(String uid) {
         RespBody body = new RespBody();
-        Account account = accountRepository.findByUid(userDetails.getUid());
+        Account account = accountRepository.findByUid(uid);
         if (account.getSystems() != null) {
             CommonVo commonVo = new CommonVo();
             commonVo.setUid(account.getSystems().getUid());

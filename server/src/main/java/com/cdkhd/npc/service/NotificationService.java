@@ -21,22 +21,22 @@ public interface NotificationService {
     RespBody details(String uid);//pc后台前端获取细节
 
     //移动端
-    RespBody publishForMobile(MobileUserDetailsImpl userDetails,String uid,Byte level);
+    RespBody publishForMobile(UserDetailsImpl userDetails,String uid,Byte level);
 
     //移动端审核人收到的通知列表，临时这样写，因为小程序的登录还没写好,所以暂时不要userDetails
     RespBody pageForMobileTest(NotificationPageDto pageDto);
 
     //移动端代表收到的通知列表
-    RespBody mobileReceivedPage(MobileUserDetailsImpl userDetails, NotificationPageDto pageDto);
+    RespBody mobileReceivedPage(UserDetailsImpl userDetails, NotificationPageDto pageDto);
 
     //移动端审核人收到的通知列表
-    RespBody mobileReviewPage(MobileUserDetailsImpl userDetails, NotificationPageDto pageDto);
+    RespBody mobileReviewPage(UserDetailsImpl userDetails, NotificationPageDto pageDto);
 
-    RespBody detailsForMobileReceiver(MobileUserDetailsImpl userDetails,String uid,Byte level);//移动端端通知接收人获取通知详情
-    RespBody detailsForMobileReviewer(MobileUserDetailsImpl userDetails,String uid,Byte level);//移动端端通知审核人获取通知详情、及其审核记录
+    RespBody detailsForMobileReceiver(UserDetailsImpl userDetails,String uid,Byte level);//移动端端通知接收人获取通知详情
+    RespBody detailsForMobileReviewer(UserDetailsImpl userDetails,String uid,Byte level);//移动端端通知审核人获取通知详情、及其审核记录
 
-    RespBody review(MobileUserDetailsImpl userDetails, NotificationReviewDto dto);
+    RespBody review(UserDetailsImpl userDetails, NotificationReviewDto dto);
     RespBody reviewForMobileTest(NotificationReviewDto dto);//测试
 
-    void downloadAttachment(HttpServletResponse response, MobileUserDetailsImpl uds, String uid);
+    void downloadAttachment(HttpServletResponse response, UserDetailsImpl uds, String uid);
 }

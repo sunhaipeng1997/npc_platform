@@ -21,11 +21,11 @@ public class MemberListVo extends BaseVo {
     //单位下的代表成员
     private List<CommonVo> members;
 
-    public static MemberListVo convert(String uid, String name, Set<NpcMember> npcMembers) {
+    public static MemberListVo convert(String uid, String name, Set<NpcMember> npcMembers,Byte level) {
         MemberListVo vo = new MemberListVo();
         vo.setUid(uid);
         vo.setName(name);
-        vo.setMembers(npcMembers.stream().filter(member-> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member ->CommonVo.convert(member.getUid(),member.getName())).collect(Collectors.toList()));
+        vo.setMembers(npcMembers.stream().filter(member-> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue()) && level.equals(member.getLevel())).map(member ->CommonVo.convert(member.getUid(),member.getName())).collect(Collectors.toList()));
         return vo;
     }
 }

@@ -7,7 +7,7 @@ public interface SystemService {
 
     RespBody getSystemList();
 
-    RespBody cacheSystem(UserDetailsImpl userDetails, String systemId);
+    RespBody cacheSystem(String uid, String systemId);
 
-    RespBody getCacheSystem(UserDetailsImpl userDetails);
+    RespBody getCacheSystem(String uid);
 }

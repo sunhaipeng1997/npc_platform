@@ -28,7 +28,7 @@ public class UserInfoApi {
      */
     @GetMapping("/getMyInfo")
     public ResponseEntity getMyInfo(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = accountService.getMyInfo(userDetails);
+        RespBody body = accountService.getMyInfo(userDetails.getUid());
         return ResponseEntity.ok(body);
     }
 

@@ -10,5 +10,5 @@ public interface AccountService {
 
     RespBody changeStatus(String uid, Byte status);
 
-    RespBody getMyInfo(UserDetailsImpl userDetails);
+    RespBody getMyInfo(String uid);
 }

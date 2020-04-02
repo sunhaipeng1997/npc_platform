@@ -76,9 +76,9 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public RespBody getMyInfo(UserDetailsImpl userDetails) {
+    public RespBody getMyInfo(String uid) {
         RespBody body = new RespBody();
-        Account account = accountRepository.findByUid(userDetails.getUid());
+        Account account = accountRepository.findByUid(uid);
 //        Account account = accountRepository.findByUid("751806ea2d4211ea8f3f0242ac170005");
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);

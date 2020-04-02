@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
+import javax.persistence.Column;
+
 @Getter
 @Setter
 public class SystemVo extends BaseVo {
@@ -21,6 +23,12 @@ public class SystemVo extends BaseVo {
 
     // 描述
     private String url;
+
+    //小程序系统图标
+    private String imgUrl;
+
+    //小程序跳转路径
+    private String pagePath;
 
 
     public static SystemVo convert(Systems systems) {
