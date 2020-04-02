@@ -2,7 +2,9 @@ package com.cdkhd.npc.controller;
 
 
 import com.cdkhd.npc.annotation.CurrentUser;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.NewsAddDto;
 import com.cdkhd.npc.entity.dto.NewsPageDto;
 import com.cdkhd.npc.entity.dto.NewsWhereShowDto;
@@ -94,6 +96,18 @@ public class NewsController {
     @PostMapping("/priority")
     public ResponseEntity setPriority(NewsWhereShowDto dto){
         RespBody body = newsService.setPriority(dto);
+        return ResponseEntity.ok(body);
+    }
+
+
+    /**
+     * 后台管理员将新闻公开
+     *
+     * @return
+     */
+    @PostMapping("/publish")
+    public ResponseEntity publish(@CurrentUser UserDetailsImpl userDetails, BaseDto dto){
+        RespBody body = newsService.publish(userDetails,dto);
         return ResponseEntity.ok(body);
     }
 

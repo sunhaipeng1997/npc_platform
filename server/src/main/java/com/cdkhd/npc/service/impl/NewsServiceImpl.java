@@ -4,15 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.News;
-import com.cdkhd.npc.entity.NewsType;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
-import com.cdkhd.npc.entity.vo.NewsDetailsVo;
-import com.cdkhd.npc.entity.vo.NewsPageVo;
-import com.cdkhd.npc.enums.NewsStatusEnum;
+import com.cdkhd.npc.entity.vo.*;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NewsService;
+import com.cdkhd.npc.service.NpcMemberRoleService;
+import com.cdkhd.npc.service.PushMessageService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.PageVo;
@@ -37,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,14 +48,20 @@ public class NewsServiceImpl implements NewsService {
     private LoginUPRepository loginUPRepository;
     private NewsTypeRepository newsTypeRepository;
     private AccountRepository accountRepository;
+    private NewsOpeRecordRepository newsOpeRecordRepository;
+    private NpcMemberRoleService npcMemberRoleService;
+    private PushMessageService pushMessageService;
 
     @Autowired
-    public NewsServiceImpl(NewsRepository newsRepository, NpcMemberRepository npcMemberRepository, LoginUPRepository loginUPRepository, NewsTypeRepository newsTypeRepository, AccountRepository accountRepository) {
+    public NewsServiceImpl(NewsRepository newsRepository, NpcMemberRepository npcMemberRepository, LoginUPRepository loginUPRepository, NewsTypeRepository newsTypeRepository, AccountRepository accountRepository, NewsOpeRecordRepository newsOpeRecordRepository, NpcMemberRoleService npcMemberRoleService, PushMessageService pushMessageService) {
         this.newsRepository = newsRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.loginUPRepository = loginUPRepository;
         this.newsTypeRepository = newsTypeRepository;
         this.accountRepository = accountRepository;
+        this.newsOpeRecordRepository = newsOpeRecordRepository;
+        this.npcMemberRoleService = npcMemberRoleService;
+        this.pushMessageService = pushMessageService;
     }
 
     @Override
@@ -147,8 +153,6 @@ public class NewsServiceImpl implements NewsService {
         return body;
     }
 
-
-
     @Override
     public RespBody update(NewsAddDto dto) {
         RespBody body = new RespBody();
@@ -202,7 +206,7 @@ public class NewsServiceImpl implements NewsService {
      * @return
      */
     @Override
-    public RespBody publish(BaseDto dto){
+    public RespBody publish(UserDetailsImpl userDetails, BaseDto dto){
         RespBody body = new RespBody();
         News news = newsRepository.findByUid(dto.getUid());
 
@@ -220,7 +224,7 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
-        if(news.getPublished()){
+        if(news.isPublished()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该新闻已经公开，不可重复公开");
             LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",dto.getUid());
@@ -234,6 +238,22 @@ public class NewsServiceImpl implements NewsService {
         news.setPublished(true);
 
         newsRepository.saveAndFlush(news);
+
+        //如果这条新闻是需要推送的，群发消息
+        if(news.getPushNews()){
+            //构造消息
+            JSONObject newsMsg = new JSONObject();
+            newsMsg.put("subtitle","收到一条新闻");
+            newsMsg.put("time",news.getPublishAt());
+            newsMsg.put("theme",news.getTitle());
+            newsMsg.put("remarkInfo","来源:"+news.getAuthor()+"<点击查看详情>");
+
+            //查找与本账号相同地区及层级的代表
+            List<NpcMember> receivers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
+            for(NpcMember receiver:receivers){
+                pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+            }
+        }
 
         body.setMessage("新闻公开发布成功");
         return body;
@@ -365,13 +385,41 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
-        //TODO 查找与本账号同地区/镇的具有新闻审核权限的用户
-
         //将状态设置为"审核中"
         news.setStatus(NewsStatusEnum.UNDER_REVIEW.ordinal());
+        news.setView(false);
         newsRepository.save(news);
 
-        //TODO 推送消息
+        //查找与本账号同地区/镇的具有新闻审核权限的用户
+        String queryUid = new String();
+        if(userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            queryUid = userDetails.getArea().getUid();
+        }else {
+            queryUid = userDetails.getTown().getUid();
+        }
+
+        //查找与本账号同地区/镇的具有新闻审核权限的用户
+        List<NpcMember> reviewers =  npcMemberRoleService.findByKeyWordAndLevelAndUid(
+                NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword(),userDetails.getLevel(),queryUid);
+
+        //推送消息
+        //构造消息
+        JSONObject newsMsg = new JSONObject();
+        newsMsg.put("subtitle","收到一条待审核新闻");
+        newsMsg.put("auditItem",news.getTitle());
+        newsMsg.put("serviceType",userDetails.getArea().getName()+" "+userDetails.getTown().getName()+"新闻");
+        newsMsg.put("remarkInfo","作者:"+news.getAuthor()+"<点击查看详情>");
+
+        //向审核人推送消息
+        if(!reviewers.isEmpty()){
+            for(NpcMember reviewer :reviewers){
+                pushMessageService.pushMsg(reviewer.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),newsMsg);
+            }
+            body.setMessage("成功提交至审核人");
+        }else {
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("无新闻审核人");
+        }
 
         body.setMessage("成功提交新闻审核");
         return body;
@@ -396,7 +444,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     /**
-     * 分页查询
+     * 分页查询，非审核人的列表
      * @param
      * @param pageDto 新闻页面dto
      * @return
@@ -416,9 +464,9 @@ public class NewsServiceImpl implements NewsService {
 
             //按地区编码查询
             predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
+            predicateList.add(cb.equal(root.get("level").as(Byte.class), pageDto.getLevel()));
 
-            //按镇/社区名称模糊查询
-            if(!pageDto.getTownUid().isEmpty()){
+            if(StringUtils.isNotEmpty(pageDto.getTownUid())){
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getTownUid()));
             }
 
@@ -464,16 +512,101 @@ public class NewsServiceImpl implements NewsService {
         return body;
     }
 
+    /**
+     * 分页查询，审核人的列表
+     * @param
+     * @param dto 新闻页面dto
+     * @return
+     */
     @Override
-    public RespBody mobileReviewPage(MobileUserDetailsImpl userDetails, NewsPageDto pageDto){
-        RespBody body = new RespBody();
+    public RespBody mobileReviewPage(MobileUserDetailsImpl userDetails, NewsPageDto dto){
+        RespBody<PageVo<NewsPageVo>> body = new RespBody<>();
+        int begin = dto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
 
+        Account currentAccount = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers());
+
+        if (npcMember != null) {
+            List<String> roleKeywords = npcMember.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toList());
+
+            //如果是新闻审核人
+            if (roleKeywords.contains(NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword()) ) {
+
+                Page<News> pageRes = newsRepository.findAll((Specification<News>) (root, query, cb) -> {
+                    Predicate predicate = root.isNotNull();
+
+                    //过滤掉初始创建和草稿状态
+                    if (dto.getStatus() != NewsStatusEnum.CREATED.ordinal()
+                            && dto.getStatus()!= NewsStatusEnum.DRAFT.ordinal()){
+                        predicate = cb.equal(root.get("status").as(int.class),dto.getStatus());
+                    }else {
+                        predicate = cb.and(
+                                cb.notEqual(root.get("status").as(int.class), NewsStatusEnum.CREATED.ordinal()),
+                                cb.notEqual(root.get("status").as(int.class),NewsStatusEnum.DRAFT.ordinal())
+                        );
+                    }
+
+                    return predicate;
+                }, page);
+
+                PageVo<NewsPageVo> vo = new PageVo<>(pageRes, dto);
+                vo.setContent(pageRes.stream().map(NewsPageVo::convert).collect(Collectors.toList()));
+                body.setData(vo);
+            }else {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("您暂无此权限");
+                return body;
+            }
+        }
         return body;
     }
 
+    /**
+     * 审核人获取新闻详情，主要不同的是，会获取到操作记录
+     * @param userDetails 用户信息
+     * @param uid 新闻审核参数封装对象
+     * @param level
+     * @return
+     */
+    @Override
+    public RespBody detailsForMobileReviewer(MobileUserDetailsImpl userDetails,String uid,Byte level){
+        RespBody<NewsDetailsForMobileVo> body = new RespBody<>();
+        if(uid.isEmpty()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("UID不能为空");
+            return body;
+        }
+        News news = newsRepository.findByUid(uid);
+        if(news == null){
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("该新闻不存在");
+            LOGGER.warn("uid为 {} 的新闻不存在",uid);
+            return body;
+        }
 
+        Account currentAccount = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(level,currentAccount.getNpcMembers());
 
+        List<String> roleKeywords = npcMember.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toList());
+        if (roleKeywords.contains(NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword()) ) {
+            news.setView(true);
+        }
 
+        NewsDetailsForMobileVo vo = NewsDetailsForMobileVo.convert(news);
+
+        //将操作记录一并返回
+        List<NewsOpeRecord> opeRecords = news.getOpeRecords();
+        for(NewsOpeRecord opeRecord : opeRecords){
+            NewsOpeRecordVo opeRecordVo = NewsOpeRecordVo.convert(opeRecord);
+            vo.getOpeRecords().add(opeRecordVo);
+        }
+
+        body.setData(vo);
+
+        body.setMessage("成功获取新闻细节");
+        return body;
+    }
 
     /**
      * 审核人对新闻进行审核
@@ -499,36 +632,133 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
+        //添加操作记录
+        NewsOpeRecord newsOpeRecord = new NewsOpeRecord();
+        newsOpeRecord.setOriginalStatus(news.getStatus());
+
         //如果审核结果为:通过
         if(dto.isPass()){
             //将新闻状态设置为"待发布"(可发布)状态
             news.setStatus(NewsStatusEnum.RELEASABLE.ordinal());
+            newsOpeRecord.setResultStatus(NewsStatusEnum.RELEASABLE.ordinal());
         }else {
             //如果审核结果为:不通过
 
             //将新闻状态设置为"不通过"状态
             news.setStatus(NewsStatusEnum.NOT_APPROVED.ordinal());
+            newsOpeRecord.setResultStatus(NewsStatusEnum.NOT_APPROVED.ordinal());
         }
 
-        //对新闻的反馈意见
-        news.setFeedback(dto.getFeedback());
-
-        //将当前用户记录为该新闻的审核人
-        Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
-
-        news.setReviewer(NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers()));
-
+        news.setView(true);
         newsRepository.saveAndFlush(news);
+
+        //对新闻的反馈意见
+        newsOpeRecord.setFeedback(dto.getFeedback());
+
+        //将调用该接口的当前用户记录为该新闻的审核人(操作者)
+        Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
+        newsOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers()));
+
+        //先查出来再关联，确保不会报瞬态错误
+        newsOpeRecord.setNews(newsRepository.findByUid(news.getUid()));
+        newsOpeRecordRepository.saveAndFlush(newsOpeRecord);
+
+        String queryUid = new String();
+        if(dto.getLevel().equals(LevelEnum.AREA.getValue())){
+            queryUid = userDetails.getArea().getUid();
+        }else {
+            queryUid = userDetails.getTown().getUid();
+        }
+
+        //查找与本账号同地区/镇的具有新闻审核权限的用户
+        List<NpcMember> reviewers =  npcMemberRoleService.findByKeyWordAndLevelAndUid(
+                NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword(),dto.getLevel(),queryUid);
+
+        //构造消息
+        JSONObject newsMsg = new JSONObject();
+        newsMsg.put("subtitle","收到一条新闻的审核结果");
+        newsMsg.put("auditItem",news.getTitle());
+        newsMsg.put("result",dto.isPass()?"通过(可发布)":"不通过(驳回修改)");
+        newsMsg.put("remarkInfo","操作人："+ newsOpeRecord.getOperator().getName()+"<点击查看详情>");
+
+        for(NpcMember reviewer:reviewers){
+            if(!reviewer.getAccount().getUid().equals(userDetails.getUid())){
+                pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.AUDIT_RESULT.ordinal(),newsMsg);
+            }
+        }
 
         body.setMessage("完成新闻审核");
         return body;
     }
 
+    /**
+     * 审核人对新闻进行审核
+     * @param userDetails 用户信息
+     * @param uid
+     * @return
+     */
     @Override
-    public RespBody detailsForMobileReviewer(MobileUserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody publishForMobile(MobileUserDetailsImpl userDetails,String uid,Byte level){
         RespBody body = new RespBody();
+        News news = newsRepository.findByUid(uid);
 
+        if (news == null) {
+            body.setStatus(HttpStatus.NOT_FOUND);
+            body.setMessage("指定的新闻不存在");
+            LOGGER.warn("uid为 {} 的新闻不存在，发布新闻失败",uid);
+            return body;
+        }
+
+        if(news.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该新闻还未审核通过，不可发布");
+            LOGGER.warn("uid为 {} 的新闻还未审核通过，发布新闻失败",uid);
+            return body;
+        }
+
+        if(news.isPublished()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该新闻已经公开，不可重复公开");
+            LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",uid);
+            return body;
+        }
+
+        //将状态设置为已发布
+        news.setStatus(NewsStatusEnum.RELEASED.ordinal());
+
+        //将新闻设置为公开状态
+        news.setPublished(true);
+        newsRepository.saveAndFlush(news);
+
+        //添加操作记录
+        NewsOpeRecord newsOpeRecord = new NewsOpeRecord();
+        newsOpeRecord.setOriginalStatus(news.getStatus());
+        newsOpeRecord.setResultStatus(NewsStatusEnum.RELEASED.ordinal());
+        //将调用该接口的当前用户记录为该新闻的(操作者)
+        Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
+        newsOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(level,currentAccount.getNpcMembers()));
+        newsOpeRecord.setNews(newsRepository.findByUid(news.getUid()));
+        newsOpeRecordRepository.saveAndFlush(newsOpeRecord);
+
+        //如果这条新闻是需要推送的，群发消息
+        if(news.getPushNews()){
+            //构造消息
+            JSONObject newsMsg = new JSONObject();
+            newsMsg.put("subtitle","收到一条新闻");
+            newsMsg.put("time",news.getPublishAt());
+            newsMsg.put("theme",news.getTitle());
+            newsMsg.put("remarkInfo","来源:"+news.getAuthor()+"<点击查看详情>");
+
+            //查找与本账号相同地区及层级的代表
+            List<NpcMember> receivers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),level);
+            for(NpcMember receiver:receivers){
+                pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+            }
+        }
+
+        body.setMessage("新闻公开发布成功");
         return body;
     }
+
 
 }

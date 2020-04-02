@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 /*
- * 后台通知详情
+ * 后台前端通知详情
  */
 @Getter
 @Setter

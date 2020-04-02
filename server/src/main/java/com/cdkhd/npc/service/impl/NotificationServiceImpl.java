@@ -414,7 +414,7 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        if(notification.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
+        if(notification.getStatus() != NotificationStatusEnum.RELEASABLE.ordinal()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该通知还未审核通过，不可发布");
             LOGGER.warn("uid为 {} 的通知还未审核通过，发布通知失败",uid);
@@ -567,7 +567,7 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        if(notification.getStatus() != NewsStatusEnum.RELEASABLE.ordinal()){
+        if(notification.getStatus() != NotificationStatusEnum.RELEASABLE.ordinal()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该通知还未审核通过，不可发布");
             LOGGER.warn("uid为 {} 的通知还未审核通过，发布通知失败",uid);
@@ -614,63 +614,6 @@ public class NotificationServiceImpl implements NotificationService {
         return body;
     }
 
-    @Override
-    public RespBody pageForMobileTest(NotificationPageDto pageDto){
-        //分页查询条件
-        int begin = pageDto.getPage() - 1;
-        Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
-                Sort.Direction.fromString(pageDto.getDirection()),
-                pageDto.getProperty());
-
-        //用户查询条件
-        Specification<Notification> specification = (root, query, cb)->{
-            List<Predicate> predicateList = new ArrayList<>();
-
-//            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-
-//            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-
-//            if(userDetails.getTown() != null){
-//                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
-//            }
-
-            //按签署部门查询
-            if (StringUtils.isNotEmpty(pageDto.getDepartment())) {
-                predicateList.add(cb.like(root.get("department").as(String.class), "%" + pageDto.getDepartment() + "%"));
-            }
-
-            //按通知标题模糊查询
-            if (StringUtils.isNotEmpty(pageDto.getTitle())) {
-                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
-            }
-
-            //按通知状态查询
-            if (pageDto.getStatus() != null) {
-                predicateList.add(cb.equal(root.get("status").as(Integer.class), pageDto.getStatus()));
-            }
-
-//            predicateList.add(cb.equal(root.get("isBillboard").as(Boolean.class), pageDto.isBillboard()));
-
-            if(pageDto.getType() != null){
-                predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getType()));
-            }
-
-            return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
-        };
-
-        //查询数据库
-        Page<Notification> page = notificationRepository.findAll(specification,pageable);
-
-        //封装查询结果
-        PageVo<NotificationPageVo> pageVo = new PageVo<>(page, pageDto);
-        pageVo.setContent(page.getContent().stream().map(NotificationPageVo::convert).collect(Collectors.toList()));
-
-        //返回数据
-        RespBody<PageVo> body = new RespBody<>();
-        body.setData(pageVo);
-
-        return body;
-    }
 
     //接收人获取通知详情
     @Override
@@ -776,7 +719,7 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        if(notification.getStatus() != NewsStatusEnum.UNDER_REVIEW.ordinal()){
+        if(notification.getStatus() != NotificationStatusEnum.UNDER_REVIEW.ordinal()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("指定的通知不在[审核中]状态");
             LOGGER.warn("uid为 {} 的通知不在[审核中]状态，审核通知失败",dto.getUid());
@@ -809,7 +752,8 @@ public class NotificationServiceImpl implements NotificationService {
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
         notificationOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers()));
 
-        notificationOpeRecord.setNotification(notification);
+        //先查出来再关联，确保不会报瞬态错误
+        notificationOpeRecord.setNotification(notificationRepository.findByUid(notification.getUid()));
         notificationOpeRecordRepository.saveAndFlush(notificationOpeRecord);
 
         String queryUid = new String();
@@ -840,57 +784,6 @@ public class NotificationServiceImpl implements NotificationService {
         return body;
     }
 
-    //测试
-    @Override
-    public RespBody reviewForMobileTest(NotificationReviewDto dto){
-        RespBody body = new RespBody();
-        Notification notification = notificationRepository.findByUid(dto.getUid());
-        if (notification == null) {
-            body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("指定的通知不存在");
-            LOGGER.warn("uid为 {} 的通知不存在，审核通知失败",dto.getUid());
-            return body;
-        }
-
-        if(notification.getStatus() != NewsStatusEnum.UNDER_REVIEW.ordinal()){
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("指定的通知不在[审核中]状态");
-            LOGGER.warn("uid为 {} 的通知不在[审核中]状态，审核通知失败",dto.getUid());
-            return body;
-        }
-
-        //添加操作记录
-        NotificationOpeRecord notificationOpeRecord = new NotificationOpeRecord();
-        notificationOpeRecord.setOriginalStatus(notification.getStatus());
-
-        //如果审核结果为:通过
-        if(dto.isPass()){
-            //将通知状态设置为"待发布"(可发布)状态
-            notification.setStatus(NotificationStatusEnum.RELEASABLE.ordinal());
-            notificationOpeRecord.setResultStatus(NotificationStatusEnum.RELEASABLE.ordinal());
-        }else {
-            //如果审核结果为:不通过
-
-            //将通知状态设置为"不通过"状态
-            notification.setStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
-            notificationOpeRecord.setResultStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
-        }
-        //对通知的反馈意见
-        notificationOpeRecord.setFeedback(dto.getFeedback());
-
-        //将调用该接口的当前用户记录为该通知的审核人(操作者)
-        Account currentAccount = accountRepository.findByUid(dto.getUsername());
-        notificationOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers()));
-
-        notificationOpeRecord.setNotification(notification);
-        notificationOpeRecordRepository.saveAndFlush(notificationOpeRecord);
-
-        notification.getOpeRecords().add(notificationOpeRecord);
-
-        notificationRepository.saveAndFlush(notification);
-        body.setMessage("完成通知审核");
-        return body;
-    }
 
     /**
      * 收到通知 分页查询

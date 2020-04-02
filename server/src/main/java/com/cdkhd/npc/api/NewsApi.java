@@ -38,7 +38,7 @@ public class NewsApi {
      * @return
      */
     @GetMapping
-    public ResponseEntity page(NewsPageDto pageDto){
+    public ResponseEntity pageForMobile(NewsPageDto pageDto){
         RespBody body = newsService.pageForMobile(pageDto);
         return ResponseEntity.ok(body);
     }
@@ -94,14 +94,13 @@ public class NewsApi {
 
 
     /**
-     * 后台管理员 或者 新闻审核人 将新闻公开
+     * 新闻审核人 将新闻公开
      *
-     * @param dto 新闻uid
      * @return
      */
     @PostMapping("/publish")
-    public ResponseEntity publish(BaseDto dto){
-        RespBody body = newsService.publish(dto);
+    public ResponseEntity publish(@CurrentUser MobileUserDetailsImpl userDetails,String uid,Byte level){
+        RespBody body = newsService.publishForMobile(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
 

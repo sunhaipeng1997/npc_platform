@@ -7,9 +7,8 @@ import com.cdkhd.npc.enums.NewsStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.util.*;
 
 @Setter
 @Getter
@@ -82,7 +81,7 @@ public class News extends BaseDomain {
 
    	//表示是否公开的，暂时不合并到status中,因为有时会将某些已发布新闻隐藏，不再公开，
    	@Column(name = "published" )
-	private Boolean published = false;
+	private boolean published = false;
 
 	//公开发布时间
     @Column(name = "publish_at" )
@@ -106,14 +105,9 @@ public class News extends BaseDomain {
 	@JoinColumn(name = "town", referencedColumnName = "id")
 	private Town town;
 
-	//TODO 审核与操作记录相关的字段要分离到单独的一张表中去
-	//审核人是否查看
+	//审核人是否有查看该新闻
 	@Column(name = "view" )
 	private Boolean view = false;
-
-	//审核人的反馈意见
-	@Column(name = "feedback" )
-	private String feedback;
 
 	//审核人员查看状态
 	@Column(name = "view_status" )
@@ -121,5 +115,5 @@ public class News extends BaseDomain {
 
 	//记录各位审核人或后台管理员对通知的操作记录
 	@OneToMany(targetEntity = NewsOpeRecord.class, mappedBy = "news", orphanRemoval = true, cascade = CascadeType.ALL)
-	private Set<NewsOpeRecord> opeRecords = new HashSet<>();
+	private List<NewsOpeRecord> opeRecords = new ArrayList<>();
 }

@@ -35,7 +35,7 @@ public class NotificationDetailsForMobileVo extends BaseVo {
     private Integer status;
     private String statusName;
 
-    //方便后台前端显示通知接受者
+    //方便移动端端显示通知接受者
     private List<List<String>> receiversUid;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

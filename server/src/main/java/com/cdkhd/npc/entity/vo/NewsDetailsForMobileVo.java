@@ -1,6 +1,6 @@
 package com.cdkhd.npc.entity.vo;
 
-import com.cdkhd.npc.entity.Account;
+
 import com.cdkhd.npc.entity.News;
 import com.cdkhd.npc.enums.NewsStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
@@ -14,12 +14,11 @@ import java.util.Date;
 import java.util.List;
 
 /*
- * 后台前端新闻详情
+ * 移动端审核人新闻详情
  */
 @Getter
 @Setter
-public class NewsDetailsVo extends BaseVo {
-
+public class NewsDetailsForMobileVo extends BaseVo{
     private String title;
 
     private String newsAbstract;
@@ -68,8 +67,11 @@ public class NewsDetailsVo extends BaseVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date publishAt;
 
-    public static NewsDetailsVo convert(News news) {
-        NewsDetailsVo vo = new NewsDetailsVo();
+    //操作记录
+    private List<NewsOpeRecordVo> opeRecords;
+
+    public static NewsDetailsForMobileVo convert(News news) {
+        NewsDetailsForMobileVo vo = new NewsDetailsForMobileVo();
 
         BeanUtils.copyProperties(news, vo);
         vo.setNewsTypeUid(news.getNewsType().getUid());
