@@ -1,5 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.LoginUP;
@@ -44,10 +45,10 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
 
 
     @Override
-    public RespBody getMobileUserPreferences(UserDetailsImpl userDetails){
+    public RespBody getMobileUserPreferences(MobileUserDetailsImpl userDetails){
         RespBody<MobileUserPreferencesVo> body = new RespBody<>();
 
-        Account account =  loginUPRepository.findByUsername(userDetails.getUsername()).getAccount();
+        Account account =  accountRepository.findByUid(userDetails.getUid());
         if(account == null){
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("无此用户");
@@ -107,7 +108,7 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
 
 
     @Override
-    public RespBody updateMobileUserPreferences(UserDetailsImpl userDetails, MobileUserPreferencesDto dto){
+    public RespBody updateMobileUserPreferences(MobileUserDetailsImpl userDetails, MobileUserPreferencesDto dto){
         RespBody body = new RespBody();
 
         Account account =  loginUPRepository.findByUsername(userDetails.getUsername()).getAccount();

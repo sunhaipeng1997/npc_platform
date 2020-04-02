@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.Account;
@@ -406,7 +407,7 @@ public class NewsServiceImpl implements NewsService {
      * @return
      */
     @Override
-    public RespBody review(UserDetailsImpl userDetails,NewsReviewDto dto){
+    public RespBody review(MobileUserDetailsImpl userDetails, NewsReviewDto dto){
         RespBody body = new RespBody();
         News news = newsRepository.findByUid(dto.getUid());
         if (news == null) {
@@ -440,7 +441,7 @@ public class NewsServiceImpl implements NewsService {
         //将当前用户记录为该新闻的审核人
         Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
 
-        news.setReviewer(NpcMemberUtil.getCurrentIden(userDetails.getLevel(),currentAccount.getNpcMembers()));
+        news.setReviewer(NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers()));
 
         newsRepository.saveAndFlush(news);
 

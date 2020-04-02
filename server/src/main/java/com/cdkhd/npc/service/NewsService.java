@@ -1,5 +1,6 @@
 package com.cdkhd.npc.service;
 
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.*;
@@ -23,7 +24,7 @@ public interface NewsService {
 
     RespBody details(String uid);
 
-    RespBody review(UserDetailsImpl userDetails,NewsReviewDto dto);
+    RespBody review(MobileUserDetailsImpl userDetails, NewsReviewDto dto);
 
     RespBody toReview(UserDetailsImpl userDetails,String uid);
 

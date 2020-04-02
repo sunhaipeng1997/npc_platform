@@ -1,6 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.MobileUserPreferencesDto;
 import com.cdkhd.npc.service.MobileUserPreferencesService;
@@ -29,7 +30,7 @@ public class MobileUserPreferencesApi {
      * @return 查询结果
      */
     @GetMapping
-    public ResponseEntity getMobileUserPreferences(@CurrentUser UserDetailsImpl userDetails){
+    public ResponseEntity getMobileUserPreferences(@CurrentUser MobileUserDetailsImpl userDetails){
         RespBody body = mobileUserPreferencesService.getMobileUserPreferences(userDetails);
         return ResponseEntity.ok(body);
     }
@@ -41,7 +42,7 @@ public class MobileUserPreferencesApi {
      * @return 更新结果
      */
     @PutMapping
-    public ResponseEntity updateMobileUserPreferences(@CurrentUser UserDetailsImpl userDetails, MobileUserPreferencesDto dto){
+    public ResponseEntity updateMobileUserPreferences(@CurrentUser MobileUserDetailsImpl userDetails, MobileUserPreferencesDto dto){
         RespBody body = mobileUserPreferencesService.updateMobileUserPreferences(userDetails,dto);
         return ResponseEntity.ok(body);
     }

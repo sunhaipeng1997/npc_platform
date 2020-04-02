@@ -13,4 +13,6 @@ public class NewsReviewDto extends BaseDto {
 
     //审核人的反馈意见
     private String feedback;
+
+    private Byte level;
 }
