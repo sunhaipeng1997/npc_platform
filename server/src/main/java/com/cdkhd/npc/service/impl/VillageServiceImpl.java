@@ -70,14 +70,27 @@ public class VillageServiceImpl implements VillageService {
     public RespBody addOrUpdateVillage(UserDetailsImpl userDetails, VillageAddDto villageAddDto) {
         RespBody body = new RespBody();
         Village village;
-        if (StringUtils.isEmpty(villageAddDto.getUid())) {
-            village = new Village();
-            village.setTown(userDetails.getTown());
-        }else{
+        if (StringUtils.isEmpty(villageAddDto.getUid())) {  //添加村
+            village = villageRepository.findByTownUidAndName(userDetails.getTown().getUid(), villageAddDto.getName());
+            if (null != village){
+                body.setMessage("该村已存在");
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                return body;
+            }else {
+                village = new Village();
+                village.setTown(userDetails.getTown());
+            }
+        }else{  //修改村
             village = villageRepository.findByUid(villageAddDto.getUid());
             if (village == null) {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("找不到修改的村");
+                return body;
+            }
+            Village village1 = villageRepository.findByTownUidAndNameAndUidIsNot(userDetails.getTown().getUid(), villageAddDto.getName(), village.getUid());
+            if (village1 != null){
+                body.setMessage("该村已存在");
+                body.setStatus(HttpStatus.BAD_REQUEST);
                 return body;
             }
         }

@@ -9,4 +9,6 @@ public interface NpcMemberGroupRepository extends BaseRepository<NpcMemberGroup>
     NpcMemberGroup findByTownUidAndName(String townUid, String name);
 
     List<NpcMemberGroup> findByTownUid(String townUid);
+
+    NpcMemberGroup findByTownUidAndNameAndUidIsNot(String townUid, String name, String uid);
 }

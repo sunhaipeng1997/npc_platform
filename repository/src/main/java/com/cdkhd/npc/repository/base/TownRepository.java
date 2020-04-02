@@ -10,4 +10,6 @@ public interface TownRepository extends BaseRepository<Town> {
 
     List<Town> findByAreaUidOrderByNameAsc(String uid);
 
+    Town findByAreaUidAndNameAndUidIsNot(String areaUid, String name, String uid);
+
 }

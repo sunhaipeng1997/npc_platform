@@ -232,6 +232,12 @@ public class TownServiceImpl implements TownService {
             body.setMessage("找不到该镇");
             return body;
         }
+        Town town1 = townRepository.findByAreaUidAndNameAndUidIsNot(userDetails.getArea().getUid(), townAddDto.getName(), town.getUid());
+        if (town1 != null){
+            body.setMessage("该镇已存在");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
         town.setName(townAddDto.getName());
         town.setDescription(townAddDto.getDescription());
         townRepository.saveAndFlush(town);
