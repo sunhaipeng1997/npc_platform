@@ -13,6 +13,8 @@ public class NewsTypePageDto extends PageDto {
 
     private Byte status;
 
+    private Byte level;
+
     private String areaUid;
 
     private String townUid;

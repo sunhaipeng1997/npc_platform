@@ -33,6 +33,9 @@ public class NewsType extends BaseDomain {
 	@JoinColumn(name = "town", referencedColumnName = "id")
 	private Town town;
 
+	@Column(name = "level" )
+	private Byte level;
+
     //类型状态
     @Column(name = "status" )
 	private Byte status = StatusEnum.DISABLED.getValue();
