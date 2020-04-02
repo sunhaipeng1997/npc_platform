@@ -1,6 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.service.SystemService;
 import com.cdkhd.npc.vo.RespBody;
@@ -32,14 +33,14 @@ public class SystemApi {
     //获取我上次登录缓存的系统
     @GetMapping("/getCacheSystem")
     public ResponseEntity getCacheSystem(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = systemService.getCacheSystem(userDetails);
+        RespBody body = systemService.getCacheSystem(userDetails.getUid());
         return ResponseEntity.ok(body);
     }
 
     //缓存本次选择的系统
     @PostMapping("/cacheSystem")
     public ResponseEntity cacheSystem(@CurrentUser UserDetailsImpl userDetails, String systemId) {
-        RespBody body = systemService.cacheSystem(userDetails,systemId);
+        RespBody body = systemService.cacheSystem(userDetails.getUid(),systemId);
         return ResponseEntity.ok(body);
     }
 }

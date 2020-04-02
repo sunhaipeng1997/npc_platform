@@ -1,13 +1,11 @@
 package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Study;
 import com.cdkhd.npc.entity.StudyType;
-import com.cdkhd.npc.entity.dto.StudyAddDto;
-import com.cdkhd.npc.entity.dto.StudyDto;
-import com.cdkhd.npc.entity.dto.StudyTypeAddDto;
-import com.cdkhd.npc.entity.dto.StudyTypeDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.StudyTypeVo;
 import com.cdkhd.npc.entity.vo.StudyVo;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -450,10 +448,10 @@ public class StudyServiceImpl implements StudyService {
      * @return
      */
     @Override
-    public RespBody studyList(UserDetailsImpl userDetails) {
+    public RespBody studyList(UserDetailsImpl userDetails, LevelDto levelDto) {
         RespBody body = new RespBody();
         List<StudyType> studyTypeList;
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+        if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
             studyTypeList = studyTypeRepository.findByStatusAndLevelAndTownUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
         }else{
             studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getArea().getUid());

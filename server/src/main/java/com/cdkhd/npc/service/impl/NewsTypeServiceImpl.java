@@ -57,6 +57,7 @@ public class NewsTypeServiceImpl implements NewsTypeService {
 
         newsType.setArea(userDetails.getArea());
         newsType.setTown(userDetails.getTown());
+        newsType.setLevel(userDetails.getLevel());
 
         Integer maxSequence = newsTypeRepository.findMaxSequence();
         if (maxSequence == null) {
@@ -158,11 +159,9 @@ public class NewsTypeServiceImpl implements NewsTypeService {
         Specification<NewsType> specification = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
 
-            //按地区编码查询
             predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-
-            if (userDetails.getTown() != null) {
-                //按镇/社区名称模糊查询
+            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            if(userDetails.getTown() != null){
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
 
@@ -214,9 +213,9 @@ public class NewsTypeServiceImpl implements NewsTypeService {
 
             //按地区编码查询
             predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
+            predicateList.add(cb.equal(root.get("level").as(Byte.class), pageDto.getLevel()));
 
             if (StringUtils.isNotEmpty(pageDto.getTownUid())) {
-                //按镇/社区名称模糊查询
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), pageDto.getTownUid()));
             }
 

@@ -1,10 +1,8 @@
 package com.cdkhd.npc.service;
 
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.StudyAddDto;
-import com.cdkhd.npc.entity.dto.StudyDto;
-import com.cdkhd.npc.entity.dto.StudyTypeAddDto;
-import com.cdkhd.npc.entity.dto.StudyTypeDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -118,6 +116,6 @@ public interface StudyService {
      * @param userDetails
      * @return
      */
-    RespBody studyList(UserDetailsImpl userDetails);
+    RespBody studyList(UserDetailsImpl userDetails, LevelDto levelDto);
 
 }

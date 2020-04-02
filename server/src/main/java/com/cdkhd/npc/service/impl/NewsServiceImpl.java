@@ -241,7 +241,7 @@ public class NewsServiceImpl implements NewsService {
 
 
     /**
-     * 分页查询
+     * PC端分页查询
      * @param userDetails 用户信息
      * @param pageDto 新闻页面dto
      * @return
@@ -261,6 +261,7 @@ public class NewsServiceImpl implements NewsService {
 
             //按地区编码查询
             predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
 
             //按镇/社区名称模糊查询
             if(userDetails.getTown() != null){

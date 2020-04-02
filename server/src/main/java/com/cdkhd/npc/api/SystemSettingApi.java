@@ -2,7 +2,10 @@ package com.cdkhd.npc.api;
 
 
 import com.cdkhd.npc.annotation.CurrentUser;
+import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.LevelDto;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.service.StudyService;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.vo.RespBody;
@@ -28,8 +31,14 @@ public class SystemSettingApi {
      * @return
      */
     @GetMapping("/getSystemSetting")
-    public ResponseEntity getSystemSetting(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = systemSettingService.getSystemSettings(userDetails);
+    public ResponseEntity getSystemSetting(@CurrentUser UserDetailsImpl userDetails, LevelDto levelDto) {
+        String uid = "";
+        if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            uid = userDetails.getTown().getUid();
+        }else if (levelDto.getLevel().equals(LevelEnum.AREA.getValue())){
+            uid = userDetails.getArea().getUid();
+        }
+        RespBody body = systemSettingService.getSystemSettings(levelDto.getLevel(),uid);
         return ResponseEntity.ok(body);
     }
 

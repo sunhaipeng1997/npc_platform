@@ -21,7 +21,7 @@ public class GroupMemberVo extends BaseVo {
     private Date birthday;
 
     //性别 0 表示女  1表示男
-    private int gender;
+    private String gender;
 
     //手机号
     private String mobile;
@@ -38,6 +38,7 @@ public class GroupMemberVo extends BaseVo {
     public static GroupMemberVo convert(NpcMember npcMember) {
         GroupMemberVo vo = new GroupMemberVo();
         BeanUtils.copyProperties(npcMember, vo);
+        vo.setGender(npcMember.getGender().equals((byte)1) ? "男" : "女");
         return vo;
     }
 }
