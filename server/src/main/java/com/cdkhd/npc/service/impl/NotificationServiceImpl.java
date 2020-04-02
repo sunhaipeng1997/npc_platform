@@ -556,7 +556,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public RespBody publishForMobile(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody publishForMobile(MobileUserDetailsImpl userDetails,String uid,Byte level){
         RespBody body = new RespBody();
         Notification notification = notificationRepository.findByUid(uid);
 
@@ -617,7 +617,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     //接收人获取通知详情
     @Override
-    public RespBody detailsForMobileReceiver(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody detailsForMobileReceiver(MobileUserDetailsImpl userDetails,String uid,Byte level){
         RespBody<NotificationDetailsForMobileVo> body = new RespBody<>();
         if(uid.isEmpty()){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -663,7 +663,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     //审核人获取通知详情
     @Override
-    public RespBody detailsForMobileReviewer(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody detailsForMobileReviewer(MobileUserDetailsImpl userDetails,String uid,Byte level){
         RespBody<NotificationDetailsForMobileVo> body = new RespBody<>();
         if(uid.isEmpty()){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -709,7 +709,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      */
     @Override
-    public RespBody review(UserDetailsImpl userDetails,NotificationReviewDto dto){
+    public RespBody review(MobileUserDetailsImpl userDetails,NotificationReviewDto dto){
         RespBody body = new RespBody();
         Notification notification = notificationRepository.findByUid(dto.getUid());
         if (notification == null) {
@@ -791,7 +791,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      */
     @Override
-    public RespBody mobileReceivedPage(UserDetailsImpl userDetails, NotificationPageDto pageDto) {
+    public RespBody mobileReceivedPage(MobileUserDetailsImpl userDetails, NotificationPageDto pageDto) {
 
         RespBody<PageVo<NotificationMobileReceivedPageVo>> body = new RespBody<>();
 
@@ -823,7 +823,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public RespBody mobileReviewPage(UserDetailsImpl userDetails,NotificationPageDto dto) {
+    public RespBody mobileReviewPage(MobileUserDetailsImpl userDetails,NotificationPageDto dto) {
 
         RespBody<PageVo<NotificationPageVo>> body = new RespBody<>();
 
@@ -869,7 +869,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void downloadAttachment(HttpServletResponse response, UserDetailsImpl uds, String uid) {
+    public void downloadAttachment(HttpServletResponse response, MobileUserDetailsImpl uds, String uid) {
         Attachment attachment = attachmentRepository.findByUid(uid);
 
         // 找不到指定的附件
