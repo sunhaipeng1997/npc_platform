@@ -791,33 +791,62 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      */
     @Override
-    public RespBody mobileReceivedPage(MobileUserDetailsImpl userDetails, NotificationPageDto pageDto) {
+    public RespBody mobileReceivedPage(MobileUserDetailsImpl userDetails, NotificationPageDto dto) {
 
         RespBody<PageVo<NotificationMobileReceivedPageVo>> body = new RespBody<>();
 
         //分页查询条件
-        int begin = pageDto.getPage() - 1;
-        Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
-                Sort.Direction.fromString(pageDto.getDirection()),
-                pageDto.getProperty());
+        int begin = dto.getPage() - 1;
+        Pageable pageable = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
 
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
-        NpcMember npcMember = NpcMemberUtil.getCurrentIden(pageDto.getLevel(),currentAccount.getNpcMembers());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers());
 
-        PageVo<NotificationMobileReceivedPageVo> vo = new PageVo<>(pageDto);
+//        PageVo<NotificationMobileReceivedPageVo> vo = new PageVo<>(dto);
+//
+//        if (npcMember != null) {
+//            Page<NotificationViewDetail> pageRes = notificationViewDetailRepository.findAll(
+//                    (Specification<NotificationViewDetail>) (root, query, cb) -> cb.and(
+//                            cb.isTrue(root.get("notification").get("published")),
+//                            cb.equal(root.get("receiver").get("uid"), npcMember.getUid()),
+//                            cb.equal(root.get("notification").get("status").as(Integer.class),NotificationStatusEnum.RELEASED.ordinal())
+//                    ), pageable);
+//            vo.setContent(pageRes.stream().map(NotificationMobileReceivedPageVo::convert).collect(Collectors.toList()));
+//            vo.copy(pageRes);
+//        }
+//        body.setData(vo);
 
         if (npcMember != null) {
-            Page<NotificationViewDetail> pageRes = notificationViewDetailRepository.findAll(
-                    (Specification<NotificationViewDetail>) (root, query, cb) -> cb.and(
-                            cb.isTrue(root.get("notification").get("published")),
-                            cb.equal(root.get("receiver").get("uid"), npcMember.getUid()),
-                            cb.equal(root.get("notification").get("status").as(int.class),NotificationStatusEnum.RELEASED.ordinal())
-                    ), pageable);
-            vo.setContent(pageRes.stream().map(NotificationMobileReceivedPageVo::convert).collect(Collectors.toList()));
-            vo.copy(pageRes);
-        }
-        body.setData(vo);
 
+            //用户查询条件
+            Specification<NotificationViewDetail> specification = (root, query, cb)->{
+                List<Predicate> predicateList = new ArrayList<>();
+                predicateList.add(cb.equal(root.get("receiver").get("uid"), npcMember.getUid()));
+                predicateList.add(cb.isTrue(root.get("notification").get("published")));
+                predicateList.add(cb.equal(root.get("notification").get("status").as(Integer.class),NotificationStatusEnum.RELEASED.ordinal()));
+
+                predicateList.add(cb.equal(root.get("notification").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicateList.add(cb.equal(root.get("notification").get("level").as(Byte.class), dto.getLevel()));
+
+                if(userDetails.getTown() != null){
+                    predicateList.add(cb.equal(root.get("notification").get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
+                }
+                return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
+            };
+            //查询数据库
+            Page<NotificationViewDetail> page = notificationViewDetailRepository.findAll(specification,pageable);
+
+            //封装查询结果
+            PageVo<NotificationMobileReceivedPageVo> pageVo = new PageVo<>(page, dto);
+            pageVo.setContent(page.getContent().stream().map(NotificationMobileReceivedPageVo::convert).collect(Collectors.toList()));
+
+            //返回数据
+            body.setData(pageVo);
+            return body;
+        }
+
+        body.setStatus(HttpStatus.BAD_REQUEST);
+        body.setMessage("不存在该代表");
         return body;
     }
 
@@ -828,7 +857,7 @@ public class NotificationServiceImpl implements NotificationService {
         RespBody<PageVo<NotificationPageVo>> body = new RespBody<>();
 
         int begin = dto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+        Pageable pageable = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
 
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers());
@@ -839,26 +868,55 @@ public class NotificationServiceImpl implements NotificationService {
             //如果是通知公告审核人
             if (roleKeywords.contains(NpcMemberRoleEnum.NOTICE_AUDITOR.getKeyword()) ) {
 
-                Page<Notification> pageRes = notificationRepository.findAll((Specification<Notification>) (root, query, cb) -> {
-                    Predicate predicate = root.isNotNull();
+//                Page<Notification> pageRes = notificationRepository.findAll((Specification<Notification>) (root, query, cb) -> {
+//                    Predicate predicate = root.isNotNull();
+//
+//                    //过滤掉初始创建和草稿状态
+//                    if (dto.getStatus() != NotificationStatusEnum.CREATED.ordinal()
+//                            && dto.getStatus()!= NotificationStatusEnum.DRAFT.ordinal()){
+//                        predicate = cb.equal(root.get("status").as(int.class),dto.getStatus());
+//                    }else {
+//                        predicate = cb.and(
+//                                cb.notEqual(root.get("status").as(int.class),NotificationStatusEnum.CREATED.ordinal()),
+//                                cb.notEqual(root.get("status").as(int.class),NotificationStatusEnum.DRAFT.ordinal())
+//                        );
+//                    }
+//
+//                    return predicate;
+//                }, page);
+//
+//                PageVo<NotificationPageVo> vo = new PageVo<>(pageRes, dto);
+//                vo.setContent(pageRes.stream().map(NotificationPageVo::convert).collect(Collectors.toList()));
+//                body.setData(vo);
 
-                    //过滤掉初始创建和草稿状态
-                    if (dto.getStatus() != NotificationStatusEnum.CREATED.ordinal()
-                            && dto.getStatus()!= NotificationStatusEnum.DRAFT.ordinal()){
-                        predicate = cb.equal(root.get("status").as(int.class),dto.getStatus());
-                    }else {
-                        predicate = cb.and(
-                                cb.notEqual(root.get("status").as(int.class),NotificationStatusEnum.CREATED.ordinal()),
-                                cb.notEqual(root.get("status").as(int.class),NotificationStatusEnum.DRAFT.ordinal())
-                        );
+                //用户查询条件
+                Specification<Notification> specification = (root, query, cb)->{
+                    List<Predicate> predicateList = new ArrayList<>();
+
+                    predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                    predicateList.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
+
+                    if(userDetails.getTown() != null){
+                        predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
                     }
 
-                    return predicate;
-                }, page);
+                    //按新闻状态查询
+                    if (dto.getStatus() != null) {
+                        predicateList.add(cb.equal(root.get("status").as(Integer.class), dto.getStatus()));
+                    }
 
-                PageVo<NotificationPageVo> vo = new PageVo<>(pageRes, dto);
-                vo.setContent(pageRes.stream().map(NotificationPageVo::convert).collect(Collectors.toList()));
-                body.setData(vo);
+                    return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
+                };
+
+                //查询数据库
+                Page<Notification> page = notificationRepository.findAll(specification,pageable);
+
+                //封装查询结果
+                PageVo<NotificationPageVo> pageVo = new PageVo<>(page, dto);
+                pageVo.setContent(page.getContent().stream().map(NotificationPageVo::convert).collect(Collectors.toList()));
+
+                //返回数据
+                body.setData(pageVo);
             }else {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("您暂无此权限");

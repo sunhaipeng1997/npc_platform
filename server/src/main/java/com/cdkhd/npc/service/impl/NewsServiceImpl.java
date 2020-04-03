@@ -521,8 +521,14 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public RespBody mobileReviewPage(MobileUserDetailsImpl userDetails, NewsPageDto dto){
         RespBody<PageVo<NewsPageVo>> body = new RespBody<>();
+        if (dto.getStatus() == NewsStatusEnum.CREATED.ordinal() || dto.getStatus() == NewsStatusEnum.DRAFT.ordinal()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("您不能查询草稿状态新闻");
+            return body;
+        }
+
         int begin = dto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+        Pageable pageable = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
 
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers());
@@ -533,26 +539,63 @@ public class NewsServiceImpl implements NewsService {
             //如果是新闻审核人
             if (roleKeywords.contains(NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword()) ) {
 
-                Page<News> pageRes = newsRepository.findAll((Specification<News>) (root, query, cb) -> {
-                    Predicate predicate = root.isNotNull();
+//                Page<News> pageRes = newsRepository.findAll((Specification<News>) (root, query, cb) -> {
+//                    Predicate predicate = root.isNotNull();
+//
+//                    //过滤掉初始创建和草稿状态
+//                    if (dto.getStatus() != NewsStatusEnum.CREATED.ordinal()
+//                            && dto.getStatus()!= NewsStatusEnum.DRAFT.ordinal()
+//                            && dto.getStatus()!= null){
+//                        predicate = cb.and(
+//                                cb.equal(root.get("status").as(int.class),dto.getStatus()),
+//                                cb.equal(root.get("area").get("uid").as(String.class),userDetails.getArea().getUid()),
+//                                cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()),
+//
+//                        );
+//
+//                    }else {
+//                        predicate = cb.and(
+//                                cb.notEqual(root.get("status").as(int.class), NewsStatusEnum.CREATED.ordinal()),
+//                                cb.notEqual(root.get("status").as(int.class),NewsStatusEnum.DRAFT.ordinal()),
+//
+//                        );
+//                    }
+//
+//                    return predicate;
+//                }, page);
+//
+//                PageVo<NewsPageVo> vo = new PageVo<>(pageRes, dto);
+//                vo.setContent(pageRes.stream().map(NewsPageVo::convert).collect(Collectors.toList()));
+//                body.setData(vo);
 
-                    //过滤掉初始创建和草稿状态
-                    if (dto.getStatus() != NewsStatusEnum.CREATED.ordinal()
-                            && dto.getStatus()!= NewsStatusEnum.DRAFT.ordinal()){
-                        predicate = cb.equal(root.get("status").as(int.class),dto.getStatus());
-                    }else {
-                        predicate = cb.and(
-                                cb.notEqual(root.get("status").as(int.class), NewsStatusEnum.CREATED.ordinal()),
-                                cb.notEqual(root.get("status").as(int.class),NewsStatusEnum.DRAFT.ordinal())
-                        );
+                //用户查询条件
+                Specification<News> specification = (root, query, cb)->{
+                    List<Predicate> predicateList = new ArrayList<>();
+
+                    predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                    predicateList.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
+
+                    if(userDetails.getTown() != null){
+                        predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
                     }
 
-                    return predicate;
-                }, page);
+                    //按新闻状态查询
+                    if (dto.getStatus() != null) {
+                        predicateList.add(cb.equal(root.get("status").as(Integer.class), dto.getStatus()));
+                    }
 
-                PageVo<NewsPageVo> vo = new PageVo<>(pageRes, dto);
-                vo.setContent(pageRes.stream().map(NewsPageVo::convert).collect(Collectors.toList()));
-                body.setData(vo);
+                    return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
+                };
+
+                //查询数据库
+                Page<News> page = newsRepository.findAll(specification,pageable);
+
+                //封装查询结果
+                PageVo<NewsPageVo> pageVo = new PageVo<>(page, dto);
+                pageVo.setContent(page.getContent().stream().map(NewsPageVo::convert).collect(Collectors.toList()));
+
+                //返回数据
+                body.setData(pageVo);
             }else {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("您暂无此权限");
@@ -591,6 +634,10 @@ public class NewsServiceImpl implements NewsService {
         List<String> roleKeywords = npcMember.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toList());
         if (roleKeywords.contains(NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword()) ) {
             news.setView(true);
+        } else {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("您没有新闻审核权限");
+            return body;
         }
 
         NewsDetailsForMobileVo vo = NewsDetailsForMobileVo.convert(news);
