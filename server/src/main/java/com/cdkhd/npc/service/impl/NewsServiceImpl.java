@@ -34,6 +34,7 @@ import javax.persistence.criteria.Predicate;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -793,14 +794,15 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
-
-
         //添加操作记录
         NewsOpeRecord newsOpeRecord = new NewsOpeRecord();
         newsOpeRecord.setOriginalStatus(news.getStatus());
         newsOpeRecord.setResultStatus(NewsStatusEnum.RELEASED.ordinal());
+        newsOpeRecord.setFeedback("完成发布"+news.getTitle());
+        newsOpeRecord.setOpTime(new Date());
+        newsOpeRecord.setAction("发布");
         //将调用该接口的当前用户记录为该新闻的(操作者)
-        Account currentAccount = accountRepository.findByUid(userDetails.getUsername());
+        Account currentAccount = accountRepository.findByUid(userDetails.getUid());
         newsOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(level,currentAccount.getNpcMembers()).getName());
         newsOpeRecord.setNews(newsRepository.findByUid(news.getUid()));
         newsOpeRecordRepository.saveAndFlush(newsOpeRecord);
