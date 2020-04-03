@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,11 +166,15 @@ public class SuggestionServiceImpl implements SuggestionService {
             suggestionBusiness.setLevel(userDetails.getLevel());
             suggestionBusiness.setArea(userDetails.getArea());
             suggestionBusiness.setTown(userDetails.getTown());
-            Integer maxSequence = suggestionBusinessRepository.findMaxSequence();
-            if(maxSequence == null){//防治数据库初始为空时报错，所以将初始序号设置为0。（李亚林）
-                maxSequence = 0;
+            Integer maxSequence = 0;
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+                Set<SuggestionBusiness> suggestionBusinesses = suggestionBusinessRepository.findByTownUid(userDetails.getTown().getUid());
+                maxSequence = suggestionBusiness != null ? suggestionBusinesses.size() + 1 : 0;
+            }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+                Set<SuggestionBusiness> suggestionBusinesses = suggestionBusinessRepository.findByAreaUid(userDetails.getArea().getUid());
+                maxSequence = suggestionBusiness != null ? suggestionBusinesses.size() + 1 : 0;
             }
-            suggestionBusiness.setSequence(maxSequence + 1);
+            suggestionBusiness.setSequence(maxSequence);
         }
         suggestionBusiness.setName(suggestionBusinessAddDto.getName());
         suggestionBusiness.setRemark(suggestionBusinessAddDto.getRemark());
@@ -206,7 +211,7 @@ public class SuggestionServiceImpl implements SuggestionService {
      * @return
      */
     @Override
-    public RespBody changeTypeSequence(String uid, Byte type) {
+    public RespBody changeTypeSequence(UserDetailsImpl userDetails, String uid, Byte type) {
         RespBody body = new RespBody();
         SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(uid);
         if (suggestionBusiness == null) {
@@ -214,16 +219,38 @@ public class SuggestionServiceImpl implements SuggestionService {
             body.setMessage("找不到建议类型！");
             return body;
         }
-        SuggestionBusiness target;
-        if (!type.equals(Constant.LOGIN_WAY_UP)) {//1 上移
-            Sort sort = new Sort(Sort.Direction.ASC, "sequence");
-            Pageable page = PageRequest.of(0, 1, sort);
-            target = suggestionBusinessRepository.findBySequenceAsc(suggestionBusiness.getSequence(), page).getContent().get(0);
-        } else {
+        SuggestionBusiness target = null;
+        if (type.equals(Constant.LOGIN_WAY_UP)) {//1 上移
             Sort sort = new Sort(Sort.Direction.DESC, "sequence");
             Pageable page = PageRequest.of(0, 1, sort);
-            target = suggestionBusinessRepository.findBySequenceDesc(suggestionBusiness.getSequence(), page).getContent().get(0);
+            if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                target = suggestionBusinessRepository.findBySequenceAndLevelAreaUidDesc(suggestionBusiness.getSequence(), userDetails.getLevel(), userDetails.getArea().getUid(), page).getContent().get(0);
+            } else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                target = suggestionBusinessRepository.findBySequenceAndLevelTownUidDesc(suggestionBusiness.getSequence(), userDetails.getLevel(), userDetails.getTown().getUid(), page).getContent().get(0);
+            }
+        } else {
+            Sort sort = new Sort(Sort.Direction.ASC, "sequence");
+            Pageable page = PageRequest.of(0, 1, sort);
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                target = suggestionBusinessRepository.findBySequenceAndLevelTownUidAsc(suggestionBusiness.getSequence(), userDetails.getLevel(), userDetails.getTown().getUid(), page).getContent().get(0);
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                target = suggestionBusinessRepository.findBySequenceAndLevelAreaUidAsc(suggestionBusiness.getSequence(), userDetails.getLevel(), userDetails.getArea().getUid(), page).getContent().get(0);
+            }
         }
+        if (target == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("移动失败！");
+            return body;
+        }
+//        if (!type.equals(Constant.LOGIN_WAY_UP)) {//1 上移
+//            Sort sort = new Sort(Sort.Direction.ASC, "sequence");
+//            Pageable page = PageRequest.of(0, 1, sort);
+//            target = suggestionBusinessRepository.findBySequenceAsc(suggestionBusiness.getSequence(), page).getContent().get(0);
+//        } else {
+//            Sort sort = new Sort(Sort.Direction.DESC, "sequence");
+//            Pageable page = PageRequest.of(0, 1, sort);
+//            target = suggestionBusinessRepository.findBySequenceDesc(suggestionBusiness.getSequence(), page).getContent().get(0);
+//        }
         List<SuggestionBusiness> sb = this.changeSequence(suggestionBusiness, target);
         suggestionBusinessRepository.saveAll(sb);
         return body;

@@ -207,13 +207,14 @@ public class TownServiceImpl implements TownService {
         khd_backgroundAdmin.setLevel(LevelEnum.TOWN.getValue());
         backgroundAdminRepository.saveAndFlush(khd_backgroundAdmin);
 
+        int temp = 1;
         //给该镇初始化两个默认的履职类型
         for (PerformanceTypeEnum performanceTypeEnum : PerformanceTypeEnum.values()) {
             PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(),LevelEnum.TOWN.getValue(),town.getUid(),StatusEnum.ENABLED.getValue());
             if (performanceType == null) {
-                Integer maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(), area.getUid());
+//                Integer maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(), area.getUid());
                 performanceType = new PerformanceType();
-                performanceType.setSequence(maxSequence==null ? 1: maxSequence + 1);
+                performanceType.setSequence(temp++);
                 performanceType.setName(performanceTypeEnum.getValue());
                 performanceType.setRemark("初始化数据，不可删除");
                 performanceType.setTown(town);
