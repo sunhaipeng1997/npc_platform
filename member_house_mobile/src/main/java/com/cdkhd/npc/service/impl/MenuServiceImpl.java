@@ -3,6 +3,7 @@ package com.cdkhd.npc.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.vo.LevelVo;
 import com.cdkhd.npc.entity.vo.MenuVo;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
@@ -443,6 +444,26 @@ public class MenuServiceImpl implements MenuService {
         }
         //代表
         body.setData(obj);
+        return body;
+    }
+
+    @Override
+    public RespBody getLevels(MobileUserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        Account account = accountRepository.findByUid(userDetails.getUid());//查询账号信息
+        Set<AccountRole> accountRoles = account.getAccountRoles();
+        List<LevelVo> levelVos = Lists.newArrayList();
+        List<AccountRole> memberRoles = accountRoles.stream().filter(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(memberRoles)){//如果代表身份不为空
+            for (NpcMember npcMember : account.getNpcMembers()) {
+                String name = npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getTown().getName():npcMember.getArea().getName();
+                levelVos = npcMember.getNpcMemberRoles().stream().filter(role -> role.getIsMust()).map(role -> LevelVo.convert(role.getUid(),name+role.getName(),npcMember.getLevel())).collect(Collectors.toList());
+            }
+        }
+        if (CollectionUtils.isEmpty(levelVos)){//代表排除后，将后台管理员也排除掉
+            levelVos = accountRoles.stream().filter(role -> (!role.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()))|| (!role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()))).map(role -> LevelVo.convert(role.getUid(),role.getName(),LevelEnum.TOWN.getValue())).collect(Collectors.toList());
+        }
+        body.setData(levelVos);
         return body;
     }
 }

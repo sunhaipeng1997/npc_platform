@@ -166,7 +166,6 @@ public class SuggestionServiceImpl implements SuggestionService {
             suggestion.setLeader(npcMember);
             suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
 
-
             //设置完基本信息后，给相应审核人员推送消息
 
             JSONObject suggestionMsg = new JSONObject();

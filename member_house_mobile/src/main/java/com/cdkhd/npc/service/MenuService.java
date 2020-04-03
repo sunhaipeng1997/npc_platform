@@ -8,4 +8,6 @@ public interface MenuService {
     RespBody getMenus(MobileUserDetailsImpl userDetails, String system, Byte level);
 
     RespBody countUnRead(MobileUserDetailsImpl userDetails, Byte level);
+
+    RespBody getLevels(MobileUserDetailsImpl userDetails);
 }

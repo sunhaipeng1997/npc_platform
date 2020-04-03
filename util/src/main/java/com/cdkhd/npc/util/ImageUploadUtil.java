@@ -49,10 +49,10 @@ public class ImageUploadUtil {
 //            FileUtils.copyInputStreamToFile(is, imageFile);
             if(width == 0 || height == 0){
                 //照片，裁剪尺寸width*height，
-                Thumbnails.of(is).size(500, 300).outputFormat("jpg").toFile(imageFile);
+                Thumbnails.of(is).size(500, 300).outputFormat(extName).toFile(imageFile);
             }else {
                 //照片，裁剪尺寸width*height
-                Thumbnails.of(is).size(width, height).outputFormat("jpg").toFile(imageFile);
+                Thumbnails.of(is).size(width, height).outputFormat(extName).toFile(imageFile);
             }
 
         } catch (IOException e) {
@@ -94,7 +94,7 @@ public class ImageUploadUtil {
 //            FileUtils.copyInputStreamToFile(is, imageFile);
 
             //按比例缩放%50，dpi降为原来的一半
-            Thumbnails.of(is).scale(0.50f).outputFormat("jpg").toFile(imageFile);
+            Thumbnails.of(is).scale(0.50f).outputFormat(extName).toFile(imageFile);
 
         } catch (IOException e) {
             e.printStackTrace();

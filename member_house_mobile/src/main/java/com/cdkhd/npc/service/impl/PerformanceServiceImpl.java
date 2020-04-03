@@ -2,6 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
@@ -162,10 +163,8 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public RespBody addOrUpdatePerformance(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto) {
         RespBody body = new RespBody();
-
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(addPerformanceDto.getLevel(), account.getNpcMembers());
-
         //当前用户是否为工作在当前区镇的代表
         if (npcMember == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -437,6 +436,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), uidDto.getUid()));
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
@@ -445,9 +445,10 @@ public class PerformanceServiceImpl implements PerformanceService {
         return body;
     }
 
+
     public void saveCover(MultipartFile cover, Performance performance) {
         //保存图片到文件系统
-        String url = ImageUploadUtil.saveImage("experienceImage", cover, 500, 500);
+        String url = ImageUploadUtil.saveImage("performanceImage", cover, 500, 500);
         if (url.equals("error")) {
             LOGGER.error("保存图片到文件系统失败");
         }
