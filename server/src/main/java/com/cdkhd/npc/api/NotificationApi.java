@@ -1,7 +1,6 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.NotificationPageDto;
 import com.cdkhd.npc.entity.dto.NotificationReviewDto;
@@ -33,7 +32,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/received_page")
-    public ResponseEntity mobileReceivedPage(@CurrentUser MobileUserDetailsImpl userDetails,NotificationPageDto pageDto){
+    public ResponseEntity mobileReceivedPage(@CurrentUser UserDetailsImpl userDetails,NotificationPageDto pageDto){
         RespBody body = notificationService.mobileReceivedPage(userDetails,pageDto);
         return ResponseEntity.ok(body);
     }
@@ -45,7 +44,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/review_page")
-    public ResponseEntity mobileReviewPage(@CurrentUser MobileUserDetailsImpl userDetails,NotificationPageDto pageDto){
+    public ResponseEntity mobileReviewPage(@CurrentUser UserDetailsImpl userDetails,NotificationPageDto pageDto){
         RespBody body = notificationService.mobileReviewPage(userDetails,pageDto);
         return ResponseEntity.ok(body);
     }
@@ -57,7 +56,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/details_for_receiver/{uid}")
-    public ResponseEntity detailsForMobileReceiver(@CurrentUser MobileUserDetailsImpl userDetails,@PathVariable String uid,Byte level){
+    public ResponseEntity detailsForMobileReceiver(@CurrentUser UserDetailsImpl userDetails,@PathVariable String uid,Byte level){
         RespBody body = notificationService.detailsForMobileReceiver(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
@@ -70,7 +69,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/details_for_reviewer/{uid}")
-    public ResponseEntity detailsForMobileReviewer(@CurrentUser MobileUserDetailsImpl userDetails,@PathVariable String uid,Byte level){
+    public ResponseEntity detailsForMobileReviewer(@CurrentUser UserDetailsImpl userDetails,@PathVariable String uid,Byte level){
         RespBody body = notificationService.detailsForMobileReviewer(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
@@ -82,7 +81,7 @@ public class NotificationApi {
      * @return
      */
     @PostMapping("/review")
-    public ResponseEntity review(@CurrentUser MobileUserDetailsImpl userDetails, NotificationReviewDto dto){
+    public ResponseEntity review(@CurrentUser UserDetailsImpl userDetails, NotificationReviewDto dto){
         RespBody body = notificationService.review(userDetails,dto);
         return ResponseEntity.ok(body);
     }
@@ -95,7 +94,7 @@ public class NotificationApi {
      * @return
      */
     @PutMapping("/publish")
-    public ResponseEntity publishForMobile(@CurrentUser MobileUserDetailsImpl userDetails,String uid,Byte level){
+    public ResponseEntity publishForMobile(@CurrentUser UserDetailsImpl userDetails,String uid,Byte level){
         RespBody body = notificationService.publishForMobile(userDetails,uid, level);
         return ResponseEntity.ok(body);
     }
@@ -107,7 +106,7 @@ public class NotificationApi {
      * @param uid
      */
     @GetMapping("/download_attachment")
-    public void downloadAttachment(HttpServletResponse response, @CurrentUser MobileUserDetailsImpl uds, String uid) {
+    public void downloadAttachment(HttpServletResponse response, @CurrentUser UserDetailsImpl uds, String uid) {
         notificationService.downloadAttachment(response, uds, uid);
     }
 }

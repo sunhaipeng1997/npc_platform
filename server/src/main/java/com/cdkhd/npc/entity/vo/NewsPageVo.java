@@ -43,6 +43,8 @@ public class NewsPageVo{
     private Integer status;
     private String statusName;
 
+    private Boolean view;
+
     //这个不一定为真实的发布时间，
     //是因为政府的业务需求，需要手动设置一个发布时间显示在移动端
     //以体现"及时性"

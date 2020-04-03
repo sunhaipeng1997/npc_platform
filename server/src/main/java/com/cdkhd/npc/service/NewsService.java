@@ -1,7 +1,5 @@
 package com.cdkhd.npc.service;
 
-import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.*;
@@ -23,8 +21,8 @@ public interface NewsService {
 
     //移动端
     RespBody pageForMobile(NewsPageDto pageDto);////一般用户的列表，按照地区、类别等查询
-    RespBody mobileReviewPage(MobileUserDetailsImpl userDetails, NewsPageDto pageDto);//    //审核人的列表
-    RespBody review(MobileUserDetailsImpl userDetails, NewsReviewDto dto);
-    RespBody publishForMobile(MobileUserDetailsImpl userDetails,String uid,Byte level);
-    RespBody detailsForMobileReviewer(MobileUserDetailsImpl userDetails,String uid,Byte level);////移动端端通知审核人获取新闻详情、及其审核记录
+    RespBody mobileReviewPage(UserDetailsImpl userDetails, NewsPageDto pageDto);//    //审核人的列表
+    RespBody review(UserDetailsImpl userDetails, NewsReviewDto dto);
+    RespBody publishForMobile(UserDetailsImpl userDetails,String uid,Byte level);
+    RespBody detailsForMobileReviewer(UserDetailsImpl userDetails,String uid,Byte level);////移动端端通知审核人获取新闻详情、及其审核记录
 }

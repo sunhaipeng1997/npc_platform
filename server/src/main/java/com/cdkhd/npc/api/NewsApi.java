@@ -2,9 +2,7 @@ package com.cdkhd.npc.api;
 
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.NewsPageDto;
 import com.cdkhd.npc.entity.dto.NewsReviewDto;
 import com.cdkhd.npc.entity.dto.NewsTypePageDto;
@@ -50,7 +48,7 @@ public class NewsApi {
      * @return
      */
     @GetMapping("/review_page")
-    public ResponseEntity mobileReviewPage(@CurrentUser MobileUserDetailsImpl userDetails,NewsPageDto pageDto){
+    public ResponseEntity mobileReviewPage(@CurrentUser UserDetailsImpl userDetails,NewsPageDto pageDto){
         RespBody body = newsService.mobileReviewPage(userDetails,pageDto);
         return ResponseEntity.ok(body);
     }
@@ -74,7 +72,7 @@ public class NewsApi {
      * @return
      */
     @GetMapping("/details_for_reviewer/{uid}")
-    public ResponseEntity detailsForMobileReviewer(@CurrentUser MobileUserDetailsImpl userDetails,@PathVariable String uid,Byte level){
+    public ResponseEntity detailsForMobileReviewer(@CurrentUser UserDetailsImpl userDetails,@PathVariable String uid,Byte level){
         RespBody body = newsService.detailsForMobileReviewer(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
@@ -87,7 +85,7 @@ public class NewsApi {
      * @return
      */
     @PostMapping("/review")
-    public ResponseEntity review(@CurrentUser MobileUserDetailsImpl userDetails, NewsReviewDto dto){
+    public ResponseEntity review(@CurrentUser UserDetailsImpl userDetails, NewsReviewDto dto){
         RespBody body = newsService.review(userDetails,dto);
         return ResponseEntity.ok(body);
     }
@@ -99,7 +97,7 @@ public class NewsApi {
      * @return
      */
     @PostMapping("/publish")
-    public ResponseEntity publish(@CurrentUser MobileUserDetailsImpl userDetails,String uid,Byte level){
+    public ResponseEntity publish(@CurrentUser UserDetailsImpl userDetails,String uid,Byte level){
         RespBody body = newsService.publishForMobile(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }

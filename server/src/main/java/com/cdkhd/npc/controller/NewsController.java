@@ -2,7 +2,6 @@ package com.cdkhd.npc.controller;
 
 
 import com.cdkhd.npc.annotation.CurrentUser;
-import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.NewsAddDto;

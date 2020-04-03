@@ -51,10 +51,6 @@ public class NotificationDetailsForMobileVo extends BaseVo {
         BeanUtils.copyProperties(notification, vo);
         vo.setStatusName(NotificationStatusEnum.values()[notification.getStatus()].getName());
 
-        //此审核人是实际审核该通知的人，存储在NpcMember表中
-//        因为数据库表的关联还没确定好，通知审核人还没设置
-//        vo.setReviewerName(notification.getReviewer().getName());
-
         //方便前端展示附件列表
         vo.setFileList(notification.getAttachments());
 

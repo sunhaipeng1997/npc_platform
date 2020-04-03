@@ -1,9 +1,11 @@
 package com.cdkhd.npc.entity;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 
 
 @Getter
@@ -13,7 +15,7 @@ import javax.persistence.*;
 public class NewsOpeRecord  extends BaseDomain{
 
     //所属新闻
-    @ManyToOne(targetEntity = News.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = News.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private News news;
 
     //操作之前，新闻的初始状态
@@ -31,9 +33,19 @@ public class NewsOpeRecord  extends BaseDomain{
     private String feedback;
 
     //操作人
-    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "operator_npcMember", referencedColumnName = "id")
-    private NpcMember operator;
+//    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+//    @JoinColumn(name = "operator_npcMember", referencedColumnName = "id")
+    @Column(name = "operator" )
+    private String operator;
+
+    //执行的操作
+    @Column(name = "action" )
+    private String action;
+
+    //操作时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "op_ime")
+    private Date opTime = new Date();
 
 
 }
