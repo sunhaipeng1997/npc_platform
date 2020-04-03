@@ -188,12 +188,11 @@ public class SuggestionServiceImpl implements SuggestionService {
                     suggestionMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
                     suggestionMsg.put("accountName",npcMember.getAccount().getUsername());
                     suggestionMsg.put("mobile",npcMember.getAccount().getMobile());
-                    suggestionMsg.put("content",suggestion.getContent());
+                    suggestionMsg.put("content",dto.getContent());
                     suggestionMsg.put("remarkInfo","点击进入小程序查看详情");
-                    pushMessageService.pushMsg(npcMember.getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),suggestionMsg);
+//                    pushMessageService.pushMsg(npcMember.getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),suggestionMsg);
                 }
             }
-            return body;
         }
         suggestion.setTitle(dto.getTitle());
         suggestion.setContent(dto.getContent());

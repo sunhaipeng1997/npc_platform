@@ -77,8 +77,8 @@ public class SuggestionController {
      * @return
      */
     @PostMapping("/changeTypeSequence")
-    public ResponseEntity changeTypeSequence(String uid, Byte type) {
-        RespBody body = suggestionService.changeTypeSequence(uid, type);
+    public ResponseEntity changeTypeSequence(@CurrentUser UserDetailsImpl userDetails, String uid, Byte type) {
+        RespBody body = suggestionService.changeTypeSequence(userDetails, uid, type);
         return ResponseEntity.ok(body);
     }
 

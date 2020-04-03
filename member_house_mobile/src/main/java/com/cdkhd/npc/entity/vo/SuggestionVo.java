@@ -74,7 +74,7 @@ public class SuggestionVo extends BaseVo {
 
         Integer timeout = 2;
         Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);
-        int view = suggestion.getView();
+        int view = suggestion.getView() != null ? suggestion.getView() : 0;
         if (expireAt.before(new Date()) || view == 1){
             vo.setTimeout(0);
         }else {

@@ -44,7 +44,7 @@ public interface SuggestionService {
      * @param type
      * @return
      */
-    RespBody changeTypeSequence(String uid, Byte type);
+    RespBody changeTypeSequence(UserDetailsImpl userDetails, String uid, Byte type);
 
     /**
      * 修改业务类型状态
