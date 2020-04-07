@@ -231,12 +231,24 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
+        //添加操作记录
+        NewsOpeRecord newsOpeRecord = new NewsOpeRecord();
+        newsOpeRecord.setOriginalStatus(news.getStatus());
+        newsOpeRecord.setResultStatus(NewsStatusEnum.RELEASED.ordinal());
+        newsOpeRecord.setFeedback("完成发布"+news.getTitle());
+        newsOpeRecord.setOpTime(new Date());
+        newsOpeRecord.setAction("发布");
+        //将调用该接口的当前用户记录为该新闻的(操作者)
+        Account currentAccount = accountRepository.findByUid(userDetails.getUid());
+        newsOpeRecord.setOperator(currentAccount.getUsername());
+        newsOpeRecord.setNews(newsRepository.findByUid(news.getUid()));
+        newsOpeRecordRepository.saveAndFlush(newsOpeRecord);
+
         //将状态设置为已发布
         news.setStatus(NewsStatusEnum.RELEASED.ordinal());
-
         //将新闻设置为公开状态
         news.setPublished(true);
-
+        news.getOpeRecords().add(newsOpeRecord);
         newsRepository.saveAndFlush(news);
 
         //如果这条新闻是需要推送的，群发消息
@@ -556,35 +568,6 @@ public class NewsServiceImpl implements NewsService {
             //如果是新闻审核人
             if (roleKeywords.contains(NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword()) ) {
 
-//                Page<News> pageRes = newsRepository.findAll((Specification<News>) (root, query, cb) -> {
-//                    Predicate predicate = root.isNotNull();
-//
-//                    //过滤掉初始创建和草稿状态
-//                    if (dto.getStatus() != NewsStatusEnum.CREATED.ordinal()
-//                            && dto.getStatus()!= NewsStatusEnum.DRAFT.ordinal()
-//                            && dto.getStatus()!= null){
-//                        predicate = cb.and(
-//                                cb.equal(root.get("status").as(int.class),dto.getStatus()),
-//                                cb.equal(root.get("area").get("uid").as(String.class),userDetails.getArea().getUid()),
-//                                cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()),
-//
-//                        );
-//
-//                    }else {
-//                        predicate = cb.and(
-//                                cb.notEqual(root.get("status").as(int.class), NewsStatusEnum.CREATED.ordinal()),
-//                                cb.notEqual(root.get("status").as(int.class),NewsStatusEnum.DRAFT.ordinal()),
-//
-//                        );
-//                    }
-//
-//                    return predicate;
-//                }, page);
-//
-//                PageVo<NewsPageVo> vo = new PageVo<>(pageRes, dto);
-//                vo.setContent(pageRes.stream().map(NewsPageVo::convert).collect(Collectors.toList()));
-//                body.setData(vo);
-
                 //用户查询条件
                 Specification<News> specification = (root, query, cb)->{
                     List<Predicate> predicateList = new ArrayList<>();
@@ -813,6 +796,7 @@ public class NewsServiceImpl implements NewsService {
         news.setPublished(true);
         news.getOpeRecords().add(newsOpeRecord);
         newsRepository.saveAndFlush(news);
+
         //如果这条新闻是需要推送的，群发消息
         if(news.getPushNews()){
             //构造消息

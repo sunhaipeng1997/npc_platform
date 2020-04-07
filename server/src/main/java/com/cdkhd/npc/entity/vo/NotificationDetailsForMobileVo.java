@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Attachment;
 import com.cdkhd.npc.entity.Notification;
+import com.cdkhd.npc.entity.NotificationOpeRecord;
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
@@ -43,7 +44,7 @@ public class NotificationDetailsForMobileVo extends BaseVo {
     private Date publishAt;
 
     //操作记录
-    private List<NotificationOpeRecordVo> opeRecords;
+    private List<NotificationOpeRecordVo> opeRecordList= new ArrayList<>();
 
     public static NotificationDetailsForMobileVo convert(Notification notification) {
         NotificationDetailsForMobileVo vo = new NotificationDetailsForMobileVo();
@@ -64,6 +65,13 @@ public class NotificationDetailsForMobileVo extends BaseVo {
             receiverUidList.add(list);
         }
         vo.setReceiversUid(receiverUidList);
+
+        //将操作记录一并返回
+        List<NotificationOpeRecord> opeRecords = notification.getOpeRecords();
+        for(NotificationOpeRecord opeRecord : opeRecords){
+            NotificationOpeRecordVo opeRecordVo = NotificationOpeRecordVo.convert(opeRecord);
+            vo.getOpeRecordList().add(opeRecordVo);
+        }
 
         return vo;
     }

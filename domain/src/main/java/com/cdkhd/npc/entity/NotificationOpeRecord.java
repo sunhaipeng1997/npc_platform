@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -31,7 +32,15 @@ public class NotificationOpeRecord  extends BaseDomain{
     private String feedback;
 
     //操作人
-    @OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "operator_npcMember", referencedColumnName = "id")
-    private NpcMember operator;
+    @Column(name = "operator" )
+    private String operator;
+
+    //执行的操作
+    @Column(name = "action" )
+    private String action;
+
+    //操作时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "op_ime")
+    private Date opTime = new Date();
 }
