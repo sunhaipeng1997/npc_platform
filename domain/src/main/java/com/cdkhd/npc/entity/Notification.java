@@ -49,7 +49,8 @@ public class Notification extends BaseDomain {
     private Integer status = NotificationStatusEnum.DRAFT.ordinal();
 
     //通知是否已经发布
-    private Boolean published;
+    @Column(name = "published" )
+    private Boolean published = false;
 
     //发布时间
     @Temporal(TemporalType.TIMESTAMP)

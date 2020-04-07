@@ -23,5 +23,5 @@ public class NotificationViewDetail extends BaseDomain {
 
     //代表是否已读该通知
     @Column(name = "is_read" )
-    private Boolean isRead;
+    private Boolean isRead = false;
 }
