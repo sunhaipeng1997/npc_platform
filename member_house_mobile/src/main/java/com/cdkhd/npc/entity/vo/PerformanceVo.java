@@ -56,6 +56,12 @@ public class PerformanceVo extends BaseVo {
 
     private List<String> images;
 
+    //审核人是否查看
+    private Boolean view;
+
+    //我是否查看审核结果
+    private Boolean myView;
+
     public static PerformanceVo convert(Performance performance) {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);

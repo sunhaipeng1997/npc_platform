@@ -83,8 +83,8 @@ public class PerformanceApi {
      * @return
      */
     @GetMapping("/performanceDetail")
-    public ResponseEntity performanceDetail(BaseDto baseDto) {
-        RespBody body = performanceService.performanceDetail(baseDto.getUid());
+    public ResponseEntity performanceDetail(ViewDto viewDto) {
+        RespBody body = performanceService.performanceDetail(viewDto);
         return ResponseEntity.ok(body);
     }
 

@@ -132,20 +132,28 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public RespBody performanceDetail(String uid) {
+    public RespBody performanceDetail(ViewDto viewDto) {
         RespBody body = new RespBody();
-        if (StringUtils.isEmpty(uid)) {
+        if (StringUtils.isEmpty(viewDto.getUid())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到该条履职");
             LOGGER.error("uid为空");
             return body;
         }
-        Performance performance = performanceRepository.findByUid(uid);
+        Performance performance = performanceRepository.findByUid(viewDto.getUid());
         if (null == performance) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到该条履职");
             LOGGER.error("根据uid查询出的实体为空");
             return body;
+        }
+        //我查看审核人给我回复的消息，消除红点
+        if (null != viewDto.getType() && viewDto.getType().equals(StatusEnum.ENABLED.getValue())){
+            performance.setMyView(true);
+            performanceRepository.saveAndFlush(performance);
+        }else if (null != viewDto.getType() && viewDto.getType().equals(StatusEnum.DISABLED.getValue())) {
+            performance.setView(true);
+            performanceRepository.saveAndFlush(performance);
         }
         PerformanceVo performanceVo = PerformanceVo.convert(performance);
         body.setData(performanceVo);
