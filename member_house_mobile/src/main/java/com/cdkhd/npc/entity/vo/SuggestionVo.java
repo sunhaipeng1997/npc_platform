@@ -64,8 +64,8 @@ public class SuggestionVo extends BaseVo {
         if (replies != null && !replies.isEmpty()){
             AtomicInteger vieww = new AtomicInteger();
             replies.stream().map(reply -> {
-                long view = reply.getView();
-                if (view == 0){
+                boolean view = reply.getView();
+                if (view == false){
                     vieww.getAndIncrement();
                 }
                 return vieww;

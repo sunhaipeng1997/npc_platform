@@ -9,7 +9,7 @@ import lombok.Setter;
 public class SuggestionAuditDto extends BaseDto {
 
     //是否接受 1 接受 2 拒绝
-    private Byte accept;
+    private Byte status;
 
     //审核原因
     private String reason;

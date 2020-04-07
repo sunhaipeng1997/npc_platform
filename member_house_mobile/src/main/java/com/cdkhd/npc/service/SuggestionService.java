@@ -1,10 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.entity.dto.SuggestionAddDto;
-import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
-import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
-import com.cdkhd.npc.entity.dto.SuggestionPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface SuggestionService {
@@ -50,10 +47,10 @@ public interface SuggestionService {
 
     /**
      * 建议详情
-     * @param uid
+     * @param viewDto
      * @return
      */
-    RespBody suggestionDetail(String uid);
+    RespBody suggestionDetail(ViewDto viewDto);
 
 
     RespBody suggestionRevoke(String uid);

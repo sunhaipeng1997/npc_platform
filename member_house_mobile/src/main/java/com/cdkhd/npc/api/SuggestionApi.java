@@ -2,16 +2,16 @@ package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.entity.dto.SuggestionAddDto;
-import com.cdkhd.npc.entity.dto.SuggestionAuditDto;
-import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
-import com.cdkhd.npc.entity.dto.SuggestionPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.service.SuggestionService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/api/member_house_mobile/suggestion")
@@ -63,12 +63,12 @@ public class SuggestionApi {
 
     /**
      * 根据建议uid查询建议详情
-     * @param uid
+     * @param viewDto
      * @return
      * */
     @GetMapping("/suggestionDetail")
-    public ResponseEntity suggestionDetail(String uid){
-        RespBody body = suggestionService.suggestionDetail(uid);
+    public ResponseEntity suggestionDetail(ViewDto viewDto){
+        RespBody body = suggestionService.suggestionDetail(viewDto);
         return ResponseEntity.ok(body);
     }
 

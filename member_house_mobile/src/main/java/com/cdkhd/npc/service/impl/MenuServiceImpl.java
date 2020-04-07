@@ -281,9 +281,9 @@ public class MenuServiceImpl implements MenuService {
             List<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
-                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
                 predicateList.add(cb.equal(root.get("sender").get("uid").as(String.class), account.getUid()));
@@ -295,9 +295,9 @@ public class MenuServiceImpl implements MenuService {
             List<SuggestionReply> suggestionReplies = suggestionReplyRepository.findAll((Specification<SuggestionReply>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("suggestion").get("level").as(Byte.class), level));
-                predicateList.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicateList.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
                 predicateList.add(cb.equal(root.get("suggestion").get("raiser").get("uid").as(String.class), npcMember.getUid()));
@@ -309,12 +309,12 @@ public class MenuServiceImpl implements MenuService {
             List<Performance> performances = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
-                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 predicateList.add(cb.notEqual(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
                 predicateList.add(cb.equal(root.get("myView").as(Boolean.class), false));
                 predicateList.add(cb.equal(root.get("isDel").as(Boolean.class), false));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
@@ -345,7 +345,7 @@ public class MenuServiceImpl implements MenuService {
                 }
                 predicateList.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));//todo 建议状态
                 predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
-                predicateList.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
+//                predicateList.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
             obj.put(MenuEnum.AUDIT_SUGGESTION.toString(), suggestions.size());
@@ -354,9 +354,9 @@ public class MenuServiceImpl implements MenuService {
             List<News> news = newsRepository.findAll((Specification<News>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
-                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("status").as(Integer.class), NewsStatusEnum.UNDER_REVIEW.ordinal()));//todo 新闻状态为待审核
                 predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
@@ -368,9 +368,9 @@ public class MenuServiceImpl implements MenuService {
             List<Notification> notificationAuditors = notificationRepository.findAll((Specification<Notification>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
-                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("status").as(Integer.class), NotificationStatusEnum.UNDER_REVIEW.ordinal()));//todo 新闻状态为待审核
                 predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
@@ -424,12 +424,12 @@ public class MenuServiceImpl implements MenuService {
                     performanceList = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
                         List<Predicate> predicateList = new ArrayList<>();
                         predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
-                        predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                        predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                         predicateList.add(cb.notEqual(root.get("status").as(int.class), StatusEnum.ENABLED.getValue()));
                         predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
                         predicateList.add(cb.equal(root.get("isDel").as(Boolean.class), false));
                         if (level.equals(LevelEnum.TOWN.getValue())) {
-                            predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                            predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                         }
                         predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
                         CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));

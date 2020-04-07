@@ -24,7 +24,7 @@ public class SuggestionReply extends BaseDomain {
 
 	//代表查看回复状态
    	@Column(name = "view" )
-	private int view;
+	private Boolean view = false;
 
 	// 关联的建议
 	@ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)

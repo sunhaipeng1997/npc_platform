@@ -243,13 +243,23 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public RespBody suggestionDetail(String uid) {
+    public RespBody suggestionDetail(ViewDto viewDto) {
         RespBody body = new RespBody();
-        Suggestion suggestion = suggestionRepository.findByUid(uid);
+        Suggestion suggestion = suggestionRepository.findByUid(viewDto.getUid());
         if (suggestion == null){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("找不到该条建议");
             return body;
+        }
+        //我查看审核人给我回复的消息，消除红点
+        if (null != viewDto.getType() && viewDto.getType().equals(StatusEnum.ENABLED.getValue())){
+            for (SuggestionReply reply : suggestion.getReplies()) {
+                reply.setView(true);
+            }
+            suggestionRepository.saveAndFlush(suggestion);
+        }else if (null != viewDto.getType() && viewDto.getType().equals(StatusEnum.DISABLED.getValue())) {
+            suggestion.setView(true);
+            suggestionRepository.saveAndFlush(suggestion);
         }
         SuggestionVo suggestionVo = SuggestionVo.convert(suggestion);
         body.setData(suggestionVo);
@@ -269,17 +279,24 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(suggestionAuditDto.getLevel(), account.getNpcMembers());
-        if (suggestionAuditDto.getAccept().equals((byte)1)){
+        if (suggestionAuditDto.getStatus().equals((byte)1)){
             suggestion.setStatus(SuggestionStatusEnum.SELF_HANDLE.getValue());  //将建议状态设置成“自行办理”
         }else {
-            suggestion.setStatus(SuggestionStatusEnum.AUDIT_FAILURE.getValue());  //将建议状态设置成“自行办理”
+            suggestion.setStatus(SuggestionStatusEnum.AUDIT_FAILURE.getValue());  //将建议状态设置成“审核失败”
         }
         suggestion.setAuditReason(suggestionAuditDto.getReason());
         suggestion.setAuditTime(new Date());
         suggestion.setAuditor(npcMember);
         suggestionRepository.saveAndFlush(suggestion);
 
-        if (suggestionAuditDto.getAccept().equals((byte)1)){  //审核通过
+        SuggestionReply suggestionReply = new SuggestionReply();
+        suggestionReply.setReply(suggestionAuditDto.getReason());
+        suggestionReply.setSuggestion(suggestion);
+        suggestionReply.setReplyer(npcMember);
+        suggestionReply.setView(false);
+        suggestionReplyRepository.saveAndFlush(suggestionReply);
+
+        if (suggestionAuditDto.getStatus().equals((byte)1)){  //审核通过
             //生成一条履职
             AddPerformanceDto addPerformanceDto = new AddPerformanceDto();
             addPerformanceDto.setContent(suggestion.getContent());

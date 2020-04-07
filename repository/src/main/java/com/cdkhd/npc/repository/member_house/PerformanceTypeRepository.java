@@ -48,4 +48,8 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
 
     @Query(value = "select max(type.sequence) from PerformanceType type where type.level = ?1 and type.area.name = ?2")
     Integer findMaxSequenceByLevelAndAreaName(Byte value, String name);
+
+    PerformanceType findByNameAndTownUid(String typeName, String townUid);
+
+    PerformanceType findByNameAndAreaUid(String typeName, String areaUid);
 }
