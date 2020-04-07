@@ -358,7 +358,7 @@ public class NewsServiceImpl implements NewsService {
             LOGGER.warn("uid为 {} 的新闻不存在，不能提交审核",uid);
             return body;
         }
-        news.setReadTimes(news.getReadTimes() + 1L);
+        news.setReadTimes(news.getReadTimes() + 1);
         newsRepository.saveAndFlush(news);
 
         NewsDetailsVo vo = NewsDetailsVo.convert(news);
@@ -670,10 +670,10 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
-        if(news.getStatus() != NewsStatusEnum.UNDER_REVIEW.ordinal()){
+        if(news.getStatus() != NewsStatusEnum.UNDER_REVIEW.ordinal() && news.getStatus() != NewsStatusEnum.NOT_APPROVED.ordinal()){
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("指定的新闻不在[审核中]状态");
-            LOGGER.warn("uid为 {} 的新闻不在[审核中]状态，审核新闻失败",dto.getUid());
+            body.setMessage("指定的新闻不在[审核中][不通过]状态");
+            LOGGER.warn("uid为 {} 的新闻不在[审核中][不通过]状态，审核新闻失败",dto.getUid());
             return body;
         }
 
@@ -691,7 +691,7 @@ public class NewsServiceImpl implements NewsService {
         newsOpeRecord.setOriginalStatus(news.getStatus());
 
         //如果审核结果为:通过
-        if(dto.isPass()){
+        if(dto.getPass()){
             //将新闻状态设置为"待发布"(可发布)状态
             news.setStatus(NewsStatusEnum.RELEASABLE.ordinal());
             newsOpeRecord.setResultStatus(NewsStatusEnum.RELEASABLE.ordinal());
@@ -731,7 +731,7 @@ public class NewsServiceImpl implements NewsService {
         JSONObject newsMsg = new JSONObject();
         newsMsg.put("subtitle","收到一条新闻的审核结果");
         newsMsg.put("auditItem",news.getTitle());
-        newsMsg.put("result",dto.isPass()?"通过(可发布)":"不通过(驳回修改)");
+        newsMsg.put("result",dto.getPass()?"通过(可发布)":"不通过(驳回修改)");
         newsMsg.put("remarkInfo","操作人："+ newsOpeRecord.getOperator()+"<点击查看详情>");
 
         //给除了自己以外的其他审核人都会推送结果

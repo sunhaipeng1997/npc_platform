@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class NotificationReviewDto extends BaseDto {
     //审核结果为"通过"或者"不通过"
-    private boolean pass;
+    private Boolean pass;
 
     //审核人的反馈意见
     private String feedback;

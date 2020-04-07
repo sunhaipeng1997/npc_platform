@@ -768,10 +768,10 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        if(notification.getStatus() != NotificationStatusEnum.UNDER_REVIEW.ordinal()){
+        if(notification.getStatus() != NotificationStatusEnum.UNDER_REVIEW.ordinal() && notification.getStatus() != NotificationStatusEnum.NOT_APPROVED.ordinal()){
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("指定的通知不在[审核中]状态");
-            LOGGER.warn("uid为 {} 的通知不在[审核中]状态，审核通知失败",dto.getUid());
+            body.setMessage("指定的通知不在[审核中][不通过]状态");
+            LOGGER.warn("uid为 {} 的通知不在[审核中][不通过]状态，审核通知失败",dto.getUid());
             return body;
         }
 
@@ -789,7 +789,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationOpeRecord.setOriginalStatus(notification.getStatus());
 
         //如果审核结果为:通过
-        if(dto.isPass()){
+        if(dto.getPass()){
             //将通知状态设置为"待发布"(可发布)状态
             notification.setStatus(NotificationStatusEnum.RELEASABLE.ordinal());
             notificationOpeRecord.setResultStatus(NotificationStatusEnum.RELEASABLE.ordinal());
@@ -829,7 +829,7 @@ public class NotificationServiceImpl implements NotificationService {
         JSONObject notificationMsg = new JSONObject();
         notificationMsg.put("subtitle","收到一条通知的审核结果");
         notificationMsg.put("auditItem",notification.getTitle());
-        notificationMsg.put("result",dto.isPass()?"通过(可发布)":"不通过(驳回修改)");
+        notificationMsg.put("result",dto.getPass()?"通过(可发布)":"不通过(驳回修改)");
         notificationMsg.put("remarkInfo","操作人："+ notificationOpeRecord.getOperator()+"<点击查看详情>");
 
         for(NpcMember reviewer:reviewers){

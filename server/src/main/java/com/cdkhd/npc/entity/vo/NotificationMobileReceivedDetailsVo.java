@@ -30,8 +30,7 @@ public class NotificationMobileReceivedDetailsVo extends BaseVo {
 
     private Byte type;
 
-    private Set<Attachment> fileList;
-//    private List<Map<String,String>> fileList;
+    private List<AttachmentVo> fileList = new ArrayList<>();
 
     private Integer status;
     private String statusName;
@@ -47,7 +46,12 @@ public class NotificationMobileReceivedDetailsVo extends BaseVo {
         vo.setStatusName(NotificationStatusEnum.values()[notification.getStatus()].getName());
 
         //附件列表
-        vo.setFileList(notification.getAttachments());
+        Set<Attachment> attachments = notification.getAttachments();
+        if(!attachments.isEmpty()){
+            for (Attachment attachment:attachments){
+                vo.getFileList().add(AttachmentVo.convert(attachment));
+            }
+        }
 
         return vo;
     }
