@@ -5,6 +5,7 @@ import com.cdkhd.npc.entity.Attachment;
 import com.cdkhd.npc.entity.Notification;
 import com.cdkhd.npc.entity.NotificationOpeRecord;
 import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -67,11 +68,20 @@ public class NotificationDetailsVo extends BaseVo {
         if(!receivers.isEmpty()) {
             for (NpcMember npcMember : receivers) {
                 List<String> list = new ArrayList<>();
-                if(npcMember.getNpcMemberGroup() != null) {
-                    list.add(npcMember.getNpcMemberGroup().getUid());
-                }else{
-                    list.add(" ");
+                if(notification.getLevel().equals(LevelEnum.AREA.getValue())){
+                    if(npcMember.getTown() != null) {
+                        list.add(npcMember.getTown().getUid());
+                    }else{
+                        list.add(" ");
+                    }
+                }else {
+                    if(npcMember.getNpcMemberGroup() != null) {
+                        list.add(npcMember.getNpcMemberGroup().getUid());
+                    }else{
+                        list.add(" ");
+                    }
                 }
+
                 list.add(npcMember.getUid());
                 vo.getReceiversUid().add(list);
             }

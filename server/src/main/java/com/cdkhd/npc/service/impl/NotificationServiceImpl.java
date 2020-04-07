@@ -132,7 +132,11 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = new Notification();
         BeanUtils.copyProperties(dto, notification);
         notification.setArea(userDetails.getArea());
-        notification.setTown(userDetails.getTown());
+        if(userDetails.getTown() != null){
+            notification.setTown(userDetails.getTown());
+        }else {
+            notification.setTown(null);
+        }
         notification.setLevel(userDetails.getLevel());
 
         if(!dto.isBillboard() && dto.getReceiversUid().isEmpty()){
