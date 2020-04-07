@@ -3,6 +3,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Attachment;
 import com.cdkhd.npc.entity.Notification;
+import com.cdkhd.npc.entity.NotificationOpeRecord;
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
@@ -31,8 +32,8 @@ public class NotificationDetailsVo extends BaseVo {
 
     private Byte type;
 
-    private Set<Attachment> fileList;
-//    private List<Map<String,String>> fileList;
+//    private Set<Attachment> fileList;
+    private List<AttachmentVo> fileList = new ArrayList<>();
 
     private String reviewerName;
 
@@ -40,11 +41,13 @@ public class NotificationDetailsVo extends BaseVo {
     private String statusName;
 
     //方便后台前端显示通知接受者
-    private List<List<String>> receiversUid;
+    private List<List<String>> receiversUid = new ArrayList<>();
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date publishAt;
+
+    private List<NotificationOpeRecordVo> opeRecordList= new ArrayList<>();
 
     public static NotificationDetailsVo convert(Notification notification) {
         NotificationDetailsVo vo = new NotificationDetailsVo();
@@ -52,23 +55,36 @@ public class NotificationDetailsVo extends BaseVo {
         BeanUtils.copyProperties(notification, vo);
         vo.setStatusName(NotificationStatusEnum.values()[notification.getStatus()].getName());
 
-        //此审核人是实际审核该通知的人，存储在NpcMember表中
-//        因为数据库表的关联还没确定好，通知审核人还没设置
-//        vo.setReviewerName(notification.getReviewer().getName());
-
-        //方便前端展示附件列表
-        vo.setFileList(notification.getAttachments());
+        Set<Attachment> attachments = notification.getAttachments();
+        if(!attachments.isEmpty()){
+            for (Attachment attachment:attachments){
+                vo.getFileList().add(AttachmentVo.convert(attachment));
+            }
+        }
 
         //方便前端展示级联选择器
         Set<NpcMember> receivers = notification.getReceivers();
-        List<List<String>> receiverUidList = new ArrayList<>();
-        for(NpcMember npcMember:receivers){
-            List<String> list = new ArrayList<>();
-            list.add(npcMember.getNpcMemberGroup().getUid());
-            list.add(npcMember.getUid());
-            receiverUidList.add(list);
+        if(!receivers.isEmpty()) {
+            for (NpcMember npcMember : receivers) {
+                List<String> list = new ArrayList<>();
+                if(npcMember.getNpcMemberGroup() != null) {
+                    list.add(npcMember.getNpcMemberGroup().getUid());
+                }else{
+                    list.add(" ");
+                }
+                list.add(npcMember.getUid());
+                vo.getReceiversUid().add(list);
+            }
         }
-        vo.setReceiversUid(receiverUidList);
+
+        //将操作记录一并返回
+        List<NotificationOpeRecord> opeRecords = notification.getOpeRecords();
+        if(!opeRecords.isEmpty()) {
+            for (NotificationOpeRecord opeRecord : opeRecords) {
+                NotificationOpeRecordVo opeRecordVo = NotificationOpeRecordVo.convert(opeRecord);
+                vo.getOpeRecordList().add(opeRecordVo);
+            }
+        }
 
         return vo;
     }

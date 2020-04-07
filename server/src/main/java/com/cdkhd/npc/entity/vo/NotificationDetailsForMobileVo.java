@@ -64,6 +64,8 @@ public class NotificationDetailsForMobileVo extends BaseVo {
                 List<String> list = new ArrayList<>();
                 if(npcMember.getNpcMemberGroup() != null) {
                     list.add(npcMember.getNpcMemberGroup().getUid());
+                }else{
+                    list.add(" ");
                 }
                 list.add(npcMember.getUid());
                 vo.getReceiversUid().add(list);

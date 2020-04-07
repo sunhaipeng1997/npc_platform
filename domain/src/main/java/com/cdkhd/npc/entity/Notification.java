@@ -33,7 +33,7 @@ public class Notification extends BaseDomain {
     private Byte type;
 
     //是否为全局公告
-    private boolean isBillboard = false;
+    private Boolean isBillboard = false;
 
     //附件
 //    @OneToMany(cascade = CascadeType.ALL) //表示级练操作
@@ -49,7 +49,7 @@ public class Notification extends BaseDomain {
     private Integer status = NotificationStatusEnum.DRAFT.ordinal();
 
     //通知是否已经发布
-    private boolean published;
+    private Boolean published;
 
     //发布时间
     @Temporal(TemporalType.TIMESTAMP)

@@ -224,7 +224,7 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
-        if(news.isPublished()){
+        if(news.getPublished()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该新闻已经公开，不可重复公开");
             LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",dto.getUid());
@@ -770,7 +770,7 @@ public class NewsServiceImpl implements NewsService {
             return body;
         }
 
-        if(news.isPublished()){
+        if(news.getPublished()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该新闻已经公开，不可重复公开");
             LOGGER.warn("uid为 {} 的新闻已经公开，不可重复设置为公开",uid);

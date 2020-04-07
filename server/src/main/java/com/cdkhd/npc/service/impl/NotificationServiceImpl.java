@@ -143,18 +143,21 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         List<String> receiversUidList = JSONObject.parseArray(dto.getReceiversUid().toJSONString(),String.class);
-        Set<NpcMember> receivers = new HashSet<>();
-        for (String npcMemberUid : receiversUidList){
-            NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
-            if(npcMember == null){
-                body.setStatus(HttpStatus.NOT_FOUND);
-                body.setMessage("有不存在的接收人");
-                LOGGER.warn("uid为 {} 的接收人不存在，新增通知失败",npcMemberUid);
-                return body;
+        if(!receiversUidList.isEmpty()){
+            Set<NpcMember> receivers = new HashSet<>();
+            for (String npcMemberUid : receiversUidList){
+                NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
+                if(npcMember == null){
+                    body.setStatus(HttpStatus.NOT_FOUND);
+                    body.setMessage("有不存在的接收人");
+                    LOGGER.warn("uid为 {} 的接收人不存在，新增通知失败",npcMemberUid);
+                    return body;
+                }
+                receivers.add(npcMember);
             }
-            receivers.add(npcMember);
+            notification.setReceivers(receivers);
         }
-        notification.setReceivers(receivers);
+
 
         if (!receiversUidList.isEmpty()) {
             notification.setReceiversViewDetails(
@@ -439,7 +442,7 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        if(notification.isPublished()){
+        if(notification.getPublished()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该通知已经公开，不可重复公开");
             LOGGER.warn("uid为 {} 的通知已经公开，不可重复设置为公开",uid);
@@ -474,8 +477,18 @@ public class NotificationServiceImpl implements NotificationService {
         notificationMsg.put("remarkInfo","来源:"+notification.getDepartment()+"<点击查看详情>");
 
         Set<NpcMember> receivers = notification.getReceivers();
-        for(NpcMember receiver:receivers){
-            pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
+        if(!receivers.isEmpty()){
+            for(NpcMember receiver:receivers){
+                if(receiver.getAccount() != null){//只发送给已经注册的人，否则要报空指针异常
+                    if(receiver.getAccount().getLoginWeChat() != null){
+                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
+                    }else {
+                        continue;
+                    }
+                }else {
+                    continue;
+                }
+            }
         }
 
         body.setMessage("通知公开发布成功");
@@ -595,7 +608,7 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        if(notification.isPublished()){
+        if(notification.getPublished()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该通知已经公开，不可重复公开");
             LOGGER.warn("uid为 {} 的通知已经公开，不可重复设置为公开",dto.getUid());
@@ -630,8 +643,18 @@ public class NotificationServiceImpl implements NotificationService {
         notificationMsg.put("remarkInfo","来源:"+notification.getDepartment()+"<点击查看详情>");
 
         Set<NpcMember> receivers = notification.getReceivers();
-        for(NpcMember receiver:receivers){
-            pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
+        if(!receivers.isEmpty()){
+            for(NpcMember receiver:receivers){
+                if(receiver.getAccount() != null){//只发送给已经注册的人，否则要报空指针异常
+                    if(receiver.getAccount().getLoginWeChat() != null){
+                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
+                    }else {
+                        continue;
+                    }
+                }else {
+                    continue;
+                }
+            }
         }
 
         body.setMessage("通知公开发布成功");

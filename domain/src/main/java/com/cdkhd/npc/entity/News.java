@@ -81,7 +81,7 @@ public class News extends BaseDomain {
 
    	//表示是否公开的，暂时不合并到status中,因为有时会将某些已发布新闻隐藏，不再公开，
    	@Column(name = "published" )
-	private boolean published = false;
+	private Boolean published = false;
 
 	//公开发布时间
     @Column(name = "publish_at" )

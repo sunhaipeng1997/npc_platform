@@ -44,6 +44,7 @@ public class PushMessageServiceImpl implements PushMessageService {
         }
 
         //获取接收人的openID
+
         String openID = receiverAccount.getLoginWeChat().getOpenId();
 
         //获取模板id
