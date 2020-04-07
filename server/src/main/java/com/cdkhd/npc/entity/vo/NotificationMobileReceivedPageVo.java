@@ -17,12 +17,16 @@ public class NotificationMobileReceivedPageVo {
     //通知标题
     private String title;
 
+    private String department;
+
+    private Byte type;
+
     //时间
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
     //发布时间
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "MM-dd")
     private Date publishAt;
 
     private Integer status;
@@ -41,6 +45,8 @@ public class NotificationMobileReceivedPageVo {
         vo.setCreateTime(notificationViewDetail.getNotification().getCreateTime());
         vo.setPublishAt(notificationViewDetail.getNotification().getPublishAt());
         vo.setStatus(notificationViewDetail.getNotification().getStatus());
+        vo.setDepartment(notificationViewDetail.getNotification().getDepartment());
+        vo.setType(notificationViewDetail.getNotification().getType());
 
         //该代表是否有查看该通知
         vo.setRead(notificationViewDetail.getIsRead());
