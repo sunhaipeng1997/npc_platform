@@ -253,6 +253,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 continue;
             }else if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() != null){//账号没有包含后台管理员,并且注册了小程序
                 account = account1;//把这个账号跟代表身份关联起来
+                member.setAccount(account);
             }
         }
         if(dto.getSessionUids().contains(defauleSessionId)){//如果选择了其他届期，就清除掉非必选的角色，然后将账号角色改为选民

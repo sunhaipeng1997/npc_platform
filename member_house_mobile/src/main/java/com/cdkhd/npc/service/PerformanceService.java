@@ -34,7 +34,7 @@ public interface PerformanceService {
      * @param uid
      * @return
      */
-    RespBody performanceDetail(String uid);
+    RespBody performanceDetail(ViewDto viewDto);
 
     /**
      * 添加或修改履职

@@ -392,21 +392,20 @@ public class MenuServiceImpl implements MenuService {
                     if (npcMember.getLevel().equals(LevelEnum.TOWN.getValue())) {
                         generalAuditorUids = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), npcMember.getLevel()).stream().map(NpcMember::getUid).collect(Collectors.toList());
                     } else {
-                        generalAuditorUids = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(), npcMember.getLevel()).stream().map(NpcMember::getUid).collect(Collectors.toList());
+                        generalAuditorUids = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(), npcMember.getLevel()).stream().map(NpcMember::getUid).collect(Collectors.toList());
                     }
                 }
                 if (CollectionUtils.isNotEmpty(generalAuditorUids)) {
                     performanceGeneralList = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
                         List<Predicate> predicateList = new ArrayList<>();
                         predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
-                        predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-                        predicateList.add(cb.notEqual(root.get("status").as(int.class), StatusEnum.ENABLED.getValue()));
+                        predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
+                        predicateList.add(cb.isNull(root.get("status")));
                         predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
                         predicateList.add(cb.equal(root.get("isDel").as(Boolean.class), false));
                         if (level.equals(LevelEnum.TOWN.getValue())) {
-                            predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                            predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                         }
-                        predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
                         CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
                         in.value(generalAuditorUids);
                         predicateList.add(in);
