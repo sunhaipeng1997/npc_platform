@@ -2,13 +2,11 @@ package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.MsgTypeEnum;
 import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
@@ -455,6 +453,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         //保存图片到数据库
         PerformanceImage performanceImage = new PerformanceImage();
         performanceImage.setUrl(url);
+        performanceImage.setTransUid(performance.getTransUid());
         performanceImage.setPerformance(performance);
         performanceImageRepository.saveAndFlush(performanceImage);
     }

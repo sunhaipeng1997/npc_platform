@@ -116,11 +116,12 @@ public class SuggestionServiceImpl implements SuggestionService {
                 if (dto.getLevel().equals(LevelEnum.TOWN.getValue())){
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
+                predicates.add(cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue()));
                 if (dto.getStatus() != null){
                     if (dto.getStatus().equals(MobileSugStatusEnum.TO_BE_AUDITED.getValue())){  //未审核
                         predicates.add(cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue()));
                     }else if (dto.getStatus().equals(MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue())){  //已审核
-                        predicates.add(cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue()));
+                        predicates.add(cb.notEqual(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue()));
                     }
                 }
                 return query.where(predicates.toArray(new Predicate[0])).getRestriction();
@@ -164,6 +165,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             suggestion.setTown(npcMember.getTown());
             suggestion.setRaiser(npcMember);
             suggestion.setLeader(npcMember);
+            suggestion.setTransUid(dto.getTransUid());
             suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
 
             //设置完基本信息后，给相应审核人员推送消息
@@ -197,7 +199,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestion.setTitle(dto.getTitle());
         suggestion.setContent(dto.getContent());
         suggestion.setRaiser(npcMember);
-        suggestion.setRaiseTime(dto.getRaiseTime());
+        suggestion.setRaiseTime(new Date());
         SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(dto.getBusiness());
         if (suggestionBusiness == null){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -222,6 +224,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         //保存图片到数据库
         SuggestionImage suggestionImage = new SuggestionImage();
         suggestionImage.setUrl(url);
+        suggestionImage.setTransUid(suggestion.getTransUid());
         suggestionImage.setSuggestion(suggestion);
         suggestionImageRepository.saveAndFlush(suggestionImage);
     }
@@ -266,22 +269,28 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(suggestionAuditDto.getLevel(), account.getNpcMembers());
-        suggestion.setStatus(SuggestionStatusEnum.SELF_HANDLE.getValue());  //将建议状态设置成“自行办理”
+        if (suggestionAuditDto.getAccept()){
+            suggestion.setStatus(SuggestionStatusEnum.SELF_HANDLE.getValue());  //将建议状态设置成“自行办理”
+        }else {
+            suggestion.setStatus(SuggestionStatusEnum.AUDIT_FAILURE.getValue());  //将建议状态设置成“自行办理”
+        }
         suggestion.setAuditReason(suggestionAuditDto.getReason());
         suggestion.setAuditTime(new Date());
         suggestion.setAuditor(npcMember);
         suggestionRepository.saveAndFlush(suggestion);
 
-        //生成一条履职
-        AddPerformanceDto addPerformanceDto = new AddPerformanceDto();
-        addPerformanceDto.setContent(suggestion.getContent());
-        addPerformanceDto.setLevel(suggestionAuditDto.getLevel());
-        addPerformanceDto.setPerformanceType(PerformanceTypeEnum.SUGGESTION.getValue());
-        addPerformanceDto.setTitle(suggestion.getTitle());
-        addPerformanceDto.setWorkAt(suggestion.getRaiseTime());
-        addPerformanceDto.setUid(suggestion.getRaiser().getUid());
-        Set<SuggestionImage> suggestionImages = suggestion.getSuggestionImages();
-        performanceService.addPerformanceFormSug(userDetails, addPerformanceDto, suggestionImages);
+        if (suggestionAuditDto.getAccept()){  //审核通过
+            //生成一条履职
+            AddPerformanceDto addPerformanceDto = new AddPerformanceDto();
+            addPerformanceDto.setContent(suggestion.getContent());
+            addPerformanceDto.setLevel(suggestionAuditDto.getLevel());
+            addPerformanceDto.setPerformanceType(PerformanceTypeEnum.SUGGESTION.getValue());
+            addPerformanceDto.setTitle(suggestion.getTitle());
+            addPerformanceDto.setWorkAt(suggestion.getRaiseTime());
+            addPerformanceDto.setUid(suggestion.getRaiser().getUid());
+            Set<SuggestionImage> suggestionImages = suggestion.getSuggestionImages();
+            performanceService.addPerformanceFormSug(userDetails, addPerformanceDto, suggestionImages);
+        }
         return body;
     }
 
