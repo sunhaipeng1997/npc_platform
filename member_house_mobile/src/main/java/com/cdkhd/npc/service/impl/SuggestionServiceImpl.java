@@ -237,7 +237,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             body.setMessage("请先选择一条建议");
         }
         Suggestion suggestion = suggestionRepository.findByUid(uid);
-        suggestion.setDel(true);  //逻辑删除
+        suggestion.setIsDel(true);  //逻辑删除
         suggestionRepository.saveAndFlush(suggestion);
         return body;
     }
@@ -310,8 +310,8 @@ public class SuggestionServiceImpl implements SuggestionService {
         }
         Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);  //过期时间
 
-        int view = suggestion.getView();
-        if (expireAt.before(new Date()) || view == 1) {
+        Boolean view = suggestion.getView();
+        if (expireAt.before(new Date()) || view) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("已超出撤回消息时间或该建议已被查看，无法撤回！！");
             return body;

@@ -91,7 +91,7 @@ public class Performance extends BaseDomain {
 
     //是否删除
     @Column(name = "is_del" )
-    private Boolean isDel;
+    private Boolean isDel = false;
 
     //履职图片
     @OneToMany(targetEntity = PerformanceImage.class, mappedBy = "performance")
