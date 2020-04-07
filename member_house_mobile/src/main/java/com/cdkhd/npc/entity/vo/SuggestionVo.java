@@ -48,6 +48,8 @@ public class SuggestionVo extends BaseVo {
 
     private List<String> images;
 
+    private Boolean view;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
         // 拷贝一些基本属性
@@ -74,8 +76,9 @@ public class SuggestionVo extends BaseVo {
 
         Integer timeout = 2;
         Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);
-        int view = suggestion.getView() != null ? suggestion.getView() : 0;
-        if (expireAt.before(new Date()) || view == 1){
+        Boolean view = suggestion.getView();
+        vo.setView(view);
+        if (expireAt.before(new Date()) || view){
             vo.setTimeout(0);
         }else {
             vo.setTimeout(1);

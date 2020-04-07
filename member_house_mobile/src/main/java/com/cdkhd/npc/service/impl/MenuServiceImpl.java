@@ -259,7 +259,7 @@ public class MenuServiceImpl implements MenuService {
             predicateList.add(cb.equal(root.get("opinion").get("sender").get("uid").as(String.class), account.getUid()));
             return cb.and(predicateList.toArray(new Predicate[0]));
         });
-        obj.put(MenuEnum.RECEIVE_OPINION.toString(), opinionReplies.size());
+        obj.put(MenuEnum.MY_OPINION.toString(), opinionReplies.size());
 
         // 我收到的公告的数量
 //        List<NotificationViewDetail> notifications = notificationViewDetailRepository.findAll((Specification<NotificationViewDetail>) (root, query, cb) -> {
@@ -289,7 +289,7 @@ public class MenuServiceImpl implements MenuService {
                 predicateList.add(cb.equal(root.get("sender").get("uid").as(String.class), account.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
-            obj.put(MenuEnum.MY_OPINION.toString(), opinions.size());
+            obj.put(MenuEnum.RECEIVE_OPINION.toString(), opinions.size());
 
             //我收到的建议回复数量
             List<SuggestionReply> suggestionReplies = suggestionReplyRepository.findAll((Specification<SuggestionReply>) (root, query, cb) -> {
@@ -343,7 +343,7 @@ public class MenuServiceImpl implements MenuService {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicateList.add(cb.equal(root.get("uid").as(String.class), userDetails.getTown().getUid()));
                 }
-                predicateList.add(cb.equal(root.get("status").as(Byte.class), (byte) 3));//todo 建议状态
+                predicateList.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));//todo 建议状态
                 predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
                 predicateList.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
