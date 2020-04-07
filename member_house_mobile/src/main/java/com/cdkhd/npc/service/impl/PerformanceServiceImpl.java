@@ -263,7 +263,11 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setNpcMember(npcMemberRepository.findByUid(addPerformanceDto.getUid()));//提出人，就存在uid里面
         performance.setAuditor(npcMember);//审核人
         performance.setStatus(StatusEnum.ENABLED.getValue());//默认已通过
-        performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
+        if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndTownUid(addPerformanceDto.getPerformanceType(), addPerformanceDto.getUid()));
+        }else if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue())){
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndAreaUid(addPerformanceDto.getPerformanceType(), addPerformanceDto.getUid()));
+        }
         performance.setTitle(addPerformanceDto.getTitle());
         performance.setWorkAt(addPerformanceDto.getWorkAt());
         performance.setContent(addPerformanceDto.getContent());
