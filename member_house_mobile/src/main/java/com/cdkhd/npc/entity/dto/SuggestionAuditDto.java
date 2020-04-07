@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 public class SuggestionAuditDto extends BaseDto {
 
-    //是否接受
-    private Boolean accept;
+    //是否接受 1 接受 2 拒绝
+    private Byte accept;
 
     //审核原因
     private String reason;

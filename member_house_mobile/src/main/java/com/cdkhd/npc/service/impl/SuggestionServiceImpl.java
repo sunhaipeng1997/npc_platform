@@ -269,7 +269,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(suggestionAuditDto.getLevel(), account.getNpcMembers());
-        if (suggestionAuditDto.getAccept()){
+        if (suggestionAuditDto.getAccept().equals((byte)1)){
             suggestion.setStatus(SuggestionStatusEnum.SELF_HANDLE.getValue());  //将建议状态设置成“自行办理”
         }else {
             suggestion.setStatus(SuggestionStatusEnum.AUDIT_FAILURE.getValue());  //将建议状态设置成“自行办理”
@@ -279,7 +279,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestion.setAuditor(npcMember);
         suggestionRepository.saveAndFlush(suggestion);
 
-        if (suggestionAuditDto.getAccept()){  //审核通过
+        if (suggestionAuditDto.getAccept().equals((byte)1)){  //审核通过
             //生成一条履职
             AddPerformanceDto addPerformanceDto = new AddPerformanceDto();
             addPerformanceDto.setContent(suggestion.getContent());

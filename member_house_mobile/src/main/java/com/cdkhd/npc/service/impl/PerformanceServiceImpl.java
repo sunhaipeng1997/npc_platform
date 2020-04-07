@@ -186,6 +186,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             performance.setLevel(addPerformanceDto.getLevel());
             performance.setArea(npcMember.getArea());
             performance.setTown(npcMember.getTown());
+            performance.setTransUid(addPerformanceDto.getTransUid());
             performance.setNpcMember(npcMember);
             //设置完了基本信息后，给相应的审核人员推送消息
             List<NpcMember> auditors = Lists.newArrayList();
