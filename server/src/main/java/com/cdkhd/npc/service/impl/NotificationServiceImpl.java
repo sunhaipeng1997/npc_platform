@@ -54,16 +54,20 @@ public class NotificationServiceImpl implements NotificationService {
     private PushMessageService pushMessageService;
 
     @Autowired
-    public NotificationServiceImpl(NotificationRepository notificationRepository, AttachmentRepository attachmentRepository, NpcMemberRepository npcMemberRepository, AccountRepository accountRepository, NotificationOpeRecordRepository notificationOpeRecordRepository, NotificationViewDetailRepository notificationViewDetailRepository, SystemSettingService systemSettingService, PushMessageService pushMessageService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, AttachmentRepository attachmentRepository, NpcMemberRepository npcMemberRepository, NpcMemberRoleService npcMemberRoleService, AccountRepository accountRepository, NotificationOpeRecordRepository notificationOpeRecordRepository, NotificationViewDetailRepository notificationViewDetailRepository, SystemSettingService systemSettingService, PushMessageService pushMessageService) {
         this.notificationRepository = notificationRepository;
         this.attachmentRepository = attachmentRepository;
         this.npcMemberRepository = npcMemberRepository;
+        this.npcMemberRoleService = npcMemberRoleService;
         this.accountRepository = accountRepository;
         this.notificationOpeRecordRepository = notificationOpeRecordRepository;
         this.notificationViewDetailRepository = notificationViewDetailRepository;
         this.systemSettingService = systemSettingService;
         this.pushMessageService = pushMessageService;
     }
+
+
+
 
     @Override
     public RespBody uploadAttachment(AttachmentDto dto) {
@@ -380,10 +384,6 @@ public class NotificationServiceImpl implements NotificationService {
             queryUid = userDetails.getTown().getUid();
         }
 
-        //查找与本账号同地区/镇的具有通知审核权限的用户
-        List<NpcMember> reviewers =  npcMemberRoleService.findByKeyWordAndLevelAndUid(
-                NpcMemberRoleEnum.NOTICE_AUDITOR.getKeyword(),userDetails.getLevel(),queryUid);
-
         //构造消息
         JSONObject notificationMsg = new JSONObject();
         notificationMsg.put("subtitle","收到一条待审核通知");
@@ -394,6 +394,10 @@ public class NotificationServiceImpl implements NotificationService {
             notificationMsg.put("serviceType",userDetails.getArea().getName()+" "+userDetails.getTown().getName()+"通知");
         }
         notificationMsg.put("remarkInfo","来源:"+notification.getDepartment()+"<点击查看详情>");
+
+        //查找与本账号同地区/镇的具有通知审核权限的用户
+        List<NpcMember> reviewers =  npcMemberRoleService.findByKeyWordAndLevelAndUid(
+                NpcMemberRoleEnum.NOTICE_AUDITOR.getKeyword(),userDetails.getLevel(),queryUid);
 
         //向审核人推送消息
         if(!reviewers.isEmpty()){
@@ -573,28 +577,28 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public RespBody publishForMobile(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody publishForMobile(UserDetailsImpl userDetails,NotificationPublishDto dto){
         RespBody body = new RespBody();
-        Notification notification = notificationRepository.findByUid(uid);
+        Notification notification = notificationRepository.findByUid(dto.getUid());
 
         if (notification == null) {
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("指定的通知不存在");
-            LOGGER.warn("uid为 {} 的通知不存在，发布通知失败",uid);
+            LOGGER.warn("uid为 {} 的通知不存在，发布通知失败",dto.getUid());
             return body;
         }
 
         if(notification.getStatus() != NotificationStatusEnum.RELEASABLE.ordinal()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该通知还未审核通过，不可发布");
-            LOGGER.warn("uid为 {} 的通知还未审核通过，发布通知失败",uid);
+            LOGGER.warn("uid为 {} 的通知还未审核通过，发布通知失败",dto.getUid());
             return body;
         }
 
         if(notification.isPublished()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该通知已经公开，不可重复公开");
-            LOGGER.warn("uid为 {} 的通知已经公开，不可重复设置为公开",uid);
+            LOGGER.warn("uid为 {} 的通知已经公开，不可重复设置为公开",dto.getUid());
             return body;
         }
 
@@ -607,7 +611,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationOpeRecord.setAction("发布");
         //将调用该接口的当前用户记录为该新闻的(操作者)
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
-        notificationOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(level,currentAccount.getNpcMembers()).getName());
+        notificationOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers()).getName());
         notificationOpeRecord.setNotification(notificationRepository.findByUid(notification.getUid()));
         notificationOpeRecordRepository.saveAndFlush(notificationOpeRecord);
 
@@ -716,7 +720,6 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationDetailsForMobileVo vo = NotificationDetailsForMobileVo.convert(notification);
 
         body.setData(vo);
-
         body.setMessage("成功获取通知细节");
         return body;
     }

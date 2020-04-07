@@ -25,7 +25,7 @@ public interface NotificationService {
     RespBody detailsForMobileReceiver(UserDetailsImpl userDetails,String uid,Byte level);//移动端端通知接收人获取通知详情
     RespBody detailsForMobileReviewer(UserDetailsImpl userDetails,String uid,Byte level);//移动端端通知审核人获取通知详情、及其审核记录
     RespBody review(UserDetailsImpl userDetails, NotificationReviewDto dto);
-    RespBody publishForMobile(UserDetailsImpl userDetails,String uid,Byte level);
+    RespBody publishForMobile(UserDetailsImpl userDetails,NotificationPublishDto dto);
 
     void downloadAttachment(HttpServletResponse response, UserDetailsImpl uds, String uid);
 }

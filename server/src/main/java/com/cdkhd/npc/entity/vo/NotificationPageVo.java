@@ -25,8 +25,8 @@ public class NotificationPageVo  {
     private Integer status;
     private String statusName;
 
-    //审核人员查看状态，暂时这样用
-    private int view;
+    //审核人员查看状态
+    private Boolean view;
 
     private Byte type;
 

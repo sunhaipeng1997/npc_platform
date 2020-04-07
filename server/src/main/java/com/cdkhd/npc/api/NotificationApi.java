@@ -3,6 +3,7 @@ package com.cdkhd.npc.api;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.NotificationPageDto;
+import com.cdkhd.npc.entity.dto.NotificationPublishDto;
 import com.cdkhd.npc.entity.dto.NotificationReviewDto;
 import com.cdkhd.npc.service.NotificationService;
 import com.cdkhd.npc.vo.RespBody;
@@ -90,12 +91,12 @@ public class NotificationApi {
     /**
      * 通知审核人 将通知公开
      *
-     * @param uid 通知uid
+     * @param dto 通知uid
      * @return
      */
-    @PutMapping("/publish")
-    public ResponseEntity publishForMobile(@CurrentUser UserDetailsImpl userDetails,String uid,Byte level){
-        RespBody body = notificationService.publishForMobile(userDetails,uid, level);
+    @PostMapping("/publish")
+    public ResponseEntity publishForMobile(@CurrentUser UserDetailsImpl userDetails, NotificationPublishDto dto){
+        RespBody body = notificationService.publishForMobile(userDetails, dto);
         return ResponseEntity.ok(body);
     }
 
