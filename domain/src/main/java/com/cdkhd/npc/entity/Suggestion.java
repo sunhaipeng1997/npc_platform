@@ -92,7 +92,7 @@ public class Suggestion extends BaseDomain {
     private Date conveyTime;
 
    	@Column(name = "accept" )
-	private Integer accept;
+	private Boolean accept;
 
    	@Column(name = "refusal_reason" )
 	private String refusalReason;
@@ -121,12 +121,12 @@ public class Suggestion extends BaseDomain {
    	@Column(name = "urge" )
 	private Integer urge;
 
-   	//建议浏览次数
+   	//审核人员是否查看
    	@Column(name = "view" )
-	private Integer view;
+	private Boolean view = false;
 
 	@Column(name = "del" )
-	private boolean isDel;
+	private Boolean isDel = false;
 
 	//每次提交的uid
 	@Column(name = "trans_uid" )
@@ -136,7 +136,7 @@ public class Suggestion extends BaseDomain {
 	private Byte level;
 
 	//是否可操作
-	private boolean canOperate;
+	private Boolean canOperate = false;
 
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "area", referencedColumnName = "id")
