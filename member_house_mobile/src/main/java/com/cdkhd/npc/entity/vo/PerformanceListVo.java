@@ -1,6 +1,7 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Performance;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -39,6 +40,7 @@ public class PerformanceListVo extends BaseVo {
         PerformanceListVo vo = new PerformanceListVo();
         BeanUtils.copyProperties(performance, vo);
         vo.setTypeName(performance.getPerformanceType().getName());
+        vo.setStatusName(performance.getStatus() == null?"未审核":performance.getStatus().equals(StatusEnum.ENABLED.getValue())?"审核通过":"驳回");
         return vo;
     }
 }

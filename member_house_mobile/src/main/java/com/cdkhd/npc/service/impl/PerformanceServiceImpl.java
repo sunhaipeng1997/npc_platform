@@ -425,6 +425,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setStatus(auditPerformanceDto.getStatus());
         performance.setReason(auditPerformanceDto.getReason());
         performance.setAuditor(npcMember);
+        performanceRepository.saveAndFlush(performance);
 //        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过
             Account account = performance.getNpcMember().getAccount();//无论审核通不通过，都通知代表一声
 //            pushMessageService.pushMsg(account, "", 1, "");

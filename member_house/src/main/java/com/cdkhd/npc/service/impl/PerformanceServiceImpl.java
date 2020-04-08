@@ -130,11 +130,20 @@ public class PerformanceServiceImpl implements PerformanceService {
             return body;
         }
         PerformanceType performanceType = null;
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
-            performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getTown().getUid());
-        }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            performanceType = performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getArea().getUid());
+        if (StringUtils.isEmpty(performanceTypeAddDto.getUid())) {//添加验证重复
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+                performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getTown().getUid());
+            }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+                performanceType = performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getArea().getUid());
+            }
+        }else{//修改验证重复
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+                performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalseAndUidIsNot(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getTown().getUid(),performanceTypeAddDto.getUid());
+            }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+                performanceType = performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalseAndUidIsNot(performanceTypeAddDto.getName(),userDetails.getLevel(),userDetails.getArea().getUid(),performanceTypeAddDto.getUid());
+            }
         }
+
         if (performanceType != null){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("类型名称已经存在！");
@@ -167,7 +176,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             performanceType.setIsDefault(false);
         }
         performanceType.setName(performanceTypeAddDto.getName());
-        performanceType.setRemark(performanceTypeAddDto.getName());
+        performanceType.setRemark(performanceTypeAddDto.getRemark());
 
         performanceTypeRepository.saveAndFlush(performanceType);
         return body;

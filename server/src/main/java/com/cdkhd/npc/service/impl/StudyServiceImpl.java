@@ -113,8 +113,7 @@ public class StudyServiceImpl implements StudyService {
             if (StringUtils.isEmpty(studyTypeAddDto.getUid())) {
                 studyType = studyTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(studyTypeAddDto.getName(), userDetails.getLevel(), userDetails.getArea().getUid());
             }else{
-                studyType = studyTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalseAndUidNot(studyTypeAddDto.getName(), userDetails.getLevel(), userDetails.getTown().getUid(),studyTypeAddDto.getUid());
-
+                studyType = studyTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalseAndUidNot(studyTypeAddDto.getName(), userDetails.getLevel(), userDetails.getArea().getUid(),studyTypeAddDto.getUid());
             }
         }
         if (studyType != null){
@@ -454,7 +453,7 @@ public class StudyServiceImpl implements StudyService {
         if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
             studyTypeList = studyTypeRepository.findByStatusAndLevelAndTownUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
         }else{
-            studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getArea().getUid());
+            studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.AREA.getValue(),userDetails.getArea().getUid());
         }
         List<StudyTypeVo> studyTypeVos = studyTypeList.stream()
                 .filter(type -> !type.getIsDel() && type.getStatus().equals(StatusEnum.ENABLED.getValue()))

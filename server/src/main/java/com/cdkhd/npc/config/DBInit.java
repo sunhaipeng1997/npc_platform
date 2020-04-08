@@ -327,7 +327,6 @@ public class DBInit {
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_INFO.getKeyword()));//代表风采
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VIEW_WORKSTATION.getKeyword()));   //查看联络点
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));//我的意见
-        specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_SUGGESTION.getKeyword()));//我的建议
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));//接收通知
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
