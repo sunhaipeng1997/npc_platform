@@ -444,10 +444,11 @@ public class NewsServiceImpl implements NewsService {
             body.setMessage("成功提交至审核人");
         }else {
             body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("无新闻审核人");
+            body.setMessage("新闻提交成功，但还未设置新闻审核人");
+            return body;
         }
 
-        body.setMessage("成功提交新闻审核");
+        body.setStatus(HttpStatus.OK);
         return body;
     }
 

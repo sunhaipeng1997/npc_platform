@@ -1,5 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
@@ -139,75 +140,69 @@ public class NotificationServiceImpl implements NotificationService {
         }
         notification.setLevel(userDetails.getLevel());
 
-        if(!dto.isBillboard() && dto.getReceiversUid().isEmpty()){
+        if(!dto.isBillboard() && dto.getReceiversUid() == null){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该通知缺少接收人");
             LOGGER.warn("该通知缺少接收人");
             return body;
         }
 
-        List<String> receiversUidList = JSONObject.parseArray(dto.getReceiversUid().toJSONString(),String.class);
-        if(!receiversUidList.isEmpty()){
-            Set<NpcMember> receivers = new HashSet<>();
-            for (String npcMemberUid : receiversUidList){
-                NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
-                if(npcMember == null){
-                    body.setStatus(HttpStatus.NOT_FOUND);
-                    body.setMessage("有不存在的接收人");
-                    LOGGER.warn("uid为 {} 的接收人不存在，新增通知失败",npcMemberUid);
-                    return body;
+
+        if(dto.getReceiversUid() == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("必须设置接收人");
+            return body;
+        }else {
+            List<String> receiversUidList = JSONObject.parseArray(dto.getReceiversUid().toJSONString(),String.class);
+            if(!receiversUidList.isEmpty()){
+                Set<NpcMember> receivers = new HashSet<>();
+                for (String npcMemberUid : receiversUidList){
+                    NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
+                    if(npcMember == null){
+                        body.setStatus(HttpStatus.BAD_REQUEST);
+                        body.setMessage("有不存在的接收人");
+                        LOGGER.warn("uid为 {} 的接收人不存在，新增通知失败",npcMemberUid);
+                        return body;
+                    }
+                    receivers.add(npcMember);
                 }
-                receivers.add(npcMember);
+                notification.setReceivers(receivers);
             }
-            notification.setReceivers(receivers);
+
+            if (!receiversUidList.isEmpty()) {
+                notification.setReceiversViewDetails(
+                        receiversUidList.stream().map(receiverUid -> {
+                            NpcMember receiver = npcMemberRepository.findByUid(receiverUid);
+                            if (receiver != null) {
+                                NotificationViewDetail viewDetail = new NotificationViewDetail();
+                                viewDetail.setNotification(notification);
+                                viewDetail.setIsRead(false);
+                                viewDetail.setReceiver(receiver);
+
+                                //notificationDetailRepository.saveAndFlush(detail);
+
+                                return viewDetail;
+                            }
+                            return null;
+                        }).filter(Objects::nonNull).collect(Collectors.toSet())
+                );
+            }
         }
 
+        if(dto.getAttachmentsUid() != null){
+            List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
+            if (!attachmentUidList.isEmpty()) {
+                notification.setAttachments(
+                        attachmentUidList.stream().map(attachmentUid -> {
+                            Attachment attachment = attachmentRepository.findByUid(attachmentUid);
+                            attachment.setNotification(notification);
 
-        if (!receiversUidList.isEmpty()) {
-            notification.setReceiversViewDetails(
-                    receiversUidList.stream().map(receiverUid -> {
-                        NpcMember receiver = npcMemberRepository.findByUid(receiverUid);
-                        if (receiver != null) {
-                            NotificationViewDetail viewDetail = new NotificationViewDetail();
-                            viewDetail.setNotification(notification);
-                            viewDetail.setIsRead(false);
-                            viewDetail.setReceiver(receiver);
+                            // attachmentRepository.saveAndFlush(attachment);
 
-                            //notificationDetailRepository.saveAndFlush(detail);
-
-                            return viewDetail;
-                        }
-                        return null;
-                    }).filter(Objects::nonNull).collect(Collectors.toSet())
-            );
-        }
-
-        List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
-//        Set<Attachment> attachments = new HashSet<>();
-//        for (String attachmentUid : attachmentUidList){
-//            Attachment attachment = attachmentRepository.findByUid(attachmentUid);
-//            if(attachment == null){
-//                body.setStatus(HttpStatus.NOT_FOUND);
-//                body.setMessage("有不存在的附件");
-//                LOGGER.warn("uid为 {} 的附件不存在，新增通知失败",attachmentUid);
-//                return body;
-//            }
-//            attachment.setNotification(notification);
-//            attachmentRepository.saveAndFlush(attachment);
-//            attachments.add(attachment);
-//        }
-
-        if (!attachmentUidList.isEmpty()) {
-            notification.setAttachments(
-                attachmentUidList.stream().map(attachmentUid -> {
-                    Attachment attachment = attachmentRepository.findByUid(attachmentUid);
-                    attachment.setNotification(notification);
-
-                    // attachmentRepository.saveAndFlush(attachment);
-
-                    return attachment;
-                }).collect(Collectors.toSet())
-            );
+                            return attachment;
+                        }).collect(Collectors.toSet())
+                );
+            }
         }
 
         //保存数据
@@ -411,10 +406,11 @@ public class NotificationServiceImpl implements NotificationService {
             for(NpcMember reviewer :reviewers){
                 pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.TO_AUDIT.ordinal(),notificationMsg);
             }
-            body.setMessage("成功提交至审核人");
+            body.setMessage("成功推送至审核人");
         }else {
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("无通知审核人");
+            return body;
         }
 
         return body;
@@ -511,13 +507,13 @@ public class NotificationServiceImpl implements NotificationService {
         Specification<Notification> specification = (root, query, cb)->{
             List<Predicate> predicateList = new ArrayList<>();
 
-//            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-//
-//            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-//
-//            if(userDetails.getTown() != null){
-//                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
-//            }
+            predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+
+            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+
+            if(userDetails.getTown() != null){
+                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
+            }
 
             //按签署部门查询
             if (StringUtils.isNotEmpty(pageDto.getDepartment())) {
