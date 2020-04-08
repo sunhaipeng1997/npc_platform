@@ -310,7 +310,7 @@ public class MenuServiceImpl implements MenuService {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                 predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
-                predicateList.add(cb.notEqual(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+                predicateList.add(cb.isNotNull(root.get("status")));
                 predicateList.add(cb.equal(root.get("myView").as(Boolean.class), false));
                 predicateList.add(cb.equal(root.get("isDel").as(Boolean.class), false));
                 if (level.equals(LevelEnum.TOWN.getValue())) {

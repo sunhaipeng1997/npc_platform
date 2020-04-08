@@ -27,7 +27,7 @@ public class Performance extends BaseDomain {
 
    	//我是否查看
    	@Column(name = "my_view" )
-	private Boolean myView = true;
+	private Boolean myView = false;
 
    	//审核原因
    	@Column(name = "reason" )

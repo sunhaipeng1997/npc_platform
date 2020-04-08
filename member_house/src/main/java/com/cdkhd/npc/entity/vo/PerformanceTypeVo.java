@@ -30,6 +30,9 @@ public class PerformanceTypeVo extends BaseVo {
     //说明
     private String remark;
 
+    //是否是默认类型
+    private Boolean isDefault;
+
     public static PerformanceTypeVo convert(PerformanceType performanceType) {
         PerformanceTypeVo vo = new PerformanceTypeVo();
         BeanUtils.copyProperties(performanceType, vo);
