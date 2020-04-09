@@ -48,7 +48,11 @@ public class SuggestionVo extends BaseVo {
 
     private List<String> images;
 
+    //审核人员是否查看待审核信息
     private Boolean view;
+
+    //我是否查看审核结果
+    private Boolean myView = true;
 
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
@@ -65,8 +69,9 @@ public class SuggestionVo extends BaseVo {
             AtomicInteger vieww = new AtomicInteger();
             replies.stream().map(reply -> {
                 boolean view = reply.getView();
-                if (view == false){
+                if (!view){
                     vieww.getAndIncrement();
+                    vo.setMyView(false);
                 }
                 return vieww;
             }).collect(Collectors.toSet());

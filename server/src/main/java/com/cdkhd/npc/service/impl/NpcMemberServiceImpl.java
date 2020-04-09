@@ -253,13 +253,12 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 continue;
             }else if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() != null){//账号没有包含后台管理员,并且注册了小程序
                 account = account1;//把这个账号跟代表身份关联起来
-                member.setAccount(account);
             }
         }
         if(dto.getSessionUids().contains(defauleSessionId)){//如果选择了其他届期，就清除掉非必选的角色，然后将账号角色改为选民
             Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
             npcMemberRoles.clear();//先把所有的角色删除掉，然后将本次选择的加上
-            npcMemberRoles.add(npcMemberRole);
+//            npcMemberRoles.add(npcMemberRole);
             member.setNpcMemberRoles(npcMemberRoles);
             if (account != null){
                 Set<AccountRole> accountRoles = account.getAccountRoles();
@@ -269,6 +268,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 accountRoles.add(voter);
                 accountRoleRepository.saveAll(accountRoles);
             }
+            member.setAccount(null);
         }
         else if (dto.getSessionUids().contains(currentSessionId)){//如果选择的届期里面包含了当前的届期，那么就给代表赋予当前代表的职能
             Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
@@ -283,6 +283,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 accountRoles.add(memberAccount);
                 accountRoleRepository.saveAll(accountRoles);
             }
+            member.setAccount(account);
         }
 
         //保存代表

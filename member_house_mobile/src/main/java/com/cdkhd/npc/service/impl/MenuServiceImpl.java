@@ -250,7 +250,7 @@ public class MenuServiceImpl implements MenuService {
         //我收到的的意见回复数量
         List<OpinionReply> opinionReplies = opinionReplayRepository.findAll((Specification<OpinionReply>) (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
-            predicateList.add(cb.equal(root.get("opinion").get("level").as(Byte.class), level));
+//            predicateList.add(cb.equal(root.get("opinion").get("level").as(Byte.class), level));
             predicateList.add(cb.equal(root.get("opinion").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicateList.add(cb.equal(root.get("opinion").get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -280,13 +280,13 @@ public class MenuServiceImpl implements MenuService {
             //我收到的意见数量
             List<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
-                predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
+//                predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                 predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
-                predicateList.add(cb.equal(root.get("sender").get("uid").as(String.class), account.getUid()));
+                predicateList.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
             obj.put(MenuEnum.RECEIVE_OPINION.toString(), opinions.size());

@@ -63,7 +63,7 @@ public class SessionServiceImpl implements SessionService {
             sessions = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(),userDetails.getLevel());
         }
         List<CommonVo> vos = sessions.stream().map(session ->
-                CommonVo.convert(session.getUid(), session.getName())).collect(Collectors.toList());
+                CommonVo.convert(session.getUid(), session.getIsCurrent()?session.getName()+"（本届）":session.getName())).collect(Collectors.toList());
         body.setData(vos);
         return body;
     }
@@ -135,6 +135,12 @@ public class SessionServiceImpl implements SessionService {
             session.setStartDate(sessionAddDto.getStartDate());
             session.setEndDate(sessionAddDto.getEndDate());
             session.setRemark(sessionAddDto.getRemark());
+            Boolean isCurrent = false;
+            Date now = new Date();
+            if (now.before(sessionAddDto.getEndDate()) && now.after(sessionAddDto.getStartDate())){
+                isCurrent = true;
+            }
+            session.setIsCurrent(isCurrent);
             sessionRepository.saveAndFlush(session);
         }
         return body;

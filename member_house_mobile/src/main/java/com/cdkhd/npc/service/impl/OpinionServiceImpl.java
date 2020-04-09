@@ -156,7 +156,7 @@ public class OpinionServiceImpl implements OpinionService {
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("sender").get("uid").as(String.class), userDetails.getUid()));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), opinionDto.getLevel()));
+//            predicates.add(cb.equal(root.get("level").as(Byte.class), opinionDto.getLevel()));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -231,10 +231,9 @@ public class OpinionServiceImpl implements OpinionService {
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            }else if (opinionDto.getLevel().equals(LevelEnum.AREA.getValue())){
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
             }
             //状态 已回复  未回复
             if (opinionDto.getStatus() != null) {

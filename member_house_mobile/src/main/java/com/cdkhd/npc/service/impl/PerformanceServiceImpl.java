@@ -264,9 +264,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setAuditor(npcMember);//审核人
         performance.setStatus(StatusEnum.ENABLED.getValue());//默认已通过
         if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-            performance.setPerformanceType(performanceTypeRepository.findByNameAndTownUid(addPerformanceDto.getPerformanceType(), addPerformanceDto.getUid()));
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getTown().getUid()));
         }else if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue())){
-            performance.setPerformanceType(performanceTypeRepository.findByNameAndAreaUid(addPerformanceDto.getPerformanceType(), addPerformanceDto.getUid()));
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getArea().getUid()));
         }
         performance.setTitle(addPerformanceDto.getTitle());
         performance.setWorkAt(addPerformanceDto.getWorkAt());
@@ -381,12 +381,12 @@ public class PerformanceServiceImpl implements PerformanceService {
                 }
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             }
-            //状态 已回复  未回复
+            //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
-                if (performancePageDto.getStatus() == 1) {
-                    predicates.add(cb.isNull(root.get("status").as(Byte.class)));
-                } else if (performancePageDto.getStatus() == 2) {
-                    predicates.add(cb.isNotNull(root.get("status").as(Byte.class)));
+                if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核
+                    predicates.add(cb.isNull(root.get("status")));
+                } else {//已审核
+                    predicates.add(cb.isNotNull(root.get("status")));
                 }
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
@@ -424,6 +424,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performance.getLevel(), auditor.getNpcMembers());
         performance.setStatus(auditPerformanceDto.getStatus());
         performance.setReason(auditPerformanceDto.getReason());
+        performance.setMyView(false);
         performance.setAuditor(npcMember);
         performanceRepository.saveAndFlush(performance);
 //        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过

@@ -1,7 +1,7 @@
 package com.cdkhd.npc.enums;
 
 public enum PerformanceTypeEnum {
-    SUGGESTION("提建议"),
+    SUGGESTION("提出建议"),
     OTHER("其他");
 
     private String value;

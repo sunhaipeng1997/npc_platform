@@ -11,6 +11,7 @@ import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.entity.vo.PerformanceTypeVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
@@ -319,6 +320,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
@@ -466,6 +468,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         try {
             hssWb.write(os);
             os.flush();
+            os.close();
         } catch (IOException e1) {
             e1.printStackTrace();
             LOGGER.error("导出代表履职失败 \n {}", e1);

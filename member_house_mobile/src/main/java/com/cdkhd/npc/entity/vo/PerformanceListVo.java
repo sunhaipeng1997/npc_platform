@@ -36,6 +36,12 @@ public class PerformanceListVo extends BaseVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date workAt;
 
+    //代表是否查看未审核的履职
+    private Boolean view;
+
+    //我是否查看审核结果
+    private Boolean myView = true;
+
     public static PerformanceListVo convert(Performance performance) {
         PerformanceListVo vo = new PerformanceListVo();
         BeanUtils.copyProperties(performance, vo);

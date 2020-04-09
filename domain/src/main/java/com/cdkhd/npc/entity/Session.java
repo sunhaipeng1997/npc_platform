@@ -76,4 +76,7 @@ public class Session extends BaseDomain {
     )
     private Set<NpcMember> npcMembers = new HashSet<>();
 
+	//是否是本届
+    private Boolean isCurrent;
+
 }

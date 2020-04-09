@@ -33,11 +33,14 @@ public class OpinionListVo extends BaseVo {
     private Byte status;
     private String statusName;
 
-    //是否查看
+    //接受人员是否查看
     private Boolean view;
 
     //超時
     private int timeout;
+
+    //我是否查看回复
+    private Boolean myView = true;
 
 
     public static OpinionListVo convert(Opinion opinion) {
@@ -52,6 +55,11 @@ public class OpinionListVo extends BaseVo {
             vo.setTimeout(0);
         }else {
             vo.setTimeout(1);
+        }
+        for (OpinionReply reply : opinion.getReplies()) {
+            if (!reply.getView()){
+                vo.setMyView(false);
+            }
         }
         return vo;
     }
