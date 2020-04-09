@@ -137,7 +137,12 @@ public class StudyServiceImpl implements StudyService {
             studyType.setLevel(userDetails.getLevel());
             studyType.setArea(userDetails.getArea());
             studyType.setTown(userDetails.getTown());
-            Integer maxSequence = studyTypeRepository.findMaxSequence();
+            Integer maxSequence;
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+                maxSequence = studyTypeRepository.findMaxSequenceByLevelAndTownUid(userDetails.getLevel(), userDetails.getTown().getUid());
+            }else{
+                maxSequence = studyTypeRepository.findMaxSequenceByLevelAndAreaUid(userDetails.getLevel(), userDetails.getArea().getUid());
+            }
             if(maxSequence == null){//防治数据库初始为空时报错，所以将初始序号设置为0。（李亚林）
                 maxSequence = 0;
             }

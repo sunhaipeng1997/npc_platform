@@ -170,10 +170,10 @@ public class SuggestionServiceImpl implements SuggestionService {
             Integer maxSequence = 0;
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
                 Set<SuggestionBusiness> suggestionBusinesses = suggestionBusinessRepository.findByTownUid(userDetails.getTown().getUid());
-                maxSequence = suggestionBusiness != null ? suggestionBusinesses.size() + 1 : 0;
+                maxSequence = suggestionBusiness != null ? suggestionBusinesses.size() + 1 : 1;
             }if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
                 Set<SuggestionBusiness> suggestionBusinesses = suggestionBusinessRepository.findByAreaUid(userDetails.getArea().getUid());
-                maxSequence = suggestionBusiness != null ? suggestionBusinesses.size() + 1 : 0;
+                maxSequence = suggestionBusiness != null ? suggestionBusinesses.size() + 1 : 1;
             }
             suggestionBusiness.setSequence(maxSequence);
         }

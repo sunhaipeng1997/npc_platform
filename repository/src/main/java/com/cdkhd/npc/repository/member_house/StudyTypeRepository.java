@@ -22,8 +22,11 @@ public interface StudyTypeRepository extends BaseRepository<StudyType> {
 
     StudyType findByNameAndLevelAndAreaUidAndIsDelFalseAndUidNot(String name, Byte level, String uid,String typeUid);
 
-    @Query(value = "select max(type.sequence) from StudyType type")
-    Integer findMaxSequence();
+    @Query(value = "select max(type.sequence) from StudyType type where type.level =?1 and type.area.uid = ?2")
+    Integer findMaxSequenceByLevelAndAreaUid(Byte level,String areaUid);
+
+    @Query(value = "select max(type.sequence) from StudyType type where type.level =?1 and type.town.uid = ?2")
+    Integer findMaxSequenceByLevelAndTownUid(Byte level,String townUid);
 
     @Query(value = "select type from StudyType as type where type.sequence < ?1 and type.level = ?2 and type.town.uid = ?3 order by type.sequence desc ")
     Page<StudyType> findByTownSequenceDesc(Integer sequence, Byte level, String townUid, Pageable page);
