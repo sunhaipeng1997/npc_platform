@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.vo.BaseVo;
+import com.cdkhd.npc.vo.CommonVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,12 +38,20 @@ public class AccountVo extends BaseVo {
     //状态
     private Byte status;
 
+    //村信息
+    private CommonVo village;
+
+    //镇信息
+    private CommonVo town;
+
     public static AccountVo convert(Account account) {
         AccountVo vo = new AccountVo();
         BeanUtils.copyProperties(account, vo);
         if (account.getVoter() != null){
             vo.setRealname(account.getVoter().getRealname());
             vo.setMobile(account.getVoter().getMobile());
+            vo.setTown(CommonVo.convert(account.getVoter().getTown().getUid(),account.getVoter().getTown().getName()));
+            vo.setVillage(CommonVo.convert(account.getVoter().getVillage().getUid(),account.getVoter().getVillage().getName()));
         }else{
             vo.setRealname(account.getUsername());
             vo.setMobile(account.getMobile());

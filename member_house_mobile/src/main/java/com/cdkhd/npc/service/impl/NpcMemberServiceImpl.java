@@ -11,6 +11,7 @@ import com.cdkhd.npc.entity.vo.CommentVo;
 import com.cdkhd.npc.entity.vo.MemberUnitVo;
 import com.cdkhd.npc.entity.vo.NpcMemberVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AreaRepository;
 import com.cdkhd.npc.repository.base.NpcMemberGroupRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
@@ -76,7 +77,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             }
             MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"区代表",LevelEnum.AREA.getValue());
             List<NpcMember> npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(townUid,LevelEnum.AREA.getValue());
-            memberUnitVo.setChildren(npcMembers.stream().map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),LevelEnum.AREA.getValue())).collect(Collectors.toList()));
+            memberUnitVo.setChildren(npcMembers.stream().filter(member -> member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),LevelEnum.AREA.getValue())).collect(Collectors.toList()));
             MemberUnitVos.add(0,memberUnitVo);
         }else{
             String areaUid = userDetails.getArea().getUid();
@@ -84,7 +85,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             Set<Town> towns = area.getTowns();
             for (Town town : towns) {
                 MemberUnitVo memberUnitVo = MemberUnitVo.convert(town.getUid(),town.getName(),levelDto.getLevel());
-                List<MemberUnitVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel())).collect(Collectors.toList());
+                List<MemberUnitVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel())).collect(Collectors.toList());
                 memberUnitVo.setChildren(members);
                 MemberUnitVos.add(memberUnitVo);
             }
@@ -99,10 +100,14 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         CommentVo commentVo = new CommentVo();
         if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())){
             NpcMemberGroup npcMemberGroup = npcMemberGroupRepository.findByUid(levelDto.getUid());
-            commentVo = CommentVo.convert(npcMemberGroup.getUid(),npcMemberGroup.getName(),npcMemberGroup.getDescription());
+            if (npcMemberGroup != null) {
+                commentVo = CommentVo.convert(npcMemberGroup.getUid(), npcMemberGroup.getName(), npcMemberGroup.getDescription());
+            }
         }else if(levelDto.getLevel().equals(LevelEnum.AREA.getValue())){
             Town town = townRepository.findByUid(levelDto.getUid());
-            commentVo = CommentVo.convert(town.getUid(),town.getName(),town.getDescription());
+            if (town != null) {
+                commentVo = CommentVo.convert(town.getUid(), town.getName(), town.getDescription());
+            }
         }
         body.setData(commentVo);
         return body;
@@ -146,6 +151,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             //查询与bgAdmin同级的代表
             predicateList.add(cb.equal(root.get("level"), level));
             predicateList.add(cb.isFalse(root.get("isDel")));
+            predicateList.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             //同镇的代表 or 同区的代表
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicateList.add(cb.equal(root.get("npcMemberGroup").get("uid"), uid));

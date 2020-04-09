@@ -268,6 +268,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 accountRoles.add(voter);
                 accountRoleRepository.saveAll(accountRoles);
             }
+            member.setStatus(StatusEnum.DISABLED.getValue());
             member.setAccount(null);
         }
         else if (dto.getSessionUids().contains(currentSessionId)){//如果选择的届期里面包含了当前的届期，那么就给代表赋予当前代表的职能
@@ -284,6 +285,8 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 accountRoleRepository.saveAll(accountRoles);
             }
             member.setAccount(account);
+        }else{
+            member.setStatus(StatusEnum.DISABLED.getValue());
         }
 
         //保存代表

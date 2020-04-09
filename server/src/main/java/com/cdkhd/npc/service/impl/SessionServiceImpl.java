@@ -267,6 +267,19 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
+    public RespBody getCurrentSession(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            Session session = sessionRepository.findTownCurrentSession(userDetails.getTown().getUid(),userDetails.getLevel(),new Date());
+            body.setData(session.getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            Session session = sessionRepository.findAreaCurrentSession(userDetails.getArea().getUid(),userDetails.getLevel(),new Date());
+            body.setData(session.getUid());
+        }
+        return body;
+    }
+
+    @Override
     public Session defaultSession(UserDetailsImpl userDetails) {
         Session session = null;
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){

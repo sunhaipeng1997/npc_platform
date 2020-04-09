@@ -56,4 +56,6 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
     PerformanceType findByNameAndLevelAndTownUidAndIsDelFalseAndUidIsNot(String name, Byte level, String townUid, String uid);
 
     PerformanceType findByNameAndLevelAndAreaUidAndIsDelFalseAndUidIsNot(String name, Byte level, String areaUid, String uid);
+
+    PerformanceType findByNameAndLevelAndAreaUidAndStatusAndIsDelFalseAndIsDefaultIsTrue(String value, Byte value1, String uid, byte value2);
 }

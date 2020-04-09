@@ -47,7 +47,6 @@ public class SessionController {
         RespBody body = sessionService.sessionPage(userDetails, sessionPageDto);
         return ResponseEntity.ok(body);
     }
-
     /**
      * 添加或修改届期信息
      * @param userDetails 当前用户
@@ -78,6 +77,18 @@ public class SessionController {
     @PostMapping("/clearSessions")
     public ResponseEntity clearSessions(@CurrentUser UserDetailsImpl userDetails) {
         RespBody body = sessionService.clearSessions(userDetails);
+        return ResponseEntity.ok(body);
+    }
+
+
+    /**
+     * 获取本届uid
+     * @param userDetails 当前用户
+     * @return 查询结果
+     */
+    @GetMapping("/getCurrentSession")
+    public ResponseEntity getCurrentSession(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = sessionService.getCurrentSession(userDetails);
         return ResponseEntity.ok(body);
     }
 }

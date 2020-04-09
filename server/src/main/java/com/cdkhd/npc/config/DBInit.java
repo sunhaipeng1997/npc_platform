@@ -78,7 +78,7 @@ public class DBInit {
         String areaName = env.getProperty("npc_base_info.area");
         Area area = areaRepository.findByName(areaName);
         for (PerformanceTypeEnum performanceTypeEnum : PerformanceTypeEnum.values()) {
-            PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(),LevelEnum.AREA.getValue(),area.getUid(),StatusEnum.ENABLED.getValue());
+            PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndAreaUidAndStatusAndIsDelFalseAndIsDefaultIsTrue(performanceTypeEnum.getValue(),LevelEnum.AREA.getValue(),area.getUid(),StatusEnum.ENABLED.getValue());
             if (performanceType == null) {
                 Integer maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(), area.getUid());
                 performanceType = new PerformanceType();
@@ -224,6 +224,8 @@ public class DBInit {
                 systems.setUrl(systemEnum.getUrl());
                 systems.setEnabled(true);
                 systems.setKeyword(systemEnum.toString());
+                systems.setImgUrl(systemEnum.getImgUrl());
+                systems.setPagePath(systemEnum.getPagePath());
                 systemRepository.save(systems);
             }
         }
@@ -1169,7 +1171,7 @@ public class DBInit {
 
     //初始化一个Account
     private void initOneAccount(String username, String mobile, String rawPwd) {
-        Account account = accountRepository.findByUsernameAndMobile(username, mobile);
+        Account account = accountRepository.findByUsername(username);//这里用户名查询就行了，用户名不可重复，管理员有可能换手机号
         if (account == null) {
             account = new Account();
             account.setUsername(username);

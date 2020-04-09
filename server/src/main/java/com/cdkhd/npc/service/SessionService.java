@@ -44,6 +44,14 @@ public interface SessionService {
     RespBody clearSessions(UserDetailsImpl userDetails);
 
     /**
+     * 当前届期uid
+     * @param userDetails
+     * @return
+     */
+    RespBody getCurrentSession(UserDetailsImpl userDetails);
+
+
+    /**
      * 当前届期
      * @param userDetails
      * @return

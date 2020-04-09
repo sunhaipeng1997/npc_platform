@@ -325,12 +325,12 @@ public class MenuServiceImpl implements MenuService {
             List<NotificationViewDetail> notificationViewDetails = notificationViewDetailRepository.findAll((Specification<NotificationViewDetail>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("notification").get("level").as(Byte.class), level));
-                predicateList.add(cb.equal(root.get("notification").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicateList.add(cb.equal(root.get("notification").get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("notification").get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("notification").get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.isFalse(root.get("isRead").as(Boolean.class)));
-                predicateList.add(cb.equal(root.get("receiver").get("uid").as(String.class), account.getUid()));
+                predicateList.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
             obj.put(MenuEnum.NOTIFICATION_INFO.toString(), notificationViewDetails.size());
@@ -417,23 +417,30 @@ public class MenuServiceImpl implements MenuService {
             if (npcMember.getNpcMemberRoles().stream().map(NpcMemberRole::getKeyword).collect(Collectors.toList()).contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword())) {
 
                 //小组审核人待审核数量
-                NpcMemberRole auditorRole = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());
+                NpcMemberRole auditorRole = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());//小组审核人
                 List<String> auditorUids = auditorRole.getNpcMembers().stream().filter(member -> member.getLevel().equals(npcMember.getLevel()) && ((member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getArea().getUid().equals(npcMember.getArea().getUid())) || (member.getLevel().equals(LevelEnum.TOWN.getValue())) && member.getTown().getUid().equals(npcMember.getTown().getUid()))).map(NpcMember::getUid).collect(Collectors.toList());
                 List<Performance> performanceList = Lists.newArrayList();
-                if (CollectionUtils.isNotEmpty(auditorUids)) {
+                if (CollectionUtils.isNotEmpty(auditorUids)) {//小组审核人存在的时候，继续往下统计
+                    List<String> memberUids;//小组所有代表的uid
+                    if (npcMember.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                        memberUids = npcMemberRepository.findByNpcMemberGroupUidAndIsDelFalse(npcMember.getNpcMemberGroup().getUid()).stream().map(NpcMember::getUid).collect(Collectors.toList());
+                    } else {
+                        memberUids = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), npcMember.getLevel()).stream().map(NpcMember::getUid).collect(Collectors.toList());
+                    }
+                    memberUids.removeAll(auditorUids);//将小组成员中的小组审核人过滤掉
+//                    final List<String> members = memberUids;
                     performanceList = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
                         List<Predicate> predicateList = new ArrayList<>();
                         predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                         predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
-                        predicateList.add(cb.notEqual(root.get("status").as(int.class), StatusEnum.ENABLED.getValue()));
-                        predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
-                        predicateList.add(cb.equal(root.get("isDel").as(Boolean.class), false));
+                        predicateList.add(cb.isNull(root.get("status").as(int.class)));
+                        predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
+                        predicateList.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                         if (level.equals(LevelEnum.TOWN.getValue())) {
                             predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                         }
-                        predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
                         CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
-                        in.value(auditorUids);
+                        in.value(memberUids);
                         predicateList.add(in);
                         return cb.and(predicateList.toArray(new Predicate[0]));
                     });
