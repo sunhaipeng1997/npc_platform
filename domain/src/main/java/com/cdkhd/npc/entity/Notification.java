@@ -70,7 +70,7 @@ public class Notification extends BaseDomain {
     private Byte level;
 
     //接收人
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(targetEntity = NpcMember.class)
     @JoinTable(
             name = "notification_npcMember_relation",
             joinColumns = {
