@@ -3,6 +3,7 @@ package com.cdkhd.npc.controller;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.ListUidDto;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.service.SpecialFunctionService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,23 +75,20 @@ public class SpecialFunctionController {
         return ResponseEntity.ok(body);
     }
 
-    /**
-     * 履职小组审核人
-     * @return
-     */
-    @PostMapping("/performanceGroupAuditor")
-    public ResponseEntity performanceGroupAuditor(String group, String uid) {
-        RespBody body = specialFunctionService.performanceGroupAuditor(group, uid);
-        return ResponseEntity.ok(body);
-    }
 
     /**
      * 履职镇审核人
+     * 履职小组审核人
      * @return
      */
     @PostMapping("/performanceTownAuditor")
-    public ResponseEntity newsAuditor(String town, String uid) {
-        RespBody body = specialFunctionService.performanceTownAuditor(town,uid);
+    public ResponseEntity newsAuditor(@CurrentUser UserDetailsImpl userDetails, String town, String uid) {
+        RespBody body;
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            body = specialFunctionService.performanceGroupAuditor(town,uid);
+        }else {
+            body = specialFunctionService.performanceTownAuditor(town, uid);
+        }
         return ResponseEntity.ok(body);
     }
 
