@@ -2,18 +2,17 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.NpcMemberAddDto;
-import com.cdkhd.npc.entity.dto.NpcMemberPageDto;
 import com.cdkhd.npc.entity.dto.SessionAddDto;
 import com.cdkhd.npc.entity.dto.SessionPageDto;
-import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.service.SessionService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/api/manager/session")
