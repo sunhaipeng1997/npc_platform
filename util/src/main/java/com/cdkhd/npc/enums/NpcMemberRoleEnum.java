@@ -1,9 +1,9 @@
 package com.cdkhd.npc.enums;
 
 public enum NpcMemberRoleEnum {
-    MEMBER("普通代表",true),
-    CHAIRMAN("人大主席",true),
-    SPECIAL_MAN("特殊人员",true),
+    MEMBER("代表",true),
+    CHAIRMAN("人大领导",true),
+    SPECIAL_MAN("办公室人员",true),
     NEWS_AUDITOR("新闻审核人员",false),
     NOTICE_AUDITOR("通知公告审核人员",false),
     SUGGESTION_RECEIVER("建议接收人员",false),

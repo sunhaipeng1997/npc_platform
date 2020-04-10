@@ -1,9 +1,9 @@
 package com.cdkhd.npc.enums;
 
 public enum JobsEnum {
-    NORMAL("MEMBER","普通代表"),
-    LEADER("CHAIRMAN","人大主席"),
-    SPECIAL("SPECIAL_MAN","特殊人员");
+    NORMAL("MEMBER","代表"),
+    LEADER("CHAIRMAN","人大领导"),
+    SPECIAL("SPECIAL_MAN","办公室人员");
 
     private String value;
     private String name;
