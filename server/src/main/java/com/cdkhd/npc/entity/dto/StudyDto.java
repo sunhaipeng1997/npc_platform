@@ -33,5 +33,7 @@ public class StudyDto extends PageDto {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
 	private Date dateEnd;
 
+    //文件状态
+    private Byte status;
 
 }

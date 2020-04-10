@@ -65,7 +65,7 @@ public class Account extends BaseDomain {
     /**
      * 用户名
      */
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
     /**

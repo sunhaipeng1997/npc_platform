@@ -248,7 +248,7 @@ public class StudyServiceImpl implements StudyService {
         Page<Study> studyPage = studyRepository.findAll((Specification<Study>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), studyDto.getStatus()));
             predicates.add(cb.equal(root.get("studyType").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicates.add(cb.isFalse(root.get("studyType").get("isDel").as(Boolean.class)));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {

@@ -325,6 +325,7 @@ public class MenuServiceImpl implements MenuService {
             List<NotificationViewDetail> notificationViewDetails = notificationViewDetailRepository.findAll((Specification<NotificationViewDetail>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("notification").get("level").as(Byte.class), level));
+                predicateList.add(cb.isTrue(root.get("notification").get("published").as(Boolean.class)));
                 predicateList.add(cb.equal(root.get("notification").get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicateList.add(cb.equal(root.get("notification").get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
@@ -462,8 +463,9 @@ public class MenuServiceImpl implements MenuService {
         List<AccountRole> memberRoles = accountRoles.stream().filter(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(memberRoles)){//如果代表身份不为空
             for (NpcMember npcMember : account.getNpcMembers()) {
-                String name = npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getTown().getName():npcMember.getArea().getName();
-                levelVos = npcMember.getNpcMemberRoles().stream().filter(role -> role.getIsMust()).map(role -> LevelVo.convert(role.getUid(),name+role.getName(),npcMember.getLevel())).collect(Collectors.toList());
+                String name = npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getTown().getName():npcMember.getArea().getName();//获取代表所在区镇的名称
+                List<LevelVo> memberLevelVos = npcMember.getNpcMemberRoles().stream().filter(role -> role.getIsMust()).map(role -> LevelVo.convert(role.getUid(),name+role.getName(),npcMember.getLevel())).collect(Collectors.toList());
+                levelVos.addAll(memberLevelVos);
             }
         }
         if (CollectionUtils.isEmpty(levelVos)){//代表排除后，将后台管理员也排除掉

@@ -40,7 +40,11 @@ public class StudyTypeVo extends BaseVo {
         StudyTypeVo vo = new StudyTypeVo();
         BeanUtils.copyProperties(studyType, vo);
         vo.setStatusName(StatusEnum.getName(studyType.getStatus()));
-        vo.setStudyVos(studyType.getStudies().stream().filter(study -> study.getStatus().equals(StatusEnum.ENABLED.getValue())).map(StudyVo::convert).collect(Collectors.toList()));
+        vo.setStudyVos(studyType.getStudies().stream()
+                .filter(study -> study.getStatus().equals(StatusEnum.ENABLED.getValue()))
+                .map(StudyVo::convert)
+                .sorted(Comparator.comparing(StudyVo::getSequence))
+                .collect(Collectors.toList()));
         return vo;
     }
 }
