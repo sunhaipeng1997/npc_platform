@@ -100,7 +100,7 @@ public class Account extends BaseDomain {
     private String mobile;
 
     //选民关联
-    @OneToOne(mappedBy = "account", targetEntity = Voter.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "account", targetEntity = Voter.class, fetch = FetchType.LAZY)
     private Voter voter;
 
     //代表关联
@@ -120,7 +120,7 @@ public class Account extends BaseDomain {
     private UnitUser unitUser;
 
     //上次登录进入的系统
-    @OneToOne(targetEntity = Systems.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Systems.class, fetch = FetchType.LAZY)
     private Systems systems;
 
     //移动端用户偏好设置
