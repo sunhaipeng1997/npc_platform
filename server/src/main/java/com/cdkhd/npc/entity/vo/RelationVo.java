@@ -4,6 +4,7 @@ import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 @Setter
@@ -16,10 +17,11 @@ public class RelationVo extends BaseVo {
     // 包含镇/小组/村
     private List<RelationVo> children;
 
-    public static RelationVo convert(String uid, String name) {
+    public static RelationVo convert(String uid, String name, Date createTime) {
         RelationVo vo = new RelationVo();
         vo.setUid(uid);
         vo.setName(name);
+        vo.setCreateTime(createTime);
         return vo;
     }
 }

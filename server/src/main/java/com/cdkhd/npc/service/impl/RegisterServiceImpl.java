@@ -81,15 +81,16 @@ public class RegisterServiceImpl implements RegisterService {
         List<Area> areas = areaRepository.findByStatus(StatusEnum.ENABLED.getValue());
         List<RelationVo> areaVos = Lists.newArrayList();
         for (Area area : areas) {
-            RelationVo areaVo = RelationVo.convert(area.getUid(),area.getName());
+            RelationVo areaVo = RelationVo.convert(area.getUid(),area.getName(),area.getCreateTime());
             List<RelationVo> townVos = Lists.newArrayList();
             for (Town town : area.getTowns()) {
                 if (town.getStatus().equals(StatusEnum.ENABLED.getValue())) {
-                    RelationVo townVo = RelationVo.convert(town.getUid(), town.getName());
-                    townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName())).collect(Collectors.toList()));
+                    RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(),town.getCreateTime());
+                    townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(),village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
                     townVos.add(townVo);
                 }
             }
+            townVos.sort(Comparator.comparing(RelationVo::getCreateTime));
             areaVo.setChildren(townVos);
             areaVos.add(areaVo);
         }
@@ -243,17 +244,46 @@ public class RegisterServiceImpl implements RegisterService {
         voter.setRealname(dto.getName());
         voter.setGender(dto.getGender());
         voter.setAge(dto.getAge());
-        if(StringUtils.isNotEmpty(dto.getAreaUid())){
-            voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
+        if(keyword.equals(AccountRoleEnum.VOTER.getName())){
+            if(StringUtils.isNotEmpty(dto.getAreaUid())){
+                voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
+            }
+
+            if(StringUtils.isNotEmpty(dto.getTownUid())){
+                voter.setTown(townRepository.findByUid(dto.getTownUid()));
+            }
+
+            if(StringUtils.isNotEmpty(dto.getVillageUid())){
+                voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
+            }
+        }
+        if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
+            List<NpcMember> npcMembers = npcMemberRepository.findByMobile(dto.getMobile());
+            Village theVillage = new Village();
+            if(StringUtils.isNotEmpty(dto.getVillageUid())){
+                 theVillage = villageRepository.findByUid(dto.getVillageUid());
+            }
+
+            if (!npcMembers.isEmpty()){
+                voter.setArea(npcMembers.get(0).getArea());
+                voter.setTown(npcMembers.get(0).getTown());
+                if(npcMembers.get(0).getLevel().equals(LevelEnum.AREA.getValue())){
+                    if(npcMembers.get(0).getTown().getVillages().contains(theVillage)){
+                        voter.setVillage(theVillage);
+                    }else{
+                        voter.setVillage(npcMembers.get(0).getTown().getVillages().iterator().next());
+                    }
+                }else{
+                    if(npcMembers.get(0).getNpcMemberGroup().getVillages().contains(theVillage)){
+                        voter.setVillage(theVillage);
+                    }else{
+                        voter.setVillage(npcMembers.get(0).getNpcMemberGroup().getVillages().iterator().next());
+                    }
+                }
+            }
         }
 
-        if(StringUtils.isNotEmpty(dto.getTownUid())){
-            voter.setTown(townRepository.findByUid(dto.getTownUid()));
-        }
 
-        if(StringUtils.isNotEmpty(dto.getVillageUid())){
-            voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
-        }
         voter.setAccount(accountRepository.findByUid(account.getUid()));
         voterRepository.save(voter);
 
