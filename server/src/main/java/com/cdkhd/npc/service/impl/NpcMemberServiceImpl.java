@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -267,15 +268,16 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
                 accountRoles.add(voter);
                 accountRoleRepository.saveAll(accountRoles);
+                member.setAccount(null);
             }
             member.setStatus(StatusEnum.DISABLED.getValue());
-            member.setAccount(null);
         }
         else if (dto.getSessionUids().contains(currentSessionId)){//如果选择的届期里面包含了当前的届期，那么就给代表赋予当前代表的职能
             Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
             npcMemberRoles.removeIf(role -> role.getIsMust());//先把必选的角色删除掉，然后将本次选择的加上
             npcMemberRoles.add(npcMemberRole);
             member.setNpcMemberRoles(npcMemberRoles);
+            member.setStatus(StatusEnum.ENABLED.getValue());
             if (account != null){
                 Set<AccountRole> accountRoles = account.getAccountRoles();
 //                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
@@ -283,8 +285,8 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 AccountRole memberAccount = accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword());//将选民和代表身份都移除后加上代表身份
                 accountRoles.add(memberAccount);
                 accountRoleRepository.saveAll(accountRoles);
+                member.setAccount(account);
             }
-            member.setAccount(account);
         }else{
             member.setStatus(StatusEnum.DISABLED.getValue());
         }
@@ -361,11 +363,11 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             Set<NpcMemberGroup> npcMemberGroups = userDetails.getTown().getNpcMemberGroups();
             vos = npcMemberGroups.stream().map(group ->
-                    CommonVo.convert(group.getUid(), group.getName())).collect(Collectors.toList());
+                    CommonVo.convert(group.getUid(), group.getName())).sorted(Comparator.comparing(CommonVo::getUid)).collect(Collectors.toList());
         } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
             Set<Town> towns = userDetails.getArea().getTowns();
             vos = towns.stream().map(town ->
-                    CommonVo.convert(town.getUid(), town.getName())).collect(Collectors.toList());
+                    CommonVo.convert(town.getUid(), town.getName())).sorted(Comparator.comparing(CommonVo::getUid)).collect(Collectors.toList());
         } else {
             throw new RuntimeException("当前后台管理员level不合法");
         }

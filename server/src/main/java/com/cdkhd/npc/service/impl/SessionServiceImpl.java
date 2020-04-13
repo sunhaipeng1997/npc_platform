@@ -62,6 +62,7 @@ public class SessionServiceImpl implements SessionService {
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             sessions = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(),userDetails.getLevel());
         }
+        sessions.sort(Comparator.comparing(Session::getStartDate,Comparator.nullsLast(Comparator.naturalOrder())));
         List<CommonVo> vos = sessions.stream().map(session ->
                 CommonVo.convert(session.getUid(), session.getIsCurrent()?session.getName()+"（本届）":session.getName())).collect(Collectors.toList());
         body.setData(vos);
@@ -73,7 +74,7 @@ public class SessionServiceImpl implements SessionService {
         RespBody body = new RespBody();
         //分页查询条件
         Pageable page = PageRequest.of(sessionPageDto.getPage() - 1, sessionPageDto.getSize(),
-                Sort.Direction.fromString(sessionPageDto.getDirection()), sessionPageDto.getProperty());
+                Sort.Direction.fromString("ASC"), sessionPageDto.getProperty());
 
         //其它查询条件
         Page<Session> sessionPage = sessionRepository.findAll((Specification<Session>) (root, query, cb) -> {

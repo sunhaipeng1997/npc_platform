@@ -86,7 +86,7 @@ public class RegisterServiceImpl implements RegisterService {
             for (Town town : area.getTowns()) {
                 if (town.getStatus().equals(StatusEnum.ENABLED.getValue())) {
                     RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(),town.getCreateTime());
-                    townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(),village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
+                    townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(), village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
                     townVos.add(townVo);
                 }
             }

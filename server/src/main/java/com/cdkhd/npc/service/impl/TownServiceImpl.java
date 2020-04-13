@@ -117,6 +117,17 @@ public class TownServiceImpl implements TownService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
+        if (StringUtils.isEmpty(townAddDto.getAccount())){
+            body.setMessage("请输入管理员账号");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        Account account = accountRepository.findByUsername(townAddDto.getAccount());
+        if (account != null){
+            body.setMessage("该账号已存在，请换个账号重新输入！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
         town = townAddDto.convert();
         Area area = userDetails.getArea();
         town.setArea(area);
@@ -145,7 +156,7 @@ public class TownServiceImpl implements TownService {
         khd_loginUP.setPassword(passwordEncoder.encode(accountPassword));
         khd_loginUP.setMobile(accountMobile);
 
-        Account account = new Account();
+        account = new Account();
         account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
         account.setStatus(StatusEnum.ENABLED.getValue());
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
