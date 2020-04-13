@@ -9,6 +9,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description
@@ -55,6 +57,8 @@ public class SuggestionVo extends BaseVo {
     //审核人
     private String auditor;
 
+    private List<SuggestionReplyVo> suggestionReplyVos;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
         BeanUtils.copyProperties(suggestion, vo);
@@ -68,6 +72,7 @@ public class SuggestionVo extends BaseVo {
         }
         vo.setSuggestionBusiness(SuggestionBusinessVo.convert(suggestion.getSuggestionBusiness()));
         vo.setBusinessName(suggestion.getSuggestionBusiness().getName());
+        vo.setSuggestionReplyVos(suggestion.getReplies().stream().map(reply -> SuggestionReplyVo.convert(reply)).collect(Collectors.toList()));
         return vo;
     }
 }
