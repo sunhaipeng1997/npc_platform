@@ -9,5 +9,6 @@ public interface SystemService {
 
     RespBody cacheSystem(String uid, String systemId);
 
-    RespBody getCacheSystem(String uid);
+    //source  1 后台登录    2 小程序登录
+    RespBody getCacheSystem(String uid,Byte source);
 }

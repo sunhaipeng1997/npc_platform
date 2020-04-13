@@ -4,6 +4,7 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.Systems;
 import com.cdkhd.npc.entity.vo.SystemVo;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.SystemRepository;
 import com.cdkhd.npc.service.SystemService;
@@ -52,13 +53,17 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public RespBody getCacheSystem(String uid) {
+    public RespBody getCacheSystem(String uid,Byte source) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(uid);
         if (account.getSystems() != null) {
             CommonVo commonVo = new CommonVo();
             commonVo.setUid(account.getSystems().getUid());
-            commonVo.setName(account.getSystems().getUrl());
+            if (source.equals(StatusEnum.ENABLED.getValue())) {
+                commonVo.setName(account.getSystems().getUrl());
+            }else{
+                commonVo.setName(account.getSystems().getPagePath());
+            }
             body.setData(commonVo);
         }
         return body;

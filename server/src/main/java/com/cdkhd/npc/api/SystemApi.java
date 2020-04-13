@@ -33,7 +33,7 @@ public class SystemApi {
     //获取我上次登录缓存的系统
     @GetMapping("/getCacheSystem")
     public ResponseEntity getCacheSystem(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = systemService.getCacheSystem(userDetails.getUid());
+        RespBody body = systemService.getCacheSystem(userDetails.getUid(),(byte)2);
         return ResponseEntity.ok(body);
     }
 
