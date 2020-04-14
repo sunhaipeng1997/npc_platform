@@ -186,7 +186,7 @@ public class RegisterServiceImpl implements RegisterService {
                 //如果这个账号的身份包含后台管理员,就忽略
                 if (keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())) {
                     continue;
-                } else if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())) {
+                } else {
                     //账号没有包含后台管理员，则表示已经注册了
                     currentAccount = account;
                     body.setStatus(HttpStatus.BAD_REQUEST);

@@ -396,7 +396,7 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public RespBody auth(String nickName, String code, String encryptedData, String iv) {
-        RespBody<TokenVo> body = new RespBody<>();
+        RespBody body = new RespBody();
 
         //登录凭证校验结果
         ResponseEntity<String> resp = this.code2session(code);
@@ -427,9 +427,16 @@ public class AuthServiceImpl implements AuthService {
 
             LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
             if (loginWeChat == null) {
-                body.setStatus(HttpStatus.BAD_REQUEST);
-                body.setMessage("还未注册，请您先注册");
-                return body;
+
+                JSONObject obj = new JSONObject();
+                // 5 未注册
+                obj.put("status", 5);
+
+                RespBody<JSONObject> respBody = new RespBody<>();
+                respBody.setData(obj);
+                respBody.setStatus(HttpStatus.BAD_REQUEST);
+                respBody.setMessage("还未注册，请您先注册");
+                return respBody;
             }
 
             Account account = loginWeChat.getAccount();
@@ -438,7 +445,14 @@ public class AuthServiceImpl implements AuthService {
 
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("还未注册，请您先注册");
-                return body;
+
+                JSONObject obj = new JSONObject();
+                // 5 未注册
+                obj.put("status", 5);
+
+                RespBody<JSONObject> respBody = new RespBody<>();
+                respBody.setData(obj);
+                return respBody;
             }
 
             if (account.getStatus() == StatusEnum.DISABLED.getValue()) {

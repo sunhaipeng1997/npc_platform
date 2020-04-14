@@ -100,7 +100,7 @@ public class Account extends BaseDomain {
     private String mobile;
 
     //选民关联
-    @OneToOne(mappedBy = "account", targetEntity = Voter.class, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account", targetEntity = Voter.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Voter voter;
 
     //代表关联
