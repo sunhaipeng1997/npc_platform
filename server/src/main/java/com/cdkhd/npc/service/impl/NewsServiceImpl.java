@@ -66,10 +66,13 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public RespBody uploadImage(UploadPicDto dto) {
-        RespBody<JSONObject> body = new RespBody<>();
-        JSONObject jsonObj = new JSONObject();
+//        RespBody<JSONObject> body = new RespBody<>();
+//        JSONObject jsonObj = new JSONObject();
+
+        RespBody<ImageVo> body = new RespBody<>();
 
         MultipartFile image = dto.getImage();
+
         if (image == null) {
             body.setMessage("图片不能为空");
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -78,8 +81,9 @@ public class NewsServiceImpl implements NewsService {
         }
 
         String imgUrl;
+        String orgName = image.getOriginalFilename();
 
-        //下面对图片进行压缩
+        //下面对图片尺寸进行压缩
         if(dto.getWidth()==null || dto.getHeight() == null){
             imgUrl = ImageUploadUtil.saveImage("news",image);
         }else{
@@ -92,10 +96,19 @@ public class NewsServiceImpl implements NewsService {
             LOGGER.warn("保存图片失败");
             return body;
         }else {
-            jsonObj.put("imgUrl", imgUrl);
+
+            ImageVo vo = new ImageVo();
+            vo.setName(orgName);
+            vo.setUrl(imgUrl);
+            vo.setUploadTotal(image.getSize());
+            vo.setUploaded(image.getSize());
+            body.setData(vo);
+            body.setMessage("上传成功");
+            body.setStatus(HttpStatus.OK);
+//            jsonObj.put("url", imgUrl);
         }
 
-        body.setData(jsonObj);
+//        body.setData(jsonObj);
         return body;
     }
 
