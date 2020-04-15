@@ -10,11 +10,13 @@ import com.cdkhd.npc.util.Certification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
+@Transactional
 public class PushMessageServiceImpl implements PushMessageService {
 
     private final Environment env;

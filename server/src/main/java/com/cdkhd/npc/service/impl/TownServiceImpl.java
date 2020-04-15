@@ -27,11 +27,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class TownServiceImpl implements TownService {
 
     private final TownRepository townRepository;

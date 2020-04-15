@@ -116,6 +116,6 @@ public interface StudyService {
      * @param userDetails
      * @return
      */
-    RespBody studyList(UserDetailsImpl userDetails, LevelDto levelDto);
+    RespBody studyList(LevelDto levelDto);
 
 }

@@ -1,14 +1,18 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Performance;
+import com.cdkhd.npc.entity.PerformanceImage;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description
@@ -52,6 +56,14 @@ public class PerformanceVo extends BaseVo {
     //审核人
     private String auditor;
 
+    //审核日期
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date auditDate;
+
+    //图片
+    private List<String> images;
+
     public static PerformanceVo convert(Performance performance) {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);
@@ -59,11 +71,15 @@ public class PerformanceVo extends BaseVo {
         vo.setMemberMobile(performance.getNpcMember().getMobile());
         if (performance.getAuditor() != null) {
             vo.setAuditor(performance.getAuditor().getName());
+            vo.setAuditDate(performance.getAuditAt());
         }else {
             vo.setAuditor("未审核");
         }
         vo.setPerformanceType(PerformanceTypeVo.convert(performance.getPerformanceType()));
         vo.setTypeName(performance.getPerformanceType().getName());
+        if (CollectionUtils.isNotEmpty(performance.getPerformanceImages())) {
+            vo.setImages(performance.getPerformanceImages().stream().map(PerformanceImage::getUrl).collect(Collectors.toList()));
+        }
         return vo;
     }
 }

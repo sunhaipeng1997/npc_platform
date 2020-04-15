@@ -4,6 +4,7 @@ package com.cdkhd.npc.api;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.LevelDto;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.service.StudyService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,11 @@ public class StudyApi {
      *  小程序获取学习列表
      */
     @GetMapping("/studyList")
-    public ResponseEntity studyList(@CurrentUser UserDetailsImpl userDetails, LevelDto levelDto) {
-        RespBody body = studyService.studyList(userDetails,levelDto);
+    public ResponseEntity studyList(LevelDto levelDto) {
+        if (levelDto.getLevel() == null){
+            levelDto.setLevel(LevelEnum.AREA.getValue());
+        }
+        RespBody body = studyService.studyList(levelDto);
         return ResponseEntity.ok(body);
     }
 

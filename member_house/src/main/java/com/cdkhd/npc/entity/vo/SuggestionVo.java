@@ -1,10 +1,12 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Suggestion;
+import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -57,7 +59,11 @@ public class SuggestionVo extends BaseVo {
     //审核人
     private String auditor;
 
+    //建议回复详情
     private List<SuggestionReplyVo> suggestionReplyVos;
+
+    //建议图片
+    private List<String> images;
 
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
@@ -73,6 +79,9 @@ public class SuggestionVo extends BaseVo {
         vo.setSuggestionBusiness(SuggestionBusinessVo.convert(suggestion.getSuggestionBusiness()));
         vo.setBusinessName(suggestion.getSuggestionBusiness().getName());
         vo.setSuggestionReplyVos(suggestion.getReplies().stream().map(reply -> SuggestionReplyVo.convert(reply)).collect(Collectors.toList()));
+        if (CollectionUtils.isNotEmpty(suggestion.getSuggestionImages())){
+            vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
+        }
         return vo;
     }
 }

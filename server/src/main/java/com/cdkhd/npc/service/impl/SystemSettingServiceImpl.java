@@ -1,6 +1,5 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.SystemSetting;
 import com.cdkhd.npc.entity.dto.SystemSettingDto;
 import com.cdkhd.npc.entity.vo.SystemSettingVo;
@@ -8,16 +7,15 @@ import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.vo.RespBody;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class SystemSettingServiceImpl implements SystemSettingService {
     private Environment env;
 
