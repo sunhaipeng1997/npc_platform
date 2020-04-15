@@ -26,9 +26,9 @@ public interface SuggestionBusinessRepository extends BaseRepository<SuggestionB
     @Query(value = "select max(sb.sequence) from SuggestionBusiness sb")
     Integer findMaxSequence();
 
-    List<SuggestionBusiness> findByLevelAndTownUidAndIsDelFalse(Byte level, String townUid);
+    List<SuggestionBusiness> findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(Byte level, String townUid,Byte status);
 
-    List<SuggestionBusiness> findByLevelAndAreaUidAndIsDelFalse(Byte level, String areaUid);
+    List<SuggestionBusiness> findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(Byte level, String areaUid,Byte status);
 
     SuggestionBusiness findByNameAndLevelAndTownUidAndIsDelFalse(String name, Byte level, String townUid);
 

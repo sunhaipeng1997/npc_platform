@@ -105,6 +105,12 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public RespBody addOrUpdateSession(UserDetailsImpl userDetails, SessionAddDto sessionAddDto) {
         RespBody body = new RespBody();
+        if (sessionAddDto.getEndDate().before(sessionAddDto.getStartDate())){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("结束日期不能在开始日期之前");
+            LOGGER.warn("结束日期不能在开始日期之前");
+            return body;
+        }
         //验证传过来的日期与数据库中的日期是否有交叉
         Session session = new Session();
         Boolean result;
@@ -166,7 +172,7 @@ public class SessionServiceImpl implements SessionService {
             startDate.sort(Comparator.naturalOrder());
             endDate.sort(Comparator.naturalOrder());
             for (int i = 1; i < startDate.size(); i++) {
-                if (startDate.get(i).before(endDate.get(i-1))){
+                if (startDate.get(i).before(endDate.get(i-1)) || startDate.equals(endDate)){
                     //如果下一个起始日期小于于上一个结束日期，那么就有交叉
                     result = false;
                     break;

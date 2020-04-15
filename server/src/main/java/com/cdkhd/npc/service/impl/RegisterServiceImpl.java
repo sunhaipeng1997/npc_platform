@@ -18,6 +18,7 @@ import com.cdkhd.npc.utils.WXAppletUserInfo;
 import com.cdkhd.npc.vo.RespBody;
 import com.cdkhd.npc.vo.TokenVo;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -179,20 +180,16 @@ public class RegisterServiceImpl implements RegisterService {
         //第二步，验证手机号码是否已经存在
         List<Account> accounts = accountRepository.findByMobile(dto.getMobile());
         Account currentAccount = null;
-        if (!accounts.isEmpty()) {
-            for (Account account : accounts) {
-                //判断账号的身份，将后台管理员给过滤掉
-                List<String> keywords = account.getAccountRoles().stream().map(AccountRole::getKeyword).collect(Collectors.toList());
-                //如果这个账号的身份包含后台管理员,就忽略
-                if (keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())) {
-                    continue;
-                } else {
-                    //账号没有包含后台管理员，则表示已经注册了
-                    currentAccount = account;
-                    body.setStatus(HttpStatus.BAD_REQUEST);
-                    body.setMessage("该手机号已经注册,请登录");
-                    return body;
-                }
+        for (Account account : accounts) {
+            //判断账号的身份，将后台管理员给过滤掉
+//            List<String> keywords = account.getAccountRoles().stream().filter(role -> !role.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())).map(AccountRole::getKeyword).collect(Collectors.toList());
+//            if (CollectionUtils.isNotEmpty(keywords))
+            if (account.getVoter() != null){
+                //账号没有包含后台管理员，则表示已经注册了
+                currentAccount = account;
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("该手机号已经注册,请登录");
+                return body;
             }
         }
         //账户为空，则建立账户并关联相关数据库表

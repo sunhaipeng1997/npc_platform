@@ -71,10 +71,9 @@ public class StudyServiceImpl implements StudyService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             if (studyTypeDto.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status").as(Byte.class), studyTypeDto.getStatus()));
@@ -221,10 +220,11 @@ public class StudyServiceImpl implements StudyService {
         RespBody body = new RespBody();
         List<StudyType> studyTypeList = Lists.newArrayList();
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            studyTypeList = studyTypeRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
+            studyTypeList = studyTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            studyTypeList = studyTypeRepository.findByLevelAndAreaUidAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid());
+            studyTypeList = studyTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         }
+        studyTypeList.sort(Comparator.comparing(StudyType::getSequence));
         List<CommonVo> commonVos = studyTypeList.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
         body.setData(commonVos);
         return body;

@@ -88,9 +88,11 @@ public class PerformanceServiceImpl implements PerformanceService {
     public RespBody performanceTypes(MobileUserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
-        performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        if (performanceTypeDto.getLevel().equals(LevelEnum.AREA.getValue())) {
+            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(performanceTypeDto.getLevel(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        }
         if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeDto.getLevel(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
+            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(performanceTypeDto.getLevel(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(), type.getName())).collect(Collectors.toList());
         body.setData(types);
@@ -103,10 +105,11 @@ public class PerformanceServiceImpl implements PerformanceService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());
         int begin = performancePageDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, performancePageDto.getSize(), Sort.Direction.fromString(performancePageDto.getDirection()), performancePageDto.getProperty());
+        Pageable page = PageRequest.of(begin, performancePageDto.getSize());
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), npcMember.getUid()));
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             predicates.add(cb.equal(root.get("level").as(Byte.class), npcMember.getLevel()));
             if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
@@ -120,7 +123,10 @@ public class PerformanceServiceImpl implements PerformanceService {
                     predicates.add(cb.isNotNull(root.get("status")));
                 }
             }
-            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+            Predicate[] p = new Predicate[predicates.size()];
+            query.where(cb.and(predicates.toArray(p)));
+            query.orderBy(cb.asc(root.get("myView")),cb.asc(root.get("status")),cb.desc(root.get("createTime")));
+            return query.getRestriction();
         }, page);
         List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
         PageVo<PerformanceListVo> vo = new PageVo<>(performancePage, performancePageDto);
@@ -260,6 +266,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setTown(npcMember.getTown());
         performance.setNpcMember(npcMemberRepository.findByUid(addPerformanceDto.getUid()));//提出人，就存在uid里面
         performance.setAuditor(npcMember);//审核人
+        performance.setView(true);
         performance.setStatus(StatusEnum.ENABLED.getValue());//默认已通过
         if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
             performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getTown().getUid()));
@@ -326,9 +333,11 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         //排序条件
         int begin = performancePageDto.getPage() - 1;
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "view");//先按查看状态排序
         Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
         Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
         List<Sort.Order> orders = new ArrayList<>();
+        orders.add(viewSort);
         orders.add(statusSort);
         orders.add(createAt);
         Sort sort = Sort.by(orders);
@@ -336,6 +345,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         Pageable page = PageRequest.of(begin, performancePageDto.getSize(), sort);
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+            predicates.add(cb.equal(root.get("level").as(Byte.class),performancePageDto.getLevel()));
             if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 List<NpcMember> npcMemberList = Lists.newArrayList();
                 if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {

@@ -77,9 +77,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(), userDetails.getTown().getUid());
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(), userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
         } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndIsDelFalse(userDetails.getLevel(), userDetails.getArea().getUid());
+            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(), userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);

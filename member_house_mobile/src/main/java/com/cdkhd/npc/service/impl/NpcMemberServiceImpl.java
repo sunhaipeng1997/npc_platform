@@ -29,9 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,26 +70,27 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             Town town = townRepository.findByUid(townUid);
             Set<NpcMemberGroup> groupList = town.getNpcMemberGroups();
             for (NpcMemberGroup npcMemberGroup : groupList) {//每个小组里面的代表信息
-                MemberUnitVo memberUnitVo = MemberUnitVo.convert(npcMemberGroup.getUid(),npcMemberGroup.getName(),levelDto.getLevel());
-                List<MemberUnitVo> members = npcMemberGroup.getMembers().stream().map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel())).collect(Collectors.toList());
+                MemberUnitVo memberUnitVo = MemberUnitVo.convert(npcMemberGroup.getUid(),npcMemberGroup.getName(),levelDto.getLevel(),npcMemberGroup.getCreateTime());
+                List<MemberUnitVo> members = npcMemberGroup.getMembers().stream().map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel(),member.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
                 memberUnitVo.setChildren(members);
                 MemberUnitVos.add(memberUnitVo);
             }
-            MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"区代表",LevelEnum.AREA.getValue());
+            MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"区代表",LevelEnum.AREA.getValue(),new Date());
             List<NpcMember> npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(townUid,LevelEnum.AREA.getValue());
-            memberUnitVo.setChildren(npcMembers.stream().filter(member -> member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),LevelEnum.AREA.getValue())).collect(Collectors.toList()));
+            memberUnitVo.setChildren(npcMembers.stream().filter(member -> member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),LevelEnum.AREA.getValue(),member.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList()));
             MemberUnitVos.add(0,memberUnitVo);
         }else{
             String areaUid = userDetails.getArea().getUid();
             Area area = areaRepository.findByUid(areaUid);
             Set<Town> towns = area.getTowns();
             for (Town town : towns) {
-                MemberUnitVo memberUnitVo = MemberUnitVo.convert(town.getUid(),town.getName(),levelDto.getLevel());
-                List<MemberUnitVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel())).collect(Collectors.toList());
+                MemberUnitVo memberUnitVo = MemberUnitVo.convert(town.getUid(),town.getName(),levelDto.getLevel(),town.getCreateTime());
+                List<MemberUnitVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel(),member.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
                 memberUnitVo.setChildren(members);
                 MemberUnitVos.add(memberUnitVo);
             }
         }
+        MemberUnitVos.sort(Comparator.comparing(MemberUnitVo::getCreateTime));
         body.setData(MemberUnitVos);
         return body;
     }
@@ -185,7 +184,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             }
             Town town = townRepository.findByUid(townUid);
             Set<NpcMemberGroup> groupList = town.getNpcMemberGroups();
-            memberUnitVos = groupList.stream().map(group -> MemberUnitVo.convert(group.getUid(),group.getName(),level)).collect(Collectors.toList());
+            memberUnitVos = groupList.stream().map(group -> MemberUnitVo.convert(group.getUid(),group.getName(),level,group.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
             if (StringUtils.isEmpty(uid)){
                 MemberUnitVo memberUnitVo = new MemberUnitVo();
                 memberUnitVo.setLevel(LevelEnum.AREA.getValue());
@@ -202,7 +201,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             }
             Area area = areaRepository.findByUid(areaUid);
             Set<Town> towns = area.getTowns();
-            memberUnitVos = towns.stream().map(town -> MemberUnitVo.convert(town.getUid(),town.getName(),level)).collect(Collectors.toList());
+            memberUnitVos = towns.stream().map(town -> MemberUnitVo.convert(town.getUid(),town.getName(),level,town.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
         }
         body.setData(memberUnitVos);
         return body;

@@ -15,7 +15,7 @@ public interface WorkStationRepository extends BaseRepository<WorkStation> {
 
     WorkStation findByTownUidAndNameAndUidIsNot(String townUid, String name, String uid);
 
-    List<WorkStation> findByTownUidAndLevel(String uid, Byte level);
+    List<WorkStation> findByTownUidAndLevelAndEnabledTrue(String uid, Byte level);
 
-    List<WorkStation> findByAreaUidAndLevel(String uid, Byte level);
+    List<WorkStation> findByAreaUidAndLevelAndEnabledTrue(String uid, Byte level);
 }

@@ -124,9 +124,9 @@ public class StatisticalServiceImpl implements StatisticalService {
     private List<PerformanceType> getPerformanceTypeList(UserDetailsImpl userDetails) {
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
-            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
+            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }
         return performanceTypeList;
     }

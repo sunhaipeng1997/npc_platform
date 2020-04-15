@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -152,11 +153,11 @@ public class OpinionServiceImpl implements OpinionService {
     public RespBody myOpinions(MobileUserDetailsImpl userDetails, OpinionDto opinionDto) {
         RespBody body = new RespBody();
         int begin = opinionDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, opinionDto.getSize(), Sort.Direction.fromString(opinionDto.getDirection()), opinionDto.getProperty());
+        Pageable page = PageRequest.of(begin, opinionDto.getSize());
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("sender").get("uid").as(String.class), userDetails.getUid()));
-//            predicates.add(cb.equal(root.get("level").as(Byte.class), opinionDto.getLevel()));
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -165,9 +166,12 @@ public class OpinionServiceImpl implements OpinionService {
             if (opinionDto.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status").as(Byte.class), opinionDto.getStatus()));
             }
-            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+            Predicate[] p = new Predicate[predicates.size()];
+            query.where(cb.and(predicates.toArray(p)));
+            query.orderBy(cb.desc(root.get("view")),cb.desc(root.get("status")),cb.desc(root.get("createTime")));
+            return query.getRestriction();
         }, page);
-        List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
+        List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).sorted(Comparator.comparing(OpinionListVo::getMyView)).collect(Collectors.toList());
         PageVo<OpinionListVo> vo = new PageVo<>(opinions, opinionDto);
         vo.setContent(opinionVos);
         body.setData(vo);
@@ -227,7 +231,7 @@ public class OpinionServiceImpl implements OpinionService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(opinionDto.getLevel(), account.getNpcMembers());
         int begin = opinionDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, opinionDto.getSize(), Sort.Direction.fromString(opinionDto.getDirection()), opinionDto.getProperty());
+        Pageable page = PageRequest.of(begin, opinionDto.getSize());
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
@@ -239,7 +243,10 @@ public class OpinionServiceImpl implements OpinionService {
             if (opinionDto.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status").as(Byte.class), opinionDto.getStatus()));
             }
-            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+            Predicate[] p = new Predicate[predicates.size()];
+            query.where(cb.and(predicates.toArray(p)));
+            query.orderBy(cb.asc(root.get("status")),cb.asc(root.get("view")),cb.desc(root.get("createTime")));
+            return query.getRestriction();
         }, page);
         List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
         PageVo<OpinionListVo> vo = new PageVo<>(opinions, opinionDto);
@@ -281,6 +288,7 @@ public class OpinionServiceImpl implements OpinionService {
         Pageable page = PageRequest.of(begin, uidDto.getSize(), Sort.Direction.fromString(uidDto.getDirection()), uidDto.getProperty());
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), uidDto.getUid()));
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);

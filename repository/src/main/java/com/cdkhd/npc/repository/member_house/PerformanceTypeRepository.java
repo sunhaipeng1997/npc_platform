@@ -30,9 +30,9 @@ public interface PerformanceTypeRepository extends BaseRepository<PerformanceTyp
 
     List<PerformanceType> findByLevelAndAreaUidAndIsDelFalse(Byte level, String areaUid);
 
-    List<PerformanceType> findByLevelAndTownUidAndStatusAndIsDelFalse(Byte level, String townUid,Byte status);
+    List<PerformanceType> findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(Byte level, String townUid,Byte status);
 
-    List<PerformanceType> findByLevelAndAreaUidAndStatusAndIsDelFalse(Byte level, String areaUid,Byte status);
+    List<PerformanceType> findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(Byte level, String areaUid,Byte status);
 
     //查询是否初始化区上的履职类型
     PerformanceType findByNameAndLevelAndAreaUidAndStatusAndIsDelFalse(String name, Byte level, String uid,Byte status);

@@ -3,6 +3,7 @@ package com.cdkhd.npc.entity.vo;
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.NpcMemberGroup;
 import com.cdkhd.npc.entity.Village;
+import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,7 +49,7 @@ public class GroupPageVo extends BaseVo {
 //                }
             }
             vo.setMemberCount(count);
-            vo.setMembers(thisMembers.stream().map(GroupMemberVo::convert).collect(Collectors.toSet()));
+            vo.setMembers(thisMembers.stream().filter(member -> member.getStatus().equals(StatusEnum.ENABLED.getValue()) && !member.getIsDel()).map(GroupMemberVo::convert).collect(Collectors.toSet()));
         }
         Set<Village> villages = npcMemberGroup.getVillages();
         if (villages != null && !villages.isEmpty()) {

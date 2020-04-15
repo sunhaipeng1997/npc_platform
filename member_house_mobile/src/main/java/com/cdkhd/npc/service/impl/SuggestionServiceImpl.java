@@ -38,10 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,9 +89,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
         if (dto.getLevel().equals(LevelEnum.AREA.getValue())){
-            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndIsDelFalse(dto.getLevel(),userDetails.getArea().getUid());
+            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(dto.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         }else if (dto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndIsDelFalse(dto.getLevel(),userDetails.getTown().getUid());
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(dto.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -105,7 +102,7 @@ public class SuggestionServiceImpl implements SuggestionService {
     public RespBody npcMemberSug(MobileUserDetailsImpl userDetails, SuggestionPageDto dto) {
         RespBody<PageVo<SuggestionVo>> body = new RespBody<>();
         int begin = dto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+        Pageable page = PageRequest.of(begin, dto.getSize());
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(dto.getLevel(), account.getNpcMembers());
         PageVo<SuggestionVo> vo = new PageVo<>(dto);
@@ -114,6 +111,7 @@ public class SuggestionServiceImpl implements SuggestionService {
                 List<Predicate> predicates = new ArrayList<>();
                 predicates.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
                 predicates.add(cb.equal(root.get("level").as(Byte.class), npcMember.getLevel()));
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (dto.getLevel().equals(LevelEnum.TOWN.getValue())){
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
@@ -126,9 +124,12 @@ public class SuggestionServiceImpl implements SuggestionService {
                         predicates.add(cb.notEqual(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue()));
                     }
                 }
-                return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+                Predicate[] p = new Predicate[predicates.size()];
+                query.where(cb.and(predicates.toArray(p)));
+                query.orderBy(cb.desc(root.get("status")),cb.desc(root.get("createTime")));
+                return query.getRestriction();
             }, page);
-            vo.setContent(pageRes.stream().map(SuggestionVo::convert).collect(Collectors.toList()));
+            vo.setContent(pageRes.stream().map(SuggestionVo::convert).sorted(Comparator.comparing(SuggestionVo::getMyView)).collect(Collectors.toList()));
             vo.copy(pageRes);
         }
         body.setData(vo);
@@ -345,20 +346,25 @@ public class SuggestionServiceImpl implements SuggestionService {
     public RespBody auditorSug(MobileUserDetailsImpl userDetails, SuggestionPageDto dto) {
         RespBody<PageVo<SuggestionVo>> body = new RespBody<>();
         int begin = dto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+        Pageable page = PageRequest.of(begin, dto.getSize());
         PageVo<SuggestionVo> vo = new PageVo<>(dto);
         Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
-            Predicate predicate = root.isNotNull();
-            predicate = cb.and(predicate, cb.equal(root.get("raiser").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            List<Predicate> predicates = Lists.newArrayList();
+            predicates.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+            predicates.add(cb.equal(root.get("raiser").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (dto.getStatus() != null){
                 if (dto.getStatus().equals(MobileSugStatusEnum.All.getValue())){  //未审核
-                    predicate = cb.and(predicate,cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));
+                    predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));
                 }else if (dto.getStatus().equals(MobileSugStatusEnum.TO_BE_AUDITED.getValue())){  //已审核
                     Predicate or = cb.or(cb.equal(root.get("status"), SuggestionStatusEnum.SELF_HANDLE.getValue()),cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));
-                    predicate = cb.and(predicate,or);
+                    predicates.add(or);
                 }
             }
-            return predicate;
+            Predicate[] p = new Predicate[predicates.size()];
+            query.where(cb.and(predicates.toArray(p)));
+            query.orderBy(cb.asc(root.get("view")),cb.asc(root.get("status")),cb.desc(root.get("createTime")));
+            return query.getRestriction();
         }, page);
         vo.setContent(pageRes.stream().map(SuggestionVo::convert).collect(Collectors.toList()));
         vo.copy(pageRes);

@@ -58,7 +58,7 @@ public class GroupServiceImpl implements GroupService {
 
         Page<NpcMemberGroup> pageRes = npcMemberGroupRepository.findAll((Specification<NpcMemberGroup>)(root, query, cb) -> {
             Predicate predicate = root.isNotNull();
-            predicate = cb.and(predicate, cb.equal(root.get("town"), userDetails.getTown()));
+            predicate = cb.and(predicate, cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
             if (StringUtils.isNotEmpty(groupPageDto.getSearchKey())){
                 predicate = cb.and(predicate, cb.like(root.get("name").as(String.class), "%" + groupPageDto.getSearchKey() + "%"));
             }

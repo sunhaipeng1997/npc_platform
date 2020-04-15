@@ -45,9 +45,9 @@ public class WorkStationServiceImpl implements WorkStationService {
         RespBody body = new RespBody();
         List<WorkStation> workStationList = Lists.newArrayList();
         if (level.equals(LevelEnum.TOWN.getValue())){
-            workStationList = workStationRepository.findByTownUidAndLevel(uid, level);
+            workStationList = workStationRepository.findByTownUidAndLevelAndEnabledTrue(uid, level);
         }else if (level.equals(LevelEnum.AREA.getValue())) {
-            workStationList = workStationRepository.findByAreaUidAndLevel(uid, level);
+            workStationList = workStationRepository.findByAreaUidAndLevelAndEnabledTrue(uid, level);
         }
         List<WorkStationVo> stationVos = workStationList.stream().map(station -> WorkStationVo.convert(station)).collect(Collectors.toList());
         body.setData(stationVos);

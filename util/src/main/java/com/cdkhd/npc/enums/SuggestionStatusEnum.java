@@ -14,7 +14,7 @@ public enum SuggestionStatusEnum {
      审核失败	-1
      */
     NOT_SUBMITTED((byte)1, "未提交"),
-    SUBMITTED_AUDIT((byte)2, "已提交审核"),
+    SUBMITTED_AUDIT((byte)2, "待审核"),
     SUBMITTED_GOVERNMENT((byte)3, "已提交政府"),
     TRANSFERRED_UNIT((byte)4, "已转交办理单位"),
     HANDLING((byte)5, "办理中"),

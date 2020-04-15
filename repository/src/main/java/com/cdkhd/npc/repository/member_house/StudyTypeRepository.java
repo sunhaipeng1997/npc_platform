@@ -40,7 +40,8 @@ public interface StudyTypeRepository extends BaseRepository<StudyType> {
     @Query(value = "select type from StudyType as type where type.sequence > ?1 and type.level = ?2 and type.area.uid = ?3 order by type.sequence asc ")
     Page<StudyType> findByAreaSequenceAsc(Integer sequence, Byte level, String areaUid, Pageable page);
 
-    List<StudyType> findByLevelAndTownUidAndIsDelFalse(Byte level, String uid);
+    List<StudyType> findByLevelAndTownUidAndStatusAndIsDelFalse(Byte level, String uid, byte value);
 
-    List<StudyType> findByLevelAndAreaUidAndIsDelFalse(Byte level, String uid);
+    List<StudyType> findByLevelAndAreaUidAndStatusAndIsDelFalse(Byte level, String uid, byte value);
+
 }

@@ -342,7 +342,7 @@ public class MenuServiceImpl implements MenuService {
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                 predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));//todo 建议状态
                 predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
@@ -357,10 +357,10 @@ public class MenuServiceImpl implements MenuService {
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                 predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("uid").as(String.class), npcMember.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("status").as(Integer.class), NewsStatusEnum.UNDER_REVIEW.ordinal()));//todo 新闻状态为待审核
-                predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
+                predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
             obj.put(MenuEnum.AUDIT_NEWS.toString(), news.size());
@@ -371,7 +371,7 @@ public class MenuServiceImpl implements MenuService {
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                 predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicateList.add(cb.equal(root.get("uid").as(String.class), npcMember.getTown().getUid()));
+                    predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("status").as(Integer.class), NotificationStatusEnum.UNDER_REVIEW.ordinal()));//todo 新闻状态为待审核
                 predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));

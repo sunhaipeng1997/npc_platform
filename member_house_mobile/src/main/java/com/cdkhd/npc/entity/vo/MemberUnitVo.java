@@ -4,6 +4,7 @@ import com.cdkhd.npc.vo.BaseVo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,11 +23,12 @@ public class MemberUnitVo extends BaseVo {
 
     private List<MemberUnitVo> children;
 
-    public static MemberUnitVo convert(String uid, String name, Byte level) {
+    public static MemberUnitVo convert(String uid, String name, Byte level, Date createDate) {
         MemberUnitVo vo = new MemberUnitVo();
         vo.setUid(uid);
         vo.setName(name);
         vo.setLevel(level);
+        vo.setCreateTime(createDate);
         return vo;
     }
 }

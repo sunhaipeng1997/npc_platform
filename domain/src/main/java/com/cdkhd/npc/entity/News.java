@@ -109,10 +109,6 @@ public class News extends BaseDomain {
 	@Column(name = "view" )
 	private Boolean view = false;
 
-	//审核人员查看状态
-	@Column(name = "view_status" )
-	private Long viewStatus;
-
 	//记录各位审核人或后台管理员对通知的操作记录
 	@OneToMany(targetEntity = NewsOpeRecord.class, mappedBy = "news", orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<NewsOpeRecord> opeRecords = new ArrayList<>();
