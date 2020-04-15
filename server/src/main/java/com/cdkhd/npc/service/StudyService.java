@@ -113,9 +113,8 @@ public interface StudyService {
 
     /**
      * 学习资料列表展示
-     * @param userDetails
      * @return
      */
-    RespBody studyList(UserDetailsImpl userDetails, LevelDto levelDto);
+    RespBody studyList(LevelDto levelDto);
 
 }

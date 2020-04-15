@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.News;
+import com.cdkhd.npc.entity.NewsOpeRecord;
 import com.cdkhd.npc.enums.NewsStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -68,6 +70,9 @@ public class NewsDetailsVo extends BaseVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date publishAt;
 
+    //操作记录,主要是后台要看操作记录，小程序的首页一般用户的Vo倒是不需要，不过也不麻烦再单独去写一个Vo了
+    private List<NewsOpeRecordVo> opeRecordList = new ArrayList<>();
+
     public static NewsDetailsVo convert(News news) {
         NewsDetailsVo vo = new NewsDetailsVo();
 
@@ -77,9 +82,14 @@ public class NewsDetailsVo extends BaseVo {
 
         vo.setStatusName(NewsStatusEnum.values()[news.getStatus()].getName());
 
-        //此审核人是实际审核该新闻的人，存储在NpcMember表中
-//        因为数据库表的关联还没确定好，新闻审核人还没设置
-//        vo.setReviewerName(news.getReviewer().getName());
+        //将操作记录一并返回
+        List<NewsOpeRecord> opeRecords = news.getOpeRecords();
+        if(!opeRecords.isEmpty()){
+            for(NewsOpeRecord opeRecord : opeRecords){
+                NewsOpeRecordVo opeRecordVo = NewsOpeRecordVo.convert(opeRecord);
+                vo.getOpeRecordList().add(opeRecordVo);
+            }
+        }
 
         return vo;
     }

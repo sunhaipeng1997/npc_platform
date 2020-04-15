@@ -211,9 +211,12 @@ public class NewsTypeServiceImpl implements NewsTypeService {
         Specification<NewsType> specification = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
 
-            //按地区编码查询
-            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
+
             predicateList.add(cb.equal(root.get("level").as(Byte.class), pageDto.getLevel()));
+
+            if (StringUtils.isNotEmpty(pageDto.getAreaUid())) {
+                    //按地区编码查询
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));            }
 
             if (StringUtils.isNotEmpty(pageDto.getTownUid())) {
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), pageDto.getTownUid()));

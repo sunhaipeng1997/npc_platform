@@ -448,17 +448,16 @@ public class StudyServiceImpl implements StudyService {
 
     /**
      * 小程序学习资料列表展示
-     * @param userDetails
      * @return
      */
     @Override
-    public RespBody studyList(UserDetailsImpl userDetails, LevelDto levelDto) {
+    public RespBody studyList(LevelDto levelDto) {
         RespBody body = new RespBody();
         List<StudyType> studyTypeList;
         if (levelDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            studyTypeList = studyTypeRepository.findByStatusAndLevelAndTownUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
+            studyTypeList = studyTypeRepository.findByStatusAndLevelAndTownUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.TOWN.getValue(),levelDto.getUid());
         }else{
-            studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.AREA.getValue(),userDetails.getArea().getUid());
+            studyTypeList = studyTypeRepository.findByStatusAndLevelAndAreaUidOrderBySequenceAsc(StatusEnum.ENABLED.getValue(), LevelEnum.AREA.getValue(),levelDto.getUid());
         }
         List<StudyTypeVo> studyTypeVos = studyTypeList.stream()
                 .filter(type -> !type.getIsDel() && type.getStatus().equals(StatusEnum.ENABLED.getValue()))

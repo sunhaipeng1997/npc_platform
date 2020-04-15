@@ -502,10 +502,12 @@ public class NewsServiceImpl implements NewsService {
         Specification<News> specification = (root, query, cb)->{
             List<Predicate> predicateList = new ArrayList<>();
 
-            //按地区编码查询
-            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));
             predicateList.add(cb.equal(root.get("level").as(Byte.class), pageDto.getLevel()));
 
+            //按地区编码查询
+            if(StringUtils.isNotEmpty(pageDto.getAreaUid())){
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class),pageDto.getAreaUid()));
+            }
             if(StringUtils.isNotEmpty(pageDto.getTownUid())){
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getTownUid()));
             }

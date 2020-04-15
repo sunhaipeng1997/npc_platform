@@ -26,8 +26,8 @@ public class StudyApi {
      *  小程序获取学习列表
      */
     @GetMapping("/studyList")
-    public ResponseEntity studyList(@CurrentUser UserDetailsImpl userDetails, LevelDto levelDto) {
-        RespBody body = studyService.studyList(userDetails,levelDto);
+    public ResponseEntity studyList(LevelDto levelDto) {
+        RespBody body = studyService.studyList(levelDto);
         return ResponseEntity.ok(body);
     }
 
