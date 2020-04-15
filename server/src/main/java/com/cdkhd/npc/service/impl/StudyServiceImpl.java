@@ -248,13 +248,11 @@ public class StudyServiceImpl implements StudyService {
         Page<Study> studyPage = studyRepository.findAll((Specification<Study>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            predicates.add(cb.equal(root.get("status").as(Byte.class), studyDto.getStatus()));
             predicates.add(cb.equal(root.get("studyType").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicates.add(cb.isFalse(root.get("studyType").get("isDel").as(Boolean.class)));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             //标题
             if (StringUtils.isNotEmpty(studyDto.getName())) {
@@ -270,6 +268,9 @@ public class StudyServiceImpl implements StudyService {
             }
             if (studyDto.getDateEnd() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), studyDto.getDateEnd()));
+            }
+            if (studyDto.getStatus() != null){
+                predicates.add(cb.equal(root.get("status").as(Byte.class), studyDto.getStatus()));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);

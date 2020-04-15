@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class GroupServiceImpl implements GroupService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupServiceImpl.class);
 

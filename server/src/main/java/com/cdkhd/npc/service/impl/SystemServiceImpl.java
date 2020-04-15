@@ -1,6 +1,5 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.Systems;
 import com.cdkhd.npc.entity.vo.SystemVo;
@@ -13,11 +12,13 @@ import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class SystemServiceImpl implements SystemService {
     private Environment env;
 

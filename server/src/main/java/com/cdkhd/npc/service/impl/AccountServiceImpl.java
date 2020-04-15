@@ -1,6 +1,5 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.dto.AccountPageDto;
 import com.cdkhd.npc.entity.vo.AccountVo;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class AccountServiceImpl implements AccountService {
 
     private AccountRepository accountRepository;

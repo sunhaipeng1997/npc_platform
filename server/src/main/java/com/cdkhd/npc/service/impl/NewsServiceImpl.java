@@ -28,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
@@ -40,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class NewsServiceImpl implements NewsService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsServiceImpl.class);
 

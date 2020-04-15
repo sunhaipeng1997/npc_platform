@@ -26,12 +26,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class SessionServiceImpl implements SessionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionServiceImpl.class);

@@ -7,6 +7,7 @@ import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.MsgTypeEnum;
 import com.cdkhd.npc.enums.NpcMemberRoleEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
@@ -41,10 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -425,6 +423,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setStatus(auditPerformanceDto.getStatus());
         performance.setReason(auditPerformanceDto.getReason());
         performance.setMyView(false);
+        performance.setAuditAt(new Date());
         performance.setAuditor(npcMember);
         performanceRepository.saveAndFlush(performance);
 //        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过
@@ -436,7 +435,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             performanceMsg.put("mobile",performance.getNpcMember().getMobile());
             performanceMsg.put("content",performance.getTitle());
             performanceMsg.put("remarkInfo","点击进入小程序查看详情");
-//            pushMessageService.pushMsg(account, MsgTypeEnum.AUDIT_RESULT.ordinal(),performanceMsg);
+            pushMessageService.pushMsg(account, MsgTypeEnum.AUDIT_RESULT.ordinal(),performanceMsg);
 //        }
         return body;
     }
