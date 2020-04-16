@@ -326,7 +326,7 @@ public class NewsServiceImpl implements NewsService {
 
             //按新闻标题模糊查询
             if (StringUtils.isNotEmpty(pageDto.getTitle())) {
-                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
+                predicateList.add(cb.like(root.get("title").as(String.class), "%" + pageDto.getTitle() + "%"));
             }
 
             //按新闻作者模糊查询
@@ -531,7 +531,7 @@ public class NewsServiceImpl implements NewsService {
 
             //按新闻标题模糊查询
             if (StringUtils.isNotEmpty(pageDto.getTitle())) {
-                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getTitle() + "%"));
+                predicateList.add(cb.like(root.get("title").as(String.class), "%" + pageDto.getTitle() + "%"));
             }
 
             //按新闻作者模糊查询
