@@ -278,7 +278,11 @@ public class NewsServiceImpl implements NewsService {
             //查找与本账号相同地区及层级的代表
             List<NpcMember> receivers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
             for(NpcMember receiver:receivers){
-                pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+                if(receiver.getAccount() != null){
+                    if(receiver.getAccount().getLoginWeChat() != null){
+                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+                    }
+                }
             }
         }
 
@@ -316,8 +320,8 @@ public class NewsServiceImpl implements NewsService {
             }
 
             //按栏目查询
-            if (StringUtils.isNotEmpty(pageDto.getNewsTypeName())) {
-                predicateList.add(cb.equal(root.get("newsType").get("name").as(String.class),  pageDto.getNewsTypeName()));
+            if (StringUtils.isNotEmpty(pageDto.getNewsTypeUid())) {
+                predicateList.add(cb.equal(root.get("newsType").get("uid").as(String.class),  pageDto.getNewsTypeUid()));
             }
 
             //按新闻标题模糊查询
@@ -435,9 +439,7 @@ public class NewsServiceImpl implements NewsService {
             queryUid = userDetails.getTown().getUid();
         }
 
-        //查找与本账号同地区/镇的具有新闻审核权限的用户
-        List<NpcMember> reviewers =  npcMemberRoleService.findByKeyWordAndLevelAndUid(
-                NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword(),userDetails.getLevel(),queryUid);
+
 
         //推送消息
         //构造消息
@@ -451,10 +453,18 @@ public class NewsServiceImpl implements NewsService {
         }
         newsMsg.put("remarkInfo","作者:"+news.getAuthor()+"<点击查看详情>");
 
+
+        //查找与本账号同地区/镇的具有新闻审核权限的用户
+        List<NpcMember> reviewers =  npcMemberRoleService.findByKeyWordAndLevelAndUid(
+                NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword(),userDetails.getLevel(),queryUid);
         //向审核人推送消息
         if(!reviewers.isEmpty()){
             for(NpcMember reviewer :reviewers){
-                pushMessageService.pushMsg(reviewer.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),newsMsg);
+                if(reviewer.getAccount() != null){
+                    if(reviewer.getAccount().getLoginWeChat() != null){
+                        pushMessageService.pushMsg(reviewer.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),newsMsg);
+                    }
+                }
             }
             body.setMessage("成功提交至审核人");
         }else {
@@ -754,9 +764,14 @@ public class NewsServiceImpl implements NewsService {
 
         //给除了自己以外的其他审核人都会推送结果
         for(NpcMember reviewer:reviewers){
-            if(!reviewer.getAccount().getUid().equals(userDetails.getUid())){
-                pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.AUDIT_RESULT.ordinal(),newsMsg);
+            if(reviewer.getAccount() != null){
+                if(reviewer.getAccount().getLoginWeChat() != null){
+                    if(!reviewer.getAccount().getUid().equals(userDetails.getUid())){
+                        pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.AUDIT_RESULT.ordinal(),newsMsg);
+                    }
+                }
             }
+
         }
 
         body.setMessage("完成新闻审核");
@@ -827,7 +842,12 @@ public class NewsServiceImpl implements NewsService {
             //查找与本账号相同地区及层级的代表
             List<NpcMember> receivers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),level);
             for(NpcMember receiver:receivers){
-                pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+                if(receiver.getAccount() != null){
+                    if(receiver.getAccount().getLoginWeChat() != null){
+                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+                    }
+                }
+
             }
         }
 

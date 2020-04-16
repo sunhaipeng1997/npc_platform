@@ -24,5 +24,7 @@ public class NewsPageDto extends PageDto {
 
     private String newsTypeName;
 
+    private String newsTypeUid;
+
     private Integer whereShow;
 }

@@ -485,12 +485,16 @@ public class NotificationServiceImpl implements NotificationService {
         //向审核人推送消息
         if(!reviewers.isEmpty()){
             for(NpcMember reviewer :reviewers){
-                pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.TO_AUDIT.ordinal(),notificationMsg);
+                if(reviewer.getAccount() != null){
+                    if(reviewer.getAccount().getLoginWeChat() != null){
+                        pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.TO_AUDIT.ordinal(),notificationMsg);
+                    }
+                }
             }
             body.setMessage("成功推送至审核人");
         }else {
             body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("无通知审核人");
+            body.setMessage("提交成功，但未设置通知审核人");
             return body;
         }
 
@@ -910,8 +914,12 @@ public class NotificationServiceImpl implements NotificationService {
         notificationMsg.put("remarkInfo","操作人："+ notificationOpeRecord.getOperator()+"<点击查看详情>");
 
         for(NpcMember reviewer:reviewers){
-            if(!reviewer.getAccount().getUid().equals(userDetails.getUid())){
-                pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.AUDIT_RESULT.ordinal(),notificationMsg);
+            if(reviewer.getAccount() != null){
+                if(reviewer.getAccount().getLoginWeChat() != null){
+                    if(!reviewer.getAccount().getUid().equals(userDetails.getUid())){
+                        pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.AUDIT_RESULT.ordinal(),notificationMsg);
+                    }
+                }
             }
         }
 
