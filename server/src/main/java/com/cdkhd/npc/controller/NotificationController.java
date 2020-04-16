@@ -42,8 +42,8 @@ public class NotificationController {
         return ResponseEntity.ok(body);
     }
 
-    @PutMapping
-    public ResponseEntity update(UserDetailsImpl userDetails,NotificationAddDto dto) {
+    @PostMapping("/update")
+    public ResponseEntity update(@CurrentUser UserDetailsImpl userDetails,NotificationAddDto dto) {
         RespBody body = notificationService.update(userDetails,dto);
         return ResponseEntity.ok(body);
     }

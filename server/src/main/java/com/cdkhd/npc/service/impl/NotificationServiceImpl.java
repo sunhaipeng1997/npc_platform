@@ -194,16 +194,15 @@ public class NotificationServiceImpl implements NotificationService {
         if(dto.getAttachmentsUid() != null){
             List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
             if (!attachmentUidList.isEmpty()) {
-                notification.setAttachments(
-                        attachmentUidList.stream().map(attachmentUid -> {
-                            Attachment attachment = attachmentRepository.findByUid(attachmentUid);
-                            attachment.setNotification(notification);
+                for(String uid : attachmentUidList){
+                    Attachment attachment = attachmentRepository.findByUid(uid);
+                    notification.getAttachments().add(attachment);
+                    notificationRepository.save(notification);
 
-                            // attachmentRepository.saveAndFlush(attachment);
+                    attachment.setNotification(notificationRepository.findByUid(notification.getUid()));
+                    attachmentRepository.save(attachment);
 
-                            return attachment;
-                        }).collect(Collectors.toSet())
-                );
+                }
             }
         }
 
@@ -285,51 +284,131 @@ public class NotificationServiceImpl implements NotificationService {
             return body;
         }
 
-        if(!dto.getReceiversUid().isEmpty()){
-            List<String> npcMemberUidList = JSONObject.parseArray(dto.getReceiversUid().toJSONString(),String.class);
-            Set<NpcMember> receivers = new HashSet<>();
-            for (String npcMemberUid : npcMemberUidList){
-                NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
-                if(npcMember == null){
-                    body.setStatus(HttpStatus.NOT_FOUND);
-                    body.setMessage("该通知的接收人不存在");
-                    LOGGER.warn("uid为 {} 的通知不存在，新增通知失败",npcMemberUid);
-                    return body;
-                }
-                receivers.add(npcMember);
-            }
-            notification.setReceivers(receivers);
-        }
 
-        if(!dto.getAttachmentsUid().isEmpty()){
-            List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
-
-//            List<Attachment> attachments = new ArrayList<>();
-//            for (String attachmentUid : attachmentUidList){
-//                Attachment attachment = attachmentRepository.findByUid(attachmentUid);
-//                if(attachment == null){
-//                    body.setStatus(HttpStatus.NOT_FOUND);
-//                    body.setMessage("附件不存在");
-//                    LOGGER.warn("uid为 {} 的附件不存在，新增通知失败",attachmentUid);
-//                    return body;
+//        Set<String> receivers = dto.getReceivers();
+//        Set<NotificationDetail> details = notification.getDetails();
+//        Set<NotificationDetail> temp = new HashSet<>();
+//
+//        for (NotificationDetail detail : details) {
+//            NpcMember receiver = detail.getReceiver();
+//            if (receiver != null) {
+//                String receiverUid = receiver.getUid();
+//                if (receivers.contains(receiverUid)) {
+//                    temp.add(detail);
+//                    receivers.remove(receiverUid);
 //                }
-//                attachments.add(attachment);
 //            }
-//            notification.setAttachments(attachments);
-            if (!attachmentUidList.isEmpty()) {
-                notification.setAttachments(
-                        attachmentUidList.stream().map(attachmentUid -> {
-                            Attachment attachment = attachmentRepository.findByUid(attachmentUid);
-                            attachment.setNotification(notification);
+//        }
+//        details.clear();
+//        details.addAll(temp);
+//
+//        details.addAll(dto.getReceivers().stream().map(receiverId -> {
+//            NpcMember receiver = npcMemberRepository.findByUid(receiverId);
+//            if (receiver != null) {
+//                NotificationDetail detail = new NotificationDetail();
+//                detail.setNotification(notification);
+//                detail.setReceiver(receiver);
+//                return detail;
+//            }
+//            return null;
+//        }).filter(Objects::nonNull).collect(Collectors.toSet()));
 
-                            // attachmentRepository.saveAndFlush(attachment);
+        if(dto.getReceiversUid() == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("必须设置接收人");
+            return body;
+        }else {
+            List<String> receiversUidList = JSONObject.parseArray(dto.getReceiversUid().toJSONString(),String.class);
 
-                            return attachment;
-                        }).collect(Collectors.toSet())
+            if(!receiversUidList.isEmpty()){
+                Set<NpcMember> receivers = new HashSet<>();
+                for (String npcMemberUid : receiversUidList){
+                    NpcMember npcMember = npcMemberRepository.findByUid(npcMemberUid);
+                    if(npcMember == null){
+                        body.setStatus(HttpStatus.BAD_REQUEST);
+                        body.setMessage("有不存在的接收人");
+                        LOGGER.warn("uid为 {} 的接收人不存在，新增通知失败",npcMemberUid);
+                        return body;
+                    }
+                    receivers.add(npcMember);
+                }
+                notification.setReceivers(receivers);
+            }
+
+//          找交集 Intersection and union
+            Set<NotificationViewDetail> oldViewDetails= notification.getReceiversViewDetails();
+            Set<NotificationViewDetail> intersectionViewDetails = new HashSet<>();
+
+            if (!receiversUidList.isEmpty()) {
+
+                for (NotificationViewDetail detail : oldViewDetails) {
+                    NpcMember receiver = detail.getReceiver();
+                    if (receiver != null) {
+                        String receiverUid = receiver.getUid();
+                        if (receiversUidList.contains(receiverUid)) {
+                            intersectionViewDetails.add(detail);
+                            receiversUidList.remove(receiverUid);//dto里将交集去掉
+                        }
+                    }
+                }
+
+                oldViewDetails.clear();
+                oldViewDetails.addAll(intersectionViewDetails);//将交集加入到原来的集合中
+
+                //再将剩下的新的接收人加入到原来的集合中
+                oldViewDetails.addAll(
+                        receiversUidList.stream().map(receiverUid -> {
+                            NpcMember receiver = npcMemberRepository.findByUid(receiverUid);
+                            if (receiver != null) {
+                                NotificationViewDetail viewDetail = new NotificationViewDetail();
+                                viewDetail.setNotification(notification);
+                                viewDetail.setIsRead(false);
+                                viewDetail.setReceiver(receiver);
+                                return viewDetail;
+                            }
+                            return null;
+                        }).filter(Objects::nonNull).collect(Collectors.toSet())
                 );
             }
         }
 
+        if(dto.getAttachmentsUid() != null){
+            List<String> attachmentUidList = JSONObject.parseArray(dto.getAttachmentsUid().toJSONString(),String.class);
+            if (!attachmentUidList.isEmpty()) {
+
+
+                Set<Attachment> attachmentSet = attachmentUidList.stream().map(attachUid -> {
+                    Attachment attachment = attachmentRepository.findByUid(attachUid);
+                    if (attachment != null) {
+                        attachment.setNotification(notification);
+                        attachmentRepository.save(attachment);
+                        return attachment;
+                    }
+                    return null;
+                }).collect(Collectors.toSet());
+
+
+                Set<Attachment> attachments = notification.getAttachments();
+                attachments.clear();
+                attachments.addAll(attachmentSet);
+                notification.setAttachments(attachments);
+
+//                notification.getAttachments().clear();
+//                for(String uid : attachmentUidList){
+//                    Attachment attachment = attachmentRepository.findByUid(uid);
+//                    notification.getAttachments().add(attachment);
+//                    notificationRepository.save(notification);
+//
+//                    attachment.setNotification(notificationRepository.findByUid(notification.getUid()));
+//                    attachmentRepository.save(attachment);
+//
+//                }
+            }
+        }
+
+
+        notification.setStatus(NotificationStatusEnum.DRAFT.ordinal());
+        notification.setView(false);
         //保存数据
         notificationRepository.save(notification);
 

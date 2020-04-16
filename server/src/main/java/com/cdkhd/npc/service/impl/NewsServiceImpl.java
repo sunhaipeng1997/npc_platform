@@ -208,7 +208,7 @@ public class NewsServiceImpl implements NewsService {
 
         //修改后状态变为"草稿"，并且重新进行后面的审核流程
         news.setStatus(NewsStatusEnum.DRAFT.ordinal());
-
+        news.setView(false);
         newsRepository.saveAndFlush(news);
         body.setMessage("修改新闻成功");
         return body;
