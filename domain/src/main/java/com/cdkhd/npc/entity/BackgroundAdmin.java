@@ -30,6 +30,6 @@ public class BackgroundAdmin extends BaseDomain {
     private Town town;
 
     //关联的账号信息
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Account account;
 }

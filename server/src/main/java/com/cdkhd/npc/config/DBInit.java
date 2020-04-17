@@ -132,6 +132,9 @@ public class DBInit {
         username = env.getProperty("npc_base_info.cdkhd.name");
         mobile = env.getProperty("npc_base_info.cdkhd.mobile");
         initOneAccount(username, mobile, defaultRawPwd);
+
+        //为大数据平台初始化一个账号，默认用户名为“bigData”
+        initOneAccount("bigData", "13133333333", defaultRawPwd);
     }
 
     private void initBackgroundAdmin() {
@@ -139,7 +142,7 @@ public class DBInit {
         Area area = areaRepository.findByName(areaName);
         String username = env.getProperty("npc_base_info.user.name");
         String mobile = env.getProperty("npc_base_info.user.mobile");
-        Account account = accountRepository.findByUsernameAndMobile(username,mobile);
+        Account account = accountRepository.findByUsername(username);
         BackgroundAdmin backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
@@ -148,10 +151,21 @@ public class DBInit {
             backgroundAdmin.setArea(area);
             backgroundAdminRepository.saveAndFlush(backgroundAdmin);
         }
+
         username = env.getProperty("npc_base_info.cdkhd.name");
         mobile = env.getProperty("npc_base_info.cdkhd.mobile");
-        account = accountRepository.findByUsernameAndMobile(username,mobile);
+        account = accountRepository.findByUsername(username);
         backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
+        if (backgroundAdmin == null) {
+            backgroundAdmin = new BackgroundAdmin();
+            backgroundAdmin.setAccount(account);
+            backgroundAdmin.setLevel(LevelEnum.AREA.getValue());
+            backgroundAdmin.setArea(area);
+            backgroundAdminRepository.saveAndFlush(backgroundAdmin);
+        }
+
+        account = accountRepository.findByUsername("bigData");
+        backgroundAdmin = backgroundAdminRepository.findByAccountUsername("bigData");
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
             backgroundAdmin.setAccount(account);
@@ -1208,4 +1222,26 @@ public class DBInit {
             loginUPRepository.saveAndFlush(loginUP);
         }
     }
+
+    //为大数据平台初始化一个Account
+    /*private void initBDAccount(String username, String mobile, String rawPwd) {
+        Account account = accountRepository.findByUsername(username);
+        if (account == null) {
+            account = new Account();
+            account.setUsername(username);
+            account.setMobile(mobile);
+            account.setLoginTimes(0);  //登录次数初始化为0
+            account.setLoginWay((byte) 1);//账号密码方式登录
+            accountRepository.saveAndFlush(account);
+        }
+
+        LoginUP loginUP = loginUPRepository.findByUsername(username);
+        if (loginUP == null) {
+            loginUP = new LoginUP();
+            loginUP.setUsername(username);
+            loginUP.setPassword(passwordEncoder.encode(rawPwd)); //保存hash后的密码
+            loginUP.setAccount(account);
+            loginUPRepository.saveAndFlush(loginUP);
+        }
+    }*/
 }
