@@ -102,7 +102,8 @@ public class AuthServiceImpl implements AuthService {
         final String invokeId = env.getProperty("code.invokeId");
         final String templateCode = env.getProperty("code.templateCode");
         int timeout = Integer.parseInt(env.getProperty("code.timeout"));
-        String telephoneString = account.getLoginUP().getMobile();
+//        String telephoneString = account.getLoginUP().getMobile();
+        String telephoneString = account.getMobile();  //从account中取电话号码
 
         //发送短信验证码
         BDSmsUtils.sendSms(telephoneString, accessKeyId, accessKeySecret, verifycode, endPoint, invokeId, templateCode, timeout);
@@ -242,8 +243,15 @@ public class AuthServiceImpl implements AuthService {
                         for (Menu menu : backMenus) {
                             if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;//菜单可用才展示
                             if (menu.getType().equals(StatusEnum.ENABLED.getValue())) continue;//如果是小程序菜单，就过滤掉
-                            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && menu.getName().equals(MenuEnum.TOWN_MANAGE.getName()))
-                                continue;//镇后台管理员没有镇管理
+                            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+                                if (menu.getName().equals(MenuEnum.TOWN_MANAGE.getName()) ||
+                                        menu.getName().equals(MenuEnum.TOWN_SUGGESTION_MANAGE.getName()) ||
+                                        menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_MANAGE.getName()) ||
+                                        menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_COUNT.getName())
+                                ){
+                                    continue;//镇后台管理员没有镇管理、各镇代表建议管理、各镇代表履职管理
+                                }
+                            }
                             if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && (menu.getName().equals(MenuEnum.VILLAGE_MANAGE.getName()) || menu.getName().equals(MenuEnum.NPC_MEMBER_GROUP.getName())))
                                 continue;//区后台管理员没有村管理
                             menus.add(menu);

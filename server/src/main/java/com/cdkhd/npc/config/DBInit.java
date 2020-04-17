@@ -279,12 +279,15 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.OPINION_MANAGE.getKeyword()));//选民意见管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STUDY_TYPE_MANAGE.getKeyword()));//学习类型管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STUDY_MANAGE.getKeyword()));//学习资料管理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE.getKeyword()));//代表建议管理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_MANAGE.getKeyword()));//代表建议类型
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE.getKeyword()));//代表建议类型
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_MANAGE.getKeyword()));//代表建议管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_SUGGESTION_MANAGE.getKeyword()));//代表建议管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_COUNT.getKeyword()));//代表建议统计
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_TYPE.getKeyword()));//代表履职类型
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_MANAGE.getKeyword()));//代表履职管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_PERFORMANCE_MANAGE.getKeyword()));//代表履职管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_COUNT.getKeyword()));//代表履职统计
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_PERFORMANCE_COUNT.getKeyword()));//各镇履职统计
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_MANAGE.getKeyword()));//镇管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword()));//村管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));//代表权限管理
@@ -503,6 +506,11 @@ public class DBInit {
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
+        //各镇代表建议管理
+        menu = menuRepository.findByName(MenuEnum.TOWN_SUGGESTION_MANAGE.getName());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_SUGGESTION_MANAGE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
         //代表履职类型
         menu = menuRepository.findByName(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_TYPE.getKeyword()));
@@ -511,6 +519,11 @@ public class DBInit {
         //代表履职管理
         menu = menuRepository.findByName(MenuEnum.PERFORMANCE_MANAGE.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_MANAGE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //各镇代表履职管理
+        menu = menuRepository.findByName(MenuEnum.TOWN_PERFORMANCE_MANAGE.getName());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_PERFORMANCE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表建议统计
