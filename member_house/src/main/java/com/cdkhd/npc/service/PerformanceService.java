@@ -59,6 +59,13 @@ public interface PerformanceService {
      */
     RespBody performanceTypeList(UserDetailsImpl userDetails);
 
+    /**
+     * 履职类型下拉 某镇
+     * @param townUid
+     * @return
+     */
+    RespBody subTownPerformanceTypeList(String townUid);
+
 
     //履职相关接口
 

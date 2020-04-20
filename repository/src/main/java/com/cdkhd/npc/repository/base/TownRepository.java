@@ -12,4 +12,6 @@ public interface TownRepository extends BaseRepository<Town> {
 
     Town findByAreaUidAndNameAndUidIsNot(String areaUid, String name, String uid);
 
+    List<Town> findByAreaUidAndStatus(String areaUid, Byte status);
+
 }

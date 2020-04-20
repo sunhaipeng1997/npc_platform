@@ -39,6 +39,15 @@ public class SuggestionController {
     }
 
     /**
+     * 获取某镇所有建议业务类型下拉列表
+     */
+    @GetMapping("/subTownBusList")
+    public ResponseEntity subTownBusList(String townUid) {
+        RespBody body = suggestionService.subTownBusList(townUid);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
      * 获取建议业务类型列表（后台）
      *
      * @return

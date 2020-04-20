@@ -13,9 +13,11 @@ import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.TownService;
+import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Sets;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -231,6 +234,7 @@ public class TownServiceImpl implements TownService {
                 performanceType.setName(performanceTypeEnum.getValue());
                 performanceType.setRemark("初始化数据，不可删除");
                 performanceType.setTown(town);
+                performanceType.setArea(userDetails.getArea());
                 performanceType.setLevel(LevelEnum.TOWN.getValue());
                 performanceType.setIsDel(false);
                 performanceType.setStatus(StatusEnum.ENABLED.getValue());
@@ -282,6 +286,18 @@ public class TownServiceImpl implements TownService {
             return body;
         }
         townRepository.delete(town);
+        return body;
+    }
+
+    @Override
+    public RespBody subTownsList(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        List<Town> list = Lists.newArrayList();
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            list = townRepository.findByAreaUidAndStatus(userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        }
+        List<CommonVo> commonVos = list.stream().map(town -> CommonVo.convert(town.getUid(), town.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
         return body;
     }
 }

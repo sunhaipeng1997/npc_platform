@@ -1,13 +1,11 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Session;
-import com.cdkhd.npc.entity.Systems;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -35,7 +33,7 @@ public class SessionVo extends BaseVo {
     public static SessionVo convert(Session session) {
         SessionVo vo = new SessionVo();
         BeanUtils.copyProperties(session, vo);
-        vo.setName(session.getIsCurrent()?session.getName()+"（本届）":session.getName());
+        vo.setName(session.getIsCurrent() ? session.getName() + "（本届）" : session.getName());
         return vo;
     }
 }
