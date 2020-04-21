@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -45,6 +46,13 @@ public class AuthController {
     @PostMapping("/updatePwd")
     public ResponseEntity updatePwd(@CurrentUser UserDetailsImpl userDetails, PasswordDto passwordDto) {
         RespBody body = authService.updatePwd(userDetails,passwordDto);
+        return ResponseEntity.ok(body);
+    }
+
+    //大数据平台登录接口
+    @PostMapping("/bigDataLogin")
+    public ResponseEntity bigDataLogin(@RequestBody UsernamePasswordDto upDto) {
+        RespBody body = authService.bigDataLogin(upDto);
         return ResponseEntity.ok(body);
     }
 }

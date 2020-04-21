@@ -108,7 +108,7 @@ public class Account extends BaseDomain {
     private Set<NpcMember> npcMembers = new HashSet<>();
 
     //后台管理员关联
-    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account")
     private BackgroundAdmin backgroundAdmin;
 
     //政府人员关联a

@@ -23,6 +23,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -54,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
     private MenuRepository menuRepository;
 
     private PasswordEncoder passwordEncoder;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Autowired
     public AuthServiceImpl(AccountRepository accountRepository, LoginUPRepository loginUPRepository, CodeRepository codeRepository, LoginWeChatRepository loginWeChatRepository, AccountRoleRepository accountRoleRepository, Environment env, RestTemplate restTemplate, MenuRepository menuRepository, PasswordEncoder passwordEncoder) {
@@ -102,7 +106,8 @@ public class AuthServiceImpl implements AuthService {
         final String invokeId = env.getProperty("code.invokeId");
         final String templateCode = env.getProperty("code.templateCode");
         int timeout = Integer.parseInt(env.getProperty("code.timeout"));
-        String telephoneString = account.getLoginUP().getMobile();
+//        String telephoneString = account.getLoginUP().getMobile();
+        String telephoneString = account.getMobile();  //从account中取电话号码
 
         //发送短信验证码
         BDSmsUtils.sendSms(telephoneString, accessKeyId, accessKeySecret, verifycode, endPoint, invokeId, templateCode, timeout);
@@ -125,74 +130,31 @@ public class AuthServiceImpl implements AuthService {
     //登录获取token
     @Override
     public RespBody login(UsernamePasswordDto upDto) {
-        RespBody body = new RespBody<>();
+        RespBody<TokenVo> body = new RespBody<>();
 
-        if (StringUtils.isEmpty(upDto.getUsername()) || StringUtils.isEmpty(upDto.getPassword())) {
+        //验证
+        Account account;
+        try {
+            account = checkUPDto(upDto, true);
+        } catch (Exception e) {
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("用户名或密码不能为空");
+            body.setMessage(e.getMessage());
             return body;
         }
 
-        if (loginUPRepository.findByUsername(upDto.getUsername()) == null) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("用户名不存在");
-            return body;
-        }
-
-        Account account = loginUPRepository.findByUsername(upDto.getUsername()).getAccount();
-        if (account == null) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("用户名不存在");
-            return body;
-        }
-
-        if (!passwordEncoder.matches(upDto.getPassword(), account.getLoginUP().getPassword())) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("密码错误");
-            return body;
-        }
-
-        Code code = codeRepository.findByMobile(account.getLoginUP().getMobile());
-        if (code == null || !code.getCode().equals(upDto.getCode())) {
-            body.setMessage("验证码错误");
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            return body;
-        }
-
-        String expireStr = env.getProperty("code.timeout");  //读取验证码过期分钟数
-        int expireMinutes = 30;  //默认为三十分钟有效
-        if (StringUtils.isNotBlank(expireStr)) {
-            expireMinutes = Integer.parseInt(expireStr);
-        }
-
-        Date expireAt = DateUtils.addMinutes(code.getCreateTime(), expireMinutes);
-
-        if (!code.getValid() || expireAt.before(new Date())) {
-            body.setMessage("验证码已失效");
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            return body;
-        }
-
-        if (account.getStatus().equals(StatusEnum.DISABLED.getValue())) {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("账号已被禁用");
-            return body;
-        }
-        //登录次数
+        //设置登录次数
         account.setLoginTimes(account.getLoginTimes() == null ? 1 : account.getLoginTimes() + 1);
+        //设置上次登录时间
         if (account.getLoginTime() != null) {
             account.setLastLoginTime(account.getLoginTime());
         }
+        //设置这次登录时间
         account.setLoginTime(new Date());
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
+        accountRepository.saveAndFlush(account);
 
-        //成功验证码验证过一次后设置为失效
-        code.setValid(false);
-        codeRepository.saveAndFlush(code);
         //生成token字符串
         TokenVo tokenVo = generateToken(account);
-
-        accountRepository.saveAndFlush(account);
 
         body.setData(tokenVo);
         return body;
@@ -242,8 +204,15 @@ public class AuthServiceImpl implements AuthService {
                         for (Menu menu : backMenus) {
                             if (!menu.getEnabled().equals(StatusEnum.ENABLED.getValue())) continue;//菜单可用才展示
                             if (menu.getType().equals(StatusEnum.ENABLED.getValue())) continue;//如果是小程序菜单，就过滤掉
-                            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && menu.getName().equals(MenuEnum.TOWN_MANAGE.getName()))
-                                continue;//镇后台管理员没有镇管理
+                            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+                                if (menu.getName().equals(MenuEnum.TOWN_MANAGE.getName()) ||
+                                        menu.getName().equals(MenuEnum.TOWN_SUGGESTION_MANAGE.getName()) ||
+                                        menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_MANAGE.getName()) ||
+                                        menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_COUNT.getName())
+                                ){
+                                    continue;//镇后台管理员没有镇管理、各镇代表建议管理、各镇代表履职管理
+                                }
+                            }
                             if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && (menu.getName().equals(MenuEnum.VILLAGE_MANAGE.getName()) || menu.getName().equals(MenuEnum.NPC_MEMBER_GROUP.getName())))
                                 continue;//区后台管理员没有村管理
                             menus.add(menu);
@@ -289,6 +258,39 @@ public class AuthServiceImpl implements AuthService {
         }
         loginUP.setPassword(passwordEncoder.encode(passwordDto.getNewPwd()));
         loginUPRepository.saveAndFlush(loginUP);
+        return body;
+    }
+
+    //大数据平台的登录业务，无短信验证码
+    @Override
+    public RespBody bigDataLogin(UsernamePasswordDto upDto) {
+        RespBody<TokenVo> body = new RespBody<>();
+
+        //验证
+        Account account;
+        try {
+            account = checkUPDto(upDto, false);
+        } catch (Exception e) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage(e.getMessage());
+            return body;
+        }
+
+        //设置登录次数
+        account.setLoginTimes(account.getLoginTimes() == null ? 1 : account.getLoginTimes() + 1);
+        //设置上次登录时间
+        if (account.getLoginTime() != null) {
+            account.setLastLoginTime(account.getLoginTime());
+        }
+        //设置这次登录时间
+        account.setLoginTime(new Date());
+        account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
+        accountRepository.saveAndFlush(account);
+
+        //生成token
+        TokenVo tokenVo = generateToken(account);
+
+        body.setData(tokenVo);
         return body;
     }
 
@@ -391,6 +393,65 @@ public class AuthServiceImpl implements AuthService {
         //返回值：openid、session_key、unionid（用户在开放平台的唯一标识符）
         ResponseEntity<String> resp = new RestTemplate().getForEntity(reqUrl, String.class);
         return resp;
+    }
+
+    /**
+     * 验证UsernamePasswordDto
+     * @param upDto 待验证的DTO
+     * @param checkCode 是否验证短信验证码
+     * @return 相应的Account
+     * @throws Exception 包含验证失败信息的异常
+     */
+    private Account checkUPDto(UsernamePasswordDto upDto, boolean checkCode) throws Exception {
+        if (StringUtils.isEmpty(upDto.getUsername()) || StringUtils.isEmpty(upDto.getPassword()))
+            throw new Exception("用户名/密码不能为空");
+
+        LoginUP loginUP = loginUPRepository.findByUsername(upDto.getUsername());
+        if (loginUP == null)
+            throw new Exception("用户名不存在");
+
+        Account account = loginUP.getAccount();
+        if (account == null) {
+            LOGGER.error("login_UP无对应的Account，请检查数据库数据");
+            throw new Exception("用户不存在");
+        }
+
+        if (!passwordEncoder.matches(upDto.getPassword(), loginUP.getPassword()))
+            throw new Exception("密码错误");
+
+        if (checkCode) {
+            Code code = codeRepository.findByMobile(account.getMobile());
+            checkCode(upDto.getCode(), code);
+            //短信验证码成功验证过一次后设置为失效
+            code.setValid(false);
+            codeRepository.saveAndFlush(code);
+        }
+
+        if (account.getStatus().equals(StatusEnum.DISABLED.getValue()))
+            throw new Exception("账号已被禁用");
+
+        return account;
+    }
+
+    /**
+     * 验证短信验证码
+     * @param toCheck 待验证的短信验证码
+     * @param code 正确的验证码对象
+     * @throws Exception 包含验证失败信息的异常
+     */
+    private void checkCode(String toCheck, Code code) throws Exception {
+        if (code == null || !code.getCode().equals(toCheck))
+            throw new Exception("验证码错误");
+
+        int expireMinutes = 30;  //默认为三十分钟有效
+        String expireStr = env.getProperty("code.timeout");  //读取验证码过期分钟数
+        if (StringUtils.isNotBlank(expireStr)) {
+            expireMinutes = Integer.parseInt(expireStr);
+        }
+
+        Date expireAt = DateUtils.addMinutes(code.getCreateTime(), expireMinutes);
+        if (!code.getValid() || expireAt.before(new Date()))
+            throw new Exception("验证码已失效");
     }
 
     /**

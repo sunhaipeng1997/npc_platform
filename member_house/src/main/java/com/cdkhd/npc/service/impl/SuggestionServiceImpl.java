@@ -86,6 +86,18 @@ public class SuggestionServiceImpl implements SuggestionService {
         return body;
     }
 
+    @Override
+    public RespBody subTownBusList(String townUid) {
+        RespBody body = new RespBody();
+        List<SuggestionBusiness> sb = Lists.newArrayList();
+        if (StringUtils.isNotEmpty(townUid)){
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
+        }
+        List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
+        return body;
+    }
+
     /**
      * 条件查询建议类型
      *
@@ -459,8 +471,10 @@ public class SuggestionServiceImpl implements SuggestionService {
         Page<Suggestion> suggestionPage = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            Predicate predicate = cb.or((cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue())), (cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue())));
+            if (suggestionDto.isFlag()){
+                predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            }
+            Predicate predicate =cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue());
             predicates.add(predicate);
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -471,9 +485,16 @@ public class SuggestionServiceImpl implements SuggestionService {
             if (StringUtils.isNotEmpty(suggestionDto.getTitle())) {
                 predicates.add(cb.like(root.get("title").as(String.class), "%" + suggestionDto.getTitle() + "%"));
             }
+            //下属镇
+            if (!suggestionDto.isFlag() && userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                if ( StringUtils.isNotEmpty(suggestionDto.getTownUid()) ){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), suggestionDto.getTownUid()));
+                }
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
+            }
             //类型
             if (StringUtils.isNotEmpty(suggestionDto.getSuggestionBusiness())) {
-                predicates.add(cb.equal(root.get("performanceType").get("uid").as(String.class), suggestionDto.getSuggestionBusiness()));
+                predicates.add(cb.equal(root.get("suggestionBusiness").get("uid").as(String.class), suggestionDto.getSuggestionBusiness()));
             }
             //提出代表
             if (StringUtils.isNotEmpty(suggestionDto.getName())) {

@@ -95,6 +95,17 @@ public class PerformanceController {
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 类型下拉 某镇
+     *
+     * @return
+     */
+    @GetMapping("/subTownPerformanceTypeList")
+    public ResponseEntity subTownPerformanceTypeList(String townUid) {
+        RespBody body = performanceService.subTownPerformanceTypeList(townUid);
+        return ResponseEntity.ok(body);
+    }
+
     //履职相关接口
 
     /**

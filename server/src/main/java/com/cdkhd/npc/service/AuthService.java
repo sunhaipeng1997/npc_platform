@@ -18,4 +18,6 @@ public interface AuthService {
     RespBody menus(UserDetailsImpl userDetails, BaseDto baseDto);
 
     RespBody updatePwd(UserDetailsImpl userDetails, PasswordDto passwordDto);
+
+    RespBody bigDataLogin(UsernamePasswordDto upDto);
 }

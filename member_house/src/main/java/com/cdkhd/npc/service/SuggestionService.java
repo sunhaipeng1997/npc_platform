@@ -18,6 +18,11 @@ public interface SuggestionService {
     RespBody sugBusList(UserDetailsImpl userDetails);
 
     /**
+     * 某下属镇建议业务类型下拉列表
+     * */
+    RespBody subTownBusList(String townUid);
+
+    /**
      * 条件查询建议业务类型
      * @param userDetails
      * @param suggestionBusinessDto

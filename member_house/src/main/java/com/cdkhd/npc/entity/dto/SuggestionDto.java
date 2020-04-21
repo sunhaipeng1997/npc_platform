@@ -40,4 +40,10 @@ public class SuggestionDto extends PageDto {
     //代表手机号
     private String mobile;
 
+    //下属镇uid
+    private String townUid;
+
+    //标志位 当为true表示查询与当前用户级别相同的建议，为false表示查询区下属镇的建议
+    private boolean flag;
+
 }

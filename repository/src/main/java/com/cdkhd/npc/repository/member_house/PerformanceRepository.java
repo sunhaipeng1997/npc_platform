@@ -2,6 +2,7 @@ package com.cdkhd.npc.repository.member_house;
 
 import com.cdkhd.npc.entity.Performance;
 import com.cdkhd.npc.repository.base.BaseRepository;
+import com.cdkhd.npc.vo.CountVo;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
@@ -20,4 +21,13 @@ public interface PerformanceRepository extends BaseRepository<Performance> {
     Integer countAreaTodayNumber(Date today, Byte level, String uid);
 
     List<Performance> findByPerformanceTypeUid(String uid);
+
+    @Query("select new com.cdkhd.npc.vo.CountVo(town.name, count(pfm.uid)) from Performance pfm, Town town " +
+            "where pfm.town=town.id and pfm.area.id=?1 and pfm.isDel=false and pfm.level=1 and pfm.status=1 " +
+            "group by pfm.town")
+    List<CountVo> count4Town(Long areaId);
+
+    @Query("select count(pfm.uid) from Performance pfm " +
+            "where pfm.area.id=?1 and pfm.isDel=false and pfm.status=1")
+    Integer countAll(Long areaId);
 }

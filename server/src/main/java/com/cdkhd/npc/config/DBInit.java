@@ -132,6 +132,9 @@ public class DBInit {
         username = env.getProperty("npc_base_info.cdkhd.name");
         mobile = env.getProperty("npc_base_info.cdkhd.mobile");
         initOneAccount(username, mobile, defaultRawPwd);
+
+        //为大数据平台初始化一个账号，默认用户名为“bigData”
+        initOneAccount("bigData", "13133333333", defaultRawPwd);
     }
 
     private void initBackgroundAdmin() {
@@ -139,7 +142,7 @@ public class DBInit {
         Area area = areaRepository.findByName(areaName);
         String username = env.getProperty("npc_base_info.user.name");
         String mobile = env.getProperty("npc_base_info.user.mobile");
-        Account account = accountRepository.findByUsernameAndMobile(username,mobile);
+        Account account = accountRepository.findByUsername(username);
         BackgroundAdmin backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
@@ -148,10 +151,21 @@ public class DBInit {
             backgroundAdmin.setArea(area);
             backgroundAdminRepository.saveAndFlush(backgroundAdmin);
         }
+
         username = env.getProperty("npc_base_info.cdkhd.name");
         mobile = env.getProperty("npc_base_info.cdkhd.mobile");
-        account = accountRepository.findByUsernameAndMobile(username,mobile);
+        account = accountRepository.findByUsername(username);
         backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
+        if (backgroundAdmin == null) {
+            backgroundAdmin = new BackgroundAdmin();
+            backgroundAdmin.setAccount(account);
+            backgroundAdmin.setLevel(LevelEnum.AREA.getValue());
+            backgroundAdmin.setArea(area);
+            backgroundAdminRepository.saveAndFlush(backgroundAdmin);
+        }
+
+        account = accountRepository.findByUsername("bigData");
+        backgroundAdmin = backgroundAdminRepository.findByAccountUsername("bigData");
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
             backgroundAdmin.setAccount(account);
@@ -279,12 +293,15 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.OPINION_MANAGE.getKeyword()));//选民意见管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STUDY_TYPE_MANAGE.getKeyword()));//学习类型管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STUDY_MANAGE.getKeyword()));//学习资料管理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE.getKeyword()));//代表建议管理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_MANAGE.getKeyword()));//代表建议类型
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE.getKeyword()));//代表建议类型
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_MANAGE.getKeyword()));//代表建议管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_SUGGESTION_MANAGE.getKeyword()));//代表建议管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_COUNT.getKeyword()));//代表建议统计
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_TYPE.getKeyword()));//代表履职类型
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_MANAGE.getKeyword()));//代表履职管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_PERFORMANCE_MANAGE.getKeyword()));//代表履职管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_COUNT.getKeyword()));//代表履职统计
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_PERFORMANCE_COUNT.getKeyword()));//各镇履职统计
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_MANAGE.getKeyword()));//镇管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword()));//村管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));//代表权限管理
@@ -503,6 +520,11 @@ public class DBInit {
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
+        //各镇代表建议管理
+        menu = menuRepository.findByName(MenuEnum.TOWN_SUGGESTION_MANAGE.getName());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_SUGGESTION_MANAGE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
         //代表履职类型
         menu = menuRepository.findByName(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_TYPE.getKeyword()));
@@ -511,6 +533,11 @@ public class DBInit {
         //代表履职管理
         menu = menuRepository.findByName(MenuEnum.PERFORMANCE_MANAGE.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_MANAGE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //各镇代表履职管理
+        menu = menuRepository.findByName(MenuEnum.TOWN_PERFORMANCE_MANAGE.getName());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_PERFORMANCE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表建议统计
@@ -1195,4 +1222,26 @@ public class DBInit {
             loginUPRepository.saveAndFlush(loginUP);
         }
     }
+
+    //为大数据平台初始化一个Account
+    /*private void initBDAccount(String username, String mobile, String rawPwd) {
+        Account account = accountRepository.findByUsername(username);
+        if (account == null) {
+            account = new Account();
+            account.setUsername(username);
+            account.setMobile(mobile);
+            account.setLoginTimes(0);  //登录次数初始化为0
+            account.setLoginWay((byte) 1);//账号密码方式登录
+            accountRepository.saveAndFlush(account);
+        }
+
+        LoginUP loginUP = loginUPRepository.findByUsername(username);
+        if (loginUP == null) {
+            loginUP = new LoginUP();
+            loginUP.setUsername(username);
+            loginUP.setPassword(passwordEncoder.encode(rawPwd)); //保存hash后的密码
+            loginUP.setAccount(account);
+            loginUPRepository.saveAndFlush(loginUP);
+        }
+    }*/
 }

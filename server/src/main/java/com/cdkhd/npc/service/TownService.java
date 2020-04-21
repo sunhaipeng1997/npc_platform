@@ -17,4 +17,6 @@ public interface TownService {
 
     RespBody delete(String uid);
 
+    RespBody subTownsList(UserDetailsImpl userDetails);
+
 }

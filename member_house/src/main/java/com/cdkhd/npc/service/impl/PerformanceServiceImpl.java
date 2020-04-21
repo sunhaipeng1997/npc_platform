@@ -1,10 +1,7 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.Performance;
-import com.cdkhd.npc.entity.PerformanceType;
-import com.cdkhd.npc.entity.SystemSetting;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.PerformanceDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeAddDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
@@ -288,6 +285,18 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
+    public RespBody subTownPerformanceTypeList(String townUid) {
+        RespBody body = new RespBody();
+        List<PerformanceType> sb = Lists.newArrayList();
+        if (StringUtils.isNotEmpty(townUid)){
+            sb = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
+        }
+        List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
+        return body;
+    }
+
+    @Override
     public RespBody findPerformance(UserDetailsImpl userDetails, PerformanceDto performanceDto) {
         RespBody body = new RespBody();
         //查询代表的履职之前首先查询系统配置
@@ -319,7 +328,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            if (performanceDto.isFlag()){
+                predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
+            }
             predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -349,6 +360,15 @@ public class PerformanceServiceImpl implements PerformanceService {
             if (StringUtils.isNotEmpty(performanceDto.getTitle())) {
                 predicates.add(cb.like(root.get("title").as(String.class), "%" + performanceDto.getTitle() + "%"));
             }
+
+            //下属镇
+            if (!performanceDto.isFlag() && userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                if ( StringUtils.isNotEmpty(performanceDto.getTownUid()) ){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), performanceDto.getTownUid()));
+                }
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
+            }
+
             //类型
             if (StringUtils.isNotEmpty(performanceDto.getPerformanceType())) {
                 predicates.add(cb.equal(root.get("performanceType").get("uid").as(String.class), performanceDto.getPerformanceType()));
