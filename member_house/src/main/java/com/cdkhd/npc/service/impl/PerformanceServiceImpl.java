@@ -404,10 +404,13 @@ public class PerformanceServiceImpl implements PerformanceService {
         int begin = performanceDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, performanceDto.getSize(), Sort.Direction.fromString(performanceDto.getDirection()), performanceDto.getProperty());
         List<Performance> performances = this.getPerformancePage(userDetails,performanceDto, page).getContent();
-        // 查询还利息或者还款日期在这段时间的数据
+
         String fileName = ExcelCode.encodeFileName("代表履职信息.xls", req);
         res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+//        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=utf-8''" + fileName);
+        //暴露Content-Disposition响应头，以便前端可以获取文件名
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
         String[] tableHeaders = new String[]{"编号", "履职类型", "履职标题", "履职时间", "履职代表", "履职内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见"};
 
