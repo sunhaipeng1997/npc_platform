@@ -26,10 +26,11 @@ public class ExcelCode {
             String agent = request.getHeader("USER-AGENT");
             if (null != agent && -1 != agent.indexOf("MSIE") || null != agent
                 && -1 != agent.indexOf("Trident") || null != agent && -1 != agent.indexOf("Edge")) {// ie浏览器及Edge浏览器
-                String name = java.net.URLEncoder.encode(fileNames, "UTF-8");
-                codedFilename = name;
+                codedFilename = java.net.URLEncoder.encode(fileNames, "UTF-8");
             } else if (null != agent && -1 != agent.indexOf("Mozilla")) {// 火狐,Chrome等浏览器
-                codedFilename = new String(fileNames.getBytes("UTF-8"), "iso-8859-1");
+//                codedFilename = new String(fileNames.getBytes("UTF-8"), "iso-8859-1");
+                //不管是什么浏览器，都统一编码为UTF-8
+                codedFilename = java.net.URLEncoder.encode(fileNames, "UTF-8");
             }
         } catch (Exception e) {
             e.printStackTrace();
