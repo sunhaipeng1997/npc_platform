@@ -468,7 +468,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             if (performance.getLevel().equals(LevelEnum.AREA.getValue())) {
                 place = performance.getArea().getName() + performance.getTown().getName();
             } else if (performance.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                place = performance.getTown().getName() + performance.getNpcMemberGroup().getName();
+                place = performance.getTown().getName();  // + performance.getNpcMemberGroup().getName();
             }
             cell6.setCellValue(place);
 

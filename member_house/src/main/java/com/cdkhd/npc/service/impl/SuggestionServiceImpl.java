@@ -392,7 +392,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             if (suggestion.getLevel().equals(LevelEnum.AREA.getValue())) {
                 place = suggestion.getArea().getName() + suggestion.getTown().getName();
             } else if (suggestion.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                place = suggestion.getTown().getName() + suggestion.getNpcMemberGroup().getName();
+                place = suggestion.getTown().getName();  // + suggestion.getNpcMemberGroup().getName();
             }
             cell6.setCellValue(place);
 
