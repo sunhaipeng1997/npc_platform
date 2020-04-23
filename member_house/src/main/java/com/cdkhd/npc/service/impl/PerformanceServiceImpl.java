@@ -436,13 +436,13 @@ public class PerformanceServiceImpl implements PerformanceService {
             Cell cell1 = row.createCell(1);
             cell1.setCellValue(performance.getPerformanceType().getName());
 
-            // 履职类型
+            // 履职标题
             Cell cell2 = row.createCell(2);
             cell2.setCellValue(performance.getTitle());
 
             // 履职时间
             Cell cell3 = row.createCell(3);
-            cell3.setCellValue(performance.getWorkAt());
+            cell3.setCellValue(performance.getWorkAt().toString());
 
             // 履职代表
             Cell cell4 = row.createCell(4);
@@ -477,11 +477,11 @@ public class PerformanceServiceImpl implements PerformanceService {
 
             // 审核人
             Cell cell8 = row.createCell(8);
-            cell8.setCellValue(performance.getNpcMember().getName());
+            cell8.setCellValue(performance.getAuditor().getName());
 
             //审核状态
             Cell cell9 = row.createCell(9);
-            cell9.setCellValue(performance.getStatus());
+            cell9.setCellValue(StatusEnum.getName(performance.getStatus()));
 
             //审核意见
             Cell cell10 = row.createCell(10);

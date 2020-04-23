@@ -42,4 +42,6 @@ public class AddPerformanceDto extends BaseDto {
     //每次提交的uid
     private String transUid;
 
+    private String reason;
+
 }
