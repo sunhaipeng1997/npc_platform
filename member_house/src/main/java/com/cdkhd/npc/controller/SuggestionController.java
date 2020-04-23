@@ -118,7 +118,7 @@ public class SuggestionController {
      *
      * @return
      */
-    @PostMapping("/exportSuggestion")
+    @GetMapping("/exportSuggestion")
     public void exportSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionDto suggestionDto, HttpServletRequest req, HttpServletResponse res) {
         suggestionService.exportSuggestion(userDetails, suggestionDto, req, res);
     }

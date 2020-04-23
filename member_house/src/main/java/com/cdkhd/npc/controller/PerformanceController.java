@@ -134,7 +134,7 @@ public class PerformanceController {
      * 导出履职信息
      * @return
      */
-    @PostMapping("/exportPerformance")
+    @GetMapping("/exportPerformance")
     public void exportPerformance(@CurrentUser UserDetailsImpl userDetails, PerformanceDto performanceDto, HttpServletRequest req, HttpServletResponse res) {
         performanceService.exportPerformance(userDetails, performanceDto, req, res);
     }

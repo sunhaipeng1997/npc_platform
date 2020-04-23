@@ -35,6 +35,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -117,10 +120,14 @@ public class OpinionServiceImpl implements OpinionService {
         int begin = opinionPageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, opinionPageDto.getSize(), Sort.Direction.fromString(opinionPageDto.getDirection()), opinionPageDto.getProperty());
         List<Opinion> opinions = this.getOpinionPage(userDetails,opinionPageDto, page).getContent();
-        // 查询还利息或者还款日期在这段时间的数据
+
         String fileName = ExcelCode.encodeFileName("意见信息.xls", req);
         res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+//        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=utf-8''" + fileName);
+        //暴露Content-Disposition响应头，以便前端可以获取文件名
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
+
         String[] tableHeaders = new String[]{"编号", "提出人", "提出时间", "提出人联系方式", "接收代表", "接收代表所属机构", "是否回复", "意见内容"};
         Sheet sheet = hssWb.createSheet("意见信息");
         Row headRow = sheet.createRow(0);
