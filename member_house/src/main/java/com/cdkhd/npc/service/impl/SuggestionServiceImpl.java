@@ -336,7 +336,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见"};
+        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "建议状态", "审核意见"};
 
         Sheet sheet = hssWb.createSheet("代表建议");
 
@@ -399,17 +399,21 @@ public class SuggestionServiceImpl implements SuggestionService {
             }
             cell6.setCellValue(place);
 
-            // 审核人
-            Cell cell7 = row.createCell(7);
-            cell7.setCellValue(suggestion.getAuditor().getName());
+//            // 代表联系方式
+//            Cell cell7 = row.createCell(7);
+//            cell7.setCellValue(suggestion.getRaiser().getMobile());
 
-            //审核状态
+            //审核人姓名
             Cell cell8 = row.createCell(8);
-            cell8.setCellValue(suggestion.getStatus());
+            cell8.setCellValue(suggestion.getAuditor().getName());
+
+            //状态
+            Cell cell9 = row.createCell(9);
+            cell9.setCellValue(SuggestionStatusEnum.getName(suggestion.getStatus()));
 
             //审核意见
-            Cell cell9 = row.createCell(9);
-            cell9.setCellValue(suggestion.getReason());
+            Cell cell10 = row.createCell(10);
+            cell10.setCellValue(suggestion.getReason());
 
         }
         try {

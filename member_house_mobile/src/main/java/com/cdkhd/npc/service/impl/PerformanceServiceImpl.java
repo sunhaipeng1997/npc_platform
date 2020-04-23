@@ -276,6 +276,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setTitle(addPerformanceDto.getTitle());
         performance.setWorkAt(addPerformanceDto.getWorkAt());
         performance.setContent(addPerformanceDto.getContent());
+        performance.setReason(addPerformanceDto.getReason());
         Set<PerformanceImage> performanceImages = new HashSet<>();
         for (SuggestionImage suggestionImage : suggestionImages){
             PerformanceImage performanceImage = new PerformanceImage();
