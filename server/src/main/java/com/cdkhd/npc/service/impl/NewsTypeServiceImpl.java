@@ -6,6 +6,7 @@ import com.cdkhd.npc.entity.dto.NewsTypeAddDto;
 import com.cdkhd.npc.entity.dto.NewsTypePageDto;
 import com.cdkhd.npc.entity.vo.NewsTypeVo;
 import com.cdkhd.npc.enums.DirectionEnum;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.NewsRepository;
 import com.cdkhd.npc.repository.base.NewsTypeRepository;
 import com.cdkhd.npc.service.NewsTypeService;
@@ -163,7 +164,7 @@ public class NewsTypeServiceImpl implements NewsTypeService {
 
             predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             predicateList.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            if(userDetails.getTown() != null){
+            if (userDetails.getTown() != null) {
                 predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
 
@@ -216,12 +217,11 @@ public class NewsTypeServiceImpl implements NewsTypeService {
 
             predicateList.add(cb.equal(root.get("level").as(Byte.class), pageDto.getLevel()));
 
-            if (StringUtils.isNotEmpty(pageDto.getAreaUid())) {
-                    //按地区编码查询
-                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getAreaUid()));            }
-
-            if (StringUtils.isNotEmpty(pageDto.getTownUid())) {
-                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), pageDto.getTownUid()));
+            if (LevelEnum.AREA.getValue().equals(pageDto.getLevel())) {
+                //按地区编码查询
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), pageDto.getUid()));
+            } else {
+                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), pageDto.getUid()));
             }
 
             //按类别名称模糊查询

@@ -290,6 +290,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestion.setAuditReason(suggestionAuditDto.getReason());
         suggestion.setAuditTime(new Date());
         suggestion.setAuditor(npcMember);
+        suggestion.setReason(suggestionAuditDto.getReason());
         suggestionRepository.saveAndFlush(suggestion);
 
         SuggestionReply suggestionReply = new SuggestionReply();
@@ -308,6 +309,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             addPerformanceDto.setTitle(suggestion.getTitle());
             addPerformanceDto.setWorkAt(suggestion.getRaiseTime());
             addPerformanceDto.setUid(suggestion.getRaiser().getUid());
+            addPerformanceDto.setReason(suggestionAuditDto.getReason());
             Set<SuggestionImage> suggestionImages = suggestion.getSuggestionImages();
             performanceService.addPerformanceFormSug(userDetails, addPerformanceDto, suggestionImages);
         }

@@ -80,4 +80,15 @@ public class TownController {
         RespBody body = townService.delete(uid);
         return ResponseEntity.ok(body);
     }
+
+    /**
+     * 下级乡镇列表
+     * @param userDetails
+     * @return
+     */
+    @GetMapping("/subTownsList")
+    public ResponseEntity subTownsList(@CurrentUser UserDetailsImpl userDetails){
+        RespBody body = townService.subTownsList(userDetails);
+        return ResponseEntity.ok(body);
+    }
 }

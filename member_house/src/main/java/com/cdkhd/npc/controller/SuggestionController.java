@@ -2,6 +2,7 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.MemberCountDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
 import com.cdkhd.npc.entity.dto.SuggestionDto;
@@ -118,19 +119,28 @@ public class SuggestionController {
      *
      * @return
      */
-    @PostMapping("/exportSuggestion")
+    @GetMapping("/exportSuggestion")
     public void exportSuggestion(@CurrentUser UserDetailsImpl userDetails, SuggestionDto suggestionDto, HttpServletRequest req, HttpServletResponse res) {
         suggestionService.exportSuggestion(userDetails, suggestionDto, req, res);
     }
 
     /**
-     * 获取已提建议信息列表
+     * 代表建议统计
      * @return
      */
-    @GetMapping("/countSuggestion")
-    public ResponseEntity countSuggestion(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = suggestionService.countSuggestion(userDetails);
+    @GetMapping("/memberSuggestionCount")
+    public ResponseEntity memberSuggestionCount(@CurrentUser UserDetailsImpl userDetails, MemberCountDto dto) {
+        RespBody body = suggestionService.memberSuggestionCount(dto,userDetails);
         return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 导出代表建议统计
+     * @return
+     */
+    @GetMapping("/exportSuggestionCount")
+    public void exportSuggestionCount(@CurrentUser UserDetailsImpl userDetails, MemberCountDto dto, HttpServletRequest req, HttpServletResponse res) {
+        suggestionService.exportSuggestionCount(dto,userDetails,req,res);
     }
 
 }

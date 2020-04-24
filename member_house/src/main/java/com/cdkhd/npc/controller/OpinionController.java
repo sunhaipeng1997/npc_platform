@@ -58,7 +58,7 @@ public class OpinionController {
      * 导出意见
      * @return
      */
-    @PostMapping("/exportOpinion")
+    @GetMapping("/exportOpinion")
     public void exportOpinion(@CurrentUser UserDetailsImpl userDetails, OpinionPageDto opinionPageDto, HttpServletRequest req, HttpServletResponse res) {
         opinionService.exportOpinion(userDetails,opinionPageDto,req,res);
     }

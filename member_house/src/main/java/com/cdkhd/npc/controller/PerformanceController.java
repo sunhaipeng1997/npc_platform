@@ -2,6 +2,7 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.MemberCountDto;
 import com.cdkhd.npc.entity.dto.PerformanceDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeAddDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
@@ -134,8 +135,28 @@ public class PerformanceController {
      * 导出履职信息
      * @return
      */
-    @PostMapping("/exportPerformance")
+    @GetMapping("/exportPerformance")
     public void exportPerformance(@CurrentUser UserDetailsImpl userDetails, PerformanceDto performanceDto, HttpServletRequest req, HttpServletResponse res) {
         performanceService.exportPerformance(userDetails, performanceDto, req, res);
     }
+
+    /**
+     * 代表履职统计
+     * @return
+     */
+    @GetMapping("/memberPerformanceCount")
+    public ResponseEntity memberPerformanceCount(@CurrentUser UserDetailsImpl userDetails, MemberCountDto dto) {
+        RespBody body = performanceService.memberPerformanceCount(dto,userDetails);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 代表履职统计导出
+     * @return
+     */
+    @GetMapping("/exportPerformanceCount")
+    public void exportPerformanceCount(@CurrentUser UserDetailsImpl userDetails, MemberCountDto dto, HttpServletRequest req, HttpServletResponse res) {
+        performanceService.exportPerformanceCount(dto,userDetails,req,res);
+    }
+
 }

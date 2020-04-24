@@ -87,11 +87,10 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             //查询与bgAdmin同级的代表
             predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
             predicateList.add(cb.isFalse(root.get("isDel")));
+            predicateList.add(cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
             //同镇的代表 or 同区的代表
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicateList.add(cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicateList.add(cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
             }
 
             //按姓名模糊查询
@@ -289,7 +288,15 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 accountRoleRepository.saveAll(accountRoles);
                 member.setAccount(account);
             }
-        }else{
+        }else{//既不包含其他，也不包含本届，一样的设置为选民
+            if (account != null){
+                Set<AccountRole> accountRoles = account.getAccountRoles();
+                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
+                AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
+                accountRoles.add(voter);
+                accountRoleRepository.saveAll(accountRoles);
+                member.setAccount(null);
+            }
             member.setStatus(StatusEnum.DISABLED.getValue());
         }
 

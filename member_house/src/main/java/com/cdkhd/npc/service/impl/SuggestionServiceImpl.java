@@ -1,18 +1,16 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.Suggestion;
-import com.cdkhd.npc.entity.SuggestionBusiness;
+import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.dto.MemberCountDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
 import com.cdkhd.npc.entity.dto.SuggestionDto;
-import com.cdkhd.npc.entity.vo.AnalysisVo;
-import com.cdkhd.npc.entity.vo.SuggestionBusinessVo;
-import com.cdkhd.npc.entity.vo.SuggestionVo;
+import com.cdkhd.npc.entity.vo.*;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.SuggestionService;
@@ -21,6 +19,7 @@ import com.cdkhd.npc.util.ExcelCode;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Maps;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -47,10 +46,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,10 +59,13 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private final SuggestionRepository suggestionRepository;
 
+    private final NpcMemberRepository npcMemberRepository;
+
     @Autowired
-    public SuggestionServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, SuggestionRepository suggestionRepository) {
+    public SuggestionServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, SuggestionRepository suggestionRepository, NpcMemberRepository npcMemberRepository) {
         this.suggestionBusinessRepository = suggestionBusinessRepository;
         this.suggestionRepository = suggestionRepository;
+        this.npcMemberRepository = npcMemberRepository;
     }
 
     /**
@@ -331,9 +330,12 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         String fileName = ExcelCode.encodeFileName("代表已提建议信息.xls", req);
         res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+//        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=utf-8''" + fileName);
+        //暴露Content-Disposition响应头，以便前端可以获取文件名
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见"};
+        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "建议状态", "审核意见"};
 
         Sheet sheet = hssWb.createSheet("代表建议");
 
@@ -392,21 +394,25 @@ public class SuggestionServiceImpl implements SuggestionService {
             if (suggestion.getLevel().equals(LevelEnum.AREA.getValue())) {
                 place = suggestion.getArea().getName() + suggestion.getTown().getName();
             } else if (suggestion.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                place = suggestion.getTown().getName() + suggestion.getNpcMemberGroup().getName();
+                place = suggestion.getTown().getName();  // + suggestion.getNpcMemberGroup().getName();
             }
             cell6.setCellValue(place);
 
-            // 审核人
-            Cell cell7 = row.createCell(7);
-            cell7.setCellValue(suggestion.getAuditor().getName());
+//            // 代表联系方式
+//            Cell cell7 = row.createCell(7);
+//            cell7.setCellValue(suggestion.getRaiser().getMobile());
 
-            //审核状态
+            //审核人姓名
             Cell cell8 = row.createCell(8);
-            cell8.setCellValue(suggestion.getStatus());
+            cell8.setCellValue(suggestion.getAuditor().getName());
+
+            //状态
+            Cell cell9 = row.createCell(9);
+            cell9.setCellValue(SuggestionStatusEnum.getName(suggestion.getStatus()));
 
             //审核意见
-            Cell cell9 = row.createCell(9);
-            cell9.setCellValue(suggestion.getReason());
+            Cell cell10 = row.createCell(10);
+            cell10.setCellValue(suggestion.getReason());
 
         }
         try {
@@ -419,36 +425,207 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public RespBody countSuggestion(UserDetailsImpl userDetails) {
-        RespBody body = new RespBody();
-        List<SuggestionBusiness> suggestionBusinessPage = suggestionBusinessRepository.findAll((Specification<SuggestionBusiness>) (root, query, cb) -> {
+    public RespBody memberSuggestionCount(MemberCountDto dto, UserDetailsImpl userDetails) {
+        RespBody<PageVo<MemberCountVo>> body = new RespBody<>();
+        int begin = dto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+        Page<NpcMember> pageRes = this.getNpcMemberPage(dto,userDetails,page);//分页获取所有代表
+        PageVo<MemberCountVo> vo = new PageVo<>(pageRes, dto);//代表分页对象
+        List<MemberCountVo> vos = this.getMemberCountVos(dto,userDetails,page,pageRes);
+        vo.setContent(vos);
+        body.setData(vo);
+        return body;
+    }
+
+    private List<MemberCountVo> getMemberCountVos(MemberCountDto dto, UserDetailsImpl userDetails, Pageable page, Page<NpcMember> pageRes){
+        List<NpcMember> content = pageRes.getContent();//代表列表
+        List<MemberCountVo> vos = Lists.newArrayList();
+        List<SuggestionBusiness> suggestionBusinesses = Lists.newArrayList();//获取所有可用的建议类型
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+        }
+        List<Suggestion> suggestionList = this.getSuggestionList(dto,userDetails);//获取所有履职信息
+        Map<String, Map<String,Integer>> memberSuggestionMap = this.dealSuggestion(suggestionList);//处理所有履职信息
+        for (NpcMember npcMember : content) {//遍历代表信息
+            MemberCountVo memberCountVo = new MemberCountVo();
+            memberCountVo.setUid(npcMember.getUid());
+            memberCountVo.setName(npcMember.getName());
+            List<CountVo> countList = Lists.newArrayList();
+            Map<String,Integer> countMap = memberSuggestionMap.getOrDefault(npcMember.getUid(), Maps.newHashMap());
+            for (SuggestionBusiness suggestionBusiness : suggestionBusinesses) {//遍历所有铝箔纸类型信息
+                CountVo countVo = new CountVo();
+                countVo.setUid(suggestionBusiness.getUid());
+                countVo.setName(suggestionBusiness.getName());
+                countVo.setCount(countMap.getOrDefault(suggestionBusiness.getUid(),0));
+                countList.add(countVo);
+            }
+            memberCountVo.setCount(countList);
+            vos.add(memberCountVo);
+        }
+        return vos;
+    }
+
+
+    /**
+     * 导出建议信息
+     *
+     * @param userDetails
+     * @param dto
+     * @return
+     */
+    @Override
+    public void exportSuggestionCount(MemberCountDto dto, UserDetailsImpl userDetails, HttpServletRequest req, HttpServletResponse res) {
+        ServletOutputStream os = null;
+        try {
+            os = res.getOutputStream();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        Workbook hssWb = new HSSFWorkbook();
+        int begin = dto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, dto.getSize(), Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+        Page<NpcMember> pageRes = this.getNpcMemberPage(dto,userDetails,page);//分页获取所有代表
+        List<MemberCountVo> vos = this.getMemberCountVos(dto,userDetails,page, pageRes);
+        String fileName = ExcelCode.encodeFileName("代表建议统计.xls", req);
+        res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+        List<SuggestionBusiness> suggestionBusinesses = Lists.newArrayList();//获取所有可用的建议类型
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+        }
+
+        String[] tableHeaders = new String[suggestionBusinesses.size()+2];
+        tableHeaders[0] = "序号";
+        tableHeaders[1] = "姓名";
+        for (int i = 0; i < suggestionBusinesses.size(); i++) {
+            tableHeaders[i+2] = suggestionBusinesses.get(i).getName();
+        }
+        Sheet sheet = hssWb.createSheet("代表建议统计");
+        Row headRow = sheet.createRow(0);
+        int colSize = tableHeaders.length;
+        for (int i = 0; i < colSize; i++) {
+            Cell cell = headRow.createCell(i);
+            cell.setCellValue(tableHeaders[i]);
+        }
+        int beginIndex = 1;
+        Integer[] total = new Integer[colSize];
+        Row row = sheet.createRow(beginIndex);
+        for (MemberCountVo memberCountVo : vos) {
+            // 编号
+            Cell cell0 = row.createCell(0);
+            cell0.setCellValue(beginIndex);
+            beginIndex++;
+
+            // 代表姓名
+            Cell cell1 = row.createCell(1);
+            cell1.setCellValue(memberCountVo.getName());
+
+            for (int i = 0; i < memberCountVo.getCount().size(); i++) {
+                // 建议类型
+                Cell cell2 = row.createCell(i+2);
+                cell2.setCellValue(memberCountVo.getCount().get(i).getCount());
+                Integer number = total[i]==null?0:total[i];
+                total[i] = number+memberCountVo.getCount().get(i).getCount();
+            }
+        }
+        if (dto.getSize() == 99999){//导出全部，加一个总计
+            // 编号
+            Cell cell0 = row.createCell(0);
+            cell0.setCellValue(vos.size());
+
+            // 代表姓名
+            Cell cell1 = row.createCell(1);
+            cell1.setCellValue("总计");
+
+            for (int i = 0; i < total.length; i++) {
+                Cell cell2 = row.createCell(i+2);
+                cell2.setCellValue(total[i]);
+            }
+        }
+        try {
+            hssWb.write(os);
+            os.flush();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            LOGGER.error("导出建议统计出错 \n {}", e1);
+        }
+    }
+
+
+    private Map<String, Map<String, Integer>> dealSuggestion(List<Suggestion> suggestionList) {
+        Map<String, Map<String, Integer>> memberMaps = Maps.newHashMap();
+        for (Suggestion suggestion : suggestionList) {
+            String memberUid = suggestion.getRaiser().getUid();
+            Map<String, Integer> countMap = memberMaps.getOrDefault(memberUid,Maps.newHashMap());
+            countMap.put(suggestion.getSuggestionBusiness().getUid(),countMap.getOrDefault(suggestion.getSuggestionBusiness().getUid(),0));
+            memberMaps.put(memberUid,countMap);
+        }
+        return memberMaps;
+    }
+
+    private List<Suggestion> getSuggestionList(MemberCountDto dto, UserDetailsImpl userDetails) {
+        List<Suggestion> suggestionList = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            Predicate or = cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue()),cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));
+            predicates.add(or);
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
-            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            //提出代表
+            if (StringUtils.isNotEmpty(dto.getName())) {
+                predicates.add(cb.like(root.get("raiser").get("name").as(String.class), "%" + dto.getName() + "%"));
+            }
+            //提出建议时间 开始
+            if (dto.getStartAt() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("raiseTime").as(Date.class), dto.getStartAt()));
+            }
+            if (dto.getEndAt() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("raiseTime").as(Date.class), dto.getEndAt()));
+            }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         });
-        //所有可用的建议类型
-        AnalysisVo analysisVo = new AnalysisVo();
-        List<AnalysisVo> analysisVos = Lists.newArrayList();
-        Integer count = 0;
-        for (SuggestionBusiness suggestionBusiness : suggestionBusinessPage) {
-            Integer size = suggestionBusiness.getSuggestions().size();
-            AnalysisVo children = new AnalysisVo();
-            children.setName(suggestionBusiness.getName());
-            children.setCount(size);
-            analysisVos.add(children);
-            count += size;
-        }
-        analysisVo.setName("总计");
-        analysisVo.setCount(count);
-        analysisVo.setAnalysisVoList(analysisVos);
-        return body;
+        return suggestionList;
     }
+
+
+    private Page<NpcMember> getNpcMemberPage(MemberCountDto dto, UserDetailsImpl userDetails, Pageable page){
+        Page<NpcMember> pageRes = npcMemberRepository.findAll((Specification<NpcMember>) (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+            //查询与bgAdmin同级的代表
+            predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
+            predicateList.add(cb.isFalse(root.get("isDel")));
+            predicateList.add(cb.equal(root.get("status").as(Byte.class),StatusEnum.ENABLED.getValue()));
+            predicateList.add(cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
+            //同镇的代表 or 同区的代表
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicateList.add(cb.equal(root.get("town").get("uid"), userDetails.getTown().getUid()));
+            }
+            //按姓名模糊查询
+            if (StringUtils.isNotBlank(dto.getName())) {
+                predicateList.add(cb.like(root.get("name"), "%" + dto.getName() + "%"));
+            }
+            //按工作单位查询
+            if (StringUtils.isNotEmpty(dto.getGroupId())) {
+                String workUnit = "";
+                if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                    workUnit = "npcMemberGroup";
+                } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                    workUnit = "town";
+                }
+                predicateList.add(cb.equal(root.get(workUnit).get("uid"), dto.getGroupId()));
+            }
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        }, page);
+        return pageRes;
+    }
+
 
     /**
      * 交换类型的顺序

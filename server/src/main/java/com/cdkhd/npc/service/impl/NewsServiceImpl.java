@@ -320,8 +320,8 @@ public class NewsServiceImpl implements NewsService {
             }
 
             //按栏目查询
-            if (StringUtils.isNotEmpty(pageDto.getNewsTypeUid())) {
-                predicateList.add(cb.equal(root.get("newsType").get("uid").as(String.class),  pageDto.getNewsTypeUid()));
+            if (StringUtils.isNotEmpty(pageDto.getNewsType())) {
+                predicateList.add(cb.equal(root.get("newsType").get("uid").as(String.class),  pageDto.getNewsType()));
             }
 
             //按新闻标题模糊查询
@@ -517,16 +517,15 @@ public class NewsServiceImpl implements NewsService {
             predicateList.add(cb.equal(root.get("level").as(Byte.class), pageDto.getLevel()));
 
             //按地区编码查询
-            if(StringUtils.isNotEmpty(pageDto.getAreaUid())){
-                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class),pageDto.getAreaUid()));
-            }
-            if(StringUtils.isNotEmpty(pageDto.getTownUid())){
-                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getTownUid()));
+            if(LevelEnum.AREA.getValue().equals(pageDto.getLevel())){
+                predicateList.add(cb.equal(root.get("area").get("uid").as(String.class),pageDto.getUid()));
+            }else{
+                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),pageDto.getUid()));
             }
 
             //按栏目查询
-            if (StringUtils.isNotEmpty(pageDto.getNewsTypeName())) {
-                predicateList.add(cb.equal(root.get("newsType").get("name").as(String.class),  pageDto.getNewsTypeName()));
+            if (StringUtils.isNotEmpty(pageDto.getNewsType())) {
+                predicateList.add(cb.equal(root.get("newsType").get("uid").as(String.class),  pageDto.getNewsType()));
             }
 
             //按新闻标题模糊查询
