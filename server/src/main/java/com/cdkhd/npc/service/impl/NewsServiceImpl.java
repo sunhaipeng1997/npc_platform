@@ -818,7 +818,14 @@ public class NewsServiceImpl implements NewsService {
         newsOpeRecord.setAction("发布");
         //将调用该接口的当前用户记录为该新闻的(操作者)
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
-        newsOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(level,currentAccount.getNpcMembers()).getName());
+
+        if(currentAccount != null){
+            NpcMember operator = NpcMemberUtil.getCurrentIden(level,currentAccount.getNpcMembers());
+            //免得有时候报空指针异常
+            if(operator != null){
+                newsOpeRecord.setOperator(operator.getName());
+            }
+        }
         newsOpeRecord.setNews(newsRepository.findByUid(news.getUid()));
         newsOpeRecordRepository.saveAndFlush(newsOpeRecord);
 
