@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.MemberCountDto;
 import com.cdkhd.npc.entity.dto.PerformanceDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeAddDto;
 import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
@@ -92,5 +93,21 @@ public interface PerformanceService {
      * @return
      */
     void exportPerformance(UserDetailsImpl userDetails, PerformanceDto performanceDto, HttpServletRequest req, HttpServletResponse res);
+
+    /**
+     * 代表履职统计
+     * @param dto
+     * @param userDetails
+     * @return
+     */
+    RespBody memberPerformanceCount(MemberCountDto dto, UserDetailsImpl userDetails);
+
+    /**
+     * 导出履职统计
+     * @param userDetails
+     * @param performanceDto
+     * @return
+     */
+    void exportPerformanceCount(MemberCountDto dto, UserDetailsImpl userDetails, HttpServletRequest req, HttpServletResponse res);
 
 }

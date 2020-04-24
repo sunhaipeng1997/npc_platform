@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.dto.MemberCountDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessAddDto;
 import com.cdkhd.npc.entity.dto.SuggestionBusinessDto;
 import com.cdkhd.npc.entity.dto.SuggestionDto;
@@ -79,5 +80,14 @@ public interface SuggestionService {
      * @param userDetails
      * @return
      */
-    RespBody countSuggestion(UserDetailsImpl userDetails);
+    RespBody memberSuggestionCount(MemberCountDto dto, UserDetailsImpl userDetails);
+
+    /**
+     * 代表建议统计
+     * @param userDetails
+     * @return
+     */
+    void exportSuggestionCount(MemberCountDto dto, UserDetailsImpl userDetails, HttpServletRequest req, HttpServletResponse res);
+
+
 }
