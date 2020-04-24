@@ -55,7 +55,7 @@ public class News extends BaseDomain {
 	@JoinColumn(name = "news_type", referencedColumnName = "id")
 	private NewsType newsType;
 
-	//展示在移动端的位置(优先级)，比如列表置顶、轮播
+	//展示在移动端的位置(优先级)，比如列表(常规0)、置顶(1)、轮播(2)
 	@Column(name = "where_show" )
 	private Integer whereShow;
 
