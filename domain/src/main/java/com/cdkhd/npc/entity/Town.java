@@ -30,6 +30,14 @@ public class Town extends BaseDomain {
 	@Column(name = "status")
 	private Byte status;
 
+	//逻辑删除
+    @Column(name = "is_del")
+    private Boolean is_del = false;
+
+	//1 镇 2 街道
+    @Column(name = "type")
+    private Byte type;
+
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
