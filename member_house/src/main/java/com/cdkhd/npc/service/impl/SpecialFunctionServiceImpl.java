@@ -3,10 +3,7 @@ package com.cdkhd.npc.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.enums.AccountRoleEnum;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.NpcMemberRoleEnum;
-import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.SpecialFunctionService;
 import com.cdkhd.npc.vo.RespBody;
@@ -270,28 +267,35 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         RespBody body = new RespBody();
         NpcMember npcMember = npcMemberRepository.findByUid(uid);
         if (npcMember == null) {
-            body.setMessage("找不到指定的代表");
+            body.setMessage("找不到指定的代表！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
 
         NpcMemberRole role = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());
         if (role == null) {
-            body.setMessage("找不到指定的角色");
+            body.setMessage("找不到指定的角色！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
 
         NpcMemberGroup npcGroup = npcMemberGroupRepository.findByUid(group);
         if (npcGroup == null) {
-            body.setMessage("找不到指定的小组");
+            body.setMessage("找不到指定的小组！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
 
         NpcMemberGroup npcMemberGroup = npcMember.getNpcMemberGroup();
         if (!npcGroup.getUid().equals(npcMemberGroup.getUid())) {
-            body.setMessage("该代表不属于该小组");
+            body.setMessage("该代表不属于该小组！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        Boolean isGeneralAuditor = validateGeneralAuditor(npcMember.getUid());
+        if (isGeneralAuditor) {
+            body.setMessage("该代表已经是总审核人员，不能设置为小组审核人！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
@@ -320,41 +324,35 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         RespBody body = new RespBody();
         NpcMember npcMember = npcMemberRepository.findByUid(uid);
         if (npcMember == null) {
-            body.setMessage("找不到指定的代表");
+            body.setMessage("找不到指定的代表！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
 
         NpcMemberRole role = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());
         if (role == null) {
-            body.setMessage("找不到指定的角色");
+            body.setMessage("找不到指定的角色！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
 
         Town npcTown = townRepository.findByUid(town);
         if (npcTown == null) {
-            body.setMessage("找不到指定的镇");
+            body.setMessage("找不到指定的镇！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
 
         Town memberTown = npcMember.getTown();
         if (!npcTown.getUid().equals(memberTown.getUid())) {
-            body.setMessage("该代表不属于该镇");
+            body.setMessage("该代表不属于该镇！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
 
-        NpcMemberRole Auditor = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());
-        Boolean validate = true;
-        for (NpcMember member : Auditor.getNpcMembers()) {
-            if (member.getUid().equals(uid)){
-                validate = false;
-            }
-        }
-        if (!validate){
-            body.setMessage("该代表已经是总审核，不能添加为小组审核人！");
+        Boolean isGeneralAuditor = validateGeneralAuditor(npcMember.getUid());
+        if (isGeneralAuditor) {
+            body.setMessage("该代表已经是总审核人员，不能设置为小组审核人！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
@@ -376,6 +374,19 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         npcMember.setNpcMemberRoles(roles);
         npcMemberRepository.saveAndFlush(npcMember);
         return body;
+    }
+
+    private Boolean validateGeneralAuditor(String uid){
+        Boolean isGeneralAuditor = false;
+        NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());
+        Set<NpcMember> npcMemberList = npcMemberRole.getNpcMembers();
+        for (NpcMember npcMember : npcMemberList) {
+            if (npcMember.getUid().equals(uid)){
+                isGeneralAuditor = true;
+                break;
+            }
+        }
+        return isGeneralAuditor;
     }
 
     //将某种管理员角色的代表封装为要返回给前端的数据项[groupUid, uid]，将数据项添加到list中

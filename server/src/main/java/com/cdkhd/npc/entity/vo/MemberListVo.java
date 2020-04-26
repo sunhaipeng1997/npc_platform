@@ -7,6 +7,7 @@ import com.cdkhd.npc.vo.CommonVo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class MemberListVo extends BaseVo {
         MemberListVo vo = new MemberListVo();
         vo.setUid(uid);
         vo.setName(name);
-        vo.setMembers(npcMembers.stream().filter(member-> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue()) && level.equals(member.getLevel())).map(member ->CommonVo.convert(member.getUid(),member.getName())).collect(Collectors.toList()));
+        vo.setMembers(npcMembers.stream().filter(member-> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue()) && level.equals(member.getLevel())).map(member ->CommonVo.convert(member.getUid(),member.getName())).sorted(Comparator.comparing(CommonVo::getName)).collect(Collectors.toList()));
         return vo;
     }
 }
