@@ -12,6 +12,7 @@ import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.SystemSettingRepository;
+import com.cdkhd.npc.repository.base.TownRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.SuggestionService;
@@ -65,12 +66,15 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private SystemSettingRepository systemSettingRepository;
 
+    private TownRepository townRepository;
+
     @Autowired
-    public SuggestionServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, SuggestionRepository suggestionRepository, NpcMemberRepository npcMemberRepository, SystemSettingRepository systemSettingRepository) {
+    public SuggestionServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, SuggestionRepository suggestionRepository, NpcMemberRepository npcMemberRepository, SystemSettingRepository systemSettingRepository, TownRepository townRepository) {
         this.suggestionBusinessRepository = suggestionBusinessRepository;
         this.suggestionRepository = suggestionRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.systemSettingRepository = systemSettingRepository;
+        this.townRepository = townRepository;
     }
 
     /**
@@ -80,10 +84,11 @@ public class SuggestionServiceImpl implements SuggestionService {
     public RespBody sugBusList(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(), userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
-        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+        //区上和街道，都查询区上的类型
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
             sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(), userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(), userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -93,11 +98,14 @@ public class SuggestionServiceImpl implements SuggestionService {
     @Override
     public RespBody subTownBusList(String townUid) {
         RespBody body = new RespBody();
-        List<SuggestionBusiness> sb = Lists.newArrayList();
-        if (StringUtils.isNotEmpty(townUid)){
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
+        List<SuggestionBusiness> suggestionBusinesses = Lists.newArrayList();
+        Town town = townRepository.findByUid(townUid);
+        if (town.getType().equals(LevelEnum.AREA.getValue())){//如果是街道，那么查询街道的履职类型
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), town.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        }else if (StringUtils.isNotEmpty(townUid)){//镇的话
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
         }
-        List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
+        List<CommonVo> commonVos = suggestionBusinesses.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
         return body;
     }

@@ -280,10 +280,11 @@ public class PerformanceServiceImpl implements PerformanceService {
     public RespBody performanceTypeList(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypes = Lists.newArrayList();
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+        //区上和街道，都查询区上的类型
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
             performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid());
         }
         List<CommonVo> commonVos = performanceTypes.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -294,11 +295,14 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public RespBody subTownPerformanceTypeList(String townUid) {
         RespBody body = new RespBody();
-        List<PerformanceType> sb = Lists.newArrayList();
-        if (StringUtils.isNotEmpty(townUid)){
-            sb = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
+        List<PerformanceType> performanceTypes = Lists.newArrayList();
+        Town town = townRepository.findByUid(townUid);
+        if (town.getType().equals(LevelEnum.AREA.getValue())){//如果是街道，那么查询街道的履职类型
+            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), town.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        }else if (StringUtils.isNotEmpty(townUid)){//镇的话
+            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
         }
-        List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
+        List<CommonVo> commonVos = performanceTypes.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
         return body;
     }
