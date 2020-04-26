@@ -32,7 +32,7 @@ public class Town extends BaseDomain {
 
 	//逻辑删除
     @Column(name = "is_del")
-    private Boolean is_del = false;
+    private Boolean isDel = false;
 
 	//1 镇 2 街道
     @Column(name = "type")
