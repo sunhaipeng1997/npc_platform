@@ -1,7 +1,6 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
@@ -31,7 +30,7 @@ public interface PerformanceService {
 
     /**
      * 履职类型列表
-     * @param uid
+     * @param viewDto
      * @return
      */
     RespBody performanceDetail(ViewDto viewDto);

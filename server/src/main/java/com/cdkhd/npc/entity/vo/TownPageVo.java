@@ -19,6 +19,9 @@ public class TownPageVo extends BaseVo {
     // 镇名称
     private String name;
 
+    // 类型
+    private Byte type;
+
     //管理员手机号
     private String mobile;
 

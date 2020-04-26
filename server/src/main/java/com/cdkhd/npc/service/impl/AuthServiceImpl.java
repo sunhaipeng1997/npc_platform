@@ -91,13 +91,19 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        Account account = loginUPRepository.findByUsername(username).getAccount();
+        Account account = accountRepository.findByUsername(username);
         if (account == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("用户名不存在，拒绝发送验证码");
             return body;
         }
-
+        BackgroundAdmin bg = account.getBackgroundAdmin();
+        if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
+            //改镇已经被删除 不能发验证码
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("改镇已经被删除，拒绝发送验证码");
+            return body;
+        }
         //生成验证码，获取发送短信的配置参数
         int verifycode = new Random().nextInt(899999) + 100000; //每次调用生成一次六位数的随机数
         final String accessKeyId = env.getProperty("code.accessKeyId");
@@ -139,6 +145,14 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage(e.getMessage());
+            return body;
+        }
+
+        BackgroundAdmin bg = account.getBackgroundAdmin();
+        if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
+            //改镇已经被删除 不能发验证码
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("改镇已经被删除，无法登录");
             return body;
         }
 

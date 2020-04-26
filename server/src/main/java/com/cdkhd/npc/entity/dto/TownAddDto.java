@@ -14,6 +14,9 @@ public class TownAddDto {
     // 镇名称
     private String name;
 
+    //类型 1 镇  2 街道
+    private Byte type;
+
     //管理员账号
     private String account;
 

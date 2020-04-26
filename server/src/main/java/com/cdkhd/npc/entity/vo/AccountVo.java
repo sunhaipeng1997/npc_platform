@@ -44,14 +44,18 @@ public class AccountVo extends BaseVo {
     //镇信息
     private CommonVo town;
 
+    //区信息
+    private CommonVo area;
+
     public static AccountVo convert(Account account) {
         AccountVo vo = new AccountVo();
         BeanUtils.copyProperties(account, vo);
         if (account.getVoter() != null){
             vo.setRealname(account.getVoter().getRealname());
             vo.setMobile(account.getVoter().getMobile());
-            vo.setTown(CommonVo.convert(account.getVoter().getTown().getUid(),account.getVoter().getTown().getName()));
             vo.setVillage(CommonVo.convert(account.getVoter().getVillage().getUid(),account.getVoter().getVillage().getName()));
+            vo.setTown(CommonVo.convert(account.getVoter().getTown().getUid(),account.getVoter().getTown().getName()));
+            vo.setArea(CommonVo.convert(account.getVoter().getArea().getUid(),account.getVoter().getArea().getName()));
         }else{
             vo.setRealname(account.getUsername());
             vo.setMobile(account.getMobile());

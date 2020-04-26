@@ -86,7 +86,7 @@ public class TownServiceImpl implements TownService {
         int begin = townPageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, townPageDto.getSize(), Sort.Direction.fromString(townPageDto.getDirection()), townPageDto.getProperty());
         Page<Town> pageRes = townRepository.findAll((Specification<Town>)(root, query, cb) -> {
-            Predicate predicate = root.isNotNull();
+            Predicate predicate = cb.isFalse(root.get("isDel"));
             predicate = cb.and(predicate, cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
             if (StringUtils.isNotEmpty(townPageDto.getSearchKey())){
                 predicate = cb.and(predicate, cb.like(root.get("name").as(String.class), "%" + townPageDto.getSearchKey() + "%"));
@@ -135,6 +135,7 @@ public class TownServiceImpl implements TownService {
         }
         town = townAddDto.convert();
         Area area = userDetails.getArea();
+        town.setType(townAddDto.getType());
         town.setArea(area);
         town.setStatus(StatusEnum.ENABLED.getValue());
         townRepository.saveAndFlush(town);  //保存该镇
@@ -285,7 +286,8 @@ public class TownServiceImpl implements TownService {
             body.setMessage("当前镇还包含代表/选民信息不能删除");
             return body;
         }
-        townRepository.delete(town);
+        town.setIsDel(true);
+        townRepository.saveAndFlush(town);
         return body;
     }
 
@@ -294,7 +296,7 @@ public class TownServiceImpl implements TownService {
         RespBody body = new RespBody();
         List<Town> list = Lists.newArrayList();
         if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            list = townRepository.findByAreaUidAndStatus(userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+            list = townRepository.findByAreaUidAndIsDelFalse(userDetails.getArea().getUid());
         }
         List<CommonVo> commonVos = list.stream().map(town -> CommonVo.convert(town.getUid(), town.getName())).collect(Collectors.toList());
         body.setData(commonVos);

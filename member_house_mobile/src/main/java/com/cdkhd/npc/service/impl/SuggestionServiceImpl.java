@@ -195,7 +195,7 @@ public class SuggestionServiceImpl implements SuggestionService {
                     suggestionMsg.put("mobile",npcMember.getAccount().getMobile());
                     suggestionMsg.put("content",dto.getContent());
                     suggestionMsg.put("remarkInfo","点击进入小程序查看详情");
-//                    pushMessageService.pushMsg(npcMember.getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),suggestionMsg);
+                    pushMessageService.pushMsg(npcMember.getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),suggestionMsg);
                 }
             }
         }

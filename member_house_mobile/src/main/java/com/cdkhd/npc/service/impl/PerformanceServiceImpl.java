@@ -240,7 +240,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 performanceMsg.put("mobile",auditor.getMobile());
                 performanceMsg.put("content",addPerformanceDto.getTitle());
                 performanceMsg.put("remarkInfo","点击进入小程序查看详情");
-//                pushMessageService.pushMsg(auditor.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),performanceMsg);
+                pushMessageService.pushMsg(auditor.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),performanceMsg);
             }
         }
         performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
