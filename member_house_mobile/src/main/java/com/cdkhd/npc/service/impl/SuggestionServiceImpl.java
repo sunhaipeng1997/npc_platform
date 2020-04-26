@@ -88,7 +88,8 @@ public class SuggestionServiceImpl implements SuggestionService {
     public RespBody sugBusList(MobileUserDetailsImpl userDetails, SuggestionBusinessDto dto) {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
-        if (dto.getLevel().equals(LevelEnum.AREA.getValue())){
+        //区上或者是街道统一使用区上的建议类型
+        if (dto.getLevel().equals(LevelEnum.AREA.getValue()) || (dto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
             sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(dto.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         }else if (dto.getLevel().equals(LevelEnum.TOWN.getValue())) {
             sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(dto.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());

@@ -8,10 +8,10 @@ public interface TownRepository extends BaseRepository<Town> {
 
     Town findByAreaUidAndName(String areaUid, String townName);
 
-    List<Town> findByAreaUidOrderByNameAsc(String uid);
+    List<Town> findByAreaUidAndStatusAndIsDelFalseOrderByNameAsc(String uid,Byte status);
 
     Town findByAreaUidAndNameAndUidIsNot(String areaUid, String name, String uid);
 
-    List<Town> findByAreaUidAndStatus(String areaUid, Byte status);
+    List<Town> findByAreaUidAndStatusAndIsDelFalse(String areaUid, Byte status);
 
 }

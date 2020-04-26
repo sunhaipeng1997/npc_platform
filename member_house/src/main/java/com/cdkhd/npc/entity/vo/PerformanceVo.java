@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Performance;
 import com.cdkhd.npc.entity.PerformanceImage;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -64,6 +65,10 @@ public class PerformanceVo extends BaseVo {
     //图片
     private List<String> images;
 
+    //履职等级
+    private Byte level;
+    private String levelName;
+
     public static PerformanceVo convert(Performance performance) {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);
@@ -80,6 +85,7 @@ public class PerformanceVo extends BaseVo {
         if (CollectionUtils.isNotEmpty(performance.getPerformanceImages())) {
             vo.setImages(performance.getPerformanceImages().stream().map(PerformanceImage::getUrl).collect(Collectors.toList()));
         }
+        vo.setLevelName(LevelEnum.getName(performance.getLevel()));
         return vo;
     }
 }

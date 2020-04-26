@@ -2,11 +2,9 @@ package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.entity.dto.PhoneNumberDto;
+import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.entity.vo.RelationVo;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
@@ -18,7 +16,6 @@ import com.cdkhd.npc.utils.WXAppletUserInfo;
 import com.cdkhd.npc.vo.RespBody;
 import com.cdkhd.npc.vo.TokenVo;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -85,7 +82,7 @@ public class RegisterServiceImpl implements RegisterService {
             RelationVo areaVo = RelationVo.convert(area.getUid(),area.getName(),LevelEnum.AREA.getValue(),area.getCreateTime());
             List<RelationVo> townVos = Lists.newArrayList();
             for (Town town : area.getTowns()) {
-                if (town.getStatus().equals(StatusEnum.ENABLED.getValue())) {
+                if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()) {
                     RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(),LevelEnum.TOWN.getValue(),town.getCreateTime());
                     townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(),LevelEnum.TOWN.getValue(), village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
                     townVos.add(townVo);

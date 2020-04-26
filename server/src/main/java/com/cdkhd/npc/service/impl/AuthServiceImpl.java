@@ -212,6 +212,12 @@ public class AuthServiceImpl implements AuthService {
                                 ){
                                     continue;//镇后台管理员没有镇管理、各镇代表建议管理、各镇代表履职管理
                                 }
+                                if (userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()) && (
+                                    menu.getName().equals(MenuEnum.SUGGESTION_TYPE_MANAGE.getName()) ||
+                                    menu.getName().equals(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName())
+                                )){
+                                    continue;//街道后台管理员没有履职类型管理和建议类型管理
+                                }
                             }
                             if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && (menu.getName().equals(MenuEnum.VILLAGE_MANAGE.getName()) || menu.getName().equals(MenuEnum.NPC_MEMBER_GROUP.getName())))
                                 continue;//区后台管理员没有村管理

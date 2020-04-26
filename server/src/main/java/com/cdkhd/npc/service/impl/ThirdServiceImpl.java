@@ -47,13 +47,8 @@ public class ThirdServiceImpl implements ThirdService {
     @Override
     public AreaVo getRelation(UserDetailsImpl userDetails) {
         AreaVo areaVo = new AreaVo();
-        Area area = new Area();//这个地方主要是获取区的信息，不确定用这种方式，暂时还没有写单点登录
-        if (userDetails != null) {
-            area = userDetails.getArea();
-        }else{
-            area = areaRepository.findByUid("9ad12abd2dd811ea8f3f0242ac170005");
-        }
-        List<NodeVo> nodeVos = area.getTowns().stream().filter(town -> town.getStatus().equals(StatusEnum.ENABLED.getValue())).map(town -> NodeVo.convert(town.getUid(),town.getName())).collect(Collectors.toList());//将各镇信息加入节点
+        Area area = userDetails.getArea();
+        List<NodeVo> nodeVos = area.getTowns().stream().filter(town -> town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()).map(town -> NodeVo.convert(town.getUid(),town.getName())).collect(Collectors.toList());//将各镇信息加入节点
         nodeVos.add(0,new NodeVo(area.getUid(),area.getName()));//将区信息加入节点
         //设置节点之间的关系
         List<EdgeVo> edgeVos = Lists.newArrayList();
