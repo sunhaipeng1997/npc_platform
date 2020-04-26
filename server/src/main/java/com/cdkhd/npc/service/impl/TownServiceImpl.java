@@ -225,22 +225,24 @@ public class TownServiceImpl implements TownService {
         backgroundAdminRepository.saveAndFlush(khd_backgroundAdmin);
 
         int temp = 1;
-        //给该镇初始化两个默认的履职类型
-        for (PerformanceTypeEnum performanceTypeEnum : PerformanceTypeEnum.values()) {
-            PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(),LevelEnum.TOWN.getValue(),town.getUid(),StatusEnum.ENABLED.getValue());
-            if (performanceType == null) {
+        //给该镇初始化两个默认的履职类型 类型是镇就初始化两个履职类型
+        if (townAddDto.getType().equals(LevelEnum.TOWN.getValue())){
+            for (PerformanceTypeEnum performanceTypeEnum : PerformanceTypeEnum.values()) {
+                PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(),LevelEnum.TOWN.getValue(),town.getUid(),StatusEnum.ENABLED.getValue());
+                if (performanceType == null) {
 //                Integer maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(), area.getUid());
-                performanceType = new PerformanceType();
-                performanceType.setSequence(temp++);
-                performanceType.setName(performanceTypeEnum.getValue());
-                performanceType.setRemark("初始化数据，不可删除");
-                performanceType.setTown(town);
-                performanceType.setArea(userDetails.getArea());
-                performanceType.setLevel(LevelEnum.TOWN.getValue());
-                performanceType.setIsDel(false);
-                performanceType.setStatus(StatusEnum.ENABLED.getValue());
-                performanceType.setIsDefault(true);
-                performanceTypeRepository.saveAndFlush(performanceType);
+                    performanceType = new PerformanceType();
+                    performanceType.setSequence(temp++);
+                    performanceType.setName(performanceTypeEnum.getValue());
+                    performanceType.setRemark("初始化数据，不可删除");
+                    performanceType.setTown(town);
+                    performanceType.setArea(userDetails.getArea());
+                    performanceType.setLevel(LevelEnum.TOWN.getValue());
+                    performanceType.setIsDel(false);
+                    performanceType.setStatus(StatusEnum.ENABLED.getValue());
+                    performanceType.setIsDefault(true);
+                    performanceTypeRepository.saveAndFlush(performanceType);
+                }
             }
         }
         return body;
