@@ -29,8 +29,10 @@ public class Opinion extends BaseDomain {
     /**
      * 意见内容
      */
-   	@Column(name = "content" )
-	private String content;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "content" )
+    private String content;
 
     /**
      * 状态

@@ -1,8 +1,6 @@
 package com.cdkhd.npc.entity;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import javax.persistence.*;
 import com.cdkhd.npc.enums.NewsStatusEnum;
 import lombok.Getter;
 import lombok.Setter;

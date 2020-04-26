@@ -22,7 +22,9 @@ import java.util.Set;
 public class Performance extends BaseDomain {
 
     //履职内容
-   	@Column(name = "content" )
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "content" )
 	private String content;
 
    	//我是否查看

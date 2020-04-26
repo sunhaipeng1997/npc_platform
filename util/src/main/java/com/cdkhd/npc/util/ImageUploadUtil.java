@@ -40,7 +40,7 @@ public class ImageUploadUtil {
         File parentFile = imageFile.getParentFile();
         if (!parentFile.exists()) {
             if (!parentFile.mkdirs()) {
-                return "error";
+                return "图片路径生成失败！";
             }
         }
 
@@ -57,7 +57,7 @@ public class ImageUploadUtil {
 
         } catch (IOException e) {
             e.printStackTrace();
-            return "error";
+            return "不支持CMYK颜色模式的图片，请上传GBK颜色模式的图片！";
         }
 
         return "/public/" + kind + "/" + filename;
@@ -85,20 +85,17 @@ public class ImageUploadUtil {
         File parentFile = imageFile.getParentFile();
         if (!parentFile.exists()) {
             if (!parentFile.mkdirs()) {
-                return "error";
+                return "图片路径生成失败！";
             }
         }
 
         try (InputStream is = image.getInputStream()) {
-            // 拷贝文件
-//            FileUtils.copyInputStreamToFile(is, imageFile);
-
             //按比例缩放%50，dpi降为原来的一半
             Thumbnails.of(is).scale(0.50f).outputFormat(extName).toFile(imageFile);
 
         } catch (IOException e) {
             e.printStackTrace();
-            return "error";
+            return "不支持CMYK颜色模式的图片，请上传GBK颜色模式的图片！";
         }
 
         return "/public/" + kind + "/" + filename;

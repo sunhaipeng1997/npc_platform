@@ -555,8 +555,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         // 查询还利息或者还款日期在这段时间的数据
         String fileName = ExcelCode.encodeFileName("代表履职统计.xls", req);
         res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
-
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=utf-8''" + fileName);
+        //暴露Content-Disposition响应头，以便前端可以获取文件名
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
         List<PerformanceType> performanceTypes = Lists.newArrayList();//获取所有可用的履职类型
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
@@ -578,7 +579,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         }
 
         int beginIndex = 1;
-        Integer[] total = new Integer[colSize];
+        Integer[] total = new Integer[performanceTypes.size()];
         Row row = sheet.createRow(beginIndex);
         for (MemberCountVo memberCountVo : vos) {
             // 编号
@@ -598,7 +599,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 total[i] = number+memberCountVo.getCount().get(i).getCount();
             }
         }
-        if (dto.getSize() == 99999){//导出全部，加一个总计
+        if (dto.getSize() == 9999){//导出全部，加一个总计
             // 编号
             Cell cell0 = row.createCell(0);
             cell0.setCellValue(vos.size());
@@ -609,7 +610,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
             for (int i = 0; i < total.length; i++) {
                 Cell cell2 = row.createCell(i+2);
-                cell2.setCellValue(total[i]);
+                cell2.setCellValue(total[i]==null?0:total[i]);
             }
         }
         try {

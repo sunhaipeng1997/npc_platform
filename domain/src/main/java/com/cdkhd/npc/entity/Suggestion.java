@@ -29,7 +29,9 @@ public class Suggestion extends BaseDomain {
 	@JoinColumn(name = "suggestion_business", referencedColumnName = "id")
 	private SuggestionBusiness suggestionBusiness;
 
-   	@Column(name = "content" )
+	@Lob
+	@Basic(fetch = FetchType.LAZY)
+	@Column(name = "content" )
 	private String content;
 
    	//提出代表

@@ -490,7 +490,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         List<MemberCountVo> vos = this.getMemberCountVos(dto,userDetails,page, pageRes);
         String fileName = ExcelCode.encodeFileName("代表建议统计.xls", req);
         res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"");
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=utf-8''" + fileName);
+        //暴露Content-Disposition响应头，以便前端可以获取文件名
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
         List<SuggestionBusiness> suggestionBusinesses = Lists.newArrayList();//获取所有可用的建议类型
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
@@ -512,7 +514,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             cell.setCellValue(tableHeaders[i]);
         }
         int beginIndex = 1;
-        Integer[] total = new Integer[colSize];
+        Integer[] total = new Integer[suggestionBusinesses.size()];
         Row row = sheet.createRow(beginIndex);
         for (MemberCountVo memberCountVo : vos) {
             // 编号
@@ -532,7 +534,7 @@ public class SuggestionServiceImpl implements SuggestionService {
                 total[i] = number+memberCountVo.getCount().get(i).getCount();
             }
         }
-        if (dto.getSize() == 99999){//导出全部，加一个总计
+        if (dto.getSize() == 9999){//导出全部，加一个总计
             // 编号
             Cell cell0 = row.createCell(0);
             cell0.setCellValue(vos.size());
@@ -543,7 +545,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
             for (int i = 0; i < total.length; i++) {
                 Cell cell2 = row.createCell(i+2);
-                cell2.setCellValue(total[i]);
+                cell2.setCellValue(total[i]==null?0:total[i]);
             }
         }
         try {
