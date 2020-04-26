@@ -11,6 +11,7 @@ import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.SuggestionService;
@@ -20,6 +21,7 @@ import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -55,17 +57,20 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceServiceImpl.class);
 
-    private final SuggestionBusinessRepository suggestionBusinessRepository;
+    private SuggestionBusinessRepository suggestionBusinessRepository;
 
-    private final SuggestionRepository suggestionRepository;
+    private SuggestionRepository suggestionRepository;
 
-    private final NpcMemberRepository npcMemberRepository;
+    private NpcMemberRepository npcMemberRepository;
+
+    private SystemSettingRepository systemSettingRepository;
 
     @Autowired
-    public SuggestionServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, SuggestionRepository suggestionRepository, NpcMemberRepository npcMemberRepository) {
+    public SuggestionServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, SuggestionRepository suggestionRepository, NpcMemberRepository npcMemberRepository, SystemSettingRepository systemSettingRepository) {
         this.suggestionBusinessRepository = suggestionBusinessRepository;
         this.suggestionRepository = suggestionRepository;
         this.npcMemberRepository = npcMemberRepository;
+        this.systemSettingRepository = systemSettingRepository;
     }
 
     /**
@@ -335,7 +340,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "建议状态", "审核意见"};
+        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "建议状态", "审核意见","建议所在行政等级"};
 
         Sheet sheet = hssWb.createSheet("代表建议");
 
@@ -413,6 +418,10 @@ public class SuggestionServiceImpl implements SuggestionService {
             //审核意见
             Cell cell10 = row.createCell(10);
             cell10.setCellValue(suggestion.getReason());
+
+            //审核意见
+            Cell cell11 = row.createCell(11);
+            cell11.setCellValue(LevelEnum.getName(suggestion.getLevel()));
 
         }
         try {
@@ -650,15 +659,40 @@ public class SuggestionServiceImpl implements SuggestionService {
         Page<Suggestion> suggestionPage = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            if (suggestionDto.isFlag()){
-                predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            }
+
             Predicate predicate =cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue());
             predicates.add(predicate);
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));//如果是镇上的，就只能查询镇上的
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {//区后台管理员的查询
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                if (!suggestionDto.isFlag()){//查询下级乡镇的，那么level只能是镇和街道
+                    predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
+                }else {//否则，就是查询区上的
+                    SystemSetting systemSetting = this.getSystemSetting(userDetails);//判断开关是否打开
+                    if (systemSetting.getShowSubPerformance()) {//下级履职开关打开
+                        //先把所有区代表查询出来
+                        List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),LevelEnum.AREA.getValue());
+                        List<NpcMember> allMembers = Lists.newArrayList();//区代表所有的身份，包括区代表身份和区代表在镇上的代表身份
+                        for (NpcMember areaMember : areaMembers) {
+                            if (areaMember.getAccount()!=null) {//注冊了的代表
+                                allMembers.addAll(areaMember.getAccount().getNpcMembers());
+                            }else{//未注册的代表
+                                allMembers.add(areaMember);
+                            }
+                        }
+                        List<String> memberUid = Lists.newArrayList();
+                        for (NpcMember member : allMembers) {
+                            memberUid.add(member.getUid());//本次需要查询的所有代表的uid
+                        }
+                        if (CollectionUtils.isNotEmpty(memberUid)) {
+                            predicates.add(cb.in(root.get("raiser").get("uid")).value(memberUid));
+                        }
+                    }else{//开关没有打开，就只查询区代表值区上的建议情况
+                        predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
+                    }
+                }
             }
             //标题
             if (StringUtils.isNotEmpty(suggestionDto.getTitle())) {
@@ -692,5 +726,15 @@ public class SuggestionServiceImpl implements SuggestionService {
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         return suggestionPage;
+    }
+
+    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+        SystemSetting systemSetting = new SystemSetting();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        return systemSetting;
     }
 }

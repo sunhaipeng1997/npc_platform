@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionImage;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -65,6 +66,10 @@ public class SuggestionVo extends BaseVo {
     //建议图片
     private List<String> images;
 
+    //建议等级
+    private Byte level;
+    private String levelName;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
         BeanUtils.copyProperties(suggestion, vo);
@@ -82,6 +87,7 @@ public class SuggestionVo extends BaseVo {
         if (CollectionUtils.isNotEmpty(suggestion.getSuggestionImages())){
             vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
         }
+        vo.setLevelName(LevelEnum.getName(suggestion.getLevel()));
         return vo;
     }
 }

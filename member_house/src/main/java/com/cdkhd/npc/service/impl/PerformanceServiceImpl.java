@@ -335,14 +335,14 @@ public class PerformanceServiceImpl implements PerformanceService {
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
             predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 SystemSetting systemSetting = this.getSystemSetting(userDetails);
-                if (systemSetting.getShowSubPerformance()) {
+                if (systemSetting.getShowSubPerformance()) {//下级履职开关打开
                     List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
                     List<NpcMember> allMembers = Lists.newArrayList();
                     for (NpcMember areaMember : areaMembers) {
@@ -353,12 +353,14 @@ public class PerformanceServiceImpl implements PerformanceService {
                         }
                     }
                     List<String> memberUid = Lists.newArrayList();
-                    for (NpcMember member : areaMembers) {
+                    for (NpcMember member : allMembers) {
                         memberUid.add(member.getUid());
                     }
                     if (CollectionUtils.isNotEmpty(memberUid)) {
                         predicates.add(cb.in(root.get("npcMember").get("uid")).value(memberUid));
                     }
+                }else{//开关关闭查询区上的履职
+                    predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
                 }
             }
             //标题
@@ -408,7 +410,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "履职类型", "履职标题", "履职时间", "履职代表", "履职内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见"};
+        String[] tableHeaders = new String[]{"编号", "履职类型", "履职标题", "履职时间", "履职代表", "履职内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见","履职所在行政等级"};
 
         Sheet sheet = hssWb.createSheet("代表履职");
 
@@ -482,6 +484,10 @@ public class PerformanceServiceImpl implements PerformanceService {
             //审核意见
             Cell cell10 = row.createCell(10);
             cell10.setCellValue(performance.getReason());
+
+            //审核意见
+            Cell cell11 = row.createCell(11);
+            cell11.setCellValue(LevelEnum.getName(performance.getLevel()));
 
         }
         try {

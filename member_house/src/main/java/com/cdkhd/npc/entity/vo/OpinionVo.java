@@ -1,18 +1,13 @@
 package com.cdkhd.npc.entity.vo;
 
-import com.cdkhd.npc.dto.BaseDto;
-import com.cdkhd.npc.dto.PageDto;
 import com.cdkhd.npc.entity.Opinion;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.ReplayStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
-import com.cdkhd.npc.vo.PageVo;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +43,10 @@ public class OpinionVo extends BaseVo {
     //意见图片
     private List<String> images;
 
+    //意见等级
+    private Byte level;
+    private String levelName;
+
     public static OpinionVo convert(Opinion opinion) {
         OpinionVo vo = new OpinionVo();
         BeanUtils.copyProperties(opinion, vo);
@@ -58,6 +57,7 @@ public class OpinionVo extends BaseVo {
         vo.setStatusName(ReplayStatusEnum.getName(opinion.getStatus()));
         vo.setReplayVoList(opinion.getReplies().stream().map(OpinionReplayVo::convert).collect(Collectors.toList()));
         vo.setImages(opinion.getImages().stream().map(img -> img.getPicture()).collect(Collectors.toList()));
+        vo.setLevelName(LevelEnum.getName(opinion.getLevel()));
         return vo;
     }
 }

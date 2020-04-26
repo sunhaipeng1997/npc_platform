@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,10 +89,10 @@ public class PerformanceServiceImpl implements PerformanceService {
     public RespBody performanceTypes(MobileUserDetailsImpl userDetails, PerformanceTypeDto performanceTypeDto) {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
-        if (performanceTypeDto.getLevel().equals(LevelEnum.AREA.getValue())) {
+        //区上或者街道，统一使用区上的履职类型
+        if (performanceTypeDto.getLevel().equals(LevelEnum.AREA.getValue()) || (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
             performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(performanceTypeDto.getLevel(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
-        }
-        if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
+        }else if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
             performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(performanceTypeDto.getLevel(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(), type.getName())).collect(Collectors.toList());
@@ -193,6 +194,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             performance = performanceRepository.findByUidAndTransUid(addPerformanceDto.getUid(), addPerformanceDto.getTransUid());
 
         }
+        PerformanceType performanceType = performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType());
         if (performance == null) {//如果是第一次提交，就保存基本信息
             performance = new Performance();
             performance.setLevel(addPerformanceDto.getLevel());
@@ -232,18 +234,18 @@ public class PerformanceServiceImpl implements PerformanceService {
                 //小组审核人员没有开启，那么直接有总审核人员审核
                 auditors = npcMemberRoleService.findByKeyWordAndLevelAndUid(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword(), addPerformanceDto.getLevel(), uid);
             }
+            JSONObject performanceMsg = new JSONObject();
+            //构造消息
+            performanceMsg.put("subtitle","收到一条待审核的履职信息。");
+            performanceMsg.put("auditItem",npcMember.getName()+" 代表提出的 "+addPerformanceDto.getTitle() +" 履职信息");
+            performanceMsg.put("serviceType",performanceType.getName());
             for (NpcMember auditor : auditors) {
                 //给对应的接受代表推送服务号信息
-                JSONObject performanceMsg = new JSONObject();
-                performanceMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
-                performanceMsg.put("accountName",auditor.getName());
-                performanceMsg.put("mobile",auditor.getMobile());
-                performanceMsg.put("content",addPerformanceDto.getTitle());
-                performanceMsg.put("remarkInfo","点击进入小程序查看详情");
+                performanceMsg.put("remarkInfo","审核人： "+auditor.getName() + "  <点击查看详情>");
                 pushMessageService.pushMsg(auditor.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),performanceMsg);
             }
         }
-        performance.setPerformanceType(performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType()));
+        performance.setPerformanceType(performanceType);
         performance.setTitle(addPerformanceDto.getTitle());
         performance.setWorkAt(addPerformanceDto.getWorkAt());
         performance.setContent(addPerformanceDto.getContent());

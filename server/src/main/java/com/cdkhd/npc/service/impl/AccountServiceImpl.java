@@ -1,15 +1,20 @@
 package com.cdkhd.npc.service.impl;
 
-import com.cdkhd.npc.entity.Account;
+import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.AccountPageDto;
+import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.entity.vo.AccountVo;
 import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
+import com.cdkhd.npc.repository.base.VoterRepository;
+import com.cdkhd.npc.repository.member_house.VillageRepository;
 import com.cdkhd.npc.service.AccountService;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,9 +35,19 @@ public class AccountServiceImpl implements AccountService {
 
     private AccountRepository accountRepository;
 
+    private VoterRepository voterRepository;
+
+    private VillageRepository villageRepository;
+
+    private final Environment env;
+
+
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, VoterRepository voterRepository, VillageRepository villageRepository, Environment env) {
         this.accountRepository = accountRepository;
+        this.voterRepository = voterRepository;
+        this.villageRepository = villageRepository;
+        this.env = env;
     }
 
     @Override
@@ -88,6 +103,35 @@ public class AccountServiceImpl implements AccountService {
         }
         AccountVo accountVo = AccountVo.convert(account);
         body.setData(accountVo);
+        return body;
+    }
+
+
+    @Override
+    public RespBody updateInfo(UserDetailsImpl userDetails, UserInfoDto userInfoDto) {
+        RespBody body = new RespBody();
+        if (userInfoDto.getGender() == null || StringUtils.isEmpty(userInfoDto.getVillageUid())){
+            body.setMessage("用户信息不完整！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        Voter voter = voterRepository.findByAccountUid(userDetails.getUid());
+        final Integer updateTimes = Integer.parseInt(env.getProperty("miniapp.updatetimes"));
+        if (voter.getUpdateInfo() >= updateTimes){
+            body.setMessage("个人信息只允许修改 "+updateTimes+" 次！当前已修改 "+voter.getUpdateInfo()+" 次！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        Village village = villageRepository.findByUid(userInfoDto.getVillageUid());
+        Town town = village.getTown();
+        Area area = town.getArea();
+        voter.setGender(userInfoDto.getGender());
+        voter.setVillage(village);
+        voter.setTown(town);
+        voter.setArea(area);
+        voter.setUpdateInfo(voter.getUpdateInfo()+1);
+        voterRepository.saveAndFlush(voter);
+        body.setMessage("当前个人信息已修改 "+voter.getUpdateInfo()+" 次！还剩 "+(updateTimes-voter.getUpdateInfo())+" 次修改机会！");
         return body;
     }
 }

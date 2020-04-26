@@ -2,7 +2,7 @@ package com.cdkhd.npc.enums;
 
 public enum LevelEnum {
     //用户的身份等级（eg县代表 or 镇代表）
-    TOWN((byte)1,"镇"),
+    TOWN((byte)1,"镇/街道"),
     AREA((byte)2,"区");
 
     private Byte value;

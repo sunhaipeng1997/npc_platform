@@ -1,16 +1,22 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.Opinion;
+import com.cdkhd.npc.entity.SystemSetting;
 import com.cdkhd.npc.entity.dto.OpinionPageDto;
 import com.cdkhd.npc.entity.vo.OpinionVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.repository.member_house.OpinionRepository;
 import com.cdkhd.npc.service.OpinionService;
 import com.cdkhd.npc.util.ExcelCode;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -31,13 +37,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.Predicate;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,12 +54,16 @@ public class OpinionServiceImpl implements OpinionService {
 
     private OpinionRepository opinionRepository;
 
+    private NpcMemberRepository npcMemberRepository;
+
+    private SystemSettingRepository systemSettingRepository;
+
     @Autowired
-    public OpinionServiceImpl(OpinionRepository opinionRepository) {
+    public OpinionServiceImpl(OpinionRepository opinionRepository, NpcMemberRepository npcMemberRepository, SystemSettingRepository systemSettingRepository) {
         this.opinionRepository = opinionRepository;
+        this.npcMemberRepository = npcMemberRepository;
+        this.systemSettingRepository = systemSettingRepository;
     }
-
-
 
     @Override
     public RespBody opinionPage(UserDetailsImpl userDetails, OpinionPageDto opinionPageDto) {
@@ -74,20 +82,44 @@ public class OpinionServiceImpl implements OpinionService {
 
     private Page<Opinion> getOpinionPage(UserDetailsImpl userDetails, OpinionPageDto opinionPageDto, Pageable page) {
         Page<Opinion> opinionPage = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
-            List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {//镇上
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));//只查询所有镇、街道的履职
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-                if (StringUtils.isNotEmpty(opinionPageDto.getUid())){
+                if (StringUtils.isNotEmpty(opinionPageDto.getUid())){//镇上按小组查询
                     predicates.add(cb.equal(root.get("receiver").get("npcMemberGroup").get("uid").as(String.class), opinionPageDto.getUid()));
                 }
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-                if (StringUtils.isNotEmpty(opinionPageDto.getUid())){
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {//如果是查询区上
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));//先按区筛选一次
+                if (StringUtils.isNotEmpty(opinionPageDto.getUid())){//区上按镇查询、如果按镇筛选了，先筛选出来
                     predicates.add(cb.equal(root.get("receiver").get("town").get("uid").as(String.class), opinionPageDto.getUid()));
                 }
-
+                SystemSetting systemSetting = this.getSystemSetting(userDetails);
+                if (systemSetting.getShowSubPerformance()) {//下级意见开关打开
+                    List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),LevelEnum.AREA.getValue());//所有区代表
+                    List<NpcMember> allMembers = Lists.newArrayList();//本次要查询的所有代表
+                    for (NpcMember areaMember : areaMembers) {
+                        if (areaMember.getAccount()!=null) {//注冊了小程序的代表
+                            allMembers.addAll(areaMember.getAccount().getNpcMembers());
+                        }else{//未注册的代表
+                            allMembers.add(areaMember);
+                        }
+                    }
+                    List<String> memberUid = Lists.newArrayList();//本次要查询的所有代表uid
+                    for (NpcMember member : allMembers) {
+                        memberUid.add(member.getUid());
+                    }
+                    if (CollectionUtils.isNotEmpty(memberUid)) {
+                        predicates.add(cb.in(root.get("receiver").get("uid")).value(memberUid));
+                    }
+                }else{//开关关闭查询区上代表的身份收到的意见
+                    predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
+                }
+//                Predicate predicateArea = cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue());//要么是在区上收到的意见查询出来
+//                Predicate predicateTown = cb.and(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()),cb.equal(root.get("town").get("type").as(Byte.class), LevelEnum.AREA.getValue()));//要么就是街道的代表收到的意见查询出来
+//                Predicate or = cb.or(predicateArea, predicateTown);
+//                predicates.add(or);
             }
             //接受代表
             if (StringUtils.isNotEmpty(opinionPageDto.getMemberName())) {
@@ -128,7 +160,7 @@ public class OpinionServiceImpl implements OpinionService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "提出人", "提出时间", "提出人联系方式", "接收代表", "接收代表所属机构", "是否回复", "意见内容"};
+        String[] tableHeaders = new String[]{"编号", "提出人", "提出时间", "提出人联系方式", "接收代表", "接收代表所属机构", "是否回复", "意见内容","意见所在行政等级"};
         Sheet sheet = hssWb.createSheet("意见信息");
         Row headRow = sheet.createRow(0);
         int colSize = tableHeaders.length;
@@ -177,6 +209,10 @@ public class OpinionServiceImpl implements OpinionService {
             // 意见内容
             Cell cell7 = row.createCell(7);
             cell7.setCellValue(opinion.getContent());
+
+            // 意见所在行政等级
+            Cell cell8 = row.createCell(8);
+            cell8.setCellValue(LevelEnum.getName(opinion.getLevel()));
         }
         try {
             hssWb.write(os);
@@ -205,5 +241,16 @@ public class OpinionServiceImpl implements OpinionService {
         opinion.setIsDel(true);
         opinionRepository.saveAndFlush(opinion);
         return body;
+    }
+
+
+    public SystemSetting getSystemSetting(UserDetailsImpl userDetails) {
+        SystemSetting systemSetting = new SystemSetting();
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(),userDetails.getArea().getUid());
+        }
+        return systemSetting;
     }
 }
