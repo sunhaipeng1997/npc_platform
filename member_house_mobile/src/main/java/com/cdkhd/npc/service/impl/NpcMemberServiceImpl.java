@@ -188,7 +188,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             if (StringUtils.isEmpty(uid)){
                 MemberUnitVo memberUnitVo = new MemberUnitVo();
                 memberUnitVo.setLevel(LevelEnum.AREA.getValue());
-                memberUnitVo.setName("区代表");
+                memberUnitVo.setName(town.getType().equals(LevelEnum.TOWN.getValue())?"区代表":"代表区上履职");
                 memberUnitVo.setUid(townUid);
                 memberUnitVos.add(0,memberUnitVo);
             }

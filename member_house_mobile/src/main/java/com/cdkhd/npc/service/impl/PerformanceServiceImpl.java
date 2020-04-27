@@ -270,10 +270,10 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setAuditor(npcMember);//审核人
         performance.setView(true);
         performance.setStatus(StatusEnum.ENABLED.getValue());//默认已通过
-        if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getTown().getUid()));
-        }else if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue())){
+        if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue()) || (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
             performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getArea().getUid()));
+        }else if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getTown().getUid()));
         }
         performance.setTitle(addPerformanceDto.getTitle());
         performance.setWorkAt(addPerformanceDto.getWorkAt());
