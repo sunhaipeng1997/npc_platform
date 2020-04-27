@@ -58,10 +58,11 @@ public class SessionServiceImpl implements SessionService {
     public RespBody getSessions(UserDetailsImpl userDetails) {
         RespBody<List<CommonVo>> body = new RespBody<>();
         List<Session> sessions;
-        //如果当前后台管理员是镇后台管理员，则查询该镇的所有小组
-        //如果当前后台管理员是区后台管理员，则查询该区的所有镇
+        //如果当前后台管理员是区后台管理员或者街道后台管理员
         sessions = sessionRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+        //如果当前后台管理员是镇后台管理员
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) &&
+                userDetails.getTown().getType().equals(LevelEnum.TOWN.getValue())) {
             sessions = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(), userDetails.getLevel());
         }
         sessions.sort(Comparator.comparing(Session::getStartDate, Comparator.nullsLast(Comparator.naturalOrder())));

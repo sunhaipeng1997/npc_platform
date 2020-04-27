@@ -140,12 +140,14 @@ public class TownServiceImpl implements TownService {
         town.setStatus(StatusEnum.ENABLED.getValue());
         townRepository.saveAndFlush(town);  //保存该镇
 
-        Session session = new Session();
-        session.setName("其它");
-        session.setLevel((byte)1);
-        session.setTown(town);
-        session.setRemark("其他情况");
-        sessionRepository.saveAndFlush(session);
+        if (townAddDto.getType().equals(LevelEnum.TOWN.getValue())){
+            Session session = new Session();
+            session.setName("其它");
+            session.setLevel((byte)1);
+            session.setTown(town);
+            session.setRemark("其他情况");
+            sessionRepository.saveAndFlush(session);
+        }
 
         final String accountSuffix = env.getProperty("account.suffix");
         final String accountPassword = env.getProperty("account.password");
