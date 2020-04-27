@@ -70,6 +70,9 @@ public class SuggestionVo extends BaseVo {
     private Byte level;
     private String levelName;
 
+    //单位名称
+    private String unitName;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
         BeanUtils.copyProperties(suggestion, vo);
@@ -88,6 +91,7 @@ public class SuggestionVo extends BaseVo {
             vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
         }
         vo.setLevelName(LevelEnum.getName(suggestion.getLevel()));
+        vo.setUnitName(suggestion.getLevel().equals(LevelEnum.AREA.getValue())?suggestion.getArea().getName():suggestion.getTown().getName());
         return vo;
     }
 }

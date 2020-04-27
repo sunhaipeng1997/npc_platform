@@ -69,6 +69,9 @@ public class PerformanceVo extends BaseVo {
     private Byte level;
     private String levelName;
 
+    //单位名称
+    private String unitName;
+
     public static PerformanceVo convert(Performance performance) {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);
@@ -86,6 +89,7 @@ public class PerformanceVo extends BaseVo {
             vo.setImages(performance.getPerformanceImages().stream().map(PerformanceImage::getUrl).collect(Collectors.toList()));
         }
         vo.setLevelName(LevelEnum.getName(performance.getLevel()));
+        vo.setUnitName(performance.getLevel().equals(LevelEnum.AREA.getValue())?performance.getArea().getName():performance.getTown().getName());
         return vo;
     }
 }

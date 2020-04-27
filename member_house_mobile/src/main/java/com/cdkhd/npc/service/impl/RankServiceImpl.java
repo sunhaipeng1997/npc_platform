@@ -262,7 +262,7 @@ public class RankServiceImpl implements RankService {
     private Map<String, String> dealTowns(List<Town> towns){
         Map<String,String> townMap = Maps.newHashMap();
         for (Town town: towns) {
-            if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel())
+            if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel() && town.getType().equals(LevelEnum.AREA.getValue()))
             townMap.put(town.getUid(), town.getName());
         }
         return townMap;
