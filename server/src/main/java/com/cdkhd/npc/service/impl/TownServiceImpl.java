@@ -116,7 +116,7 @@ public class TownServiceImpl implements TownService {
     public RespBody add(UserDetailsImpl userDetails, TownAddDto townAddDto) {
         //添加镇需要创建镇管理员账号,设置相应的权限
         RespBody body = new RespBody();
-        Town town = townRepository.findByAreaUidAndName(userDetails.getArea().getUid(), townAddDto.getName());
+        Town town = townRepository.findByAreaUidAndNameAndIsDelFalse(userDetails.getArea().getUid(), townAddDto.getName());
         if (null != town){
             body.setMessage("该镇已存在");
             body.setStatus(HttpStatus.BAD_REQUEST);

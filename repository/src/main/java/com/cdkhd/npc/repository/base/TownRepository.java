@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface TownRepository extends BaseRepository<Town> {
 
-    Town findByAreaUidAndName(String areaUid, String townName);
+    Town findByAreaUidAndNameAndIsDelFalse(String areaUid, String townName);
 
     List<Town> findByAreaUidAndStatusAndIsDelFalseOrderByNameAsc(String uid,Byte status);
 
