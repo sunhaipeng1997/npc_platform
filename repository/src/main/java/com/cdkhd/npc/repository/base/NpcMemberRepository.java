@@ -16,17 +16,24 @@ public interface NpcMemberRepository extends BaseRepository<NpcMember> {
 
     List<NpcMember> findByAreaUidAndLevelAndIsDelFalse(String uid, Byte level);
 
-    List<NpcMember> findByNpcMemberGroupUidAndIsDelFalse(String uid);
+    List<NpcMember> findByTownUidAndLevelAndStatusAndIsDelFalse(String uid, Byte level, Byte status);
 
-    NpcMember findByAccount(Account account);
+    List<NpcMember> findByAreaUidAndLevelAndStatusAndIsDelFalse(String uid, Byte level, Byte status);
+
+    List<NpcMember> findByNpcMemberGroupUidAndIsDelFalse(String uid);
 
     NpcMember findByLevelAndMobileAndUidIsNotAndIsDelFalse(Byte level, String mobile,String uid);
 
     NpcMember findByLevelAndMobileAndIsDelFalse(Byte level, String mobile);
 
+    List<NpcMember> findByMobileAndIsDelFalse(String mobile);
+
+    List<NpcMember> findByMobileAndAndUidIsNotAndIsDelFalse(String mobile,String uid);
+
     Set<NpcMember> findByUidIn(List<String> uids);
 
-    List<NpcMember> findByMobile(String mobile);
+    List<NpcMember> findByTownType(Byte type);
+
 
     @Query("select new com.cdkhd.npc.vo.CountVo(npc.education, count(npc.uid)) from NpcMember npc " +
             "where npc.area=?1 and npc.isDel=false and npc.status=1 " +

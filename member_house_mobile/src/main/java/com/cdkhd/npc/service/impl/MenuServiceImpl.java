@@ -391,9 +391,9 @@ public class MenuServiceImpl implements MenuService {
                     generalAuditorUids = generalAuditorRole.getNpcMembers().stream().filter(member -> member.getLevel().equals(npcMember.getLevel()) && ((member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getArea().getUid().equals(npcMember.getArea().getUid())) || (member.getLevel().equals(LevelEnum.TOWN.getValue())) && member.getTown().getUid().equals(npcMember.getTown().getUid()))).map(NpcMember::getUid).collect(Collectors.toList());
                 } else {//关闭了开关审核所有人的履职
                     if (npcMember.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                        generalAuditorUids = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), npcMember.getLevel()).stream().map(NpcMember::getUid).collect(Collectors.toList());
+                        generalAuditorUids = npcMemberRepository.findByTownUidAndLevelAndStatusAndIsDelFalse(npcMember.getTown().getUid(), npcMember.getLevel(),StatusEnum.ENABLED.getValue()).stream().map(NpcMember::getUid).collect(Collectors.toList());
                     } else {
-                        generalAuditorUids = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(), npcMember.getLevel()).stream().map(NpcMember::getUid).collect(Collectors.toList());
+                        generalAuditorUids = npcMemberRepository.findByAreaUidAndLevelAndStatusAndIsDelFalse(npcMember.getArea().getUid(), npcMember.getLevel(),StatusEnum.ENABLED.getValue()).stream().map(NpcMember::getUid).collect(Collectors.toList());
                     }
                 }
                 if (CollectionUtils.isNotEmpty(generalAuditorUids)) {

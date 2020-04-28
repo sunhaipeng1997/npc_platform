@@ -71,8 +71,9 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     /**
      * 分页查询代表信息
+     *
      * @param userDetails 当前用户
-     * @param pageDto 查询条件
+     * @param pageDto     查询条件
      * @return 查询结果
      */
     @Override
@@ -123,7 +124,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 predicateList.add(cb.equal(root.get(workUnit).get("uid"), pageDto.getWorkUnitUid()));
             }
 
-            if (StringUtils.isNotEmpty(pageDto.getSessionUid())){
+            if (StringUtils.isNotEmpty(pageDto.getSessionUid())) {
                 Session session = sessionRepository.findByUid(pageDto.getSessionUid());
                 Set<NpcMember> members = session.getNpcMembers();
                 List<String> memberIds = Lists.newArrayList();
@@ -134,7 +135,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                     CriteriaBuilder.In<Object> in = cb.in(root.get("uid"));
                     in.value(memberIds);
                     predicateList.add(in);
-                }else{
+                } else {
                     predicateList.add(cb.isNull(root.get("uid")));//届期里面没有人就不应该查询出东西来
                 }
             }
@@ -155,16 +156,17 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     /**
      * 添加代表
+     *
      * @param userDetails 当前用户
-     * @param dto 待添加的代表信息
+     * @param dto         待添加的代表信息
      * @return 添加结果
      */
     @Override
     public RespBody addOrUpdateNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto) {
         RespBody body = new RespBody();
         NpcMember member;
-        if (StringUtils.isNotEmpty(dto.getUid())){
-            member = npcMemberRepository.findByLevelAndMobileAndUidIsNotAndIsDelFalse(userDetails.getLevel(),dto.getMobile(),dto.getUid());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
+        if (StringUtils.isNotEmpty(dto.getUid())) {
+            member = npcMemberRepository.findByLevelAndMobileAndUidIsNotAndIsDelFalse(userDetails.getLevel(), dto.getMobile(), dto.getUid());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
             if (member != null) {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("该代表已经存在");
@@ -178,13 +180,42 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 LOGGER.warn("uid为 {} 的代表不存在，修改代表信息失败", dto.getUid());
                 return body;
             }
+            //姓名一致性判断
+            List<NpcMember> members = npcMemberRepository.findByMobileAndAndUidIsNotAndIsDelFalse(dto.getMobile(),dto.getUid());//通过手机号查询这个代表在其他地方的任职
+            Boolean canAdd = true;
+            for (NpcMember npcMember : members) {
+                if (!npcMember.getName().equals(dto.getName())){
+                    canAdd = false;//本次传入的姓名与系统中不一致
+                }
+            }
+            if (!canAdd) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("代表姓名在系统中不一致");
+                LOGGER.warn("手机号为 {} 代表已经存在，与本次添加的代表 {} 姓名不符", dto.getMobile(), dto.getName());
+                return body;
+            }
+
             body.setMessage("修改代表成功");
-        }else {
-            member = npcMemberRepository.findByLevelAndMobileAndIsDelFalse(userDetails.getLevel(),dto.getMobile());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
+        } else {
+            member = npcMemberRepository.findByLevelAndMobileAndIsDelFalse(userDetails.getLevel(), dto.getMobile());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
             if (member != null) {
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("该代表已经存在");
                 LOGGER.warn("手机号为 {} 代表已经存在，修改代表信息失败", dto.getMobile());
+                return body;
+            }
+            //姓名一致性判断
+            List<NpcMember> members = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());//通过手机号查询这个代表在其他地方的任职
+            Boolean canAdd = true;
+            for (NpcMember npcMember : members) {
+                if (!npcMember.getName().equals(dto.getName())){
+                    canAdd = false;//本次传入的姓名与系统中不一致
+                }
+            }
+            if (!canAdd) {
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("代表姓名在系统中不一致");
+                LOGGER.warn("手机号为 {} 代表已经存在，与本次添加的代表 {} 姓名不符", dto.getMobile(), dto.getName());
                 return body;
             }
             member = new NpcMember();
@@ -242,7 +273,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         Session defauleSession = sessionService.defaultSession(userDetails);
         String currentSessionId = "";
         String defauleSessionId = "";
-        if (currentSession != null){
+        if (currentSession != null) {
             currentSessionId = currentSession.getUid();
         }
         defauleSessionId = defauleSession.getUid();
@@ -251,45 +282,42 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         Account account = null;//代表对应的账号信息
         for (Account account1 : accounts) {//判断账号的身份，将后台管理员给过滤掉
             List<String> keywords = account1.getAccountRoles().stream().map(AccountRole::getKeyword).collect(Collectors.toList());
-            if (keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() == null){//如果这个账号的身份包含后台管理员，并且没有注册过小程序
+            if (keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() == null) {//如果这个账号的身份包含后台管理员，并且没有注册过小程序
                 continue;
-            }else if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() != null){//账号没有包含后台管理员,并且注册了小程序
+            } else if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() != null) {//账号没有包含后台管理员,并且注册了小程序
                 account = account1;//把这个账号跟代表身份关联起来
             }
         }
-        if(dto.getSessionUids().contains(defauleSessionId)){//如果选择了其他届期，就清除掉非必选的角色，然后将账号角色改为选民
-            Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
+        if (dto.getSessionUids().contains(defauleSessionId)) {//如果选择了其他届期，就清除掉非必选的角色，然后将账号角色改为选民
+            Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles()) ? Sets.newHashSet() : member.getNpcMemberRoles();
             npcMemberRoles.clear();//先把所有的角色删除掉，然后将本次选择的加上
-//            npcMemberRoles.add(npcMemberRole);
             member.setNpcMemberRoles(npcMemberRoles);
-            if (account != null){
+            if (account != null) {
                 Set<AccountRole> accountRoles = account.getAccountRoles();
                 accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
-//                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword()));
                 AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
                 accountRoles.add(voter);
                 accountRoleRepository.saveAll(accountRoles);
                 member.setAccount(null);
             }
             member.setStatus(StatusEnum.DISABLED.getValue());
-        }
-        else if (dto.getSessionUids().contains(currentSessionId)){//如果选择的届期里面包含了当前的届期，那么就给代表赋予当前代表的职能
-            Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles())?Sets.newHashSet():member.getNpcMemberRoles();
+        } else if (dto.getSessionUids().contains(currentSessionId)) {//如果选择的届期里面包含了当前的届期，那么就给代表赋予当前代表的职能
+            Set<NpcMemberRole> npcMemberRoles = CollectionUtils.isEmpty(member.getNpcMemberRoles()) ? Sets.newHashSet() : member.getNpcMemberRoles();
             npcMemberRoles.removeIf(role -> role.getIsMust());//先把必选的角色删除掉，然后将本次选择的加上
             npcMemberRoles.add(npcMemberRole);
             member.setNpcMemberRoles(npcMemberRoles);
             member.setStatus(StatusEnum.ENABLED.getValue());
-            if (account != null){
+            if (account != null) {
                 Set<AccountRole> accountRoles = account.getAccountRoles();
-//                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
                 accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword()));
                 AccountRole memberAccount = accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword());//将选民和代表身份都移除后加上代表身份
                 accountRoles.add(memberAccount);
                 accountRoleRepository.saveAll(accountRoles);
+                account.getVoter().setRealname(dto.getName());//统一姓名
                 member.setAccount(account);
             }
-        }else{//既不包含其他，也不包含本届，一样的设置为选民
-            if (account != null){
+        } else {//既不包含其他，也不包含本届，一样的设置为选民
+            if (account != null) {
                 Set<AccountRole> accountRoles = account.getAccountRoles();
                 accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
                 AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
@@ -307,6 +335,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     /**
      * 逻辑删除代表信息
+     *
      * @param uid 待删除的代表uid
      * @return 删除结果
      */
@@ -332,21 +361,22 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     /**
      * 添加代表信息时上传头像
+     *
      * @param userDetails 当前用户身份
-     * @param avatar 头像图片
+     * @param avatar      头像图片
      * @return 上传结果，上传成功返回图片访问url
      */
     @Override
     public RespBody uploadAvatar(UserDetailsImpl userDetails, MultipartFile avatar) {
         RespBody<String> body = new RespBody<>();
-        if (avatar == null){
+        if (avatar == null) {
             body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             body.setMessage("图片上传失败！请稍后重试");
             LOGGER.error("代表头像保存失败");
             return body;
         }
         //保存代表头像至文件系统
-        String url = ImageUploadUtil.saveImage("npc_member_avatar", avatar,150,200);
+        String url = ImageUploadUtil.saveImage("npc_member_avatar", avatar, 150, 200);
         if (url.equals("error")) {
             body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             body.setMessage("图片上传失败！请稍后重试");
@@ -360,6 +390,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
     /**
      * 获取代表的工作单位列表（镇/小组）
+     *
      * @param userDetails 当前用户
      * @return 查询结果
      */
@@ -389,11 +420,11 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         RespBody body = new RespBody();
         List<MemberListVo> memberListVos = Lists.newArrayList();
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            List<NpcMemberGroup>  memberGroups = npcMemberGroupRepository.findByTownUid(userDetails.getTown().getUid());
-            memberListVos = memberGroups.stream().map(group -> MemberListVo.convert(group.getUid(),group.getName(),group.getMembers(),userDetails.getLevel())).collect(Collectors.toList());
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            List<NpcMemberGroup> memberGroups = npcMemberGroupRepository.findByTownUid(userDetails.getTown().getUid());
+            memberListVos = memberGroups.stream().map(group -> MemberListVo.convert(group.getUid(), group.getName(), group.getMembers(), userDetails.getLevel())).collect(Collectors.toList());
+        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
             Set<Town> towns = userDetails.getArea().getTowns();
-            memberListVos = towns.stream().map(town -> MemberListVo.convert(town.getUid(),town.getName(),town.getNpcMembers(),userDetails.getLevel())).collect(Collectors.toList());
+            memberListVos = towns.stream().map(town -> MemberListVo.convert(town.getUid(), town.getName(), town.getNpcMembers(), userDetails.getLevel())).collect(Collectors.toList());
         }
         body.setData(memberListVos);
         return body;
@@ -406,11 +437,11 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
             NpcMemberGroup npcMemberGroup = npcMemberGroupRepository.findByUid(baseDto.getUid());
             npcMemberList = npcMemberGroup.getMembers();
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
             Town town = townRepository.findByUid(baseDto.getUid());
             npcMemberList = town.getNpcMembers();
         }
-        List<CommonVo> commonVos = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> CommonVo.convert(member.getUid(),member.getName())).collect(Collectors.toList());
+        List<CommonVo> commonVos = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> CommonVo.convert(member.getUid(), member.getName())).collect(Collectors.toList());
         body.setData(commonVos);
         return body;
 

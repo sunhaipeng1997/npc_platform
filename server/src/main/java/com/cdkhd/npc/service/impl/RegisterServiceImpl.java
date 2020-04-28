@@ -193,7 +193,7 @@ public class RegisterServiceImpl implements RegisterService {
         if(currentAccount == null){
 
             //再去查询该手机号对应的代表，之所以有多个NpcMember,是表示不同的任职情况，并非是多个人大代表
-            List<NpcMember> npcMembers = npcMemberRepository.findByMobile(dto.getMobile());
+            List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
 
             if (!npcMembers.isEmpty()){
                 if(!npcMembers.get(0).getName().equals(dto.getName())){
@@ -252,7 +252,7 @@ public class RegisterServiceImpl implements RegisterService {
             }
         }
         if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
-            List<NpcMember> npcMembers = npcMemberRepository.findByMobile(dto.getMobile());
+            List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
             Village theVillage = new Village();
             if(StringUtils.isNotEmpty(dto.getVillageUid())){
                  theVillage = villageRepository.findByUid(dto.getVillageUid());
@@ -286,7 +286,7 @@ public class RegisterServiceImpl implements RegisterService {
 
         //如果是代表身份
         if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
-            List<NpcMember> npcMembers = npcMemberRepository.findByMobile(dto.getMobile());
+            List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
             for (NpcMember npcMember:npcMembers){
                 npcMember.setAccount(account);
                 npcMemberRepository.save(npcMember);
