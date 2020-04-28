@@ -1,9 +1,7 @@
 package com.cdkhd.npc.entity.vo;
 
-import com.cdkhd.npc.entity.Attachment;
-import com.cdkhd.npc.entity.Notification;
-import com.cdkhd.npc.entity.NotificationOpeRecord;
-import com.cdkhd.npc.entity.NpcMember;
+import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.NotificationStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -57,17 +55,30 @@ public class NotificationDetailsForMobileVo extends BaseVo {
             }
         }
 
-        //方便前端展示级联选择器
-        Set<NpcMember> receivers = notification.getReceivers();
-        if(!receivers.isEmpty()) {
-            for (NpcMember npcMember : receivers) {
+        //方便移动端展示级联选择器
+//        Set<NpcMember> receivers = notification.getReceivers();
+
+        //为了旧系统迁移过来的数据兼容，改为从viewDetail中获取接收人，免去一张中间表,但是这样效率稍微低一些，要查询两次数据库
+        Set<NotificationViewDetail> receiversViewDetail = notification.getReceiversViewDetails();
+        if(!receiversViewDetail.isEmpty()) {
+            for(NotificationViewDetail viewDetail:receiversViewDetail){
+                NpcMember receiver = viewDetail.getReceiver();
                 List<String> list = new ArrayList<>();
-                if(npcMember.getNpcMemberGroup() != null) {
-                    list.add(npcMember.getNpcMemberGroup().getUid());
-                }else{
-                    list.add(" ");
+                if(notification.getLevel().equals(LevelEnum.AREA.getValue())){
+                    if(receiver.getTown() != null) {
+                        list.add(receiver.getTown().getUid());
+                    }else{
+                        list.add(" ");
+                    }
+                }else {
+                    if(receiver.getNpcMemberGroup() != null) {
+                        list.add(receiver.getNpcMemberGroup().getUid());
+                    }else{
+                        list.add(" ");
+                    }
                 }
-                list.add(npcMember.getUid());
+
+                list.add(receiver.getUid());
                 vo.getReceiversUid().add(list);
             }
         }
