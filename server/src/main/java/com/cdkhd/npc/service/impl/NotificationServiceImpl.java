@@ -180,9 +180,6 @@ public class NotificationServiceImpl implements NotificationService {
                                 viewDetail.setNotification(notification);
                                 viewDetail.setIsRead(false);
                                 viewDetail.setReceiver(receiver);
-
-                                //notificationDetailRepository.saveAndFlush(detail);
-
                                 return viewDetail;
                             }
                             return null;
@@ -277,41 +274,12 @@ public class NotificationServiceImpl implements NotificationService {
         BeanUtils.copyProperties(dto, notification);
 
         //如果是一般通知，则必须要有接收人
-        if(!dto.isBillboard() && dto.getReceiversUid().isEmpty()){
+        if(!dto.isBillboard() && dto.getReceiversUid()== null){
             body.setStatus(HttpStatus.NOT_FOUND);
             body.setMessage("该通知缺少接收人");
             LOGGER.warn("该通知缺少接收人");
             return body;
         }
-
-
-//        Set<String> receivers = dto.getReceivers();
-//        Set<NotificationDetail> details = notification.getDetails();
-//        Set<NotificationDetail> temp = new HashSet<>();
-//
-//        for (NotificationDetail detail : details) {
-//            NpcMember receiver = detail.getReceiver();
-//            if (receiver != null) {
-//                String receiverUid = receiver.getUid();
-//                if (receivers.contains(receiverUid)) {
-//                    temp.add(detail);
-//                    receivers.remove(receiverUid);
-//                }
-//            }
-//        }
-//        details.clear();
-//        details.addAll(temp);
-//
-//        details.addAll(dto.getReceivers().stream().map(receiverId -> {
-//            NpcMember receiver = npcMemberRepository.findByUid(receiverId);
-//            if (receiver != null) {
-//                NotificationDetail detail = new NotificationDetail();
-//                detail.setNotification(notification);
-//                detail.setReceiver(receiver);
-//                return detail;
-//            }
-//            return null;
-//        }).filter(Objects::nonNull).collect(Collectors.toSet()));
 
         if(dto.getReceiversUid() == null){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -387,26 +355,18 @@ public class NotificationServiceImpl implements NotificationService {
                     return null;
                 }).collect(Collectors.toSet());
 
-
+                //将原来的附件项清除，但并没有删除其文件
                 Set<Attachment> attachments = notification.getAttachments();
                 attachments.clear();
+
+                //设置新的附件
                 attachments.addAll(attachmentSet);
                 notification.setAttachments(attachments);
 
-//                notification.getAttachments().clear();
-//                for(String uid : attachmentUidList){
-//                    Attachment attachment = attachmentRepository.findByUid(uid);
-//                    notification.getAttachments().add(attachment);
-//                    notificationRepository.save(notification);
-//
-//                    attachment.setNotification(notificationRepository.findByUid(notification.getUid()));
-//                    attachmentRepository.save(attachment);
-//
-//                }
             }
         }
 
-
+        //将状态回到草稿状态，重新进入审核流程
         notification.setStatus(NotificationStatusEnum.DRAFT.ordinal());
         notification.setView(false);
         //保存数据
@@ -561,17 +521,16 @@ public class NotificationServiceImpl implements NotificationService {
         notificationMsg.put("theme",notification.getTitle());
         notificationMsg.put("remarkInfo","来源:"+notification.getDepartment()+"<点击查看详情>");
 
-        Set<NpcMember> receivers = notification.getReceivers();
-        if(!receivers.isEmpty()){
-            for(NpcMember receiver:receivers){
+//        Set<NpcMember> receivers = notification.getReceivers();
+        //为了旧系统迁移过来的数据兼容，改为从viewDetail中获取接收人，免去一张中间表,但是这样效率稍微低一些，要查询两次数据库
+        Set<NotificationViewDetail> receiversViewDetail = notification.getReceiversViewDetails();
+        if(!receiversViewDetail.isEmpty()){
+            for(NotificationViewDetail viewDetail:receiversViewDetail){
+                NpcMember receiver = viewDetail.getReceiver();
                 if(receiver.getAccount() != null){//只发送给已经注册的人，否则要报空指针异常
                     if(receiver.getAccount().getLoginWeChat() != null){
                         pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
-                    }else {
-                        continue;
                     }
-                }else {
-                    continue;
                 }
             }
         }
@@ -727,17 +686,16 @@ public class NotificationServiceImpl implements NotificationService {
         notificationMsg.put("theme",notification.getTitle());
         notificationMsg.put("remarkInfo","来源:"+notification.getDepartment()+"<点击查看详情>");
 
-        Set<NpcMember> receivers = notification.getReceivers();
-        if(!receivers.isEmpty()){
-            for(NpcMember receiver:receivers){
+//        Set<NpcMember> receivers = notification.getReceivers();
+        //为了旧系统迁移过来的数据兼容，改为从viewDetail中获取接收人，免去一张中间表,但是这样效率稍微低一些，要查询两次数据库
+        Set<NotificationViewDetail> receiversViewDetail = notification.getReceiversViewDetails();
+        if(!receiversViewDetail.isEmpty()){
+            for(NotificationViewDetail viewDetail:receiversViewDetail){
+                NpcMember receiver = viewDetail.getReceiver();
                 if(receiver.getAccount() != null){//只发送给已经注册的人，否则要报空指针异常
                     if(receiver.getAccount().getLoginWeChat() != null){
                         pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
-                    }else {
-                        continue;
                     }
-                }else {
-                    continue;
                 }
             }
         }
