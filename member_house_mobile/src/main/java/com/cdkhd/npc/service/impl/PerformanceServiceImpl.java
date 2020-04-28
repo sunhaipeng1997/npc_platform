@@ -365,7 +365,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                     npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), performancePageDto.getLevel());
                 }
                 if (CollectionUtils.isNotEmpty(npcMemberList)) {
-                    List<String> uids = npcMemberList.stream().map(NpcMember::getUid).collect(Collectors.toList());
+                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
                     CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
                     in.value(uids);
                     predicates.add(in);
@@ -386,7 +386,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                     npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(), performancePageDto.getLevel());
                 }
                 if (CollectionUtils.isNotEmpty(npcMemberList)) {
-                    List<String> uids = npcMemberList.stream().map(NpcMember::getUid).collect(Collectors.toList());
+                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
                     CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
                     in.value(uids);
                     predicates.add(in);

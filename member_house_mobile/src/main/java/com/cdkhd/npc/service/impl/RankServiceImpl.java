@@ -203,10 +203,10 @@ public class RankServiceImpl implements RankService {
     private List<NpcMember> getMembers(MobileUserDetailsImpl userDetails, Byte level) {
         List<NpcMember> npcMemberList = Lists.newArrayList();
         if (level.equals(LevelEnum.TOWN.getValue())) {//等级为镇上，获取所有镇代表
-            npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(userDetails.getTown().getUid(), level);
+            npcMemberList = npcMemberRepository.findByTownUidAndLevelAndStatusAndIsDelFalse(userDetails.getTown().getUid(), level,StatusEnum.ENABLED.getValue());
         }
         if (level.equals(LevelEnum.AREA.getValue())) {
-            npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(), level);
+            npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndStatusAndIsDelFalse(userDetails.getArea().getUid(), level,StatusEnum.ENABLED.getValue());
         }
         return npcMemberList;
     }

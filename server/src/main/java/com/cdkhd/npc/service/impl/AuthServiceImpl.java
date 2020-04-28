@@ -228,9 +228,10 @@ public class AuthServiceImpl implements AuthService {
                                 }
                                 if (userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()) && (
                                     menu.getName().equals(MenuEnum.SUGGESTION_TYPE_MANAGE.getName()) ||
-                                    menu.getName().equals(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName())
+                                    menu.getName().equals(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName()) ||
+                                    menu.getName().equals(MenuEnum.SESSION_MANAGE.getName())
                                 )){
-                                    continue;//街道后台管理员没有履职类型管理和建议类型管理
+                                    continue;//街道后台管理员没有履职类型管理、建议类型管理、届期管理
                                 }
                             }
                             if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && (menu.getName().equals(MenuEnum.VILLAGE_MANAGE.getName()) || menu.getName().equals(MenuEnum.NPC_MEMBER_GROUP.getName())))

@@ -15,10 +15,6 @@ public interface SessionRepository extends BaseRepository<Session> {
 
     List<Session> findByAreaUidAndLevelAndUidNotAndStartDateIsNotNull(String townUid, Byte level,String uid);
 
-    List<Session> findByTownUidAndLevelAndStartDateIsNotNull(String townUid, Byte level);
-
-    List<Session> findByAreaUidAndLevelAndStartDateIsNotNull(String townUid, Byte level);
-
     Session findByTownUidAndLevelAndStartDateIsNullAndEndDateIsNull(String townUid, Byte level);
 
     Session findByAreaUidAndLevelAndStartDateIsNullAndEndDateIsNull(String townUid, Byte level);

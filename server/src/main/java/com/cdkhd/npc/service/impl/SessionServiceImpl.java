@@ -1,12 +1,15 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.Session;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.SessionAddDto;
 import com.cdkhd.npc.entity.dto.SessionPageDto;
 import com.cdkhd.npc.entity.vo.SessionVo;
+import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.repository.base.AccountRepository;
+import com.cdkhd.npc.repository.base.AccountRoleRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.SessionRepository;
 import com.cdkhd.npc.service.SessionService;
@@ -14,6 +17,7 @@ import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -42,10 +46,16 @@ public class SessionServiceImpl implements SessionService {
 
     private NpcMemberRepository npcMemberRepository;
 
+    private AccountRoleRepository accountRoleRepository;
+
+    private AccountRepository accountRepository;
+
     @Autowired
-    public SessionServiceImpl(SessionRepository sessionRepository, NpcMemberRepository npcMemberRepository) {
+    public SessionServiceImpl(SessionRepository sessionRepository, NpcMemberRepository npcMemberRepository, AccountRoleRepository accountRoleRepository, AccountRepository accountRepository) {
         this.sessionRepository = sessionRepository;
         this.npcMemberRepository = npcMemberRepository;
+        this.accountRoleRepository = accountRoleRepository;
+        this.accountRepository = accountRepository;
     }
 
     /**
@@ -57,12 +67,11 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public RespBody getSessions(UserDetailsImpl userDetails) {
         RespBody<List<CommonVo>> body = new RespBody<>();
-        List<Session> sessions;
-        //如果当前后台管理员是镇后台管理员，则查询该镇的所有小组
-        //如果当前后台管理员是区后台管理员，则查询该区的所有镇
-        sessions = sessionRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sessions = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(), userDetails.getLevel());
+        List<Session> sessions = Lists.newArrayList();
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
+            sessions = sessionRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            sessions = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(), LevelEnum.TOWN.getValue());
         }
         sessions.sort(Comparator.comparing(Session::getStartDate, Comparator.nullsLast(Comparator.naturalOrder())));
         List<CommonVo> vos = sessions.stream().map(session ->
@@ -242,23 +251,64 @@ public class SessionServiceImpl implements SessionService {
             return body;
         }
         List<NpcMember> allMembers = Lists.newArrayList();//查询相应的代表
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            allMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(userDetails.getTown().getUid(), userDetails.getLevel());
-        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+        //区上点击换届，所有的区代表和街道代表都需要重新整理权限
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
+            //所有的区代表
             allMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(), userDetails.getLevel());
+            List<NpcMember> streetMember = npcMemberRepository.findByTownType(LevelEnum.AREA.getValue());//查询所有的街道代表
+            allMembers.addAll(streetMember);
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            allMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(userDetails.getTown().getUid(), userDetails.getLevel());
         }
         List<NpcMember> currentMembers = Lists.newArrayList();//暂存本届代表
         for (NpcMember allMember : allMembers) {
             for (Session session : allMember.getSessions()) {
-                if (session.getUid().equals(currentSession.getUid())) {
+                if (session.getUid().equals(currentSession.getUid()) && allMember.getStatus().equals(StatusEnum.ENABLED.getValue())) {
                     currentMembers.add(allMember);
                 }
             }
         }
-        allMembers.removeAll(currentMembers);//过滤掉本届代表
+        //将应该在本届的所有赋上应有的权限
+        if (CollectionUtils.isNotEmpty(currentMembers)) {
+            AccountRole memberRole = accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword());//将选民和代表身份都移除后加上选民身份
+            for (NpcMember currentMember : currentMembers) {
+                List<Account> accounts = accountRepository.findByMobile(currentMember.getMobile());//根据代表的手机号，去查询是否有注册账号
+                //遍历账号，找到非后台管理员账号
+                for (Account account : accounts) {
+                    List<String> accountRole = account.getAccountRoles().stream().filter(role -> role.getStatus().equals(StatusEnum.ENABLED.getValue())).map(AccountRole::getKeyword).collect(Collectors.toList());
+                    if (accountRole.contains(AccountRoleEnum.VOTER.getKeyword()) || accountRole.contains(AccountRoleEnum.NPC_MEMBER.getKeyword())){
+                        //这个账号的角色包含了选民或者代表
+                        Set<AccountRole> accountRoles = account.getAccountRoles();
+                        accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword()));//将账号的选民身份删除
+                        accountRoles.add(memberRole);//重新添加为代表身份
+                        accountRoleRepository.saveAll(accountRoles);
+                        currentMember.setAccount(account);//将账号和代表身份关联
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        //过滤掉本届代表后剩下的非本届代表
+        allMembers.removeAll(currentMembers);
         //清除剩下代表的权限
+        Set<NpcMemberRole> npcMemberRoles;
+        AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
         for (NpcMember allMember : allMembers) {
             //todo 清除权限
+            npcMemberRoles = CollectionUtils.isEmpty(allMember.getNpcMemberRoles())? Sets.newHashSet():allMember.getNpcMemberRoles();
+            npcMemberRoles.removeIf(role -> !role.getIsMust());//先把非必选的角色删除掉，只留下基本角色
+            allMember.setNpcMemberRoles(npcMemberRoles);
+            Account account = allMember.getAccount();
+            //如果关联有小程序
+            if (null != account){
+                Set<AccountRole> accountRoles = account.getAccountRoles();
+                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));//将账号的代表身份删除
+                accountRoles.add(voter);//重新添加为选民身份
+                accountRoleRepository.saveAll(accountRoles);
+                allMember.setAccount(null);//将代表身份和小程序账号解绑
+            }
         }
         npcMemberRepository.saveAll(allMembers);
         return body;
@@ -267,10 +317,15 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public Session currentSession(UserDetailsImpl userDetails) {
         Session session = null;
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            session = sessionRepository.findTownCurrentSession(userDetails.getTown().getUid(), userDetails.getLevel(), new Date());
-        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-            session = sessionRepository.findAreaCurrentSession(userDetails.getArea().getUid(), userDetails.getLevel(), new Date());
+        this.setCurrent(userDetails);//清除掉所有的本届
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
+            session = sessionRepository.findAreaCurrentSession(userDetails.getArea().getUid(), LevelEnum.AREA.getValue(), new Date());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            session = sessionRepository.findTownCurrentSession(userDetails.getTown().getUid(), LevelEnum.TOWN.getValue(), new Date());
+        }
+        if (session != null) {
+            session.setIsCurrent(true);//把最新查询出来的设置为本届
+            sessionRepository.saveAndFlush(session);
         }
         return session;
     }
@@ -279,26 +334,46 @@ public class SessionServiceImpl implements SessionService {
     public RespBody getCurrentSession(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         String currentUid = "";
+        this.setCurrent(userDetails);//清除掉所有的本届
         Session session = null;
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            session = sessionRepository.findTownCurrentSession(userDetails.getTown().getUid(), userDetails.getLevel(), new Date());
-        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-            session = sessionRepository.findAreaCurrentSession(userDetails.getArea().getUid(), userDetails.getLevel(), new Date());
+        this.setCurrent(userDetails);
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
+            session = sessionRepository.findAreaCurrentSession(userDetails.getArea().getUid(), LevelEnum.AREA.getValue(), new Date());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            session = sessionRepository.findTownCurrentSession(userDetails.getTown().getUid(), LevelEnum.TOWN.getValue(), new Date());
         }
         if (session != null) {
             currentUid = session.getUid();
+            session.setIsCurrent(true);//把最新查询出来的设置为本届
+            sessionRepository.saveAndFlush(session);
         }
         body.setData(currentUid);
         return body;
     }
 
+    private void setCurrent(UserDetailsImpl userDetails){
+        List<Session> sessions = Lists.newArrayList();
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
+            sessions = sessionRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
+            for (Session session : sessions) {
+                session.setIsCurrent(false);
+            }
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            sessions = sessionRepository.findByTownUidAndLevel(userDetails.getTown().getUid(), LevelEnum.TOWN.getValue());
+            for (Session session : sessions) {
+                session.setIsCurrent(false);
+            }
+        }
+        sessionRepository.saveAll(sessions);
+    }
+
     @Override
     public Session defaultSession(UserDetailsImpl userDetails) {
         Session session = null;
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            session = sessionRepository.findByTownUidAndLevelAndStartDateIsNullAndEndDateIsNull(userDetails.getTown().getUid(), userDetails.getLevel());
-        } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-            session = sessionRepository.findByAreaUidAndLevelAndStartDateIsNullAndEndDateIsNull(userDetails.getArea().getUid(), userDetails.getLevel());
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
+            session = sessionRepository.findByAreaUidAndLevelAndStartDateIsNullAndEndDateIsNull(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            session = sessionRepository.findByTownUidAndLevelAndStartDateIsNullAndEndDateIsNull(userDetails.getTown().getUid(), LevelEnum.TOWN.getValue());
         }
         return session;
     }
