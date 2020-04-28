@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Menu;
 import com.cdkhd.npc.vo.BaseVo;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
@@ -23,7 +24,7 @@ public class MenuVo extends BaseVo {
     //前端路由名称
     private String route;
 
-    private List<MenuVo> children;
+    private List<MenuVo> children = Lists.newArrayList();
 
     public static MenuVo convert(Menu menu) {
         MenuVo vo = new MenuVo();

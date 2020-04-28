@@ -9,11 +9,11 @@ public enum MenuEnum {
     //小程序菜单
     //互动交流
     MEMBER_INFO(null, "代表风采",(byte)1,"personGrace","representative-grace/representative-group","COMMUNICATION", "MEMBER_HOUSE"),
-    WORK_STATION(null, "工作站",(byte)1, "workstation", "workstation/workstation","COMMUNICATION", "MEMBER_HOUSE"),
     MY_OPINION(null, "我的意见",(byte)1, "suggestionMine", "opinion/opinion-voter","COMMUNICATION", "MEMBER_HOUSE"),
-    MY_SUGGESTION(null, "我的建议",(byte)1, "auditNotif", "suggestion/my-suggestion","COMMUNICATION", "MEMBER_HOUSE"),
     RECEIVE_OPINION(null, "收到意见",(byte)1, "suggestionOthers", "opinion/opinion-representative","COMMUNICATION", "MEMBER_HOUSE"),
+    MY_SUGGESTION(null, "我的建议",(byte)1, "auditNotif", "suggestion/my-suggestion","COMMUNICATION", "MEMBER_HOUSE"),
     MY_PERFORMANCE(null, "我的履职",(byte)1, "dutySubmit", "performance/my-performance","COMMUNICATION", "MEMBER_HOUSE"),
+    WORK_STATION(null, "工作站",(byte)1, "workstation", "workstation/workstation","COMMUNICATION", "MEMBER_HOUSE"),
 //    SECONDED_SUGGESTION("我的附议",(byte)1,null,"COMMUNICATION"),
 
     //通知公告
@@ -34,31 +34,32 @@ public enum MenuEnum {
     //类型管理
     HOMEPAGE("index", "首页",(byte)2, "menu-dashboard", "/member_house/index",null, "MEMBER_HOUSE"),
 
-    TYPE_MANAGE(null, "类型管理",(byte)2, null, null,null, "MEMBER_HOUSE"),
-    BASIC_MANAGE(null, "基本信息管理",(byte)2, null, null,null, "MEMBER_HOUSE"),
+    TYPE_MANAGE("typeManage", "类型管理",(byte)2, null, null,null, "MEMBER_HOUSE"),
+    BASIC_MANAGE("basicInfo", "基本信息管理",(byte)2, null, null,null, "MEMBER_HOUSE"),
+    STATISTICS_MANAGE("statisticsManage", "统计",(byte)2, null, null,null, "MEMBER_HOUSE"),
 
     ACCOUNT_MANAGE("account", "账号管理",(byte)2, "menu-account", "/member_house/account",null, "MEMBER_HOUSE"),
     NEWS_MANAGE("news", "新闻管理",(byte)2, "menu-news", "/member_house/news",null, "MEMBER_HOUSE"),
     NOTICE_MANAGE("notification", "通知管理",(byte)2, "menu-notify", "/member_house/notification",null, "MEMBER_HOUSE"),
     NPC_MANAGE("members", "代表管理",(byte)2, "menu-performance", "/member_house/members",null, "MEMBER_HOUSE"),
-    NPC_MEMBER_GROUP("groups", "代表小组管理",(byte)2, "menu-group", "/member_house/groups",null, "MEMBER_HOUSE"),
-    WORKSTATION_MANAGE("workStation", "工作站管理",(byte)2, "menu-workstation", "/member_house/workStation",null, "MEMBER_HOUSE"),
+    NPC_MEMBER_GROUP("groups", "代表小组管理",(byte)2, "menu-group", "/member_house/groups","BASIC_MANAGE", "MEMBER_HOUSE"),
+    WORKSTATION_MANAGE("workStation", "工作站管理",(byte)2, "menu-workstation", "/member_house/workStation","BASIC_MANAGE", "MEMBER_HOUSE"),
     OPINION_MANAGE("opinions", "选民意见管理",(byte)2, "menu-opinion", "/member_house/opinions",null, "MEMBER_HOUSE"),
-    STUDY_TYPE_MANAGE("studyCate", "学习类型管理",(byte)2, "menu-studyType", "/member_house/studyCate",null, "MEMBER_HOUSE"),
+    STUDY_TYPE_MANAGE("studyCate", "学习类型管理",(byte)2, "menu-studyType", "/member_house/studyCate","TYPE_MANAGE", "MEMBER_HOUSE"),
     STUDY_MANAGE("studyFile", "学习资料管理",(byte)2, "menu-studyFile", "/member_house/studyFile",null, "MEMBER_HOUSE"),
-    SUGGESTION_TYPE_MANAGE("suggestionBusiness", "建议类型管理",(byte)2, "menu-suggestionType", "/member_house/suggestionBusiness",null, "MEMBER_HOUSE"),
+    SUGGESTION_TYPE_MANAGE("suggestionBusiness", "建议类型管理",(byte)2, "menu-suggestionType", "/member_house/suggestionBusiness","TYPE_MANAGE", "MEMBER_HOUSE"),
     SUGGESTION_MANAGE("suggestion", "代表建议管理",(byte)2, "menu-suggestion", "/member_house/suggestion",null, "MEMBER_HOUSE"),
     TOWN_SUGGESTION_MANAGE("townSuggestion", "各镇代表建议管理",(byte)2, "menu-suggestion", "/member_house/townSuggestion",null, "MEMBER_HOUSE"),
-    PERFORMANCE_TYPE_MANAGE("performanceType", "履职类型管理",(byte)2, "menu-performanceType", "/member_house/performanceType",null, "MEMBER_HOUSE"),
+    PERFORMANCE_TYPE_MANAGE("performanceType", "履职类型管理",(byte)2, "menu-performanceType", "/member_house/performanceType","TYPE_MANAGE", "MEMBER_HOUSE"),
     PERFORMANCE_MANAGE("performance", "代表履职管理",(byte)2, "menu-performanceDuty", "/member_house/performance",null, "MEMBER_HOUSE"),
     TOWN_PERFORMANCE_MANAGE("townPerformance", "各镇代表履职管理",(byte)2, "menu-performanceDuty", "/member_house/townPerformance",null, "MEMBER_HOUSE"),
-    SUGGESTION_COUNT("suggestionCount", "代表建议统计",(byte)2, "menu-statistics", "/member_house/suggestion_count",null, "MEMBER_HOUSE"),
-    TOWN_PERFORMANCE_COUNT("townPerformanceCount", "各镇履职统计",(byte)2, "menu-statisics2", "/member_house/townPerformanceCount",null, "MEMBER_HOUSE"),
-    PERFORMANCE_COUNT("performanceCount", "代表履职统计",(byte)2, "menu-statisics2", "/member_house/performanceCount",null, "MEMBER_HOUSE"),
+    SUGGESTION_COUNT("suggestionCount", "代表建议统计",(byte)2, "menu-statistics", "/member_house/suggestion_count","STATISTICS_MANAGE", "MEMBER_HOUSE"),
+    TOWN_PERFORMANCE_COUNT("townPerformanceCount", "各镇履职统计",(byte)2, "menu-statisics2", "/member_house/townPerformanceCount","STATISTICS_MANAGE", "MEMBER_HOUSE"),
+    PERFORMANCE_COUNT("performanceCount", "代表履职统计",(byte)2, "menu-statisics2", "/member_house/performanceCount","STATISTICS_MANAGE", "MEMBER_HOUSE"),
     PERMISSION_MANAGE("special", "代表权限管理",(byte)2, "menu-special", "/member_house/special",null, "MEMBER_HOUSE"),
-    SESSION_MANAGE("sessions", "届期管理",(byte)2, "menu-worktime", "/member_house/sessions",null, "MEMBER_HOUSE"),
-    TOWN_MANAGE("towns", "镇/街道管理",(byte)2, "menu-town", "/member_house/towns",null, "MEMBER_HOUSE"),
-    VILLAGE_MANAGE("villages", "村管理",(byte)2, "menu-village", "/member_house/villages",null, "MEMBER_HOUSE"),
+    SESSION_MANAGE("sessions", "届期管理",(byte)2, "menu-worktime", "/member_house/sessions","BASIC_MANAGE", "MEMBER_HOUSE"),
+    TOWN_MANAGE("towns", "镇/街道管理",(byte)2, "menu-town", "/member_house/towns","BASIC_MANAGE", "MEMBER_HOUSE"),
+    VILLAGE_MANAGE("villages", "村管理",(byte)2, "menu-village", "/member_house/villages","BASIC_MANAGE", "MEMBER_HOUSE"),
     SYSTEM_SETTING("systemSetting", "系统设置",(byte)2, "menu-setting", "/member_house/systemSetting",null, "MEMBER_HOUSE");
 
     private String route;
