@@ -4,7 +4,6 @@ import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.LoginUP;
 import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
-import com.cdkhd.npc.repository.base.LoginUPRepository;
 import com.cdkhd.npc.util.JwtUtils;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -30,8 +29,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private AccountRepository accountRepository;
-    @Autowired
-    private LoginUPRepository loginUPRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -60,7 +57,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                         logger.info("合法访问，uid: " + userInfo.get("uid").toString());
                     }
-
                 }
             } catch (ExpiredJwtException e) {
                 logger.warn("token已过期，请重新登录");
