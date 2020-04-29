@@ -100,7 +100,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         RespBody body = new RespBody();
         List<SuggestionBusiness> suggestionBusinesses = Lists.newArrayList();
         Town town = townRepository.findByUid(townUid);
-        if (town.getType().equals(LevelEnum.AREA.getValue())){//如果是街道，那么查询街道的履职类型
+        if (town != null && town.getType().equals(LevelEnum.AREA.getValue())){//如果是街道，那么查询街道的履职类型
             suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), town.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }else if (StringUtils.isNotEmpty(townUid)){//镇的话
             suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
@@ -708,10 +708,10 @@ public class SuggestionServiceImpl implements SuggestionService {
             }
             //下属镇
             if (!suggestionDto.isFlag() && userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
                 if ( StringUtils.isNotEmpty(suggestionDto.getTownUid()) ){
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class), suggestionDto.getTownUid()));
                 }
-                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
             }
             //类型
             if (StringUtils.isNotEmpty(suggestionDto.getSuggestionBusiness())) {

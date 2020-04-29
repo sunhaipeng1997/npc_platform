@@ -38,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -191,7 +190,7 @@ public class SuggestionServiceImpl implements SuggestionService {
                         break;
                     }
                 }
-                Account account1 = npcMember.getAccount();
+                Account account1 = npcMember1.getAccount();
                 if (flag && account1 != null){
                     suggestionMsg.put("subtitle","您有一条新建议待审核，请前往小程序查看。");
                     suggestionMsg.put("accountName",npcMember.getName());
