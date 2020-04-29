@@ -611,30 +611,30 @@ public class AuthServiceImpl implements AuthService {
         String openid = obj.getString("openid");
         String nickname = obj.getString("nickname");
 
-        LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
-        if (loginWeChat == null) {
-            loginWeChat = new LoginWeChat();
-            loginWeChat.setOpenId(openid);
-            loginWeChat.setUnionId(unionid);
-
-            loginWeChatRepository.saveAndFlush(loginWeChat);
-        }
-
-        Account account = loginWeChat.getAccount();
-        if (account == null) {
-            account = new Account();
-            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
-            account.setLoginWeChat(loginWeChat);
-            account.setStatus(StatusEnum.ENABLED.getValue());
-
-            //初始时只有选民权限
-            account.getAccountRoles().add(accountRoleRepository.findByKeyword("VOTER"));
-            accountRepository.saveAndFlush(account);
-
-            loginWeChat.setAccount(account);
-            loginWeChatRepository.saveAndFlush(loginWeChat);
-
-        }
+//        LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
+//        if (loginWeChat == null) {
+//            loginWeChat = new LoginWeChat();
+//            loginWeChat.setOpenId(openid);
+//            loginWeChat.setUnionId(unionid);
+//
+//            loginWeChatRepository.saveAndFlush(loginWeChat);
+//        }
+//
+//        Account account = loginWeChat.getAccount();
+//        if (account == null) {
+//            account = new Account();
+//            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
+//            account.setLoginWeChat(loginWeChat);
+//            account.setStatus(StatusEnum.ENABLED.getValue());
+//
+//            //初始时只有选民权限
+//            account.getAccountRoles().add(accountRoleRepository.findByKeyword("VOTER"));
+//            accountRepository.saveAndFlush(account);
+//
+//            loginWeChat.setAccount(account);
+//            loginWeChatRepository.saveAndFlush(loginWeChat);
+//
+//        }
 
         return "authSuccess";
     }
