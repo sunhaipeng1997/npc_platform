@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,9 +91,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         List<SuggestionBusiness> sb = Lists.newArrayList();
         //区上或者是街道统一使用区上的建议类型
         if (dto.getLevel().equals(LevelEnum.AREA.getValue()) || (dto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
-            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(dto.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
         }else if (dto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(dto.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -190,13 +191,14 @@ public class SuggestionServiceImpl implements SuggestionService {
                         break;
                     }
                 }
-                if (flag){
-                    suggestionMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
-                    suggestionMsg.put("accountName",npcMember.getAccount().getUsername());
-                    suggestionMsg.put("mobile",npcMember.getAccount().getMobile());
+                Account account1 = npcMember.getAccount();
+                if (flag && account1 != null){
+                    suggestionMsg.put("subtitle","您有一条新建议待审核，请前往小程序查看。");
+                    suggestionMsg.put("accountName",npcMember.getName());
+                    suggestionMsg.put("mobile",npcMember.getMobile());
                     suggestionMsg.put("content",dto.getContent());
                     suggestionMsg.put("remarkInfo","点击进入小程序查看详情");
-                    pushMessageService.pushMsg(npcMember.getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),suggestionMsg);
+                    pushMessageService.pushMsg(account1, MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),suggestionMsg);
                 }
             }
         }
@@ -313,6 +315,15 @@ public class SuggestionServiceImpl implements SuggestionService {
             addPerformanceDto.setReason(suggestionAuditDto.getReason());
             Set<SuggestionImage> suggestionImages = suggestion.getSuggestionImages();
             performanceService.addPerformanceFormSug(userDetails, addPerformanceDto, suggestionImages);
+        }
+        Account raiser = suggestion.getRaiser().getAccount();//无论审核通不通过，都通知代表一声
+        if (raiser != null){
+            JSONObject suggestionMsg = new JSONObject();
+            suggestionMsg.put("subtitle","您的建议有了新的回复，请前往小程序查看。");
+            suggestionMsg.put("title",suggestion.getTitle());
+            suggestionMsg.put("content",suggestionReply.getReply());
+            suggestionMsg.put("remarkInfo","审核人："+ suggestion.getAuditor().getName()+" <点击查看详情>");
+            pushMessageService.pushMsg(raiser, MsgTypeEnum.FEEDBACK.ordinal(),suggestionMsg);
         }
         return body;
     }

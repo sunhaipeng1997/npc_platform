@@ -113,14 +113,17 @@ public class OpinionServiceImpl implements OpinionService {
         if (addOpinionDto.getImage() != null) {
             this.saveImg(addOpinionDto.getImage(),opinion);
         }
+        Account receiver = npcMember.getAccount();
         //给对应的接受代表推送服务号信息
-        JSONObject opinionMsg = new JSONObject();
-        opinionMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
-        opinionMsg.put("accountName",opinion.getReceiver().getName());
-        opinionMsg.put("mobile",opinion.getReceiver().getMobile());
-        opinionMsg.put("content",opinion.getContent());
-        opinionMsg.put("remarkInfo","点击进入小程序查看详情");
-        pushMessageService.pushMsg(opinion.getReceiver().getAccount(), MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(),opinionMsg);
+        if (receiver != null) {
+            JSONObject opinionMsg = new JSONObject();
+            opinionMsg.put("subtitle", "您收到一条新的意见，请前往小程序查看。");
+            opinionMsg.put("accountName", opinion.getSender().getVoter().getRealname());
+            opinionMsg.put("mobile", opinion.getSender().getMobile());
+            opinionMsg.put("content", opinion.getContent());
+            opinionMsg.put("remarkInfo", "点击进入小程序查看详情");
+            pushMessageService.pushMsg(receiver, MsgTypeEnum.NEW_OPINION_OR_SUGGESTION.ordinal(), opinionMsg);
+        }
         return body;
     }
 
@@ -278,6 +281,16 @@ public class OpinionServiceImpl implements OpinionService {
         opinionReply.setOpinion(opinion);
         opinionReply.setReply(opinionReplyDto.getContent());
         opinionReplayRepository.saveAndFlush(opinionReply);
+
+        Account sender = opinion.getSender();//无论审核通不通过，都通知代表一声
+        if (sender != null){
+            JSONObject suggestionMsg = new JSONObject();
+            suggestionMsg.put("subtitle","您的意见有了新的回复，请前往小程序查看。");
+            suggestionMsg.put("title",opinion.getContent());
+            suggestionMsg.put("content",opinionReply.getReply());
+            suggestionMsg.put("remarkInfo","回复人："+ opinion.getReceiver().getName()+" <点击查看详情>");
+            pushMessageService.pushMsg(sender, MsgTypeEnum.FEEDBACK.ordinal(),suggestionMsg);
+        }
         return body;
     }
 

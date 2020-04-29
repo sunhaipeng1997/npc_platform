@@ -91,9 +91,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
         //区上或者街道，统一使用区上的履职类型
         if (performanceTypeDto.getLevel().equals(LevelEnum.AREA.getValue()) || (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
-            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(performanceTypeDto.getLevel(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }else if (performanceTypeDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(performanceTypeDto.getLevel(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
+            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> types = performanceTypeList.stream().map(type -> CommonVo.convert(type.getUid(), type.getName())).collect(Collectors.toList());
         body.setData(types);
@@ -240,9 +240,11 @@ public class PerformanceServiceImpl implements PerformanceService {
             performanceMsg.put("auditItem",npcMember.getName()+" 代表提出的 "+addPerformanceDto.getTitle() +" 履职信息");
             performanceMsg.put("serviceType",performanceType.getName());
             for (NpcMember auditor : auditors) {
-                //给对应的接受代表推送服务号信息
-                performanceMsg.put("remarkInfo","审核人： "+auditor.getName() + "  <点击查看详情>");
-                pushMessageService.pushMsg(auditor.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),performanceMsg);
+                if (auditor.getAccount() != null) {
+                    //给对应的接受代表推送服务号信息
+                    performanceMsg.put("remarkInfo", "审核人： " + auditor.getName() + "  <点击查看详情>");
+                    pushMessageService.pushMsg(auditor.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(), performanceMsg);
+                }
             }
         }
         performance.setPerformanceType(performanceType);
@@ -440,17 +442,15 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setAuditAt(new Date());
         performance.setAuditor(npcMember);
         performanceRepository.saveAndFlush(performance);
-//        if (auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED)) {//审核通过
-            Account account = performance.getNpcMember().getAccount();//无论审核通不通过，都通知代表一声
-//            pushMessageService.pushMsg(account, "", 1, "");
+        Account account = performance.getNpcMember().getAccount();//无论审核通不通过，都通知代表一声
+        if (account != null){
             JSONObject performanceMsg = new JSONObject();
-            performanceMsg.put("subtitle","您有一条新的消息，请前往小程序查看。");
-            performanceMsg.put("accountName",performance.getNpcMember().getName());
-            performanceMsg.put("mobile",performance.getNpcMember().getMobile());
-            performanceMsg.put("content",performance.getTitle());
-            performanceMsg.put("remarkInfo","点击进入小程序查看详情");
+            performanceMsg.put("subtitle","您的履职有了审核结果，请前往小程序查看。");
+            performanceMsg.put("auditItem",performance.getTitle());
+            performanceMsg.put("result",auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED.getValue())?"已通过":"未通过");
+            performanceMsg.put("remarkInfo","审核人："+ performance.getAuditor().getName()+" <点击查看详情>");
             pushMessageService.pushMsg(account, MsgTypeEnum.AUDIT_RESULT.ordinal(),performanceMsg);
-//        }
+        }
         return body;
     }
 
