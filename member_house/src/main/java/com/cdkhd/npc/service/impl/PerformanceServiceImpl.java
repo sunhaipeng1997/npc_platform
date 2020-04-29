@@ -297,7 +297,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         RespBody body = new RespBody();
         List<PerformanceType> performanceTypes = Lists.newArrayList();
         Town town = townRepository.findByUid(townUid);
-        if (town.getType().equals(LevelEnum.AREA.getValue())){//如果是街道，那么查询街道的履职类型
+        if (town != null && town.getType().equals(LevelEnum.AREA.getValue())){//如果是街道，那么查询区上的履职类型
             performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), town.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }else if (StringUtils.isNotEmpty(townUid)){//镇的话
             performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), townUid, StatusEnum.ENABLED.getValue());
@@ -370,6 +370,13 @@ public class PerformanceServiceImpl implements PerformanceService {
             //标题
             if (StringUtils.isNotEmpty(performanceDto.getTitle())) {
                 predicates.add(cb.like(root.get("title").as(String.class), "%" + performanceDto.getTitle() + "%"));
+            }
+            //下属镇
+            if (!performanceDto.isFlag() && userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
+                if ( StringUtils.isNotEmpty(performanceDto.getTownUid()) ){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), performanceDto.getTownUid()));
+                }
             }
             //类型
             if (StringUtils.isNotEmpty(performanceDto.getPerformanceType())) {
