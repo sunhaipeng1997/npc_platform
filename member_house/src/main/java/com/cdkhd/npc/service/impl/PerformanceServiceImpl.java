@@ -529,10 +529,10 @@ public class PerformanceServiceImpl implements PerformanceService {
         List<MemberCountVo> vos = Lists.newArrayList();
         List<NpcMember> content = pageRes.getContent();//代表列表
         List<PerformanceType> performanceTypes = Lists.newArrayList();//获取所有可用的履职类型
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue())){
+            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
         }
         List<Performance> performanceList = this.getPerformanceList(dto,userDetails);//获取所有履职信息
         Map<String, Map<String,Integer>> memberPerformanceMap = this.dealPerformance(performanceList);//处理所有履职信息
@@ -542,7 +542,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             memberCountVo.setName(npcMember.getName());
             List<CountVo> countList = Lists.newArrayList();
             Map<String,Integer> countMap = memberPerformanceMap.getOrDefault(npcMember.getUid(),Maps.newHashMap());
-            for (PerformanceType performanceType : performanceTypes) {//遍历所有铝箔纸类型信息
+            for (PerformanceType performanceType : performanceTypes) {//遍历所有履职类型信息
                 CountVo countVo = new CountVo();
                 countVo.setUid(performanceType.getUid());
                 countVo.setName(performanceType.getName());
@@ -646,7 +646,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         for (Performance performance : performanceList) {
             String memberUid = performance.getNpcMember().getUid();
             Map<String, Integer> countMap = memberMaps.getOrDefault(memberUid,Maps.newHashMap());
-            countMap.put(performance.getPerformanceType().getUid(),countMap.getOrDefault(performance.getPerformanceType().getUid(),0));
+            countMap.put(performance.getPerformanceType().getUid(),countMap.getOrDefault(performance.getPerformanceType().getUid(),0)+1);
             memberMaps.put(memberUid,countMap);
         }
         return memberMaps;
