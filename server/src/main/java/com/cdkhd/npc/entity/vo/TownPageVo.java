@@ -42,7 +42,7 @@ public class TownPageVo extends BaseVo {
         if (backgroundAdmins.size() <= 2){
             for(BackgroundAdmin backgroundAdmin : backgroundAdmins){
                 if (!backgroundAdmin.getAccount().getLoginUP().getUsername().contains("@cdkhd")){
-                    vo.setMobile(backgroundAdmin.getAccount().getLoginUP().getMobile());
+                    vo.setMobile(backgroundAdmin.getAccount().getMobile());
                 }
             }
         }

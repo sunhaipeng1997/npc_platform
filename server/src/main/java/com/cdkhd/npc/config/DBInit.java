@@ -1215,7 +1215,7 @@ public class DBInit {
         LoginUP loginUP = loginUPRepository.findByUsername(username);
         if (loginUP == null) {
             loginUP = new LoginUP();
-            loginUP.setMobile(mobile);
+//            loginUP.setMobile(mobile);
             loginUP.setUsername(username);
             loginUP.setPassword(passwordEncoder.encode(rawPwd)); //保存hash后的密码
             loginUP.setAccount(account);

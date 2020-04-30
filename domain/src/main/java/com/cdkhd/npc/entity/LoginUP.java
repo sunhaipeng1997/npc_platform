@@ -34,8 +34,8 @@ public class LoginUP extends BaseDomain {
 	/**
 	 * 登录验证手机号
 	 */
-	@Column
-	private String mobile;
+//	@Column
+//	private String mobile;
 
 	/**
 	 * 账号表id
