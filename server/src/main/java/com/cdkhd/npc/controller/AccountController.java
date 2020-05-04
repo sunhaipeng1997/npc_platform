@@ -1,5 +1,7 @@
 package com.cdkhd.npc.controller;
 
+import com.cdkhd.npc.annotation.CurrentUser;
+import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.AccountPageDto;
 import com.cdkhd.npc.service.AccountService;
 import com.cdkhd.npc.vo.RespBody;
@@ -27,8 +29,8 @@ public class AccountController {
      * @return
      */
     @GetMapping("/findAccount")
-    public ResponseEntity findAccount(AccountPageDto accountPageDto){
-        RespBody body = accountService.findAccount(accountPageDto);
+    public ResponseEntity findAccount(@CurrentUser UserDetailsImpl userDetails, AccountPageDto accountPageDto){
+        RespBody body = accountService.findAccount(userDetails, accountPageDto);
         return ResponseEntity.ok(body);
     }
 

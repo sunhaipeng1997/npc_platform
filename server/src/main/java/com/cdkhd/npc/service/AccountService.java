@@ -7,7 +7,7 @@ import com.cdkhd.npc.vo.RespBody;
 
 public interface AccountService {
 
-    RespBody findAccount(AccountPageDto accountPageDto);
+    RespBody findAccount(UserDetailsImpl userDetails, AccountPageDto accountPageDto);
 
     RespBody changeStatus(String uid, Byte status);
 

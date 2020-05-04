@@ -123,10 +123,10 @@ public class StatisticalServiceImpl implements StatisticalService {
      */
     private List<PerformanceType> getPerformanceTypeList(UserDetailsImpl userDetails) {
         List<PerformanceType> performanceTypeList = Lists.newArrayList();
-        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
-            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
-        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue())){
+            performanceTypeList = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            performanceTypeList = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         return performanceTypeList;
     }

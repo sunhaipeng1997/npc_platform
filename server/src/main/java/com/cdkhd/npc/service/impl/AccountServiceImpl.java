@@ -5,6 +5,7 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.AccountPageDto;
 import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.entity.vo.AccountVo;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.VoterRepository;
@@ -51,13 +52,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public RespBody findAccount(AccountPageDto accountPageDto) {
+    public RespBody findAccount(UserDetailsImpl userDetails, AccountPageDto accountPageDto) {
         RespBody body = new RespBody();
         int begin = accountPageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, accountPageDto.getSize(), Sort.Direction.fromString(accountPageDto.getDirection()), accountPageDto.getProperty());
         Page<Account> accountPage = accountRepository.findAll((Specification<Account>)(root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(root.get("voter").isNotNull());
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){  //该镇的用户
+                predicates.add(cb.equal(root.get("voter").get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+            }
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("loginWay").as(Byte.class), LoginWayEnum.LOGIN_WECHAT.getValue()));
 //            predicate = cb.and(predicate, cb.equal(root.get("loginWay").as(Byte.class), (byte)2));
