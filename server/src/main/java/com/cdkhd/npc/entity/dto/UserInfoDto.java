@@ -3,9 +3,12 @@ package com.cdkhd.npc.entity.dto;
 import com.alibaba.fastjson.JSONArray;
 import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.dto.PageDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +28,11 @@ public class UserInfoDto extends BaseDto {
     private Byte gender;
 
     private Integer age;
+
+    //生日
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date birthday;
 
     //手机号
     private String mobile;

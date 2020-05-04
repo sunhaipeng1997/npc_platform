@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Setter
 @Getter
@@ -36,6 +37,13 @@ public class Voter extends BaseDomain {
      */
     @Column(name = "age" )
     private Integer age;
+
+    /**
+     * yyyy-MM-dd
+     */
+    @Column(name = "birthday" )
+    @Temporal(TemporalType.DATE)
+    private Date birthday;
 
     //关联区
     @ManyToOne(targetEntity = Area.class)//, fetch = FetchType.LAZY)

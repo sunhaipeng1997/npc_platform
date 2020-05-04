@@ -238,6 +238,8 @@ public class RegisterServiceImpl implements RegisterService {
         voter.setRealname(dto.getName());
         voter.setGender(dto.getGender());
         voter.setAge(dto.getAge());
+        voter.setBirthday(dto.getBirthday());//增加出生年月
+
         if(keyword.equals(AccountRoleEnum.VOTER.getName())){
             if(StringUtils.isNotEmpty(dto.getAreaUid())){
                 voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
