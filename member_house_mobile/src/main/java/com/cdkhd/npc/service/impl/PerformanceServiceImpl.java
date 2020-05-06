@@ -42,7 +42,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -280,6 +279,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setTitle(addPerformanceDto.getTitle());
         performance.setWorkAt(addPerformanceDto.getWorkAt());
         performance.setContent(addPerformanceDto.getContent());
+        performance.setAuditAt(new Date());
         performance.setReason(addPerformanceDto.getReason());
         Set<PerformanceImage> performanceImages = new HashSet<>();
         for (SuggestionImage suggestionImage : suggestionImages){
