@@ -346,7 +346,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 SystemSetting systemSetting = this.getSystemSetting(userDetails);
-                if (systemSetting.getShowSubPerformance()) {//下级履职开关打开
+                if (systemSetting.getShowSubPerformance() && performanceDto.isFlag()) {//下级履职开关打开
                     List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
                     List<NpcMember> allMembers = Lists.newArrayList();
                     for (NpcMember areaMember : areaMembers) {
@@ -364,20 +364,22 @@ public class PerformanceServiceImpl implements PerformanceService {
                         predicates.add(cb.in(root.get("npcMember").get("uid")).value(memberUid));
                     }
                 }else{//开关关闭查询区上的履职
-                    predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
+                    //下属镇
+                    if (!performanceDto.isFlag()) {
+                        predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
+                        if ( StringUtils.isNotEmpty(performanceDto.getTownUid()) ){
+                            predicates.add(cb.equal(root.get("town").get("uid").as(String.class), performanceDto.getTownUid()));
+                        }
+                    }else {//当前区
+                        predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
+                    }
                 }
             }
             //标题
             if (StringUtils.isNotEmpty(performanceDto.getTitle())) {
                 predicates.add(cb.like(root.get("title").as(String.class), "%" + performanceDto.getTitle() + "%"));
             }
-            //下属镇
-            if (!performanceDto.isFlag() && userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
-                if ( StringUtils.isNotEmpty(performanceDto.getTownUid()) ){
-                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), performanceDto.getTownUid()));
-                }
-            }
+
             //类型
             if (StringUtils.isNotEmpty(performanceDto.getPerformanceType())) {
                 predicates.add(cb.equal(root.get("performanceType").get("uid").as(String.class), performanceDto.getPerformanceType()));
