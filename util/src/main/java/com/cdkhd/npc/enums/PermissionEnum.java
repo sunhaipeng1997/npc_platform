@@ -15,7 +15,8 @@ public enum PermissionEnum {
 //    ANNOUNCEMENT("接收公告"),
 
     MEMBER_RANK("代表排名"),
-    TOWN_RANK("各镇排名"),
+    TOWN_RANK("各镇履职排名"),
+    STREET_RANK("街道履职排名"),
 
     AUDIT_NEWS("审核新闻"),
     AUDIT_SUGGESTION("审核建议"),

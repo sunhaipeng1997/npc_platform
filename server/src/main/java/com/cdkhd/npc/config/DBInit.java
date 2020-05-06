@@ -249,7 +249,7 @@ public class DBInit {
     private void initMenu() {
         //遍历Menu枚举，初始化菜单
         for (MenuEnum menuEnum : MenuEnum.values()) {
-            Menu menu = menuRepository.findByName(menuEnum.getName());
+            Menu menu = menuRepository.findByKeyword(menuEnum.toString());
             if (menu == null) {
                 menu = new Menu();
                 menu.setName(menuEnum.getName());
@@ -277,6 +277,7 @@ public class DBInit {
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));   //我的意见
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));   //代表排名
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));   //各镇排名
+        voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));   //街道排名
         voter.setPermissions(voterPermissions);
         accountRoleRepository.save(voter);
 
@@ -322,6 +323,7 @@ public class DBInit {
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));//接收通知
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
+        memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));   //街道排名
         member.setPermissions(memberPermissions);
         npcMemberRoleRepository.save(member);
 
@@ -337,6 +339,7 @@ public class DBInit {
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));//接收通知
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
+        chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));   //街道排名
         chairman.setPermissions(chairmanPermissions);
         npcMemberRoleRepository.save(chairman);
 
@@ -349,6 +352,7 @@ public class DBInit {
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));//接收通知
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
+        specialPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));   //街道排名
         specialMan.setPermissions(specialPermissions);
         npcMemberRoleRepository.save(specialMan);
 
@@ -436,6 +440,11 @@ public class DBInit {
         //各镇排名
         menu = menuRepository.findByName(MenuEnum.TOWN_RANK.getName());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //各镇排名
+        menu = menuRepository.findByName(MenuEnum.STREET_RANK.getName());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //审核建议

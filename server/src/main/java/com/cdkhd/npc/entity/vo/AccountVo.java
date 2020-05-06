@@ -1,6 +1,7 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Account;
+import com.cdkhd.npc.enums.GenderEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.cdkhd.npc.vo.CommonVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -47,15 +48,23 @@ public class AccountVo extends BaseVo {
     //区信息
     private CommonVo area;
 
+    //性别
+    private Byte gender;
+    private String genderName;
+
     public static AccountVo convert(Account account) {
         AccountVo vo = new AccountVo();
         BeanUtils.copyProperties(account, vo);
         if (account.getVoter() != null){
             vo.setRealname(account.getVoter().getRealname());
             vo.setMobile(account.getVoter().getMobile());
-            vo.setVillage(CommonVo.convert(account.getVoter().getVillage().getUid(),account.getVoter().getVillage().getName()));
-            vo.setTown(CommonVo.convert(account.getVoter().getTown().getUid(),account.getVoter().getTown().getName()));
-            vo.setArea(CommonVo.convert(account.getVoter().getArea().getUid(),account.getVoter().getArea().getName()));
+            vo.setGender(account.getVoter().getGender());
+            vo.setGenderName(GenderEnum.getName(account.getVoter().getGender()));
+            if (account.getVoter().getVillage() != null) {//没有填写注册信息的用户没有村
+                vo.setVillage(CommonVo.convert(account.getVoter().getVillage().getUid(), account.getVoter().getVillage().getName()));
+                vo.setTown(CommonVo.convert(account.getVoter().getTown().getUid(), account.getVoter().getTown().getName()));
+                vo.setArea(CommonVo.convert(account.getVoter().getArea().getUid(), account.getVoter().getArea().getName()));
+            }
         }else{
             vo.setRealname(account.getUsername());
             vo.setMobile(account.getMobile());

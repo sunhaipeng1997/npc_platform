@@ -22,7 +22,8 @@ public enum MenuEnum {
 
     //统计排名
     MEMBER_RANK(null, "代表排名",(byte)1, "opinionVoter", "statistics/statistics-representative","STATISTICAL_RANKING", "MEMBER_HOUSE"),
-    TOWN_RANK(null, "各镇排名",(byte)1, "statistics-town", "statistics/statistics-town","STATISTICAL_RANKING", "MEMBER_HOUSE"),
+    TOWN_RANK(null, "各镇履职排名",(byte)1, "statistics-town", "statistics/statistics-town","STATISTICAL_RANKING", "MEMBER_HOUSE"),
+    STREET_RANK(null, "街道履职排名",(byte)1, "statistics-town", "statistics/statistics-street","STATISTICAL_RANKING", "MEMBER_HOUSE"),
 
     //特殊职能
     AUDIT_NEWS(null, "新闻审核",(byte)1, "auditNews", "news/news-review-list","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),

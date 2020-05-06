@@ -2,6 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.dto.TypeDto;
 import com.cdkhd.npc.entity.vo.RankVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
@@ -72,15 +73,15 @@ public class RankServiceImpl implements RankService {
     /**
      * 各镇建议排名
      * @param userDetails
-     * @param level 当前所选等级
+     * @param typeDto 当前所选等级
      * @return
      */
     @Override
-    public RespBody townSuggestionRank(MobileUserDetailsImpl userDetails, Byte level) {
+    public RespBody townSuggestionRank(MobileUserDetailsImpl userDetails, TypeDto typeDto) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
         List<Suggestion> suggestions = this.getSuggestions(userDetails,LevelEnum.TOWN.getValue());
-        Map<String,String> townMap = this.dealTowns(towns);
+        Map<String,String> townMap = this.dealTowns(towns,typeDto.getType());
         Map<String,Integer> suggestionMap = this.dealSuggestions(suggestions,false);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : townMap.keySet()) {
@@ -120,11 +121,11 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody townOpinionRank(MobileUserDetailsImpl userDetails, Byte level) {
+    public RespBody townOpinionRank(MobileUserDetailsImpl userDetails, TypeDto typeDto) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
         List<Opinion> opinions = this.getOpinions(userDetails, LevelEnum.TOWN.getValue());
-        Map<String,String> townMap = this.dealTowns(towns);
+        Map<String,String> townMap = this.dealTowns(towns,typeDto.getType());
         Map<String,Integer> opinionsMap = this.dealOpinions(opinions,false);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : townMap.keySet()) {
@@ -179,11 +180,11 @@ public class RankServiceImpl implements RankService {
      * @return
      */
     @Override
-    public RespBody townPerformanceRank(MobileUserDetailsImpl userDetails, Byte level) {
+    public RespBody townPerformanceRank(MobileUserDetailsImpl userDetails, TypeDto typeDto) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
         List<Performance> performances = this.getPerformance(userDetails, LevelEnum.TOWN.getValue());
-        Map<String,String> townMap = this.dealTowns(towns);
+        Map<String,String> townMap = this.dealTowns(towns,typeDto.getType());
         Map<String,Integer> performanceMap = this.dealPerformance(performances,false);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : townMap.keySet()) {
@@ -259,10 +260,10 @@ public class RankServiceImpl implements RankService {
      * @param towns
      * @return
      */
-    private Map<String, String> dealTowns(List<Town> towns){
+    private Map<String, String> dealTowns(List<Town> towns,Byte type){
         Map<String,String> townMap = Maps.newHashMap();
         for (Town town: towns) {
-            if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel() && town.getType().equals(LevelEnum.AREA.getValue()))
+            if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel() && town.getType().equals(type))
             townMap.put(town.getUid(), town.getName());
         }
         return townMap;

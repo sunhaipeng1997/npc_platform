@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
+import com.cdkhd.npc.entity.dto.TypeDto;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface RankService {
@@ -13,7 +14,7 @@ public interface RankService {
     /**
      * 各镇建议排名
      */
-    RespBody townSuggestionRank(MobileUserDetailsImpl userDetails, Byte level);
+    RespBody townSuggestionRank(MobileUserDetailsImpl userDetails, TypeDto typeDto);
 
     /**
      * 代表受到的意见排名
@@ -23,7 +24,7 @@ public interface RankService {
     /**
      * 各镇收到的意见排名
      */
-    RespBody townOpinionRank(MobileUserDetailsImpl userDetails, Byte level);
+    RespBody townOpinionRank(MobileUserDetailsImpl userDetails, TypeDto typeDto);
 
     /**
      * 代表履职排名
@@ -33,5 +34,5 @@ public interface RankService {
     /**
      * 各镇履职排名
      */
-    RespBody townPerformanceRank(MobileUserDetailsImpl userDetails, Byte level);
+    RespBody townPerformanceRank(MobileUserDetailsImpl userDetails, TypeDto typeDto);
 }
