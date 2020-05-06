@@ -480,6 +480,9 @@ public class DBInit {
         menuRepository.saveAndFlush(menu);
 
         //新闻管理
+        menu = menuRepository.findByKeyword(MenuEnum.NEWS_TYPE_MANAGE.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_MANAGE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
         menu = menuRepository.findByKeyword(MenuEnum.NEWS_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);

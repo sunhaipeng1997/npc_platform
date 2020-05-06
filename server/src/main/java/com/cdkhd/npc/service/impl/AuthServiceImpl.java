@@ -222,7 +222,7 @@ public class AuthServiceImpl implements AuthService {
                                         menu.getName().equals(MenuEnum.TOWN_SUGGESTION_MANAGE.getName()) ||
                                         menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_MANAGE.getName()) ||
                                         menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_COUNT.getName())
-                                ){
+                                ) {
                                     continue;//镇后台管理员没有镇管理、各镇代表建议管理、各镇代表履职管理
                                 }
                                 if (userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()) && (
