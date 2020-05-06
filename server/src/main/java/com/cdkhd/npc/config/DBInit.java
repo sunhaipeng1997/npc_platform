@@ -398,189 +398,189 @@ public class DBInit {
     private void mapPermissionMenu() {
 
         //代表风采
-        Menu menu = menuRepository.findByName(MenuEnum.MEMBER_INFO.getName());
+        Menu menu = menuRepository.findByKeyword(MenuEnum.MEMBER_INFO.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.MEMBER_INFO.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //查看联络点
-        menu = menuRepository.findByName(MenuEnum.WORK_STATION.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.WORK_STATION.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.VIEW_WORKSTATION.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //我的意见
-        menu = menuRepository.findByName(MenuEnum.MY_OPINION.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.MY_OPINION.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //我的建议
-        menu = menuRepository.findByName(MenuEnum.MY_SUGGESTION.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.MY_SUGGESTION.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.MY_SUGGESTION.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //我的履职
-        menu = menuRepository.findByName(MenuEnum.MY_PERFORMANCE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.MY_PERFORMANCE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.MY_PERFORMANCE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //收到的意见
-        menu = menuRepository.findByName(MenuEnum.RECEIVE_OPINION.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.RECEIVE_OPINION.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_OPINION.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //接收通知
-        menu = menuRepository.findByName(MenuEnum.NOTIFICATION_INFO.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.NOTIFICATION_INFO.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.RECEIVE_NOTICE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表排名
-        menu = menuRepository.findByName(MenuEnum.MEMBER_RANK.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.MEMBER_RANK.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //各镇排名
-        menu = menuRepository.findByName(MenuEnum.TOWN_RANK.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.TOWN_RANK.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //各镇排名
-        menu = menuRepository.findByName(MenuEnum.STREET_RANK.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.STREET_RANK.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //审核建议
-        menu = menuRepository.findByName(MenuEnum.AUDIT_SUGGESTION.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.AUDIT_SUGGESTION.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.AUDIT_SUGGESTION.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //审核履职
-        menu = menuRepository.findByName(MenuEnum.AUDIT_PERFORMANCE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.AUDIT_PERFORMANCE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.AUDIT_PERFORMANCE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //审核新闻
-        menu = menuRepository.findByName(MenuEnum.AUDIT_NEWS.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.AUDIT_NEWS.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.AUDIT_NEWS.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //审核通知
-        menu = menuRepository.findByName(MenuEnum.AUDIT_NOTICE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.AUDIT_NOTICE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.AUDIT_NOTICE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //****************后台菜单
 
         //首页
-        menu = menuRepository.findByName(MenuEnum.HOMEPAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.HOMEPAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //账号管理
-        menu = menuRepository.findByName(MenuEnum.ACCOUNT_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.ACCOUNT_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.ACCOUNT_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //新闻管理
-        menu = menuRepository.findByName(MenuEnum.NEWS_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.NEWS_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //通知管理
-        menu = menuRepository.findByName(MenuEnum.NOTICE_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.NOTICE_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NOTICE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表管理
-        menu = menuRepository.findByName(MenuEnum.NPC_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.NPC_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NPC_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //小组管理
-        menu = menuRepository.findByName(MenuEnum.NPC_MEMBER_GROUP.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.NPC_MEMBER_GROUP.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GROUP_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //联络点管理
-        menu = menuRepository.findByName(MenuEnum.WORKSTATION_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.WORKSTATION_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.WORKSTATION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //选民意见管理
-        menu = menuRepository.findByName(MenuEnum.OPINION_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.OPINION_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.OPINION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //学习类型管理
-        menu = menuRepository.findByName(MenuEnum.STUDY_TYPE_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.STUDY_TYPE_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.STUDY_TYPE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //学习资料管理
-        menu = menuRepository.findByName(MenuEnum.STUDY_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.STUDY_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.STUDY_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表建议类型
-        menu = menuRepository.findByName(MenuEnum.SUGGESTION_TYPE_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_TYPE_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表建议管理
-        menu = menuRepository.findByName(MenuEnum.SUGGESTION_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //各镇代表建议管理
-        menu = menuRepository.findByName(MenuEnum.TOWN_SUGGESTION_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.TOWN_SUGGESTION_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_SUGGESTION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表履职类型
-        menu = menuRepository.findByName(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.PERFORMANCE_TYPE_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_TYPE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表履职管理
-        menu = menuRepository.findByName(MenuEnum.PERFORMANCE_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.PERFORMANCE_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //各镇代表履职管理
-        menu = menuRepository.findByName(MenuEnum.TOWN_PERFORMANCE_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.TOWN_PERFORMANCE_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_PERFORMANCE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表建议统计
-        menu = menuRepository.findByName(MenuEnum.SUGGESTION_COUNT.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_COUNT.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_COUNT.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表履职统计
-        menu = menuRepository.findByName(MenuEnum.PERFORMANCE_COUNT.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.PERFORMANCE_COUNT.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_COUNT.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表权限管理
-        menu = menuRepository.findByName(MenuEnum.PERMISSION_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.PERMISSION_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //镇管理
-        menu = menuRepository.findByName(MenuEnum.TOWN_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.TOWN_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.TOWN_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //村管理
-        menu = menuRepository.findByName(MenuEnum.VILLAGE_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.VILLAGE_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //届期管理
-        menu = menuRepository.findByName(MenuEnum.SESSION_MANAGE.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.SESSION_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SESSION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //系统设置
-        menu = menuRepository.findByName(MenuEnum.SYSTEM_SETTING.getName());
+        menu = menuRepository.findByKeyword(MenuEnum.SYSTEM_SETTING.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));
         menuRepository.saveAndFlush(menu);
     }
