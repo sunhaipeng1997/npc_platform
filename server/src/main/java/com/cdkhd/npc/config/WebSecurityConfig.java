@@ -32,7 +32,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .authorizeRequests()
                 //登录接口权限允许
-                .antMatchers("/api/manager/auth/login", "/api/manager/auth/code","/api/manager/token/parseToken","/api/manager/member/avatar","/api/manager/news/upload_image","/api/manager/member/uploadStudyFile", "/api/manager/auth/bigDataLogin")
+                .antMatchers("/api/manager/auth/login",
+                        "/api/manager/auth/code",
+                        "/api/manager/token/parseToken",
+                        "/api/manager/member/avatar",
+                        "/api/mobile/auth/token",
+                        "/api/manager/news/upload_image",
+                        "/api/manager/member/uploadStudyFile",
+                        "/api/mobile/basic_services/**",
+                        "/api/mobile/news/**",
+                        "/api/mobile/study/**",
+                        "/api/manager/auth/bigDataLogin",
+                        "/public/**"
+                        )
                 .permitAll()
                 .antMatchers(HttpMethod.OPTIONS)
                 .permitAll()

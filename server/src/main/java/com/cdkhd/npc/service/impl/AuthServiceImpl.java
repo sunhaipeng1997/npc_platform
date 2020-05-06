@@ -150,7 +150,6 @@ public class AuthServiceImpl implements AuthService {
 
         BackgroundAdmin bg = account.getBackgroundAdmin();
         if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
-            //改镇已经被删除 不能发验证码
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("改镇已经被删除，无法登录");
             return body;
