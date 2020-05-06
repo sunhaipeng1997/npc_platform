@@ -222,9 +222,10 @@ public class AuthServiceImpl implements AuthService {
                                 if (menu.getName().equals(MenuEnum.TOWN_MANAGE.getName()) ||
                                         menu.getName().equals(MenuEnum.TOWN_SUGGESTION_MANAGE.getName()) ||
                                         menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_MANAGE.getName()) ||
-                                        menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_COUNT.getName())
+                                        menu.getName().equals(MenuEnum.TOWN_PERFORMANCE_COUNT.getName()) ||
+                                        menu.getName().equals(MenuEnum.SYSTEM_SETTING.getName())
                                 ){
-                                    continue;//镇后台管理员没有镇管理、各镇代表建议管理、各镇代表履职管理
+                                    continue;//镇后台管理员没有镇管理、各镇代表建议管理、各镇代表履职管理/也沒有系统设置
                                 }
                                 if (userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()) && (
                                     menu.getName().equals(MenuEnum.SUGGESTION_TYPE_MANAGE.getName()) ||

@@ -41,19 +41,19 @@ public class SystemSetting extends BaseDomain {
 
     //6.是否开启新闻推送(微信端通过服务号，安卓端通过消息通知)
     @Column(name = "push_news" )
-	private Boolean pushNews = true;
+	private Boolean pushNews = false;
 
     //7.是否开启学习活动推送
     @Column(name = "push_study" )
-	private Boolean pushStudy = true;
+	private Boolean pushStudy = false;
 
     //8.是否开启软件更新提示
     @Column(name = "push_update" )
-	private Boolean pushUpdate = true;
+	private Boolean pushUpdate = false;
 
     //9 .是否开启软件快捷办公
     @Column(name = "quick_work" )
-    private Boolean quickWork = true;
+    private Boolean quickWork = false;
 
     @Column(name = "level" )
     private Byte level;

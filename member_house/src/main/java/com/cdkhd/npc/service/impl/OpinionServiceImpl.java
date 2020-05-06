@@ -114,7 +114,7 @@ public class OpinionServiceImpl implements OpinionService {
                         predicates.add(cb.in(root.get("receiver").get("uid")).value(memberUid));
                     }
                 }else{//开关关闭查询区上代表的身份收到的意见
-                    predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
+                    predicates.add(cb.equal(root.get("receiver").get("level").as(Byte.class), LevelEnum.AREA.getValue()));
                 }
 //                Predicate predicateArea = cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue());//要么是在区上收到的意见查询出来
 //                Predicate predicateTown = cb.and(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()),cb.equal(root.get("town").get("type").as(Byte.class), LevelEnum.AREA.getValue()));//要么就是街道的代表收到的意见查询出来

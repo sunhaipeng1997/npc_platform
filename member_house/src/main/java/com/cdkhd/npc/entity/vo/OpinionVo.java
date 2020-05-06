@@ -47,6 +47,9 @@ public class OpinionVo extends BaseVo {
     private Byte level;
     private String levelName;
 
+    //接收人所在机构
+    private String unitName;
+
     public static OpinionVo convert(Opinion opinion) {
         OpinionVo vo = new OpinionVo();
         BeanUtils.copyProperties(opinion, vo);
@@ -58,6 +61,7 @@ public class OpinionVo extends BaseVo {
         vo.setReplayVoList(opinion.getReplies().stream().map(OpinionReplayVo::convert).collect(Collectors.toList()));
         vo.setImages(opinion.getImages().stream().map(img -> img.getPicture()).collect(Collectors.toList()));
         vo.setLevelName(LevelEnum.getName(opinion.getLevel()));
+        vo.setUnitName(opinion.getReceiver().getLevel().equals(LevelEnum.AREA.getValue())?opinion.getReceiver().getArea().getName():opinion.getReceiver().getTown().getName());
         return vo;
     }
 }
