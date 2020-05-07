@@ -194,20 +194,27 @@ public class NewsServiceImpl implements NewsService {
         }
 
         //如果用户有重新上传封面图片，则删除之前的图片
-        String oldCover = news.getCoverUrl();
-        if (StringUtils.isNotEmpty(oldCover) && !dto.getCoverUrl().equals(oldCover)) {
-            File oldCoverFile = new File("static", oldCover);
-            if (oldCoverFile.exists()) {
-                try {
-                    FileUtils.forceDelete(oldCoverFile);
-                } catch (IOException e) {
-                    LOGGER.error("新闻封面图片删除失败 {}", e);
-                    body.setStatus(HttpStatus.BAD_REQUEST);
-                    body.setMessage("系统内部错误");
-                    return body;
-                }
-            }
-        }
+        //暂时不管，不去删除，免得引起bug
+//        if(StringUtils.isNotEmpty(dto.getCoverUrl())){
+//            String oldCover = news.getCoverUrl();
+//            if (!oldCover.isEmpty() && (!dto.getCoverUrl().equals(oldCover))) {
+//                File oldCoverFile = new File("static", oldCover);
+//                if (oldCoverFile.exists()) {
+//                    try {
+//                        FileUtils.forceDelete(oldCoverFile);
+//                    } catch (IOException e) {
+//                        LOGGER.error("新闻封面图片删除失败 {}", e);
+//                        body.setStatus(HttpStatus.BAD_REQUEST);
+//                        body.setMessage("系统内部错误");
+//                        return body;
+//                    }
+//                }
+//            }
+//        }
+
+
+
+
 
         BeanUtils.copyProperties(dto, news);
 
