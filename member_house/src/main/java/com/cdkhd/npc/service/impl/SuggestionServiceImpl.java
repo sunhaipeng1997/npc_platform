@@ -49,6 +49,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -360,6 +361,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         }
 
         int beginIndex = 1;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (Suggestion suggestion : suggestions) {
             Row row = sheet.createRow(beginIndex);
 
@@ -372,13 +374,13 @@ public class SuggestionServiceImpl implements SuggestionService {
             Cell cell1 = row.createCell(1);
             cell1.setCellValue(suggestion.getSuggestionBusiness().getName());
 
-            // 建议类型
+            // 建议标题
             Cell cell2 = row.createCell(2);
             cell2.setCellValue(suggestion.getTitle());
 
             // 建议时间
             Cell cell3 = row.createCell(3);
-            cell3.setCellValue(suggestion.getAuditTime());
+            cell3.setCellValue(simpleDateFormat.format(suggestion.getAuditTime()));
 
             // 建议代表
             Cell cell4 = row.createCell(4);
@@ -411,10 +413,6 @@ public class SuggestionServiceImpl implements SuggestionService {
             }
             cell6.setCellValue(place);
 
-//            // 代表联系方式
-//            Cell cell7 = row.createCell(7);
-//            cell7.setCellValue(suggestion.getRaiser().getMobile());
-
             //审核人姓名
             Cell cell8 = row.createCell(8);
             cell8.setCellValue(suggestion.getAuditor()!= null ? suggestion.getAuditor().getName():"");
@@ -427,7 +425,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             Cell cell10 = row.createCell(10);
             cell10.setCellValue(suggestion.getReason());
 
-            //审核意见
+            //建议级别
             Cell cell11 = row.createCell(11);
             cell11.setCellValue(LevelEnum.getName(suggestion.getLevel()));
 
