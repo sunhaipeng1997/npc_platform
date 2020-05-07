@@ -444,14 +444,8 @@ public class SuggestionServiceImpl implements SuggestionService {
         beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
         Date beforeDate = beforeTime.getTime();
         for (Suggestion suggestion : suggestionList) {
-            //未查看且未超过5分钟可撤回
-            if (suggestion.getRaiseTime().after(beforeDate) && !suggestion.getView()){
-                suggestion.setCanOperate(true);
-//            }else if (suggestion.getStatus().equals(StatusEnum.FAILURE.getValue())){
-//                //审核不通过可以撤回
-//                suggestion.setCanOperate(true);
-            }else {
-                //其他情况都不可操作
+            //被查看或者已经超过5分钟不可撤回
+            if (!suggestion.getRaiseTime().after(beforeDate) || suggestion.getView()){
                 suggestion.setCanOperate(false);
             }
         }
