@@ -339,19 +339,10 @@ public class PerformanceServiceImpl implements PerformanceService {
             return body;
         }
 
-        Calendar beforeTime = Calendar.getInstance();
-        beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
-        Date beforeDate = beforeTime.getTime();
-
-        if (performance.getStatus() == null && performance.getCreateTime().before(beforeDate) && performance.getView()){
+        if (!performance.getCanOperate()){
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("该条履职已超过5分钟，或审核人员已查看，不能删除");
-            LOGGER.error("该条履职已超过5分钟，或审核人员已查看，不能删除");
-            return body;
-        }else if (StatusEnum.ENABLED.equals(performance.getStatus())) {//未提交或审核审核失败的才能删除
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("该条履职已审核通过，不能删除");
-            LOGGER.error("该条履职已审核通过，不能删除");
+            body.setMessage("该条履职不能删除");
+            LOGGER.error("该条履职不能删除");
             return body;
         }
 
@@ -508,7 +499,45 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     @Override
     public RespBody revokePerformance(String uid) {
-        return null;
+        RespBody body = new RespBody();
+        if (StringUtils.isEmpty(uid)) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该条履职");
+            LOGGER.error("uid为空");
+            return body;
+        }
+        Performance performance = performanceRepository.findByUid(uid);
+        if (null == performance) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("找不到该条履职");
+            LOGGER.error("根据uid查询出的实体为空");
+            return body;
+        }
+
+        Calendar beforeTime = Calendar.getInstance();
+        beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
+        Date beforeDate = beforeTime.getTime();
+
+        if (performance.getStatus() == null && performance.getCreateTime().before(beforeDate) && performance.getView()){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该条履职已超过5分钟，或审核人员已查看，不能撤回");
+            LOGGER.error("该条履职已超过5分钟，或审核人员已查看，不能撤回");
+            return body;
+        }else if (performance.getStatus().equals(StatusEnum.REVOKE.getValue())) {//
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该条履职已经撤回了，请勿再次撤回");
+            LOGGER.error("该条履职已经撤回了，请勿再次撤回");
+            return body;
+        }else if (performance.getStatus() != null) {//未提交或审核审核失败的才能删除
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该条履职已审核，不能撤回");
+            LOGGER.error("该条履职已审核，不能撤回");
+            return body;
+        }
+        performance.setCanOperate(true);
+        performance.setStatus(StatusEnum.REVOKE.getValue());
+        performanceRepository.saveAndFlush(performance);
+        return body;
     }
 
 
