@@ -1,7 +1,7 @@
 package com.cdkhd.npc.enums;
 
 public enum StatusEnum {
-    REVOKE((byte)1,"撤回"),
+    REVOKE((byte)0,"撤回"),
     ENABLED((byte)1,"启用"),
     DISABLED((byte)2,"停用");
 
