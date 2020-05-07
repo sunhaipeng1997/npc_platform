@@ -41,6 +41,10 @@ public class SuggestionVo extends BaseVo {
 
     //状态
     private Byte status;
+
+    //是否可撤回
+    private Boolean canOperate;
+
     private String statusName;
 
     //审核原因

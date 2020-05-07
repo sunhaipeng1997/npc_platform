@@ -44,6 +44,7 @@ public class Suggestion extends BaseDomain {
 
 	/**
 	 * ---------建议状态
+	 撤回	0
 	 未提交	1
 	 已提交审核	2
 	 已提交政府	3
@@ -137,8 +138,8 @@ public class Suggestion extends BaseDomain {
 	@Column(name = "level" )
 	private Byte level;
 
-	//是否可操作
-	private Boolean canOperate = false;
+	//前端是否显示撤回按钮，默认为true
+	private Boolean canOperate = true;
 
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "area", referencedColumnName = "id")

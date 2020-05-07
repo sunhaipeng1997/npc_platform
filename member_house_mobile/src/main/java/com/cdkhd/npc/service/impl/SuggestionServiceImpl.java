@@ -106,6 +106,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         Pageable page = PageRequest.of(begin, dto.getSize());
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(dto.getLevel(), account.getNpcMembers());
+        scanSuggestion(npcMember);  //扫描建议
         PageVo<SuggestionVo> vo = new PageVo<>(dto);
         if (npcMember != null) {
             Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
@@ -160,6 +161,19 @@ public class SuggestionServiceImpl implements SuggestionService {
         } else {
             //有uid表示修改建议
             //查询是否是的第一次提交
+            Suggestion sug = suggestionRepository.findByUid(dto.getUid());
+            if (sug == null){
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("不存在该建议");
+                return body;
+            }else if (sug.getStatus() != null){
+                if (!sug.getStatus().equals(StatusEnum.REVOKE.getValue()) &&
+                        !sug.getStatus().equals(StatusEnum.FAILURE.getValue())){
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该建议无法修改");
+                    return body;
+                }
+            }
             suggestion = suggestionRepository.findByUidAndTransUid(dto.getUid(), dto.getTransUid());
         }
         if (suggestion == null) { //如果是第一次提交，就保存基本信息
@@ -205,6 +219,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestion.setContent(dto.getContent());
         suggestion.setRaiser(npcMember);
         suggestion.setRaiseTime(new Date());
+        suggestion.setCanOperate(true);
         SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(dto.getBusiness());
         if (suggestionBusiness == null){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -240,8 +255,21 @@ public class SuggestionServiceImpl implements SuggestionService {
         if (StringUtils.isEmpty(uid)) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("请先选择一条建议");
+            return body;
         }
         Suggestion suggestion = suggestionRepository.findByUid(uid);
+        if (suggestion == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("建议不存在");
+            return body;
+        }
+        if (suggestion.getStatus() != null){
+            if (!suggestion.getStatus().equals(StatusEnum.FAILURE.getValue()) || !suggestion.getStatus().equals(StatusEnum.REVOKE.getValue())){
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("建议无法删除");
+                return body;
+            }
+        }
         suggestion.setIsDel(true);  //逻辑删除
         suggestionRepository.saveAndFlush(suggestion);
         return body;
@@ -336,23 +364,24 @@ public class SuggestionServiceImpl implements SuggestionService {
             body.setMessage("建议不存在");
             return body;
         }
-        int timeout = 0;
-        String time = env.getProperty("code.overdueTime");  //获取配置文件中设置的允许撤回时长
-        if (StringUtils.isNotBlank(time)) {
-            timeout = Integer.parseInt(time);
-        }
-        Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);  //过期时间
+//        String time = env.getProperty("code.overdueTime");  //获取配置文件中设置的允许撤回时长
+//        if (StringUtils.isNotBlank(time)) {
+//            timeout = Integer.parseInt(time);
+//        }
+        Date expireAt = DateUtils.addMinutes(suggestion.getRaiseTime(), 5);  //过期时间
 
         Boolean view = suggestion.getView();
         if (expireAt.before(new Date()) || view) {
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("已超出撤回消息时间或该建议已被查看，无法撤回！！");
+            body.setMessage("已超过5分钟或该建议已被查看，无法撤回！！");
             return body;
         }
-        suggestion.setCanOperate(true);
+        suggestion.setStatus(StatusEnum.REVOKE.getValue());  //将状态设置为撤回状态
+        suggestion.setCanOperate(false);  //撤回后不能再撤回
         suggestionRepository.saveAndFlush(suggestion);
         return body;
     }
+
 
 
     @Override
@@ -405,5 +434,27 @@ public class SuggestionServiceImpl implements SuggestionService {
         vo.copy(pageRes);
         body.setData(vo);
         return body;
+    }
+
+    //扫描我的所有建议，判断出哪些可以操作
+    private void scanSuggestion(NpcMember member) {
+        //获取我提出的所有建议
+        List<Suggestion> suggestionList = suggestionRepository.findByRaiserUid(member.getUid());
+        Calendar beforeTime = Calendar.getInstance();
+        beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
+        Date beforeDate = beforeTime.getTime();
+        for (Suggestion suggestion : suggestionList) {
+            //未查看且未超过5分钟可撤回
+            if (suggestion.getRaiseTime().after(beforeDate) && !suggestion.getView()){
+                suggestion.setCanOperate(true);
+//            }else if (suggestion.getStatus().equals(StatusEnum.FAILURE.getValue())){
+//                //审核不通过可以撤回
+//                suggestion.setCanOperate(true);
+            }else {
+                //其他情况都不可操作
+                suggestion.setCanOperate(false);
+            }
+        }
+        suggestionRepository.saveAll(suggestionList);
     }
 }

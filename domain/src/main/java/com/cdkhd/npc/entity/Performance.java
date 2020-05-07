@@ -35,7 +35,7 @@ public class Performance extends BaseDomain {
    	@Column(name = "reason" )
 	private String reason;
 
-   	//状态  1、已通过  2 未通过
+   	//状态  0、撤回 1、已通过  2 未通过
    	@Column(name = "status" )
 	private Byte status;
 

@@ -3,7 +3,8 @@ package com.cdkhd.npc.enums;
 public enum StatusEnum {
     REVOKE((byte)0,"撤回"),
     ENABLED((byte)1,"启用"),
-    DISABLED((byte)2,"停用");
+    DISABLED((byte)2,"停用"),
+    FAILURE((byte)-1,"审核失败");
 
     private Byte value;
     private String name;
@@ -14,7 +15,7 @@ public enum StatusEnum {
     }
 
 
-    public byte getValue() {
+    public Byte getValue() {
         return value;
     }
 

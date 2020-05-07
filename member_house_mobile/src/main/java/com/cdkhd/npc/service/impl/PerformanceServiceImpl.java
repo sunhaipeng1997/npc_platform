@@ -147,7 +147,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             //未审核且未查看且未超过5分钟
             if (performance.getStatus() == null && performance.getCreateTime().after(beforeDate) && !performance.getView()){
                 performance.setCanOperate(true);
-            }else if (performance.getStatus().equals(StatusEnum.REVOKE.getValue()) || performance.getStatus().equals(StatusEnum.DISABLED.getValue())){
+            }else if (StatusEnum.REVOKE.getValue().equals(performance.getStatus()) || StatusEnum.DISABLED.getValue().equals(performance.getStatus())){
                 //撤回了可以操作、审核不通过可以操作
                 performance.setCanOperate(true);
             }else {
