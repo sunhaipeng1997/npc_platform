@@ -593,6 +593,10 @@ public class NewsServiceImpl implements NewsService {
                 body.setMessage("您不能查询草稿状态新闻");
                 return body;
             }
+        }else {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("状态值不能为空");
+            return body;
         }
 
         int begin = dto.getPage() - 1;
@@ -621,7 +625,7 @@ public class NewsServiceImpl implements NewsService {
                     }
 
                     //按新闻状态查询
-                    if (dto.getStatus() != null) {
+                    if (dto.getStatus() != -1) {
                         predicateList.add(cb.equal(root.get("status").as(Integer.class), dto.getStatus()));
                     }else {
                         predicateList.add(cb.notEqual(root.get("status").as(Integer.class), NewsStatusEnum.CREATED.ordinal()));
