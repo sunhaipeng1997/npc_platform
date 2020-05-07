@@ -35,6 +35,7 @@ public enum MenuEnum {
     //类型管理
     HOMEPAGE("index", "首页",(byte)2, "menu-dashboard", "/member_house/index",null, "MEMBER_HOUSE"),
     ACCOUNT_MANAGE("account", "账号管理",(byte)2, "menu-account", "/member_house/account",null, "MEMBER_HOUSE"),
+    NEWS_TYPE_MANAGE("newsType", "新闻栏目管理",(byte)2, "menu-studyType", "/member_house/newsType",null, "MEMBER_HOUSE"),
     NEWS_MANAGE("news", "新闻管理",(byte)2, "menu-news", "/member_house/news",null, "MEMBER_HOUSE"),
     NOTICE_MANAGE("notification", "通知管理",(byte)2, "menu-notify", "/member_house/notification",null, "MEMBER_HOUSE"),
     NPC_MANAGE("members", "代表管理",(byte)2, "menu-performance", "/member_house/members",null, "MEMBER_HOUSE"),
