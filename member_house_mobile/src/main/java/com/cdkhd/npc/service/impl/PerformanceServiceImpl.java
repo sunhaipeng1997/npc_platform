@@ -147,11 +147,11 @@ public class PerformanceServiceImpl implements PerformanceService {
             //未审核且未查看且未超过5分钟
             if (performance.getStatus() == null && performance.getCreateTime().after(beforeDate) && !performance.getView()){
                 performance.setCanOperate(true);
-            }else if (StatusEnum.REVOKE.getValue().equals(performance.getStatus()) || StatusEnum.DISABLED.getValue().equals(performance.getStatus())){
-                //撤回了可以操作、审核不通过可以操作
-                performance.setCanOperate(true);
+//            }else if (StatusEnum.REVOKE.getValue().equals(performance.getStatus()) || StatusEnum.DISABLED.getValue().equals(performance.getStatus())){
+//                //撤回了可以操作、审核不通过可以操作
+//                performance.setCanOperate(true);
             }else {
-                //其他情况都不可操作
+                //其他情况都不可撤回
                 performance.setCanOperate(false);
             }
         }
@@ -463,10 +463,10 @@ public class PerformanceServiceImpl implements PerformanceService {
         Account auditor = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performance.getLevel(), auditor.getNpcMembers());
         performance.setStatus(auditPerformanceDto.getStatus());
-        if (auditPerformanceDto.getStatus().equals(StatusEnum.DISABLED.getValue())){
-            //如果审核不通过。允许代表修改
-            performance.setCanOperate(true);
-        }
+//        if (auditPerformanceDto.getStatus().equals(StatusEnum.DISABLED.getValue())){
+//            //如果审核不通过。允许代表修改
+//            performance.setCanOperate(true);
+//        }
         performance.setReason(auditPerformanceDto.getReason());
         performance.setMyView(false);
         performance.setAuditAt(new Date());
@@ -527,7 +527,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             body.setMessage("该条履职已超过5分钟，或审核人员已查看，不能撤回");
             LOGGER.error("该条履职已超过5分钟，或审核人员已查看，不能撤回");
             return body;
-        }else if (performance.getStatus().equals(StatusEnum.REVOKE.getValue())) {//
+        }else if (StatusEnum.REVOKE.getValue() == performance.getStatus()) {//已经撤回
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该条履职已经撤回了，请勿再次撤回");
             LOGGER.error("该条履职已经撤回了，请勿再次撤回");
@@ -538,7 +538,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             LOGGER.error("该条履职已审核，不能撤回");
             return body;
         }
-        performance.setCanOperate(true);
+        performance.setCanOperate(false);
         performance.setStatus(StatusEnum.REVOKE.getValue());
         performanceRepository.saveAndFlush(performance);
         return body;

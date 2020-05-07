@@ -26,6 +26,7 @@ public enum PermissionEnum {
     //后台
     HOMEPAGE("首页"),
     ACCOUNT_MANAGE("账号管理"),
+    NEWS_TYPE_MANAGE("新闻类型管理"),
     NEWS_MANAGE("新闻管理"),
     NOTICE_MANAGE("通知管理"),
     NPC_MANAGE("代表管理"),

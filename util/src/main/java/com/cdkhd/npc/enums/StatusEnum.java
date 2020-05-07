@@ -14,6 +14,9 @@ public enum StatusEnum {
         this.name = name;
     }
 
+    public Byte getValueB(){
+        return value;
+    }
 
     public Byte getValue() {
         return value;
