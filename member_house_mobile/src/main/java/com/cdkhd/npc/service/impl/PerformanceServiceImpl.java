@@ -463,6 +463,10 @@ public class PerformanceServiceImpl implements PerformanceService {
         Account auditor = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performance.getLevel(), auditor.getNpcMembers());
         performance.setStatus(auditPerformanceDto.getStatus());
+        if (auditPerformanceDto.getStatus().equals(StatusEnum.DISABLED.getValue())){
+            //如果审核不通过。允许代表修改
+            performance.setCanOperate(true);
+        }
         performance.setReason(auditPerformanceDto.getReason());
         performance.setMyView(false);
         performance.setAuditAt(new Date());
