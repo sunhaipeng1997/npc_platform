@@ -98,4 +98,7 @@ public class Performance extends BaseDomain {
     //履职图片
     @OneToMany(targetEntity = PerformanceImage.class, mappedBy = "performance")
     private Set<PerformanceImage> performanceImages;
+
+    //是否能进行操作(修改和撤回)
+    private Boolean canOperate = true;
 }

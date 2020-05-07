@@ -451,7 +451,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
             systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(), userDetails.getArea().getUid());
         }
         systemSetting.setPerformanceGroupAudit(switches);
-        if (switches){//如果开关是打开的，那么根据当前登录角色（县、镇管理员）找出相应的履职总审核人员，并且筛选下面的率只审核人员，将不合法的履职审核人员剔除
+        if (switches){//如果开关是打开的，那么根据当前登录角色（县、镇管理员）找出相应的履职总审核人员，并且筛选下面的履职审核人员，将不合法的履职审核人员剔除
             Set<NpcMember> auditorManagers;
             Set<NpcMember> auditors;
             NpcMemberRole auditorManager = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());//履职总审核

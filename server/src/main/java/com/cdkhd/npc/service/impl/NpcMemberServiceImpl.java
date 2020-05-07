@@ -342,7 +342,6 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     @Override
     public RespBody deleteNpcMember(String uid) {
         RespBody body = new RespBody();
-
         NpcMember member = npcMemberRepository.findByUid(uid);
         if (member == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -353,8 +352,18 @@ public class NpcMemberServiceImpl implements NpcMemberService {
 
         //删除代表
         member.setIsDel(true);
+        Account account = member.getAccount();//对应的账号信息
+        if (account != null){
+            Set<AccountRole> accountRoles= account.getAccountRoles();
+            accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));//删除代表身份
+            AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//添加选民身份
+            accountRoles.add(voter);
+            account.setAccountRoles(accountRoles);
+            accountRepository.saveAndFlush(account);
+        }
+        member.setAccount(null);
+        member.setStatus(StatusEnum.DISABLED.getValue());
         npcMemberRepository.save(member);
-
         body.setMessage("删除代表成功");
         return body;
     }

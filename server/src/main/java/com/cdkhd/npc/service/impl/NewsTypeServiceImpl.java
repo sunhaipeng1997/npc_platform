@@ -225,14 +225,14 @@ public class NewsTypeServiceImpl implements NewsTypeService {
             }
 
             //按类别名称模糊查询
-            if (StringUtils.isNotEmpty(pageDto.getName())) {
-                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getName() + "%"));
-            }
-
-            //按状态查询
-            if (pageDto.getStatus() != null) {
-                predicateList.add(cb.equal(root.get("status").as(Byte.class), pageDto.getStatus()));
-            }
+//            if (StringUtils.isNotEmpty(pageDto.getName())) {
+//                predicateList.add(cb.like(root.get("name").as(String.class), "%" + pageDto.getName() + "%"));
+//            }
+//
+//            //按状态查询
+//            if (pageDto.getStatus() != null) {
+//                predicateList.add(cb.equal(root.get("status").as(Byte.class), pageDto.getStatus()));
+//            }
 
             return query.where(predicateList.toArray(new Predicate[0])).getRestriction();
         };

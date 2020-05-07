@@ -42,6 +42,9 @@ public class PerformanceListVo extends BaseVo {
     //我是否查看审核结果
     private Boolean myView = true;
 
+    //是否可以操作
+    private Boolean canOperate;
+
     public static PerformanceListVo convert(Performance performance) {
         PerformanceListVo vo = new PerformanceListVo();
         BeanUtils.copyProperties(performance, vo);

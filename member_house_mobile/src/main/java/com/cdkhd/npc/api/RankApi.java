@@ -2,7 +2,6 @@ package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.entity.dto.StudyTypeDto;
 import com.cdkhd.npc.entity.dto.TypeDto;
 import com.cdkhd.npc.service.RankService;
 import com.cdkhd.npc.vo.RespBody;

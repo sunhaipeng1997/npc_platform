@@ -80,4 +80,10 @@ public interface PerformanceService {
      */
     RespBody performanceList(UidDto uidDto);
 
+    /**
+     * 撤回履职信息
+     * @param uid
+     * @return
+     */
+    RespBody revokePerformance(String uid);
 }

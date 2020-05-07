@@ -60,6 +60,16 @@ public class PerformanceApi {
     }
 
     /**
+     * 撤回履职信息
+     * @return
+     */
+    @PostMapping("/revokePerformance")
+    public ResponseEntity revokePerformance(String uid) {
+        RespBody body = performanceService.revokePerformance(uid);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
      * 删除履职信息
      * @return
      */

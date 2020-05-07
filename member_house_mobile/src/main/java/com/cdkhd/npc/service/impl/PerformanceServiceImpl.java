@@ -104,6 +104,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performancePageDto.getLevel(), account.getNpcMembers());
+        this.scanPerformance(npcMember);
         int begin = performancePageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, performancePageDto.getSize());
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
@@ -133,6 +134,28 @@ public class PerformanceServiceImpl implements PerformanceService {
         vo.setContent(performanceVos);
         body.setData(vo);
         return body;
+    }
+
+    //扫描我的所有履职，判断出哪些可以操作
+    private void scanPerformance(NpcMember member) {
+        //获取我提出的所有履职
+        List<Performance> performanceList = performanceRepository.findByNpcMemberUid(member.getUid());
+        Calendar beforeTime = Calendar.getInstance();
+        beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
+        Date beforeDate = beforeTime.getTime();
+        for (Performance performance : performanceList) {
+            //未审核且未查看且未超过5分钟
+            if (performance.getStatus() == null && performance.getCreateTime().after(beforeDate) && !performance.getView()){
+                performance.setCanOperate(true);
+            }else if (performance.getStatus().equals(StatusEnum.REVOKE.getValue()) || performance.getStatus().equals(StatusEnum.DISABLED.getValue())){
+                //撤回了可以操作、审核不通过可以操作
+                performance.setCanOperate(true);
+            }else {
+                //其他情况都不可操作
+                performance.setCanOperate(false);
+            }
+        }
+        performanceRepository.saveAll(performanceList);
     }
 
     @Override
@@ -246,6 +269,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 }
             }
         }
+        performance.setCanOperate(true);//添加和修改的时候，可以进行操作
         performance.setPerformanceType(performanceType);
         performance.setTitle(addPerformanceDto.getTitle());
         performance.setWorkAt(addPerformanceDto.getWorkAt());
@@ -314,12 +338,23 @@ public class PerformanceServiceImpl implements PerformanceService {
             LOGGER.error("根据uid查询出的实体为空");
             return body;
         }
-        if (!performance.getStatus().equals(StatusEnum.DISABLED)) {
+
+        Calendar beforeTime = Calendar.getInstance();
+        beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
+        Date beforeDate = beforeTime.getTime();
+
+        if (performance.getStatus() == null && performance.getCreateTime().before(beforeDate) && performance.getView()){
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("不能删除该条履职");
-            LOGGER.error("履职状态不是审核失败，不能删除");
+            body.setMessage("该条履职已超过5分钟，或审核人员已查看，不能删除");
+            LOGGER.error("该条履职已超过5分钟，或审核人员已查看，不能删除");
+            return body;
+        }else if (StatusEnum.ENABLED.equals(performance.getStatus())) {//未提交或审核审核失败的才能删除
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该条履职已审核通过，不能删除");
+            LOGGER.error("该条履职已审核通过，不能删除");
             return body;
         }
+
         //先删除履职照片
         List<PerformanceImage> performanceImages = performanceImageRepository.findByPerformanceUid(uid);
         performanceImageRepository.deleteAll(performanceImages);
@@ -469,6 +504,11 @@ public class PerformanceServiceImpl implements PerformanceService {
         List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
         body.setData(performanceVos);
         return body;
+    }
+
+    @Override
+    public RespBody revokePerformance(String uid) {
+        return null;
     }
 
 

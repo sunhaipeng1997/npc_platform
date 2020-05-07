@@ -30,4 +30,6 @@ public interface PerformanceRepository extends BaseRepository<Performance> {
     @Query("select count(pfm.uid) from Performance pfm " +
             "where pfm.area.id=?1 and pfm.isDel=false and pfm.status=1")
     Integer countAll(Long areaId);
+
+    List<Performance> findByNpcMemberUid(String uid);
 }
