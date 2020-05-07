@@ -417,7 +417,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
             //审核人姓名
             Cell cell8 = row.createCell(8);
-            cell8.setCellValue(suggestion.getAuditor().getName());
+            cell8.setCellValue(suggestion.getAuditor()!= null ? suggestion.getAuditor().getName():"");
 
             //状态
             Cell cell9 = row.createCell(9);
@@ -532,8 +532,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         }
         int beginIndex = 1;
         Integer[] total = new Integer[suggestionBusinesses.size()];
-        Row row = sheet.createRow(beginIndex);
         for (MemberCountVo memberCountVo : vos) {
+            Row row = sheet.createRow(beginIndex);
+
             // 编号
             Cell cell0 = row.createCell(0);
             cell0.setCellValue(beginIndex);
@@ -552,6 +553,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             }
         }
         if (dto.getSize() == 9999){//导出全部，加一个总计
+            Row row = sheet.createRow(beginIndex);
             // 编号
             Cell cell0 = row.createCell(0);
             cell0.setCellValue(vos.size());

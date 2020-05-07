@@ -35,7 +35,6 @@ public enum MenuEnum {
     //类型管理
     HOMEPAGE("index", "首页",(byte)2, "menu-dashboard", "/member_house/index",null, "MEMBER_HOUSE"),
     ACCOUNT_MANAGE("account", "账号管理",(byte)2, "menu-account", "/member_house/account",null, "MEMBER_HOUSE"),
-    NEWS_TYPE_MANAGE("newsType", "新闻栏目管理",(byte)2, "menu-studyType", "/member_house/newsType",null, "MEMBER_HOUSE"),
     NEWS_MANAGE("news", "新闻管理",(byte)2, "menu-news", "/member_house/news",null, "MEMBER_HOUSE"),
     NOTICE_MANAGE("notification", "通知管理",(byte)2, "menu-notify", "/member_house/notification",null, "MEMBER_HOUSE"),
     NPC_MANAGE("members", "代表管理",(byte)2, "menu-performance", "/member_house/members",null, "MEMBER_HOUSE"),
@@ -50,6 +49,7 @@ public enum MenuEnum {
 
     TYPE_MANAGE("typeManage", "类型管理",(byte)2, null, null,null, "MEMBER_HOUSE"),
     STUDY_TYPE_MANAGE("studyCate", "学习类型管理",(byte)2, "menu-studyType", "/member_house/studyCate","TYPE_MANAGE", "MEMBER_HOUSE"),
+    NEWS_TYPE_MANAGE("newsType", "新闻类型管理",(byte)2, "menu-studyType", "/member_house/newsType","TYPE_MANAGE", "MEMBER_HOUSE"),
     SUGGESTION_TYPE_MANAGE("suggestionBusiness", "建议类型管理",(byte)2, "menu-suggestionType", "/member_house/suggestionBusiness","TYPE_MANAGE", "MEMBER_HOUSE"),
     PERFORMANCE_TYPE_MANAGE("performanceType", "履职类型管理",(byte)2, "menu-performanceType", "/member_house/performanceType","TYPE_MANAGE", "MEMBER_HOUSE"),
 

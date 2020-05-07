@@ -286,6 +286,7 @@ public class DBInit {
         Set<Permission> bgAdminPermissions = bgAdmin.getPermissions();
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE.getKeyword()));//首页
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.ACCOUNT_MANAGE.getKeyword()));//账号管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NEWS_TYPE_MANAGE.getKeyword()));//新闻类型管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NEWS_MANAGE.getKeyword()));//新闻管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NOTICE_MANAGE.getKeyword()));//通知管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NPC_MANAGE.getKeyword()));//代表管理
@@ -481,8 +482,10 @@ public class DBInit {
 
         //新闻管理
         menu = menuRepository.findByKeyword(MenuEnum.NEWS_TYPE_MANAGE.toString());
-        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_MANAGE.getKeyword()));
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_TYPE_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
+
+        //新闻管理
         menu = menuRepository.findByKeyword(MenuEnum.NEWS_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);

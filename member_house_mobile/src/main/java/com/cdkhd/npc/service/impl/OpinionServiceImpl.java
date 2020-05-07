@@ -234,7 +234,17 @@ public class OpinionServiceImpl implements OpinionService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(opinionDto.getLevel(), account.getNpcMembers());
         int begin = opinionDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, opinionDto.getSize());
+
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "view");//先按查看状态排序
+        Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(viewSort);
+        orders.add(statusSort);
+        orders.add(createAt);
+        Sort sort = Sort.by(orders);
+
+        Pageable page = PageRequest.of(begin, opinionDto.getSize(),sort);
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
@@ -246,10 +256,7 @@ public class OpinionServiceImpl implements OpinionService {
             if (opinionDto.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status").as(Byte.class), opinionDto.getStatus()));
             }
-            Predicate[] p = new Predicate[predicates.size()];
-            query.where(cb.and(predicates.toArray(p)));
-            query.orderBy(cb.asc(root.get("status")),cb.asc(root.get("view")),cb.desc(root.get("createTime")));
-            return query.getRestriction();
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         List<OpinionListVo> opinionVos = opinions.getContent().stream().map(OpinionListVo::convert).collect(Collectors.toList());
         PageVo<OpinionListVo> vo = new PageVo<>(opinions, opinionDto);

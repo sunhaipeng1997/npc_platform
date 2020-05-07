@@ -488,7 +488,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
             // 审核人
             Cell cell8 = row.createCell(8);
-            cell8.setCellValue(performance.getAuditor().getName());
+            cell8.setCellValue(performance.getAuditor() != null ? performance.getAuditor().getName():"");
 
             //审核状态
             Cell cell9 = row.createCell(9);
@@ -599,8 +599,8 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         int beginIndex = 1;
         Integer[] total = new Integer[performanceTypes.size()];
-        Row row = sheet.createRow(beginIndex);
         for (MemberCountVo memberCountVo : vos) {
+            Row row = sheet.createRow(beginIndex);
             // 编号
             Cell cell0 = row.createCell(0);
             cell0.setCellValue(beginIndex);
@@ -619,6 +619,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             }
         }
         if (dto.getSize() == 9999){//导出全部，加一个总计
+            Row row = sheet.createRow(beginIndex);
             // 编号
             Cell cell0 = row.createCell(0);
             cell0.setCellValue(vos.size());
