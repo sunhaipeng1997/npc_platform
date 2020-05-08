@@ -139,7 +139,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     //扫描我的所有履职，判断出哪些可以操作
     private void scanPerformance(NpcMember member) {
         //获取我提出的所有履职
-        List<Performance> performanceList = performanceRepository.findByNpcMemberUid(member.getUid());
+        List<Performance> performanceList = performanceRepository.findByNpcMemberUidAndIsDelFalse(member.getUid());
         Calendar beforeTime = Calendar.getInstance();
         beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
         Date beforeDate = beforeTime.getTime();
@@ -214,7 +214,14 @@ public class PerformanceServiceImpl implements PerformanceService {
             //有uid表示修改履职
             //查询是否是的第一次提交
             performance = performanceRepository.findByUidAndTransUid(addPerformanceDto.getUid(), addPerformanceDto.getTransUid());
-
+            if (performance == null) {//表示修改第一次提交
+                performance = performanceRepository.findByUid(addPerformanceDto.getUid());//第一次提交履职，我们根据uid查询出来
+                Set<PerformanceImage> oldImages = performance.getPerformanceImages();//找出所有旧照片
+                if (CollectionUtils.isNotEmpty(oldImages)){
+                    performanceImageRepository.deleteAll(oldImages);//删除所有旧照片
+                }
+                performance.setTransUid(addPerformanceDto.getTransUid());//把新的transUid存进去
+            }
         }
         PerformanceType performanceType = performanceTypeRepository.findByUid(addPerformanceDto.getPerformanceType());
         if (performance == null) {//如果是第一次提交，就保存基本信息
@@ -339,19 +346,9 @@ public class PerformanceServiceImpl implements PerformanceService {
             LOGGER.error("根据uid查询出的实体为空");
             return body;
         }
-
-        if (!performance.getCanOperate()){
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("该条履职不能删除");
-            LOGGER.error("该条履职不能删除");
-            return body;
-        }
-
-        //先删除履职照片
-        List<PerformanceImage> performanceImages = performanceImageRepository.findByPerformanceUid(uid);
-        performanceImageRepository.deleteAll(performanceImages);
         //再删除履职信息
-        performanceRepository.delete(performance);
+        performance.setIsDel(true);
+        performanceRepository.saveAndFlush(performance);
         return body;
     }
 
@@ -365,7 +362,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         //排序条件
         int begin = performancePageDto.getPage() - 1;
-        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "view");//先按查看状态排序
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.DESC, "view");//先按查看状态排序
         Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
         Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
         List<Sort.Order> orders = new ArrayList<>();
@@ -379,6 +376,8 @@ public class PerformanceServiceImpl implements PerformanceService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class),performancePageDto.getLevel()));
+            //撤回状态不展示
+            predicates.add(cb.notEqual(root.get("status").as(Byte.class),PerformanceStatusEnum.REVOKE.getValue()));
             if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 List<NpcMember> npcMemberList = Lists.newArrayList();
                 if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
@@ -415,15 +414,15 @@ public class PerformanceServiceImpl implements PerformanceService {
                     npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(), performancePageDto.getLevel());
                 }
                 if (CollectionUtils.isNotEmpty(npcMemberList)) {
-                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(PerformanceStatusEnum.AUDIT_SUCCESS.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
-                    CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
-                    in.value(uids);
-                    predicates.add(in);
+                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(uids)) {
+                        CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
+                        in.value(uids);
+                        predicates.add(in);
+                    }
                 }
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             }
-            //撤回状态不展示
-            predicates.add(cb.notEqual(root.get("status").as(Byte.class),PerformanceStatusEnum.REVOKE.getValue()));
             //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
                 if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核（前端定义的状态）
@@ -529,15 +528,10 @@ public class PerformanceServiceImpl implements PerformanceService {
             body.setMessage("该条履职已超过5分钟，或审核人员已查看，不能撤回");
             LOGGER.error("该条履职已超过5分钟，或审核人员已查看，不能撤回");
             return body;
-        }else if (performance.getStatus().equals(PerformanceStatusEnum.REVOKE.getValue())) {//
+        }else if (performance.getStatus().equals(PerformanceStatusEnum.REVOKE.getValue())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该条履职已经撤回了，请勿再次撤回");
             LOGGER.error("该条履职已经撤回了，请勿再次撤回");
-            return body;
-        }else if (performance.getStatus() != null) {//未提交或审核审核失败的才能删除
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("该条履职已审核，不能撤回");
-            LOGGER.error("该条履职已审核，不能撤回");
             return body;
         }
         performance.setCanOperate(false);

@@ -2,7 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Performance;
 import com.cdkhd.npc.entity.PerformanceImage;
-import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.PerformanceStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -63,12 +63,14 @@ public class PerformanceVo extends BaseVo {
     //我是否查看审核结果
     private Boolean myView;
 
+    private String transUid;
+
     public static PerformanceVo convert(Performance performance) {
         PerformanceVo vo = new PerformanceVo();
         BeanUtils.copyProperties(performance, vo);
         vo.setMemberName(performance.getNpcMember().getName());
         vo.setMemberMobile(performance.getNpcMember().getMobile());
-        vo.setStatusName(performance.getStatus() == null?"未审核":performance.getStatus().equals(StatusEnum.ENABLED.getValue())?"审核通过":"驳回");
+        vo.setStatusName(PerformanceStatusEnum.getName(performance.getStatus()));
         if (performance.getAuditor() != null) {
             vo.setAuditor(performance.getAuditor().getName());
         }else{
