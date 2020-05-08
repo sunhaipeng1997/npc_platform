@@ -58,10 +58,16 @@ public class SuggestionVo extends BaseVo {
     //我是否查看审核结果
     private Boolean myView = true;
 
+    private String transUid;
+
+    //建议类型
+    private SuggestionBusinessVo suggestionBusinessVo;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
         // 拷贝一些基本属性
         BeanUtils.copyProperties(suggestion, vo);
+        vo.setSuggestionBusinessVo(SuggestionBusinessVo.convert(suggestion.getSuggestionBusiness()));
         //提出人
         NpcMember npcMember = suggestion.getRaiser();
         vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));

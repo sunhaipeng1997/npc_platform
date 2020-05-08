@@ -28,11 +28,6 @@ public class SuggestionAddDto extends BaseDto {
     //建议的内容
     private String content;
 
-    //接收人主要是主任代表
-//    private List<String> receiverId;
-
-//    private String mark;
-
     private MultipartFile image;
 
     private String town;

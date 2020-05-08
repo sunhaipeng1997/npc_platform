@@ -162,7 +162,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             //有uid表示修改建议
             //查询是否是的第一次提交
             suggestion = suggestionRepository.findByUidAndTransUid(dto.getUid(),dto.getTransUid());
-            if (suggestion ==null){
+            if (suggestion == null){  //第一次提交且有附件就删除之前的图片
                 suggestion = suggestionRepository.findByUid(dto.getUid());
                 Set<SuggestionImage> images = suggestion.getSuggestionImages();
                 suggestionImageRepository.deleteAll(images);
@@ -177,7 +177,6 @@ public class SuggestionServiceImpl implements SuggestionService {
             suggestion.setRaiser(npcMember);
             suggestion.setLeader(npcMember);
             suggestion.setTransUid(dto.getTransUid());
-            suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
 
             //设置完基本信息后，给相应审核人员推送消息
 
@@ -213,6 +212,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestion.setRaiser(npcMember);
         suggestion.setRaiseTime(new Date());
         suggestion.setCanOperate(true);
+        suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
         SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(dto.getBusiness());
         if (suggestionBusiness == null){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -257,7 +257,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             return body;
         }
         if (suggestion.getStatus() != null){
-            if (!suggestion.getStatus().equals(StatusEnum.FAILURE.getValue()) || !suggestion.getStatus().equals(StatusEnum.REVOKE.getValue())){
+            if (!suggestion.getStatus().equals(StatusEnum.FAILURE.getValue()) && !suggestion.getStatus().equals(StatusEnum.REVOKE.getValue())){
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage("建议无法删除");
                 return body;

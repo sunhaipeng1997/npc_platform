@@ -28,7 +28,6 @@ public class SuggestionBusinessVo extends BaseVo {
     public static SuggestionBusinessVo convert(SuggestionBusiness suggestionBusiness) {
         SuggestionBusinessVo vo = new SuggestionBusinessVo();
         BeanUtils.copyProperties(suggestionBusiness, vo);
-
         return vo;
     }
 }
