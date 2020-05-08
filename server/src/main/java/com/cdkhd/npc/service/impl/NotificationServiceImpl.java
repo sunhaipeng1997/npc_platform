@@ -952,6 +952,10 @@ public class NotificationServiceImpl implements NotificationService {
                 body.setMessage("您不能查询草稿状态通知");
                 return body;
             }
+        }else{
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("不能查询状态为空的通知");
+            return body;
         }
 
         int begin = dto.getPage() - 1;
@@ -980,7 +984,7 @@ public class NotificationServiceImpl implements NotificationService {
                     }
 
                     //按通知状态查询
-                    if (dto.getStatus() != null) {
+                    if (dto.getStatus() != -1) {
                         predicateList.add(cb.equal(root.get("status").as(Integer.class), dto.getStatus()));
                     }else {
                         predicateList.add(cb.notEqual(root.get("status").as(Integer.class), NotificationStatusEnum.CREATED.ordinal()));
