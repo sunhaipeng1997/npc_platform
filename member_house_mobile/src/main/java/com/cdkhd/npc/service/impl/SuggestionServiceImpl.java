@@ -161,20 +161,13 @@ public class SuggestionServiceImpl implements SuggestionService {
         } else {
             //有uid表示修改建议
             //查询是否是的第一次提交
-            Suggestion sug = suggestionRepository.findByUid(dto.getUid());
-            if (sug == null){
-                body.setStatus(HttpStatus.BAD_REQUEST);
-                body.setMessage("不存在该建议");
-                return body;
-            }else if (sug.getStatus() != null){
-                if (!sug.getStatus().equals(StatusEnum.REVOKE.getValue()) &&
-                        !sug.getStatus().equals(StatusEnum.FAILURE.getValue())){
-                    body.setStatus(HttpStatus.BAD_REQUEST);
-                    body.setMessage("该建议无法修改");
-                    return body;
-                }
+            suggestion = suggestionRepository.findByUidAndTransUid(dto.getUid(),dto.getTransUid());
+            if (suggestion ==null){
+                suggestion = suggestionRepository.findByUid(dto.getUid());
+                Set<SuggestionImage> images = suggestion.getSuggestionImages();
+                suggestionImageRepository.deleteAll(images);
+                suggestion.setTransUid(dto.getTransUid());
             }
-            suggestion = suggestionRepository.findByUidAndTransUid(dto.getUid(), dto.getTransUid());
         }
         if (suggestion == null) { //如果是第一次提交，就保存基本信息
             suggestion = new Suggestion();
