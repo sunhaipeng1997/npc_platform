@@ -69,7 +69,7 @@ public class AccountServiceImpl implements AccountService {
                 predicates.add(cb.like(root.get("voter").get("realname").as(String.class), "%" + accountPageDto.getRealname() + "%"));
             }
             if (StringUtils.isNotEmpty(accountPageDto.getMobile())){
-                predicates.add(cb.equal(root.get("voter").get("mobile").as(String.class), "%" + accountPageDto.getMobile() + "%"));
+                predicates.add(cb.like(root.get("voter").get("mobile").as(String.class), "%" + accountPageDto.getMobile() + "%"));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);

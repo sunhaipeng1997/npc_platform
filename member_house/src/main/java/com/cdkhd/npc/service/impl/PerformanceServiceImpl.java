@@ -11,6 +11,7 @@ import com.cdkhd.npc.entity.vo.MemberCountVo;
 import com.cdkhd.npc.entity.vo.PerformanceTypeVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.PerformanceStatusEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.SystemSettingRepository;
@@ -339,7 +340,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
                 predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
@@ -492,7 +493,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
             //审核状态
             Cell cell9 = row.createCell(9);
-            cell9.setCellValue(StatusEnum.getName(performance.getStatus()));
+            cell9.setCellValue(PerformanceStatusEnum.getName(performance.getStatus()));
 
             //审核意见
             Cell cell10 = row.createCell(10);
@@ -660,7 +661,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue()));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));

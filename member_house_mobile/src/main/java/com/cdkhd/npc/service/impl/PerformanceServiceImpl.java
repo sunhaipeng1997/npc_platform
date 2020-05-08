@@ -6,10 +6,7 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.PerformanceListVo;
 import com.cdkhd.npc.entity.vo.PerformanceVo;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.MsgTypeEnum;
-import com.cdkhd.npc.enums.NpcMemberRoleEnum;
-import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.SystemSettingRepository;
@@ -118,10 +115,13 @@ public class PerformanceServiceImpl implements PerformanceService {
             }
             //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
-                if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核
-                    predicates.add(cb.isNull(root.get("status")));
+                if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核(前端定义的查询状态  1未审核  2 已审核)
+                    predicates.add(cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
                 } else {//已审核
-                    predicates.add(cb.isNotNull(root.get("status")));
+                    Predicate success = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_SUCCESS.getValue());
+                    Predicate failed = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_FAILURE.getValue());
+                    Predicate or = cb.or(success,failed);
+                    predicates.add(or);
                 }
             }
             Predicate[] p = new Predicate[predicates.size()];
@@ -145,13 +145,13 @@ public class PerformanceServiceImpl implements PerformanceService {
         Date beforeDate = beforeTime.getTime();
         for (Performance performance : performanceList) {
             //未审核且未查看且未超过5分钟
-            if (performance.getStatus() == null && performance.getCreateTime().after(beforeDate) && !performance.getView()){
+            if (performance.getStatus().equals(PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()) && performance.getCreateTime().after(beforeDate) && !performance.getView()){
                 performance.setCanOperate(true);
-//            }else if (StatusEnum.REVOKE.getValue().equals(performance.getStatus()) || StatusEnum.DISABLED.getValue().equals(performance.getStatus())){
+//            }else if (performance.getStatus().equals(PerformanceStatusEnum.REVOKE.getValue()) || performance.getStatus().equals(PerformanceStatusEnum.AUDIT_FAILURE.getValue())){
 //                //撤回了可以操作、审核不通过可以操作
 //                performance.setCanOperate(true);
             }else {
-                //其他情况都不可撤回
+                //其他情况都不可操作
                 performance.setCanOperate(false);
             }
         }
@@ -269,6 +269,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 }
             }
         }
+        performance.setStatus(PerformanceStatusEnum.SUBMITTED_AUDIT.getValue());//设置为待审核状态
         performance.setCanOperate(true);//添加和修改的时候，可以进行操作
         performance.setPerformanceType(performanceType);
         performance.setTitle(addPerformanceDto.getTitle());
@@ -294,7 +295,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setNpcMember(npcMemberRepository.findByUid(addPerformanceDto.getUid()));//提出人，就存在uid里面
         performance.setAuditor(npcMember);//审核人
         performance.setView(true);
-        performance.setStatus(StatusEnum.ENABLED.getValue());//默认已通过
+        performance.setStatus(PerformanceStatusEnum.AUDIT_SUCCESS.getValue());//默认已通过
         if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue()) || (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
             performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getArea().getUid()));
         }else if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
@@ -393,7 +394,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                     npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), performancePageDto.getLevel());
                 }
                 if (CollectionUtils.isNotEmpty(npcMemberList)) {
-                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
+                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(PerformanceStatusEnum.AUDIT_SUCCESS.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
                     CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
                     in.value(uids);
                     predicates.add(in);
@@ -414,19 +415,24 @@ public class PerformanceServiceImpl implements PerformanceService {
                     npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(npcMember.getArea().getUid(), performancePageDto.getLevel());
                 }
                 if (CollectionUtils.isNotEmpty(npcMemberList)) {
-                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
+                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(PerformanceStatusEnum.AUDIT_SUCCESS.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
                     CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
                     in.value(uids);
                     predicates.add(in);
                 }
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             }
+            //撤回状态不展示
+            predicates.add(cb.notEqual(root.get("status").as(Byte.class),PerformanceStatusEnum.REVOKE.getValue()));
             //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
-                if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核
-                    predicates.add(cb.isNull(root.get("status")));
+                if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核（前端定义的状态）
+                    predicates.add(cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
                 } else {//已审核
-                    predicates.add(cb.isNotNull(root.get("status")));
+                    Predicate success = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_SUCCESS.getValue());
+                    Predicate failed = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_FAILURE.getValue());
+                    Predicate or = cb.or(success,failed);
+                    predicates.add(or);
                 }
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
@@ -454,7 +460,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             LOGGER.error("根据uid查询出的实体为空");
             return body;
         }
-        if (null != performance.getStatus() && (performance.getStatus().equals(StatusEnum.DISABLED) || performance.getStatus().equals(StatusEnum.ENABLED))) {
+        if (performance.getStatus().equals(PerformanceStatusEnum.AUDIT_SUCCESS.getValue()) || performance.getStatus().equals(PerformanceStatusEnum.AUDIT_FAILURE.getValue())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该条履职已经审核过了，不能再审核");
             LOGGER.error("该条履职已经审核过了，不能再审核");
@@ -463,10 +469,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         Account auditor = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(performance.getLevel(), auditor.getNpcMembers());
         performance.setStatus(auditPerformanceDto.getStatus());
-//        if (auditPerformanceDto.getStatus().equals(StatusEnum.DISABLED.getValue())){
-//            //如果审核不通过。允许代表修改
-//            performance.setCanOperate(true);
-//        }
         performance.setReason(auditPerformanceDto.getReason());
         performance.setMyView(false);
         performance.setAuditAt(new Date());
@@ -477,7 +479,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             JSONObject performanceMsg = new JSONObject();
             performanceMsg.put("subtitle","您的履职有了审核结果，请前往小程序查看。");
             performanceMsg.put("auditItem",performance.getTitle());
-            performanceMsg.put("result",auditPerformanceDto.getStatus().equals(StatusEnum.ENABLED.getValue())?"已通过":"未通过");
+            performanceMsg.put("result",PerformanceStatusEnum.getName(auditPerformanceDto.getStatus()));
             performanceMsg.put("remarkInfo","审核人："+ performance.getAuditor().getName()+" <点击查看详情>");
             pushMessageService.pushMsg(account, MsgTypeEnum.AUDIT_RESULT.ordinal(),performanceMsg);
         }
@@ -493,7 +495,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), uidDto.getUid()));
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue()));
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
@@ -527,7 +529,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             body.setMessage("该条履职已超过5分钟，或审核人员已查看，不能撤回");
             LOGGER.error("该条履职已超过5分钟，或审核人员已查看，不能撤回");
             return body;
-        }else if (StatusEnum.REVOKE.getValue() == performance.getStatus()) {//已经撤回
+        }else if (performance.getStatus().equals(PerformanceStatusEnum.REVOKE.getValue())) {//
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该条履职已经撤回了，请勿再次撤回");
             LOGGER.error("该条履职已经撤回了，请勿再次撤回");
@@ -539,7 +541,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             return body;
         }
         performance.setCanOperate(false);
-        performance.setStatus(StatusEnum.REVOKE.getValue());
+        performance.setStatus(PerformanceStatusEnum.REVOKE.getValue());
         performanceRepository.saveAndFlush(performance);
         return body;
     }
