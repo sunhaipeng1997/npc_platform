@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.PerformanceStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -35,9 +36,9 @@ public class Performance extends BaseDomain {
    	@Column(name = "reason" )
 	private String reason;
 
-   	//状态  0、撤回 1、已通过  2 未通过
+   	//状态  0、撤回 1、未提交  2 待审核  3、审核通过  -1、审核失败
    	@Column(name = "status" )
-	private Byte status;
+	private Byte status = PerformanceStatusEnum.SUBMITTED_AUDIT.getValue();
 
    	//标题
    	@Column(name = "title" )

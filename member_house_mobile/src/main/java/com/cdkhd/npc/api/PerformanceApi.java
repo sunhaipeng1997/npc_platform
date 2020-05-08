@@ -64,8 +64,8 @@ public class PerformanceApi {
      * @return
      */
     @PostMapping("/revokePerformance")
-    public ResponseEntity revokePerformance(String uid) {
-        RespBody body = performanceService.revokePerformance(uid);
+    public ResponseEntity revokePerformance(UidDto uidDto) {
+        RespBody body = performanceService.revokePerformance(uidDto.getUid());
         return ResponseEntity.ok(body);
     }
 
@@ -73,9 +73,9 @@ public class PerformanceApi {
      * 删除履职信息
      * @return
      */
-    @DeleteMapping("/deletePerformance")
-    public ResponseEntity deletePerformance(String uid) {
-        RespBody body = performanceService.deletePerformance(uid);
+    @PostMapping("/deletePerformance")
+    public ResponseEntity deletePerformance(UidDto uidDto) {
+        RespBody body = performanceService.deletePerformance(uidDto.getUid());
         return ResponseEntity.ok(body);
     }
 
