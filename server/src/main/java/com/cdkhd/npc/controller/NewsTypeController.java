@@ -39,7 +39,7 @@ public class NewsTypeController {
      * @param dto 待更新的新闻类型信息
      * @return 更新结果
      */
-    @PutMapping
+    @PostMapping("/update")
     public ResponseEntity updateNewsType(@CurrentUser UserDetailsImpl userDetails,NewsTypeAddDto dto){
         RespBody body = newsTypeService.updateNewsType(userDetails,dto);
         return ResponseEntity.ok(body);
@@ -74,7 +74,7 @@ public class NewsTypeController {
      * @param direction 移动方向
      * @return 查询结果
      */
-    @PutMapping("/change_sequence")
+    @PostMapping("/change_sequence")
     public ResponseEntity changeSequence(String uid, int direction){
         RespBody body = newsTypeService.changeTypeSequence(uid,direction);
         return ResponseEntity.ok(body);

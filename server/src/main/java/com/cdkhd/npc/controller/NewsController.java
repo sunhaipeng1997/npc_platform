@@ -43,7 +43,7 @@ public class NewsController {
         return ResponseEntity.ok(body);
     }
 
-    @PutMapping
+    @PostMapping("/update")
     public ResponseEntity update(NewsAddDto dto) {
         RespBody body = newsService.update(dto);
         return ResponseEntity.ok(body);
