@@ -124,6 +124,7 @@ public class SuggestionServiceImpl implements SuggestionService {
                         predicates.add(cb.equal(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue()));
                     }else if (dto.getStatus().equals(MobileSugStatusEnum.HAS_BEEN_AUDITED.getValue())){  //已审核
                         predicates.add(cb.notEqual(root.get("status").as(Byte.class), MobileSugStatusEnum.TO_BE_AUDITED.getValue()));
+                        predicates.add(cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()));
                     }
                 }
                 Predicate[] p = new Predicate[predicates.size()];
@@ -387,6 +388,8 @@ public class SuggestionServiceImpl implements SuggestionService {
             List<Predicate> predicates = Lists.newArrayList();
             predicates.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+            //已经撤回的建议不查出来
+            predicates.add(cb.notEqual(root.get("status").as(Boolean.class), SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (dto.getLevel().equals(LevelEnum.TOWN.getValue())){  //镇建议审核人员
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
