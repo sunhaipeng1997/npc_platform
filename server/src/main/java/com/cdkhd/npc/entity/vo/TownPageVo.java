@@ -21,6 +21,7 @@ public class TownPageVo extends BaseVo {
 
     // 类型
     private Byte type;
+    private String typeName;
 
     //管理员手机号
     private String mobile;
@@ -34,6 +35,7 @@ public class TownPageVo extends BaseVo {
     public static TownPageVo convert(Town town) {
         TownPageVo vo = new TownPageVo();
         BeanUtils.copyProperties(town, vo);
+        vo.setTypeName(town.getType()==1?"镇":"街道");
         Set<NpcMemberGroup> groups = town.getNpcMemberGroups();
         if (groups != null && !groups.isEmpty()) {
             vo.setGroups(groups.stream().map(GroupVo::convert).collect(Collectors.toSet()));

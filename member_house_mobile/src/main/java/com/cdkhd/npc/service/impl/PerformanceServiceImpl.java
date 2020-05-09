@@ -277,6 +277,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             }
         }
         performance.setStatus(PerformanceStatusEnum.SUBMITTED_AUDIT.getValue());//设置为待审核状态
+        performance.setView(false);
         performance.setCanOperate(true);//添加和修改的时候，可以进行操作
         performance.setPerformanceType(performanceType);
         performance.setTitle(addPerformanceDto.getTitle());
@@ -393,10 +394,12 @@ public class PerformanceServiceImpl implements PerformanceService {
                     npcMemberList = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(npcMember.getTown().getUid(), performancePageDto.getLevel());
                 }
                 if (CollectionUtils.isNotEmpty(npcMemberList)) {
-                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(PerformanceStatusEnum.AUDIT_SUCCESS.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
-                    CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
-                    in.value(uids);
-                    predicates.add(in);
+                    List<String> uids = npcMemberList.stream().filter(member -> !member.getIsDel() && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(NpcMember::getUid).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(uids)){
+                        CriteriaBuilder.In<Object> in = cb.in(root.get("npcMember").get("uid"));
+                        in.value(uids);
+                        predicates.add(in);
+                    }
                 }
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
             } else if (performancePageDto.getLevel().equals(LevelEnum.AREA.getValue())) {
@@ -523,7 +526,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         beforeTime.add(Calendar.MINUTE, -5);// 5分钟之前的时间
         Date beforeDate = beforeTime.getTime();
 
-        if (performance.getStatus() == null && performance.getCreateTime().before(beforeDate) && performance.getView()){
+        if (performance.getStatus().equals(PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()) && performance.getCreateTime().before(beforeDate) && performance.getView()){
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该条履职已超过5分钟，或审核人员已查看，不能撤回");
             LOGGER.error("该条履职已超过5分钟，或审核人员已查看，不能撤回");

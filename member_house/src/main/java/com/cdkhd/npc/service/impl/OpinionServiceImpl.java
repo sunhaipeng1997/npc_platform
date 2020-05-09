@@ -42,6 +42,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -160,7 +161,7 @@ public class OpinionServiceImpl implements OpinionService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "提出人", "提出时间", "提出人联系方式", "接收代表", "接收代表所属机构", "是否回复", "意见内容","意见所在行政等级"};
+        String[] tableHeaders = new String[]{"编号", "提出人", "提出时间", "提出人联系方式", "提出地点","接收代表", "接收代表所属机构", "是否回复", "意见内容","意见所在行政等级"};
         Sheet sheet = hssWb.createSheet("意见信息");
         Row headRow = sheet.createRow(0);
         int colSize = tableHeaders.length;
@@ -170,6 +171,7 @@ public class OpinionServiceImpl implements OpinionService {
         }
 
         int beginIndex = 1;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (Opinion opinion : opinions) {
             Row row = sheet.createRow(beginIndex);
 
@@ -184,35 +186,39 @@ public class OpinionServiceImpl implements OpinionService {
 
             // 提出时间
             Cell cell2 = row.createCell(2);
-            cell2.setCellValue(opinion.getCreateTime());
+            cell2.setCellValue(simpleDateFormat.format(opinion.getCreateTime()));
 
             // 提出人联系方式
             Cell cell3 = row.createCell(3);
             cell3.setCellValue(opinion.getSender().getVoter().getMobile());
 
-            // 接收代表
+            // 提出地点
             Cell cell4 = row.createCell(4);
-            cell4.setCellValue(opinion.getReceiver().getName());
+            cell4.setCellValue(opinion.getSender().getVoter().getArea().getName() +" "+opinion.getSender().getVoter().getTown().getName() +" "+opinion.getSender().getVoter().getVillage().getName());
+
+            // 接收代表
+            Cell cell5 = row.createCell(5);
+            cell5.setCellValue(opinion.getReceiver().getName());
 
             //接收代表所属机构
-            Cell cell5 = row.createCell(5);
+            Cell cell6 = row.createCell(6);
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                cell5.setCellValue(opinion.getReceiver().getNpcMemberGroup().getName());
+                cell6.setCellValue(opinion.getReceiver().getNpcMemberGroup().getName());
             }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                cell5.setCellValue(opinion.getReceiver().getTown().getName());
+                cell6.setCellValue(opinion.getReceiver().getTown().getName());
             }
 
             //是否回复
-            Cell cell6 = row.createCell(6);
-            cell6.setCellValue(StatusEnum.getName(opinion.getStatus()));
+            Cell cell7 = row.createCell(7);
+            cell7.setCellValue(StatusEnum.getName(opinion.getStatus()));
 
             // 意见内容
-            Cell cell7 = row.createCell(7);
-            cell7.setCellValue(opinion.getContent());
+            Cell cell8 = row.createCell(8);
+            cell8.setCellValue(opinion.getContent());
 
             // 意见所在行政等级
-            Cell cell8 = row.createCell(8);
-            cell8.setCellValue(LevelEnum.getName(opinion.getLevel()));
+            Cell cell9 = row.createCell(9);
+            cell9.setCellValue(LevelEnum.getName(opinion.getLevel()));
         }
         try {
             hssWb.write(os);

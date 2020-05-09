@@ -212,6 +212,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestion.setContent(dto.getContent());
         suggestion.setRaiser(npcMember);
         suggestion.setRaiseTime(new Date());
+        suggestion.setView(false);
         suggestion.setCanOperate(true);
         suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  //建议状态改为“已提交待审核”
         SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(dto.getBusiness());

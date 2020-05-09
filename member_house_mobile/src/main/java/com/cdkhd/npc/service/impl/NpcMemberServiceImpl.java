@@ -84,10 +84,12 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             Area area = areaRepository.findByUid(areaUid);
             Set<Town> towns = area.getTowns();
             for (Town town : towns) {
-                MemberUnitVo memberUnitVo = MemberUnitVo.convert(town.getUid(),town.getName(),levelDto.getLevel(),town.getCreateTime());
-                List<MemberUnitVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getStatus().equals(StatusEnum.ENABLED.getValue())).map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),levelDto.getLevel(),member.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
-                memberUnitVo.setChildren(members);
-                MemberUnitVos.add(memberUnitVo);
+                if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()) {
+                    MemberUnitVo memberUnitVo = MemberUnitVo.convert(town.getUid(), town.getName(), levelDto.getLevel(), town.getCreateTime());
+                    List<MemberUnitVo> members = town.getNpcMembers().stream().filter(member -> member.getLevel().equals(LevelEnum.AREA.getValue()) && member.getStatus() == StatusEnum.ENABLED.getValue()).map(member -> MemberUnitVo.convert(member.getUid(), member.getName(), levelDto.getLevel(), member.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
+                    memberUnitVo.setChildren(members);
+                    MemberUnitVos.add(memberUnitVo);
+                }
             }
         }
         MemberUnitVos.sort(Comparator.comparing(MemberUnitVo::getCreateTime));
@@ -201,7 +203,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             }
             Area area = areaRepository.findByUid(areaUid);
             Set<Town> towns = area.getTowns();
-            memberUnitVos = towns.stream().map(town -> MemberUnitVo.convert(town.getUid(),town.getName(),level,town.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
+            memberUnitVos = towns.stream().filter(town -> town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()).map(town -> MemberUnitVo.convert(town.getUid(),town.getName(),level,town.getCreateTime())).sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList());
         }
         body.setData(memberUnitVos);
         return body;

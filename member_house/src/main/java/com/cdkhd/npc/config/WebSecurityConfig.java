@@ -34,6 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //登录接口权限允许
                 .antMatchers("/api/manager/auth/login",
                         "/api/manager/auth/code",
+                        "/api/member_house/work_stations/uploadWorkStationAvatar",
                         "/public/**")
                 .permitAll()
                 .antMatchers(HttpMethod.OPTIONS)
