@@ -255,26 +255,15 @@ public class MenuServiceImpl implements MenuService {
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicateList.add(cb.equal(root.get("opinion").get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
-            predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
+            predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
             predicateList.add(cb.equal(root.get("opinion").get("sender").get("uid").as(String.class), account.getUid()));
             return cb.and(predicateList.toArray(new Predicate[0]));
         });
-        obj.put(MenuEnum.MY_OPINION.toString(), opinionReplies.size());
-
-        // 我收到的公告的数量
-//        List<NotificationViewDetail> notifications = notificationViewDetailRepository.findAll((Specification<NotificationViewDetail>) (root, query, cb) -> {
-//            List<Predicate> predicateList = new ArrayList<>();
-//            predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
-//            predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-//            if (level.equals(LevelEnum.TOWN.getValue())) {
-//                predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-//            }
-//            predicateList.add(cb.equal(root.get("isRead").as(Boolean.class), false));
-//            predicateList.add(cb.equal(root.get("sender").get("uid").as(String.class), account.getUid()));
-//            return cb.and(predicateList.toArray(new Predicate[0]));
-//        });
-//        obj.put(MenuEnum.NOTIFICATION.toString(), notifications.size());
-
+        Set<Opinion> opinionSet = Sets.newHashSet();
+        for (OpinionReply opinionReply : opinionReplies) {
+            opinionSet.add(opinionReply.getOpinion());
+        }
+        obj.put(MenuEnum.MY_OPINION.toString(), opinionSet.size());
 
         if(npcMember != null) {
             //我收到的意见数量
@@ -285,7 +274,7 @@ public class MenuServiceImpl implements MenuService {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
-                predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
+                predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
                 predicateList.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
@@ -305,7 +294,7 @@ public class MenuServiceImpl implements MenuService {
             });
             obj.put(MenuEnum.MY_SUGGESTION.toString(), suggestionReplies.size());
 
-            //我提出的履职审核数量
+            //我提出的履职已审核数量
             List<Performance> performances = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
@@ -401,9 +390,9 @@ public class MenuServiceImpl implements MenuService {
                         List<Predicate> predicateList = new ArrayList<>();
                         predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                         predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
-                        predicateList.add(cb.isNull(root.get("status")));
-                        predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
-                        predicateList.add(cb.equal(root.get("isDel").as(Boolean.class), false));
+                        predicateList.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
+                        predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
+                        predicateList.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                         if (level.equals(LevelEnum.TOWN.getValue())) {
                             predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                         }
@@ -435,7 +424,7 @@ public class MenuServiceImpl implements MenuService {
                             List<Predicate> predicateList = new ArrayList<>();
                             predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
                             predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
-                            predicateList.add(cb.isNull(root.get("status").as(int.class)));
+                            predicateList.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
                             predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
                             predicateList.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                             if (level.equals(LevelEnum.TOWN.getValue())) {

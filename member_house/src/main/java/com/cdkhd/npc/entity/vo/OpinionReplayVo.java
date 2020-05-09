@@ -20,6 +20,7 @@ public class OpinionReplayVo extends BaseVo {
     public static OpinionReplayVo convert(OpinionReply opinionReply) {
         OpinionReplayVo vo = new OpinionReplayVo();
         BeanUtils.copyProperties(opinionReply, vo);
+        vo.setContent(opinionReply.getReply());
         return vo;
     }
 }

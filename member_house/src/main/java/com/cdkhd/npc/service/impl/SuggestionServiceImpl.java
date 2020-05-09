@@ -349,7 +349,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "审核时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "建议状态", "审核意见","建议所在行政等级"};
+        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "提出时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "建议状态", "审核意见","审核日期","建议所在行政等级"};
 
         Sheet sheet = hssWb.createSheet("代表建议");
 
@@ -380,7 +380,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
             // 建议时间
             Cell cell3 = row.createCell(3);
-            cell3.setCellValue(simpleDateFormat.format(suggestion.getAuditTime()));
+            cell3.setCellValue(simpleDateFormat.format(suggestion.getCreateTime()));
 
             // 建议代表
             Cell cell4 = row.createCell(4);
@@ -425,9 +425,13 @@ public class SuggestionServiceImpl implements SuggestionService {
             Cell cell10 = row.createCell(10);
             cell10.setCellValue(suggestion.getReason());
 
-            //建议级别
+            //审核日期
             Cell cell11 = row.createCell(11);
-            cell11.setCellValue(LevelEnum.getName(suggestion.getLevel()));
+            cell11.setCellValue(simpleDateFormat.format(suggestion.getAuditTime()));
+
+            //建议级别
+            Cell cell12 = row.createCell(12);
+            cell12.setCellValue(LevelEnum.getName(suggestion.getLevel()));
 
         }
         try {

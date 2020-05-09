@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -69,7 +70,7 @@ public class OpinionVo extends BaseVo {
         }
         //回复信息
         Set<OpinionReply> replies = opinion.getReplies();
-        List<OpinionReplyVo> replyVos = replies.stream().map(OpinionReplyVo::convert).collect(Collectors.toList());
+        List<OpinionReplyVo> replyVos = replies.stream().map(OpinionReplyVo::convert).sorted(Comparator.comparing(OpinionReplyVo::getCreateTime)).collect(Collectors.toList());
         vo.setReplyVos(replyVos);
         return vo;
     }

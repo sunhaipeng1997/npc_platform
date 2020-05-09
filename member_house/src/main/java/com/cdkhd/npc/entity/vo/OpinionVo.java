@@ -36,6 +36,7 @@ public class OpinionVo extends BaseVo {
 
     //提出人姓名
     private String senderName;
+    private String senderAddress;
 
     //意见回复内容
     private List<OpinionReplayVo> replayVoList;
@@ -62,6 +63,7 @@ public class OpinionVo extends BaseVo {
         vo.setImages(opinion.getImages().stream().map(img -> img.getPicture()).collect(Collectors.toList()));
         vo.setLevelName(LevelEnum.getName(opinion.getLevel()));
         vo.setUnitName(opinion.getReceiver().getLevel().equals(LevelEnum.AREA.getValue())?opinion.getReceiver().getArea().getName():opinion.getReceiver().getTown().getName());
+        vo.setSenderAddress(opinion.getSender().getVoter().getArea().getName()+" "+opinion.getSender().getVoter().getTown().getName() +" "+opinion.getSender().getVoter().getVillage().getName());
         return vo;
     }
 }
