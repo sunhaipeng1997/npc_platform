@@ -368,6 +368,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         //将状态回到草稿状态，重新进入审核流程
         notification.setStatus(NotificationStatusEnum.DRAFT.ordinal());
+        notification.setPublished(false);
         notification.setView(false);
         //保存数据
         notificationRepository.save(notification);
