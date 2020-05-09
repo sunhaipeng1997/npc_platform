@@ -387,7 +387,10 @@ public class SuggestionServiceImpl implements SuggestionService {
             List<Predicate> predicates = Lists.newArrayList();
             predicates.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("raiser").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            if (dto.getLevel().equals(LevelEnum.TOWN.getValue())){  //镇建议审核人员
+                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+            }
             if (dto.getStatus() != null){
                 if (dto.getStatus().equals(MobileSugStatusEnum.All.getValue())){  //未审核
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));
