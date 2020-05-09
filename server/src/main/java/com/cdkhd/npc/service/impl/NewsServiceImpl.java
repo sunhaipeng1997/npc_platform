@@ -476,8 +476,8 @@ public class NewsServiceImpl implements NewsService {
             }
             body.setMessage("成功提交至审核人");
         }else {
-            body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("新闻提交成功，但还未设置新闻审核人");
+            body.setStatus(HttpStatus.OK);
+            body.setMessage("新闻提交审核成功，但请尽快设置新闻审核人，设置以后，审核人即可看到该新闻");
             return body;
         }
 

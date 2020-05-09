@@ -453,8 +453,8 @@ public class NotificationServiceImpl implements NotificationService {
             }
             body.setMessage("成功推送至审核人");
         }else {
-            body.setStatus(HttpStatus.NOT_FOUND);
-            body.setMessage("提交成功，但未设置通知审核人");
+            body.setStatus(HttpStatus.OK);
+            body.setMessage("通知提交审核成功，但请尽快设置通知审核人，设置以后，审核人即可看到该通知");
             return body;
         }
 
@@ -501,7 +501,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationOpeRecord.setFeedback("完成发布"+notification.getTitle());
         notificationOpeRecord.setOpTime(new Date());
         notificationOpeRecord.setAction("发布");
-        //将调用该接口的当前用户记录为该新闻的(操作者)
+        //将调用该接口的当前用户记录为该通知的(操作者)
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
         notificationOpeRecord.setOperator(currentAccount.getUsername());
         notificationOpeRecord.setNotification(notificationRepository.findByUid(notification.getUid()));
@@ -509,7 +509,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         //将状态设置为已发布
         notification.setStatus(NotificationStatusEnum.RELEASED.ordinal());
-        //将新闻设置为公开状态
+        //将通知设置为公开状态
         notification.setPublished(true);
         notification.getOpeRecords().add(notificationOpeRecord);
         notificationRepository.saveAndFlush(notification);
@@ -666,7 +666,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationOpeRecord.setFeedback("完成发布"+notification.getTitle());
         notificationOpeRecord.setOpTime(new Date());
         notificationOpeRecord.setAction("发布");
-        //将调用该接口的当前用户记录为该新闻的(操作者)
+        //将调用该接口的当前用户记录为该通知的(操作者)
         Account currentAccount = accountRepository.findByUid(userDetails.getUid());
         notificationOpeRecord.setOperator(NpcMemberUtil.getCurrentIden(dto.getLevel(),currentAccount.getNpcMembers()).getName());
         notificationOpeRecord.setNotification(notificationRepository.findByUid(notification.getUid()));
@@ -674,7 +674,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         //将状态设置为已发布
         notification.setStatus(NotificationStatusEnum.RELEASED.ordinal());
-        //将新闻设置为公开状态
+        //将通知设置为公开状态
         notification.setPublished(true);
         notification.getOpeRecords().add(notificationOpeRecord);
         notificationRepository.saveAndFlush(notification);
@@ -839,9 +839,9 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
             notificationOpeRecord.setResultStatus(NotificationStatusEnum.NOT_APPROVED.ordinal());
         }
-        //对新闻的反馈意见
+        //对通知的反馈意见
         notificationOpeRecord.setFeedback(dto.getFeedback());
-        //将调用该接口的当前用户记录为该新闻的审核人(操作者)
+        //将调用该接口的当前用户记录为该通知的审核人(操作者)
         notificationOpeRecord.setOperator(npcMember.getName());
         notificationOpeRecord.setAction("审核");
         //先查出来再关联，确保不会报瞬态错误

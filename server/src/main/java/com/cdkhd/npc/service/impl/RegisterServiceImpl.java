@@ -240,7 +240,8 @@ public class RegisterServiceImpl implements RegisterService {
         voter.setAge(dto.getAge());
         voter.setBirthday(dto.getBirthday());//增加出生年月
 
-        if(keyword.equals(AccountRoleEnum.VOTER.getName())){
+        //不管选民和代表，这里的区镇村都直接存voter里去，代表npcmember表中地区信息可以和voter表中的地区信息不一样
+//        if(keyword.equals(AccountRoleEnum.VOTER.getName())){
             if(StringUtils.isNotEmpty(dto.getAreaUid())){
                 voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
             }
@@ -252,32 +253,32 @@ public class RegisterServiceImpl implements RegisterService {
             if(StringUtils.isNotEmpty(dto.getVillageUid())){
                 voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
             }
-        }
-        if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
-            List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
-            Village theVillage = new Village();
-            if(StringUtils.isNotEmpty(dto.getVillageUid())){
-                 theVillage = villageRepository.findByUid(dto.getVillageUid());
-            }
-
-            if (!npcMembers.isEmpty()){
-                voter.setArea(npcMembers.get(0).getArea());
-                voter.setTown(npcMembers.get(0).getTown());
-                if(npcMembers.get(0).getLevel().equals(LevelEnum.AREA.getValue())){
-                    if(npcMembers.get(0).getTown().getVillages().contains(theVillage)){
-                        voter.setVillage(theVillage);
-                    }else{
-                        voter.setVillage(npcMembers.get(0).getTown().getVillages().iterator().next());
-                    }
-                }else{
-                    if(npcMembers.get(0).getNpcMemberGroup().getVillages().contains(theVillage)){
-                        voter.setVillage(theVillage);
-                    }else{
-                        voter.setVillage(npcMembers.get(0).getNpcMemberGroup().getVillages().iterator().next());
-                    }
-                }
-            }
-        }
+//        }
+//        if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
+//            List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
+//            Village theVillage = new Village();
+//            if(StringUtils.isNotEmpty(dto.getVillageUid())){
+//                 theVillage = villageRepository.findByUid(dto.getVillageUid());
+//            }
+//
+//            if (!npcMembers.isEmpty()){
+//                voter.setArea(npcMembers.get(0).getArea());
+//                voter.setTown(npcMembers.get(0).getTown());
+//                if(npcMembers.get(0).getLevel().equals(LevelEnum.AREA.getValue())){
+//                    if(npcMembers.get(0).getTown().getVillages().contains(theVillage)){
+//                        voter.setVillage(theVillage);
+//                    }else{
+//                        voter.setVillage(npcMembers.get(0).getTown().getVillages().iterator().next());
+//                    }
+//                }else{
+//                    if(npcMembers.get(0).getNpcMemberGroup().getVillages().contains(theVillage)){
+//                        voter.setVillage(theVillage);
+//                    }else{
+//                        voter.setVillage(npcMembers.get(0).getNpcMemberGroup().getVillages().iterator().next());
+//                    }
+//                }
+//            }
+//        }
 
 
         voter.setAccount(accountRepository.findByUid(account.getUid()));
