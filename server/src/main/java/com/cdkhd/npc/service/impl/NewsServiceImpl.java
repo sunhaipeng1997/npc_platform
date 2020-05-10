@@ -213,6 +213,10 @@ public class NewsServiceImpl implements NewsService {
 //        }
 
         BeanUtils.copyProperties(dto, news);
+        NewsType newsType = newsTypeRepository.findByUid(dto.getNewsTypeUid());
+        if(newsType != null){
+            news.setNewsType(newsType);
+        }
 
         //修改后状态变为"草稿"，并且重新进行后面的审核流程
         news.setStatus(NewsStatusEnum.DRAFT.ordinal());
