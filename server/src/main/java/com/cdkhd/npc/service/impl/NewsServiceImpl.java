@@ -9,10 +9,7 @@ import com.cdkhd.npc.entity.vo.ImageVo;
 import com.cdkhd.npc.entity.vo.NewsDetailsForMobileVo;
 import com.cdkhd.npc.entity.vo.NewsDetailsVo;
 import com.cdkhd.npc.entity.vo.NewsPageVo;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.MsgTypeEnum;
-import com.cdkhd.npc.enums.NewsStatusEnum;
-import com.cdkhd.npc.enums.NpcMemberRoleEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.NewsService;
 import com.cdkhd.npc.service.NpcMemberRoleService;
@@ -528,7 +525,8 @@ public class NewsServiceImpl implements NewsService {
             List<Predicate> predicateList = new ArrayList<>();
 
             predicateList.add(cb.equal(root.get("level").as(Byte.class), pageDto.getLevel()));
-
+            //新闻所属的栏目，必须是启用状态的
+            predicateList.add(cb.equal(root.get("newsType").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             //按地区编码查询
             if(LevelEnum.AREA.getValue().equals(pageDto.getLevel())){
                 predicateList.add(cb.equal(root.get("area").get("uid").as(String.class),pageDto.getUid()));
