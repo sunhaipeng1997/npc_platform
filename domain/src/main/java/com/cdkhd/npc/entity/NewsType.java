@@ -36,7 +36,7 @@ public class NewsType extends BaseDomain {
 	@Column(name = "level" )
 	private Byte level;
 
-    //类型状态
+    //类型状态1启用，2禁用
     @Column(name = "status" )
 	private Byte status = StatusEnum.DISABLED.getValue();
 
