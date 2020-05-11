@@ -363,7 +363,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         //排序条件
         int begin = performancePageDto.getPage() - 1;
-        Sort.Order viewSort = new Sort.Order(Sort.Direction.DESC, "view");//先按查看状态排序
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "view");//先按查看状态排序
         Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
         Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
         List<Sort.Order> orders = new ArrayList<>();

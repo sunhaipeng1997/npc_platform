@@ -12,6 +12,7 @@ import com.cdkhd.npc.enums.ReplayStatusEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.base.SystemSettingRepository;
 import com.cdkhd.npc.repository.member_house.OpinionImageRepository;
 import com.cdkhd.npc.repository.member_house.OpinionReplayRepository;
 import com.cdkhd.npc.repository.member_house.OpinionRepository;
@@ -58,14 +59,17 @@ public class OpinionServiceImpl implements OpinionService {
 
     private PushMessageService pushMessageService;
 
+    private SystemSettingRepository systemSettingRepository;
+
     @Autowired
-    public OpinionServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, OpinionRepository opinionRepository, OpinionImageRepository opinionImageRepository, OpinionReplayRepository opinionReplayRepository, PushMessageService pushMessageService) {
+    public OpinionServiceImpl(AccountRepository accountRepository, NpcMemberRepository npcMemberRepository, OpinionRepository opinionRepository, OpinionImageRepository opinionImageRepository, OpinionReplayRepository opinionReplayRepository, PushMessageService pushMessageService, SystemSettingRepository systemSettingRepository) {
         this.accountRepository = accountRepository;
         this.npcMemberRepository = npcMemberRepository;
         this.opinionRepository = opinionRepository;
         this.opinionImageRepository = opinionImageRepository;
         this.opinionReplayRepository = opinionReplayRepository;
         this.pushMessageService = pushMessageService;
+        this.systemSettingRepository = systemSettingRepository;
     }
 
     @Override
@@ -95,7 +99,41 @@ public class OpinionServiceImpl implements OpinionService {
             LOGGER.error("没有传入意见uid");
             return body;
         }
+        //系统配置
+        SystemSetting systemSetting = null;
         Account account = accountRepository.findByUid(userDetails.getUid());
+        if (npcMember.getLevel().equals(LevelEnum.AREA.getValue())) {
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(npcMember.getLevel(), npcMember.getArea().getUid());
+            if (systemSetting != null && !systemSetting.getVoterOpinionToAll()){//不允许选民向非本镇代表提意见
+                if (!account.getVoter().getTown().getUid().equals(npcMember.getTown().getUid()) && npcMember.getLevel().equals(LevelEnum.AREA.getValue())){
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("不可向非本镇代表提意见！");
+                    LOGGER.error("不可向非本镇代表提意见");
+                    return body;
+                }
+            }
+        }else if (npcMember.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(npcMember.getLevel(), npcMember.getTown().getUid());
+            if (systemSetting != null && !systemSetting.getVoterOpinionToAll()){//不允许选民向非本镇代表提意见
+                if (npcMember.getLevel().equals(LevelEnum.TOWN.getValue()) && account.getVoter().getVillage().getNpcMemberGroup() != null && !account.getVoter().getVillage().getNpcMemberGroup().getUid().equals(npcMember.getNpcMemberGroup().getUid())){
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("不可向非本小组代表提意见！");
+                    LOGGER.error("不可向非本小组代表提意见");
+                    return body;
+                }
+            }
+        }
+
+        if (systemSetting != null && !systemSetting.getMemberOpinionToMember()){//不允许代表提意见
+            NpcMember accountIdentity = NpcMemberUtil.getCurrentIden(npcMember.getLevel(), account.getNpcMembers());
+            if (accountIdentity != null){
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("代表不允许向代表提意见！");
+                LOGGER.error("代表不允许向代表提意见");
+                return body;
+            }
+        }
+
         Opinion opinion = opinionRepository.findByTransUid(addOpinionDto.getTransUid());
         if (opinion == null) {
             opinion = new Opinion();

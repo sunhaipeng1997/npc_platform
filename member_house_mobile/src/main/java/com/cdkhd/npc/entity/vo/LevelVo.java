@@ -19,11 +19,19 @@ public class LevelVo extends BaseVo {
     //回复列表
     private Byte Level;
 
-    public static LevelVo convert(String uid, String name, Byte level) {
+    //身份  1.代表  2.选民
+    private Byte identity;
+
+    //当前所在镇、区
+    private String unitName;
+
+    public static LevelVo convert(String uid, String name, Byte level,Byte identity,String unitName) {
         LevelVo vo = new LevelVo();
         vo.setUid(uid);
         vo.setName(name);
         vo.setLevel(level);
+        vo.setIdentity(identity);
+        vo.setUnitName(unitName);
         return vo;
     }
 }

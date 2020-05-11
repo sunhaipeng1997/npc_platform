@@ -37,7 +37,7 @@ public class SystemSetting extends BaseDomain {
 
     //5.是否开启全局浮动公告
     @Column(name = "float_notice" )
-	private Boolean floatNotice = true;
+	private Boolean floatNotice = false;
 
     //6.是否开启新闻推送(微信端通过服务号，安卓端通过消息通知)
     @Column(name = "push_news" )
@@ -49,7 +49,7 @@ public class SystemSetting extends BaseDomain {
 
     //8.是否开启软件更新提示
     @Column(name = "push_update" )
-	private Boolean pushUpdate = false;
+	private Boolean pushUpdate = true;
 
     //9 .是否开启软件快捷办公
     @Column(name = "quick_work" )
