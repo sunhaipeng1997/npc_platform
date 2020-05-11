@@ -161,7 +161,7 @@ public class OpinionServiceImpl implements OpinionService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "提出人", "提出时间", "提出人联系方式", "提出地点","接收代表", "接收代表所属机构", "是否回复", "意见内容","意见所在行政等级"};
+        String[] tableHeaders = new String[]{"编号", "提出人", "提出时间", "提出人联系方式", "提出地点","接收代表", "接收代表所属机构", "是否回复", "意见内容","意见地点"};
         Sheet sheet = hssWb.createSheet("意见信息");
         Row headRow = sheet.createRow(0);
         int colSize = tableHeaders.length;

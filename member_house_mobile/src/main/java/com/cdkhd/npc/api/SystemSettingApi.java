@@ -3,7 +3,6 @@ package com.cdkhd.npc.api;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.service.MenuService;
 import com.cdkhd.npc.service.SystemSettingService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;

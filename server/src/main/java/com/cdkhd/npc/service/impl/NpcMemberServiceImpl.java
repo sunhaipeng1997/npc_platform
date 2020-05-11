@@ -293,11 +293,13 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             npcMemberRoles.clear();//先把所有的角色删除掉，然后将本次选择的加上
             member.setNpcMemberRoles(npcMemberRoles);
             if (account != null) {
-                Set<AccountRole> accountRoles = account.getAccountRoles();
-                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
-                AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
-                accountRoles.add(voter);
-                accountRoleRepository.saveAll(accountRoles);
+                if (account.getNpcMembers().size() == 1) {//把所有的代表身份都设置为其他后，在设置为选民
+                    Set<AccountRole> accountRoles = account.getAccountRoles();
+                    accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
+                    AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
+                    accountRoles.add(voter);
+                    accountRoleRepository.saveAll(accountRoles);
+                }
                 member.setAccount(null);
             }
             member.setStatus(StatusEnum.DISABLED.getValue());
@@ -318,11 +320,13 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             }
         } else {//既不包含其他，也不包含本届，一样的设置为选民
             if (account != null) {
-                Set<AccountRole> accountRoles = account.getAccountRoles();
-                accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
-                AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
-                accountRoles.add(voter);
-                accountRoleRepository.saveAll(accountRoles);
+                if (account.getNpcMembers().size() == 1) {//把所有的代表身份删除后，在设置为选民
+                    Set<AccountRole> accountRoles = account.getAccountRoles();
+                    accountRoles.removeIf(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()));
+                    AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());//将选民和代表身份都移除后加上选民身份
+                    accountRoles.add(voter);
+                    accountRoleRepository.saveAll(accountRoles);
+                }
                 member.setAccount(null);
             }
             member.setStatus(StatusEnum.DISABLED.getValue());
@@ -410,13 +414,15 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         //如果当前后台管理员是镇后台管理员，则查询该镇的所有小组
         //如果当前后台管理员是区后台管理员，则查询该区的所有镇
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            Set<NpcMemberGroup> npcMemberGroups = userDetails.getTown().getNpcMemberGroups();
+            List<NpcMemberGroup> npcMemberGroups = Lists.newArrayList(userDetails.getTown().getNpcMemberGroups());
+            npcMemberGroups.sort(Comparator.comparing(NpcMemberGroup::getCreateTime));
             vos = npcMemberGroups.stream().map(group ->
-                    CommonVo.convert(group.getUid(), group.getName())).sorted(Comparator.comparing(CommonVo::getUid)).collect(Collectors.toList());
+                    CommonVo.convert(group.getUid(), group.getName())).collect(Collectors.toList());
         } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-            Set<Town> towns = userDetails.getArea().getTowns();
-            vos = towns.stream().map(town ->
-                    CommonVo.convert(town.getUid(), town.getName())).sorted(Comparator.comparing(CommonVo::getUid)).collect(Collectors.toList());
+            List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
+            towns.sort(Comparator.comparing(Town::getCreateTime));
+            vos = towns.stream().filter(town -> town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()).map(town ->
+                    CommonVo.convert(town.getUid(), town.getName())).collect(Collectors.toList());
         } else {
             throw new RuntimeException("当前后台管理员level不合法");
         }

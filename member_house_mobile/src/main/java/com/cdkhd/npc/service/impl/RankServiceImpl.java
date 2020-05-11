@@ -218,6 +218,8 @@ public class RankServiceImpl implements RankService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), level));
+            predicates.add(cb.equal(root.get("raiser").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.isFalse(root.get("raiser").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -238,6 +240,8 @@ public class RankServiceImpl implements RankService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), level));
+            predicates.add(cb.equal(root.get("receiver").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.isFalse(root.get("receiver").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
@@ -320,6 +324,8 @@ public class RankServiceImpl implements RankService {
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), level));
             predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue()));
+            predicates.add(cb.equal(root.get("npcMember").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.isFalse(root.get("npcMember").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));

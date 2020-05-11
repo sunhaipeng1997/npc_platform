@@ -425,7 +425,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "履职类型", "履职标题", "履职时间", "履职代表", "履职内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见","审核日期","履职所在行政等级"};
+        String[] tableHeaders = new String[]{"编号", "履职类型", "履职标题", "履职时间", "履职代表", "履职内容", "所属地区", "联系方式", "审核人", "审核状态", "审核意见","审核日期","履职地点"};
 
         Sheet sheet = hssWb.createSheet("代表履职");
 
