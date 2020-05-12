@@ -151,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
         BackgroundAdmin bg = account.getBackgroundAdmin();
         if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("改镇已经被删除，无法登录");
+            body.setMessage("该镇已经被删除，无法登录");
             return body;
         }
 
@@ -168,7 +168,8 @@ public class AuthServiceImpl implements AuthService {
 
         //生成token字符串
         TokenVo tokenVo = generateToken(account);
-
+        String unitName = account.getBackgroundAdmin().getLevel().equals(LevelEnum.AREA.getValue())?account.getBackgroundAdmin().getArea().getName():account.getBackgroundAdmin().getTown().getName();
+        tokenVo.setUnitName(unitName);
         body.setData(tokenVo);
         return body;
     }
