@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @Description
@@ -27,5 +25,10 @@ public class HandleProcess extends BaseDomain {
 
    	@Column(name = "attachment_mid_id" )
 	private String attachmentMidId;
+
+	// 办理单位办理记录
+	@ManyToOne(targetEntity = UnitSuggestion.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "unitSuggestion", referencedColumnName = "id")
+	private UnitSuggestion unitSuggestion;
 
 }

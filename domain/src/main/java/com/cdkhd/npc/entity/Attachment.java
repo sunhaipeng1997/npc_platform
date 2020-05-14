@@ -1,9 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.*;
 
 /**
  * @Description
@@ -26,5 +27,10 @@ public class Attachment extends BaseDomain {
 
 	@Column(name = "name")
 	private String name;
+
+	//对应的结果
+	@ManyToOne(targetEntity = Result.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "result", referencedColumnName = "id")
+	private Result result;
 
 }

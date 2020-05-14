@@ -1,12 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.persistence.*;
 
 /**
  * @Description
@@ -21,17 +19,25 @@ import lombok.ToString;
 @Table ( name ="appraise" )
 public class Appraise extends BaseDomain {
 
-
-   	@Column(name = "suggestion_id" )
-	private String suggestionId;
-
+	//办理结果是否满意 评分 1/2/3
    	@Column(name = "result" )
-	private Integer result;
+	private Byte result;
 
+	//办理态度是否满意 评分 1/2/3
    	@Column(name = "attitude" )
-	private Integer attitude;
+	private Byte attitude;
 
+   	//原因
    	@Column(name = "reason" )
 	private String reason;
+
+	//评价人
+	@OneToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)
+	private NpcMember npcMember;
+
+	//对应的建议
+	@ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "suggestion", referencedColumnName = "id")
+	private Suggestion suggestion;
 
 }

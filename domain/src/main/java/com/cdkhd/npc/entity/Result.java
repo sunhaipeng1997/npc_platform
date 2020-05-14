@@ -4,13 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Set;
 
 /**
  * @Description
- * @Author  rfx
+ * @Author rfx
  * @Date 2019-12-03
  */
 
@@ -18,22 +17,34 @@ import javax.persistence.Table;
 @Getter
 @ToString
 @Entity
-@Table ( name ="result" )
+@Table(name = "result")
 public class Result extends BaseDomain {
 
-   	@Column(name = "attachment_mid_id" )
-	private String attachmentMidId;
+    //办理结果
+    @Column(name = "result")
+    private String result;
 
-   	@Column(name = "suggestion_id" )
-	private String suggestionId;
+    //是否接受办理结果
+    @Column(name = "accepted")
+    private Integer accepted;
 
-   	@Column(name = "result" )
-	private String result;
+    //原因
+    @Column(name = "reason")
+    private String reason;
 
-   	@Column(name = "accepted" )
-	private Integer accepted;
+    //办理结果 反馈给主办单位
+    @OneToOne(targetEntity = UnitSuggestion.class, fetch = FetchType.LAZY)
+    private UnitSuggestion unitSuggestion;
 
-   	@Column(name = "reason" )
-	private String reason;
+    //结果附件
+    @OneToMany(targetEntity = Attachment.class, cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    private Set<Attachment> attachments;
+
+    //对应的建议
+    @ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "suggestion", referencedColumnName = "id")
+    private Suggestion suggestion;
 
 }
+
+
