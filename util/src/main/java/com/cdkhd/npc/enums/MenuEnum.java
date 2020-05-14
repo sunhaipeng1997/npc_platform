@@ -2,11 +2,20 @@ package com.cdkhd.npc.enums;
 
 public enum MenuEnum {
     //小程序菜单类型
+    //代表之家
     COMMUNICATION(null, "互动交流",(byte)1, null, null,null,"MEMBER_HOUSE"),//name   type   url   parent
     NOTIFICATION(null, "通知公告",(byte)1, null, null,null, "MEMBER_HOUSE"),
     STATISTICAL_RANKING(null, "排名统计",(byte)1, null, null,null, "MEMBER_HOUSE"),
     SPECIAL_FUNCTIONS(null, "特殊职能",(byte)1, null, null,null, "MEMBER_HOUSE"),
+    //建议办理
+    MY_SUGGESTION_FOR_DEAL(null, "我的建议",(byte)1, null, null,null,"SUGGESTION"),
+    SECONDED_SUGGESTION_FOR_DEAL(null, "建议附议",(byte)1, null, null,null,"SUGGESTION"),
+    SUGGESTION_AUDIT_FOR_DEAL(null, "建议审核",(byte)1, null, null,null,"SUGGESTION"),
+    SUGGESTION_CONVEY_FOR_DEAL(null, "建议转办",(byte)1, null, null,null,"SUGGESTION"),
+    SUGGESTION_DEAL_FOR_DEAL(null, "建议办理",(byte)1, null, null,null,"SUGGESTION"),
+
     //小程序菜单
+    //代表之家
     //互动交流
     MEMBER_INFO(null, "代表风采",(byte)1,"personGrace","representative-grace/representative-group","COMMUNICATION", "MEMBER_HOUSE"),
     MY_OPINION(null, "我的意见",(byte)1, "suggestionMine", "opinion/opinion-voter","COMMUNICATION", "MEMBER_HOUSE"),
@@ -31,8 +40,38 @@ public enum MenuEnum {
     AUDIT_PERFORMANCE(null, "履职审核",(byte)1, "auditDuty", "performance/audit-performance","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),
     AUDIT_NOTICE(null, "通知审核",(byte)1, "audit-notifition", "notification/notify-review-list","SPECIAL_FUNCTIONS", "MEMBER_HOUSE"),
 
+    //建议办理
+    //我的建议
+    SUGGESTION_DRAFT(null, "草稿",(byte)1,"personGrace","","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_COMMITTED(null, "已提交",(byte)1,"personGrace","","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_DONE(null, "已办完",(byte)1,"personGrace","","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_COMPLETED(null, "已办结",(byte)1,"personGrace","","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+
+    //附议建议
+    OTHERS_SUGGESTIONS(null, "我能附议的",(byte)1,"personGrace","","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SECONDED_SUGGESTIONS(null, "我附议的",(byte)1,"personGrace","","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SECONDED_SUGGESTIONS_COMPLETED(null, "附议办结的",(byte)1,"personGrace","","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+
+    //建议审核
+    WAIT_AUDIT_SUGGESTIONS(null, "待审核建议",(byte)1,"personGrace","","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
+    AUDIT_PASS_SUGGESTIONS(null, "审核通过的建议",(byte)1,"personGrace","","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
+    AUDIT_FAILED_SUGGESTIONS(null, "审核失败的建议",(byte)1,"personGrace","","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
+
+    // 建议转办
+    WAIT_CONVEY_SUGGESTIONS(null, "待转办",(byte)1,"personGrace","","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    CONVEYED_SUGGESTIONS(null, "已转办",(byte)1,"personGrace","","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    APPLY_DELAY_SUGGESTIONS(null, "延期申请",(byte)1,"personGrace","","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    APPLY_ADJUST_SUGGESTIONS(null, "调整单位申请",(byte)1,"personGrace","","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+
+    // 建议办理
+    WAIT_DEAL_SUGGESTIONS(null, "待办理",(byte)1,"personGrace","","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    DEALING_SUGGESTIONS(null, "办理中",(byte)1,"personGrace","","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    DEAL_DONE_SUGGESTIONS(null, "已办完",(byte)1,"personGrace","","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    DEAL_COMPLETED_SUGGESTIONS(null, "已办结",(byte)1,"personGrace","","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+
+
     //后台菜单
-    //类型管理
+    //代表之家
     HOMEPAGE("index", "首页",(byte)2, "menu-dashboard", "/member_house/index",null, "MEMBER_HOUSE"),
     ACCOUNT_MANAGE("account", "账号管理",(byte)2, "menu-account", "/member_house/account",null, "MEMBER_HOUSE"),
     NEWS_MANAGE("news", "新闻管理",(byte)2, "menu-news", "/member_house/news",null, "MEMBER_HOUSE"),
@@ -63,7 +102,25 @@ public enum MenuEnum {
     STATISTICS_MANAGE("statisticsManage", "统计",(byte)2, null, null,null, "MEMBER_HOUSE"),
     SUGGESTION_COUNT("suggestionCount", "代表建议统计",(byte)2, "menu-statistics", "/member_house/suggestion_count","STATISTICS_MANAGE", "MEMBER_HOUSE"),
     PERFORMANCE_COUNT("performanceCount", "代表履职统计",(byte)2, "menu-statisics2", "/member_house/performanceCount","STATISTICS_MANAGE", "MEMBER_HOUSE"),
-    TOWN_PERFORMANCE_COUNT("townPerformanceCount", "各镇履职统计",(byte)2, "menu-statisics2", "/member_house/townPerformanceCount","STATISTICS_MANAGE", "MEMBER_HOUSE");
+    TOWN_PERFORMANCE_COUNT("townPerformanceCount", "各镇履职统计",(byte)2, "menu-statisics2", "/member_house/townPerformanceCount","STATISTICS_MANAGE", "MEMBER_HOUSE"),
+
+    //建议办理
+    //政府
+    HOMEPAGE_GOV_DEAL("", "首页",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    GOV_WAIT_CONVEY("", "待转办的建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    GOV_ADJUST_CONVEY("", "申请调整的建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    GOV_ADJUST_DELAY("", "申请延期的建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    UNIT_MANAGE("", "办理单位管理",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    SUGGESTION_SETTING("", "建议办理设置",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    GOV_COUNT("", "建议办理统计",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+
+    //办理单位
+    HOMEPAGE_UNIT_DEAL("", "首页",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    UNIT_WAIT_DEAL("", "待办建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    UNIT_DEALING("", "办理中",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    UNIT_DEAL_DONE("", "办理完成",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    UNIT_DEAL_COMPLETED("", "办结",(byte)2, "menu-dashboard", "",null, "SUGGESTION");
+
 
 
     private String route;
