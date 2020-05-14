@@ -106,20 +106,20 @@ public enum MenuEnum {
 
     //建议办理
     //政府
-    HOMEPAGE_GOV_DEAL("", "首页",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    GOV_WAIT_CONVEY("", "待转办的建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    GOV_ADJUST_CONVEY("", "申请调整的建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    GOV_ADJUST_DELAY("", "申请延期的建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    UNIT_MANAGE("", "办理单位管理",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    SUGGESTION_SETTING("", "建议办理设置",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    GOV_COUNT("", "建议办理统计",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
+    HOMEPAGE_GOV_DEAL("govIndex", "首页",(byte)2, "menu-dashboard", "/suggestion_deal/gov/govIndex",null, "SUGGESTION"),
+    GOV_WAIT_CONVEY("toBeTransSug", "待转办的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/toBeTransSug",null, "SUGGESTION"),
+    GOV_ADJUST_CONVEY("applyAdjustSug", "申请调整的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/applyAdjustSug",null, "SUGGESTION"),
+    GOV_ADJUST_DELAY("applyDelaySug", "申请延期的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/applyDelaySug",null, "SUGGESTION"),
+    UNIT_MANAGE("unitManage", "办理单位管理",(byte)2, "menu-dashboard", "/suggestion_deal/gov/unitManage",null, "SUGGESTION"),
+    SUGGESTION_SETTING("sugDealSetting", "建议办理设置",(byte)2, "menu-dashboard", "/suggestion_deal/gov/sugDealSetting",null, "SUGGESTION"),
+    GOV_COUNT("sugDealStatistic", "建议办理统计",(byte)2, "menu-dashboard", "/suggestion_deal/gov/sugDealStatistic",null, "SUGGESTION"),
 
     //办理单位
-    HOMEPAGE_UNIT_DEAL("", "首页",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    UNIT_WAIT_DEAL("", "待办建议",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    UNIT_DEALING("", "办理中",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    UNIT_DEAL_DONE("", "办理完成",(byte)2, "menu-dashboard", "",null, "SUGGESTION"),
-    UNIT_DEAL_COMPLETED("", "办结",(byte)2, "menu-dashboard", "",null, "SUGGESTION");
+    HOMEPAGE_UNIT_DEAL("unitIndex", "首页",(byte)2, "menu-dashboard", "/suggestion_deal/unit/unitIndex",null, "SUGGESTION"),
+    UNIT_WAIT_DEAL("toBeDoneSug", "待办建议",(byte)2, "menu-dashboard", "/suggestion_deal/unit/toBeDoneSug",null, "SUGGESTION"),
+    UNIT_DEALING("inDoingSug", "办理中",(byte)2, "menu-dashboard", "/suggestion_deal/unit/inDoingSug",null, "SUGGESTION"),
+    UNIT_DEAL_DONE("doneSug", "办理完成",(byte)2, "menu-dashboard", "/suggestion_deal/unit/doneSug",null, "SUGGESTION"),
+    UNIT_DEAL_COMPLETED("completedSug", "办结",(byte)2, "menu-dashboard", "/suggestion_deal/unit/completedSug",null, "SUGGESTION");
 
 
 
