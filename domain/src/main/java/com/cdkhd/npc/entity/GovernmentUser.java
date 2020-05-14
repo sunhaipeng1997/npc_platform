@@ -2,6 +2,8 @@ package com.cdkhd.npc.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,44 +27,24 @@ public class GovernmentUser extends BaseDomain {
 
 	 */
    	@Column(name = "status" )
-	private Integer status;
+	private Byte status = StatusEnum.ENABLED.getValue();
 
 	/**
-	 * 姓名
+	 *   等级，县/区后台管理员 or 镇后台管理员
+	 *   见com.cdkhd.npc.enums.LevelEnum
 	 */
-   	@Column(name = "name" )
-	private String name;
+	@Column(name = "level")
+	private Byte level;
 
-	/**
-	 * 电话号码
-	 */
-   	@Column(name = "mobile" )
-	private String mobile;
+	//关联区
+	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Area area;
 
-	/**
-	 * 代表证号
-	 */
-   	@Column(name = "code" )
-	private String code;
-
-	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
-   	@Column(name = "update_time" )
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updateTime;
-
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "create_user" )
-	private String createUser;
-
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "update_user" )
-	private String updateUser;
+	//关联镇
+	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "town", referencedColumnName = "id")
+	private Town town;
 
 	/**
 	 * 账号表id

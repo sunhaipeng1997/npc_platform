@@ -2,14 +2,13 @@ package com.cdkhd.npc.enums;
 
 public enum PermissionEnum {
     //小程序
+    //代表之家
     MEMBER_INFO("代表风采"),
     VIEW_WORKSTATION("查看联络点"),
     MY_OPINION("我的意见"),
     MY_SUGGESTION("我的建议"),
     MY_PERFORMANCE("我的履职"),
     RECEIVE_OPINION("收到意见"),
-//    OTHERS_SUGGESTION("他人建议"),
-//    SECONDED_SUGGESTION("附议建议"),
 
     RECEIVE_NOTICE("接收通知"),
 //    ANNOUNCEMENT("接收公告"),
@@ -22,6 +21,17 @@ public enum PermissionEnum {
     AUDIT_SUGGESTION("审核建议"),
     AUDIT_PERFORMANCE("审核履职"),
     AUDIT_NOTICE("审核通知"),
+
+    //建议办理
+    DEAL_MY_SUGGESTION("我的建议"),
+    DEAL_OTHERS_SUGGESTION("他人建议"),
+    DEAL_SECONDED_SUGGESTION("附议建议"),
+    DEAL_AUDIT_SUGGESTION("审核建议"),
+    DEAL_CONVEY_SUGGESTIONS("转办建议"),
+    GOV_DELAY_SUGGESTION("延期建议"),
+    GOV_ADJUST_SUGGESTION("调整单位"),
+    UNIT_WAIT_DEAL_SUGGESTION("单位待办理"),
+    UNIT_DEAL_SUGGESTION("单位办理建议"),
 
     //后台
     HOMEPAGE("首页"),
@@ -48,7 +58,22 @@ public enum PermissionEnum {
     SESSION_MANAGE("届期管理"),
     SYSTEM_SETTING("系统设置"),
     TOWN_MANAGE("镇管理"),
-    VILLAGE_MANAGE("村管理");
+    VILLAGE_MANAGE("村管理"),
+
+    HOMEPAGE_GOV_DEAL("政府首页"),
+    GOV_WAIT_CONVEY("待转办"),
+    GOV_ADJUST_CONVEY("调整单位"),
+    GOV_ADJUST_DELAY("申请延期"),
+    UNIT_MANAGE("办理单位管理"),
+    SUGGESTION_SETTING("建议设置"),
+    GOV_COUNT("统计"),
+
+    HOMEPAGE_UNIT_DEAL("办理单位首页"),
+    UNIT_WAIT_DEAL("办理单待办理列表"),
+    UNIT_DEALING("办理单位办理中列表"),
+    UNIT_DEAL_DONE("办理单位办理完成列表"),
+    UNIT_DEAL_COMPLETED("办理单位办结列表");
+
 
     private String name;
 
