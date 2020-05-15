@@ -144,8 +144,8 @@ public class DBInit {
         initGovAccount(username, mobile, defaultRawPwd);
 
         //为政府初始化账号信息
-        username = env.getProperty("npc_base_info.govuser.name");
-        mobile = env.getProperty("npc_base_info.govuser.mobile");
+        username = env.getProperty("npc_base_info.govcdkhd.name");
+        mobile = env.getProperty("npc_base_info.govcdkhd.mobile");
         initGovAccount(username, mobile, defaultRawPwd);
     }
 
@@ -451,19 +451,31 @@ public class DBInit {
         //政府人员
         AccountRole govUser = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.getKeyword());
         Set<Permission> govPermissions = govUser.getPermissions();
-        //代表之家
+        //小程序
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_CONVEY_SUGGESTIONS.getKeyword()));   //转办建议
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_DELAY_SUGGESTION.getKeyword()));   //延期建议
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_SUGGESTION.getKeyword()));   //调整单位
+        //后台
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_WAIT_CONVEY.getKeyword()));   //待转办
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_CONVEY.getKeyword()));   //调整单位
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_DELAY.getKeyword()));   //申请延期
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_MANAGE.getKeyword()));   //办理单位管理
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_SETTING.getKeyword()));   //建议设置
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));   //统计
         govUser.setPermissions(govPermissions);
         accountRoleRepository.save(govUser);
 
         //办理单位
-        AccountRole unitUser = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.getKeyword());
+        AccountRole unitUser = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.getKeyword());
         Set<Permission> unitPermissions = unitUser.getPermissions();
-        //代表之家
+        //小程序
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL_SUGGESTION.getKeyword()));   //单位待办理
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_SUGGESTION.getKeyword()));   //单位办理建议
+        //后台
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL.getKeyword()));   //办理单待办理列表
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEALING.getKeyword()));   //办理单位办理中列表
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_DONE.getKeyword()));   //办理单位办理完成列表
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_COMPLETED.getKeyword()));   //办理单位办结列表
         unitUser.setPermissions(unitPermissions);
         accountRoleRepository.save(unitUser);
 

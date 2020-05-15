@@ -20,6 +20,10 @@ spring:
   resources:
     static-locations: ["classpath:/static/", "./static"]
 
+account:
+  suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
+  password: 123456 #默认密码
+  mobile: 13551371473 #默认手机号
 npc_base_info:
   area: 双流区
   user:

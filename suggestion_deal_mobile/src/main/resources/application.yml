@@ -49,6 +49,10 @@ service_app:
 serverUrl:
   http://localhost:8080
 
+account:
+  suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
+  password: 123456 #默认密码
+  mobile: 13551371473 #默认手机号
 npc_base_info:
   area: 双流区
   user:
@@ -56,4 +60,10 @@ npc_base_info:
     mobile: 18940918501
   cdkhd:
     name: cdkhd
+    mobile: 13551371473
+  govuser:
+    name: admingov
+    mobile: 18940918501
+  govcdkhd:
+    name: cdkhdgov
     mobile: 13551371473

@@ -1,15 +1,11 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.util.Date;
+import javax.persistence.*;
+import java.util.Set;
 
 /**
  * @Description
@@ -24,48 +20,45 @@ import java.util.Date;
 @Table ( name ="unit" )
 public class Unit extends BaseDomain {
 
-	/**
-	 * 1、正常
-	 * 2、锁定
-	 */
-   	@Column(name = "status" )
-	private Integer status;
-
-	/**
-	 * 姓名
-	 */
-   	@Column(name = "name" )
+	//单位名称
 	private String name;
 
-	/**
-	 * 业务
-	 */
-   	@Column(name = "business" )
-	private String business;
-
-	/**
-	 * 电话号码
-	 */
-   	@Column(name = "mobile" )
+	//联系电话
+	@Column(unique = true)
 	private String mobile;
 
-	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
-   	@Column(name = "update_time" )
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updateTime;
+	//单位状态  1、正常 2、锁定
+	private Byte status;
 
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "create_user" )
-	private String createUser;
+	// 备注情况
+	private String comment;
 
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "update_user" )
-	private String updateUser;
+	//单位地址
+	private String address;
 
+	//单位业务
+	@OneToOne(targetEntity=SuggestionBusiness.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "business", referencedColumnName = "id")
+	private SuggestionBusiness suggestionBusiness;
+
+	//经度
+	private String longitude;
+
+	//纬度
+	private String latitude;
+
+	//办理单位基本信息
+	@OneToMany(targetEntity = UnitUser.class, mappedBy = "unit", orphanRemoval = true)
+	private Set<UnitUser> unitUser;
+
+	@Column(name = "level" )
+	private Byte level;
+
+	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Area area;
+
+	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "town", referencedColumnName = "id")
+	private Town town;
 }

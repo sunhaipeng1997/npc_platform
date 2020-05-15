@@ -1,7 +1,8 @@
 package com.cdkhd.npc.component;
 
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.LoginUP;
+import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.enums.AccountRoleEnum;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.util.JwtUtils;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
@@ -46,7 +49,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     if (account.getLoginWay().equals(LoginWayEnum.LOGIN_UP.getValue())){
                         //后台管理员的请求
                         LoginUP loginUP = account.getLoginUP();
-                        UserDetailsImpl userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
+                        Set<AccountRole> accountRoles = account.getAccountRoles();
+                        UserDetailsImpl userDetails = null;
+                        for (AccountRole accountRole : accountRoles) {
+                            if (accountRole.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())){
+                                BackgroundAdmin bg = account.getBackgroundAdmin();
+                                userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), bg.getArea(), bg.getTown(), bg.getLevel());
+                            }else if (accountRole.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword())){
+                                GovernmentUser govUser = account.getGovernmentUser();
+                                userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), govUser.getArea(), govUser.getTown(), govUser.getLevel());
+                            }else if (accountRole.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())){
+                                UnitUser unitUser = account.getUnitUser();
+                                userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), unitUser.getUnit().getArea(), unitUser.getUnit().getTown(), unitUser.getUnit().getLevel());
+                            }
+                        }
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptySet());
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                         logger.info("合法访问，uid: " + userInfo.get("uid").toString());
