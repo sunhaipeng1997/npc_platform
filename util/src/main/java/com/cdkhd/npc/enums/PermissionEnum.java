@@ -59,8 +59,14 @@ public enum PermissionEnum {
     SYSTEM_SETTING("系统设置"),
     TOWN_MANAGE("镇管理"),
     VILLAGE_MANAGE("村管理"),
+    //建议办理
+    HOMEPAGE_DEAL("建议办理首页"),
+    SUGGESTION_TYPE_DEAL("建议类型管理"),
+    SUGGESTION_DEAL("代表建议管理"),
+    NPC_SUGGESTION_COUNT("建议办理统计"),
 
-    HOMEPAGE_GOV_DEAL("政府首页"),
+
+    //政府
     GOV_WAIT_CONVEY("待转办"),
     GOV_ADJUST_CONVEY("调整单位"),
     GOV_ADJUST_DELAY("申请延期"),
@@ -68,7 +74,7 @@ public enum PermissionEnum {
     SUGGESTION_SETTING("建议设置"),
     GOV_COUNT("统计"),
 
-    HOMEPAGE_UNIT_DEAL("办理单位首页"),
+    //办理单位
     UNIT_WAIT_DEAL("办理单待办理列表"),
     UNIT_DEALING("办理单位办理中列表"),
     UNIT_DEAL_DONE("办理单位办理完成列表"),

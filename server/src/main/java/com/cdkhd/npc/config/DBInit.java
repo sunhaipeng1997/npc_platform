@@ -137,13 +137,22 @@ public class DBInit {
 
         //为大数据平台初始化一个账号，默认用户名为“bigData”
         initOneAccount("bigData", "13133333333", defaultRawPwd);
+
+        //为政府初始化账号信息
+        username = env.getProperty("npc_base_info.govuser.name");
+        mobile = env.getProperty("npc_base_info.govuser.mobile");
+        initGovAccount(username, mobile, defaultRawPwd);
+
+        //为政府初始化账号信息
+        username = env.getProperty("npc_base_info.govuser.name");
+        mobile = env.getProperty("npc_base_info.govuser.mobile");
+        initGovAccount(username, mobile, defaultRawPwd);
     }
 
     private void initBackgroundAdmin() {
         String areaName = env.getProperty("npc_base_info.area");
         Area area = areaRepository.findByName(areaName);
         String username = env.getProperty("npc_base_info.user.name");
-        String mobile = env.getProperty("npc_base_info.user.mobile");
         Account account = accountRepository.findByUsername(username);
         //初始化后台管理员账号
         BackgroundAdmin backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
@@ -155,6 +164,8 @@ public class DBInit {
             backgroundAdminRepository.saveAndFlush(backgroundAdmin);
         }
         //初始化一个政府账号
+        username = env.getProperty("npc_base_info.govuser.name");
+        account = accountRepository.findByUsername(username);
         GovernmentUser governmentUser = governmentUserRepository.findByAccountUsername(username);
         if (governmentUser == null) {
             governmentUser = new GovernmentUser();
@@ -165,7 +176,6 @@ public class DBInit {
         }
 
         username = env.getProperty("npc_base_info.cdkhd.name");
-        mobile = env.getProperty("npc_base_info.cdkhd.mobile");
         account = accountRepository.findByUsername(username);
         //初始化后台管理员账号
         backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
@@ -177,6 +187,8 @@ public class DBInit {
             backgroundAdminRepository.saveAndFlush(backgroundAdmin);
         }
         //初始化一个政府账号
+        username = env.getProperty("npc_base_info.govcdkhd.name");
+        account = accountRepository.findByUsername(username);
         governmentUser = governmentUserRepository.findByAccountUsername(username);
         if (governmentUser == null) {
             governmentUser = new GovernmentUser();
@@ -332,7 +344,13 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword()));//村管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));//代表权限管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SESSION_MANAGE.getKeyword()));//届期管理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//届期管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//系统设置
+        //建议办理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));//建议办理首页
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));//建议类型管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));//代表建议管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NPC_SUGGESTION_COUNT.getKeyword()));//建议办理统计
+
         bgAdmin.setPermissions(bgAdminPermissions);
         accountRoleRepository.save(bgAdmin);
 
@@ -726,11 +744,28 @@ public class DBInit {
         menuRepository.saveAndFlush(menu);
 
         //建议办理
-        //政府首页
-        menu = menuRepository.findByKeyword(MenuEnum.HOMEPAGE_GOV_DEAL.toString());
-        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_GOV_DEAL.getKeyword()));
+        //后台管理员
+        //首页
+        menu = menuRepository.findByKeyword(MenuEnum.HOMEPAGE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
+        //建议类型管理
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_TYPE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //代表建议管理
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //建议办理统计
+        menu = menuRepository.findByKeyword(MenuEnum.NPC_SUGGESTION_COUNT.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NPC_SUGGESTION_COUNT.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //政府
         //待转办
         menu = menuRepository.findByKeyword(MenuEnum.GOV_WAIT_CONVEY.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_WAIT_CONVEY.getKeyword()));
@@ -759,11 +794,6 @@ public class DBInit {
         //统计
         menu = menuRepository.findByKeyword(MenuEnum.GOV_COUNT.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));
-        menuRepository.saveAndFlush(menu);
-
-        //办理单位首页
-        menu = menuRepository.findByKeyword(MenuEnum.HOMEPAGE_UNIT_DEAL.toString());
-        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_UNIT_DEAL.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //办理单待办理列表
@@ -1418,6 +1448,33 @@ public class DBInit {
             account.setLoginTimes(0);  //登录次数初始化为0
             account.setLoginWay((byte) 1);//账号密码方式登录
             AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.toString());
+            Set<AccountRole> accountRoles = Sets.newHashSet();
+            accountRoles.add(accountRole);
+            account.setAccountRoles(accountRoles);
+            accountRepository.saveAndFlush(account);
+        }
+
+        LoginUP loginUP = loginUPRepository.findByUsername(username);
+        if (loginUP == null) {
+            loginUP = new LoginUP();
+//            loginUP.setMobile(mobile);
+            loginUP.setUsername(username);
+            loginUP.setPassword(passwordEncoder.encode(rawPwd)); //保存hash后的密码
+            loginUP.setAccount(account);
+            loginUPRepository.saveAndFlush(loginUP);
+        }
+    }
+
+    //初始化一个政府Account
+    private void initGovAccount(String username, String mobile, String rawPwd) {
+        Account account = accountRepository.findByUsername(username);//这里用户名查询就行了，用户名不可重复，管理员有可能换手机号
+        if (account == null) {
+            account = new Account();
+            account.setUsername(username);
+            account.setMobile(mobile);
+            account.setLoginTimes(0);  //登录次数初始化为0
+            account.setLoginWay((byte) 1);//账号密码方式登录
+            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.toString());
             Set<AccountRole> accountRoles = Sets.newHashSet();
             accountRoles.add(accountRole);
             account.setAccountRoles(accountRoles);

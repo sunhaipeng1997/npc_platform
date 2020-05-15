@@ -28,6 +28,12 @@ npc_base_info:
   cdkhd:
     name: cdkhd
     mobile: 13551371473
+  govuser:
+    name: admingov
+    mobile: 18940918501
+  govcdkhd:
+    name: cdkhdgov
+    mobile: 13551371473
 
 
 # 微信服务号相关配置，科宏达测试号

@@ -105,8 +105,13 @@ public enum MenuEnum {
     TOWN_PERFORMANCE_COUNT("townPerformanceCount", "各镇履职统计",(byte)2, "menu-statisics2", "/member_house/townPerformanceCount","STATISTICS_MANAGE", "MEMBER_HOUSE"),
 
     //建议办理
+    //人大后台管理员
+    HOMEPAGE_DEAL("dealIndex", "首页",(byte)2, "menu-dashboard", "/suggestion_deal/dealIndex",null, "SUGGESTION"),
+    SUGGESTION_TYPE_DEAL("suggestionBusiness", "建议类型管理",(byte)2, "menu-suggestionType", "/member_house/suggestionBusiness",null, "SUGGESTION"),
+    SUGGESTION_DEAL("suggestionManage", "代表建议管理",(byte)2, "menu-suggestion", "/suggestion_deal/npc/suggestion",null, "SUGGESTION"),
+    NPC_SUGGESTION_COUNT("sugNpcStatistic", "建议办理统计",(byte)2, "menu-dashboard", "/suggestion_deal/npc/sugNpcStatistic",null, "SUGGESTION"),
+
     //政府
-    HOMEPAGE_GOV_DEAL("govIndex", "首页",(byte)2, "menu-dashboard", "/suggestion_deal/gov/govIndex",null, "SUGGESTION"),
     GOV_WAIT_CONVEY("toBeTransSug", "待转办的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/toBeTransSug",null, "SUGGESTION"),
     GOV_ADJUST_CONVEY("applyAdjustSug", "申请调整的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/applyAdjustSug",null, "SUGGESTION"),
     GOV_ADJUST_DELAY("applyDelaySug", "申请延期的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/applyDelaySug",null, "SUGGESTION"),
@@ -115,7 +120,6 @@ public enum MenuEnum {
     GOV_COUNT("sugDealStatistic", "建议办理统计",(byte)2, "menu-dashboard", "/suggestion_deal/gov/sugDealStatistic",null, "SUGGESTION"),
 
     //办理单位
-    HOMEPAGE_UNIT_DEAL("unitIndex", "首页",(byte)2, "menu-dashboard", "/suggestion_deal/unit/unitIndex",null, "SUGGESTION"),
     UNIT_WAIT_DEAL("toBeDoneSug", "待办建议",(byte)2, "menu-dashboard", "/suggestion_deal/unit/toBeDoneSug",null, "SUGGESTION"),
     UNIT_DEALING("inDoingSug", "办理中",(byte)2, "menu-dashboard", "/suggestion_deal/unit/inDoingSug",null, "SUGGESTION"),
     UNIT_DEAL_DONE("doneSug", "办理完成",(byte)2, "menu-dashboard", "/suggestion_deal/unit/doneSug",null, "SUGGESTION"),
