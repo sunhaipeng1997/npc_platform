@@ -58,14 +58,15 @@ public class SystemServiceImpl implements SystemService {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(uid);
         if (account.getSystems() != null) {
-            CommonVo commonVo = new CommonVo();
-            commonVo.setUid(account.getSystems().getUid());
+            SystemVo systemVo = new SystemVo();
+            systemVo.setUid(account.getSystems().getUid());
             if (source.equals(StatusEnum.ENABLED.getValue())) {
-                commonVo.setName(account.getSystems().getUrl());
+                systemVo.setName(account.getSystems().getName());
+                systemVo.setUrl(account.getSystems().getUrl());
             }else{
-                commonVo.setName(account.getSystems().getPagePath());
+                systemVo.setName(account.getSystems().getPagePath());
             }
-            body.setData(commonVo);
+            body.setData(systemVo);
         }
         return body;
     }

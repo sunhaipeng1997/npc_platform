@@ -168,6 +168,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Set<AccountRole> accountRoles = account.getAccountRoles();
+        String unitName = "";
         for (AccountRole accountRole : accountRoles) {
             if (accountRole.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())){
                 BackgroundAdmin bg = account.getBackgroundAdmin();
@@ -177,6 +178,7 @@ public class AuthServiceImpl implements AuthService {
                     body.setMessage("该镇已经被删除，拒绝发送验证码");
                     return body;
                 }
+                unitName = bg.getLevel().equals(LevelEnum.AREA.getValue())?bg.getArea().getName():bg.getTown().getName();
             }else if (accountRole.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword())){
                 GovernmentUser govUser = account.getGovernmentUser();
                 if (govUser.getLevel().equals(LevelEnum.TOWN.getValue()) && govUser.getTown().getIsDel()){
@@ -185,6 +187,7 @@ public class AuthServiceImpl implements AuthService {
                     body.setMessage("该镇已经被删除，拒绝发送验证码");
                     return body;
                 }
+                unitName = govUser.getLevel().equals(LevelEnum.AREA.getValue())?govUser.getArea().getName():govUser.getTown().getName();
             }else if (accountRole.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())){
                 UnitUser unitUser = account.getUnitUser();
                 if (unitUser.getUnit().getLevel().equals(LevelEnum.TOWN.getValue()) && unitUser.getUnit().getTown().getIsDel()){
@@ -193,6 +196,7 @@ public class AuthServiceImpl implements AuthService {
                     body.setMessage("该镇已经被删除，拒绝发送验证码");
                     return body;
                 }
+                unitName = unitUser.getUnit().getLevel().equals(LevelEnum.AREA.getValue())?unitUser.getUnit().getArea().getName():unitUser.getUnit().getTown().getName();
             }
         }
 
@@ -209,7 +213,7 @@ public class AuthServiceImpl implements AuthService {
 
         //生成token字符串
         TokenVo tokenVo = generateToken(account);
-
+        tokenVo.setUnitName(unitName);
         body.setData(tokenVo);
         return body;
     }
