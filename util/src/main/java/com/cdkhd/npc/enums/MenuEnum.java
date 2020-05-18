@@ -44,6 +44,7 @@ public enum MenuEnum {
     //我的建议
     SUGGESTION_DRAFT(null, "草稿",(byte)1,"personGrace","npc/my_draft","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
     SUGGESTION_COMMITTED(null, "已提交",(byte)1,"personGrace","npc/my_submit","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_AUDIT_FAILURE(null, "审核失败",(byte)1,"personGrace","npc/my_failure","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
     SUGGESTION_DONE(null, "已办完",(byte)1,"personGrace","npc/my_complete","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
     SUGGESTION_COMPLETED(null, "已办结",(byte)1,"personGrace","npc/my_done","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
 

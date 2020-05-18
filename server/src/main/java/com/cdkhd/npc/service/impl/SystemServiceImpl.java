@@ -7,7 +7,6 @@ import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.SystemRepository;
 import com.cdkhd.npc.service.SystemService;
-import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -33,7 +32,6 @@ public class SystemServiceImpl implements SystemService {
         this.accountRepository = accountRepository;
     }
 
-
     @Override
     public RespBody getSystemList() {
         RespBody body = new RespBody();
@@ -54,7 +52,7 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public RespBody getCacheSystem(String uid,Byte source) {
+    public RespBody getCacheSystem(String uid, Byte source) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(uid);
         if (account.getSystems() != null) {
@@ -63,7 +61,7 @@ public class SystemServiceImpl implements SystemService {
             if (source.equals(StatusEnum.ENABLED.getValue())) {
                 systemVo.setName(account.getSystems().getName());
                 systemVo.setUrl(account.getSystems().getUrl());
-            }else{
+            } else {
                 systemVo.setName(account.getSystems().getPagePath());
             }
             body.setData(systemVo);
