@@ -1,7 +1,8 @@
 package com.cdkhd.npc.component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.cdkhd.npc.entity.Account;
+import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -22,10 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
@@ -74,8 +72,22 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     //从token中解析用户的角色信息
                     List<String> roles = (List<String>) userInfo.get("accountRoles");
                     Account account =  accountRepository.findByUid(userInfo.get("uid").toString());
-                    UserDetailsImpl userDetails1 = new UserDetailsImpl(account.getUid(), account.getLoginUP().getUsername(), account.getLoginUP().getPassword(), Sets.newHashSet(roles), account.getBackgroundAdmin().getArea(), account.getBackgroundAdmin().getTown(), account.getBackgroundAdmin().getLevel());
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails1, null, Collections.emptySet());
+                    LoginUP loginUP = account.getLoginUP();
+                    Set<AccountRole> accountRoles = account.getAccountRoles();
+                    UserDetailsImpl userDetails = null;
+                    for (AccountRole accountRole : accountRoles) {
+                        if (accountRole.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())){
+                            BackgroundAdmin bg = account.getBackgroundAdmin();
+                            userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), bg.getArea(), bg.getTown(), bg.getLevel());
+                        }else if (accountRole.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword())){
+                            GovernmentUser govUser = account.getGovernmentUser();
+                            userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), govUser.getArea(), govUser.getTown(), govUser.getLevel());
+                        }else if (accountRole.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())){
+                            UnitUser unitUser = account.getUnitUser();
+                            userDetails = new UserDetailsImpl(account.getUid(), loginUP.getUsername(), loginUP.getPassword(), Sets.newHashSet(roles), unitUser.getUnit().getArea(), unitUser.getUnit().getTown(), unitUser.getUnit().getLevel());
+                        }
+                    }
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptySet());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     logger.info("合法访问，uid: " + userInfo.get("uid").toString());
                 }
