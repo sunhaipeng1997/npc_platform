@@ -3,10 +3,20 @@ package com.cdkhd.npc.service;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.SugAddDto;
 import com.cdkhd.npc.entity.dto.SugAuditDto;
+import com.cdkhd.npc.entity.dto.SugBusDto;
 import com.cdkhd.npc.entity.dto.SugPageDto;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface NpcSuggestionService {
+
+    /**
+    * @Description: 建议类型下拉列表
+    * @Param:
+    * @Return:
+    * @Date: 2020/5/19
+    * @Author: LiYang
+    */
+    RespBody sugBusList(MobileUserDetailsImpl userDetails, SugBusDto sugBusDto);
 
     /**
     * @Description: 代表添加建议
@@ -79,5 +89,14 @@ public interface NpcSuggestionService {
     * @Author: LiYang
     */
     RespBody npcMemberSug(MobileUserDetailsImpl userDetails, SugPageDto sugPageDto);
+
+    /**
+    * @Description: s很合人员建议列表
+    * @Param:
+    * @Return:
+    * @Date: 2020/5/19
+    * @Author: LiYang
+    */
+    RespBody auditorSug(MobileUserDetailsImpl userDetails, SugPageDto sugPageDto);
 
 }

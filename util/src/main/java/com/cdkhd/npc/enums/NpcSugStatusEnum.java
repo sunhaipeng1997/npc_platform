@@ -4,7 +4,7 @@ public enum NpcSugStatusEnum {
     //小程序代表查看建议，分状态（全部、已审核、未审核）
     All((byte)0,"全部"),
     NOT_SUBMIT((byte)1,"草稿"),
-    TO_BE_AUDITED((byte)2,"已提交待审核"),
+    TO_BE_AUDITED((byte)2,"已提交"),
     AUDIT_FAILURE((byte)3,"审核失败"),
     DONE((byte)4,"已办完"),
     COMPLETED((byte)5,"已办完");

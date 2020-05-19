@@ -13,7 +13,8 @@ import lombok.Setter;
 @Getter
 public class SugPageDto extends PageDto {
 
-    //建议状态 1：草稿  2：已提交  3：审核失败  4：已办完  5：已办结  0：全部
+    //建议状态 1：草稿  2：已提交  3：审核失败  4：已办完  5：已办结  0：全部(普通代表来说)
+    // 1：未审核  2：已审核  0：全部(审核人员来说)
     private Byte status;
 
     //代表当前身份 1镇 2区

@@ -4,6 +4,7 @@ import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.SugAddDto;
 import com.cdkhd.npc.entity.dto.SugAuditDto;
+import com.cdkhd.npc.entity.dto.SugBusDto;
 import com.cdkhd.npc.entity.dto.SugPageDto;
 import com.cdkhd.npc.service.NpcSuggestionService;
 import com.cdkhd.npc.vo.RespBody;
@@ -25,6 +26,20 @@ public class NpcSuggestionApi {
     public NpcSuggestionApi(NpcSuggestionService suggestionService) {
         this.suggestionService = suggestionService;
     }
+
+    /**
+    * @Description: 获取提建议的类型下拉列表项
+    * @Param: userDetails sugBusDto
+    * @Return:
+    * @Date: 2020/5/19
+    * @Author: LiYang
+    */
+    @GetMapping("/sugBusList")
+    public ResponseEntity sugBusList(@CurrentUser MobileUserDetailsImpl userDetails, SugBusDto sugBusDto){
+        RespBody body = suggestionService.sugBusList(userDetails, sugBusDto);
+        return ResponseEntity.ok(body);
+    }
+
     /**
     * @Description: 代表添加建议
     * @Param: userDetails sugAddDto
@@ -115,7 +130,7 @@ public class NpcSuggestionApi {
     }
 
     /**
-    * @Description: 代表建议列表
+    * @Description: 代表提出的建议列表
     * @Param: userDetails sugPageDto
     * @Return:
     * @Date: 2020/5/18
@@ -124,6 +139,19 @@ public class NpcSuggestionApi {
     @GetMapping("/npcMemberSug")
     public ResponseEntity npcMemberSug(@CurrentUser MobileUserDetailsImpl userDetails, SugPageDto sugPageDto) {
         RespBody body = suggestionService.npcMemberSug(userDetails, sugPageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+    * @Description: 审核人员建议列表
+    * @Param: userDetails sugPageDto
+    * @Return:
+    * @Date: 2020/5/19
+    * @Author: LiYang
+    */
+    @GetMapping("/auditorSug")
+    public ResponseEntity auditorSug(@CurrentUser MobileUserDetailsImpl userDetails, SugPageDto sugPageDto) {
+        RespBody body = suggestionService.auditorSug(userDetails, sugPageDto);
         return ResponseEntity.ok(body);
     }
 }
