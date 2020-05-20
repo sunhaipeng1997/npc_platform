@@ -108,6 +108,7 @@ public enum MenuEnum {
     //建议办理
     //人大后台管理员
     HOMEPAGE_DEAL("dealIndex", "首页",(byte)2, "menu-dashboard", "/suggestion_deal/dealIndex",null, "SUGGESTION"),
+    GOVERNMENT_MANAGE("govManage", "政府管理",(byte)2, "menu-dashboard", "/suggestion_deal/govManage",null, "SUGGESTION"),
     SUGGESTION_TYPE_DEAL("suggestionBusiness", "建议类型管理",(byte)2, "menu-suggestionType", "/member_house/suggestionBusiness",null, "SUGGESTION"),
     SUGGESTION_DEAL("suggestionManage", "代表建议管理",(byte)2, "menu-suggestion", "/suggestion_deal/npc/suggestion",null, "SUGGESTION"),
     NPC_SUGGESTION_COUNT("sugNpcStatistic", "建议办理统计",(byte)2, "menu-dashboard", "/suggestion_deal/npc/sugNpcStatistic",null, "SUGGESTION"),

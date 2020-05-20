@@ -61,6 +61,7 @@ public enum PermissionEnum {
     VILLAGE_MANAGE("村管理"),
     //建议办理
     HOMEPAGE_DEAL("建议办理首页"),
+    GOVERNMENT_MANAGE("政府管理"),
     SUGGESTION_TYPE_DEAL("建议类型管理"),
     SUGGESTION_DEAL("代表建议管理"),
     NPC_SUGGESTION_COUNT("建议办理统计"),

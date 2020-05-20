@@ -39,14 +39,14 @@ public class Account extends BaseDomain {
     /**
      * 登录时间
      */
-    @Column(name = "login_time" )
+    @Column(name = "login_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date loginTime;
 
     /**
      * 上次登录时间
      */
-    @Column(name = "last_login_time" )
+    @Column(name = "last_login_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginTime;
 
@@ -77,7 +77,7 @@ public class Account extends BaseDomain {
     /**
      * 小程序登录信息
      */
-    @OneToOne(mappedBy = "account", targetEntity = LoginWeChat.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "account", targetEntity = LoginWeChat.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private LoginWeChat loginWeChat;
 
     //关联的账号角色
@@ -100,7 +100,7 @@ public class Account extends BaseDomain {
     private String mobile;
 
     //选民关联
-    @OneToOne(mappedBy = "account", targetEntity = Voter.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "account", targetEntity = Voter.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Voter voter;
 
     //代表关联
@@ -111,7 +111,7 @@ public class Account extends BaseDomain {
     @OneToOne(mappedBy = "account")
     private BackgroundAdmin backgroundAdmin;
 
-    //政府人员关联a
+    //政府人员关联
     @OneToOne(mappedBy = "account", targetEntity = GovernmentUser.class, fetch = FetchType.LAZY)
     private GovernmentUser governmentUser;
 
@@ -124,7 +124,7 @@ public class Account extends BaseDomain {
     private Systems systems;
 
     //移动端用户偏好设置
-    @OneToOne(targetEntity = MobileUserPreferences.class, fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = MobileUserPreferences.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private MobileUserPreferences mobileUserPreferences;
 
 }

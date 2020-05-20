@@ -46,4 +46,7 @@ public class Area extends BaseDomain {
 	@OneToMany(targetEntity = NpcMember.class, mappedBy = "area", orphanRemoval = true)
 	private Set<NpcMember> npcMembers = new HashSet<>();
 
+	@OneToMany(targetEntity = Government.class, mappedBy = "area", orphanRemoval = true)
+	private Set<Government> governments = new HashSet<>();
+
 }

@@ -347,6 +347,7 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//系统设置
         //建议办理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));//建议办理首页
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOVERNMENT_MANAGE.getKeyword()));//政府管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));//建议类型管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));//代表建议管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NPC_SUGGESTION_COUNT.getKeyword()));//建议办理统计
@@ -762,6 +763,11 @@ public class DBInit {
         //首页
         menu = menuRepository.findByKeyword(MenuEnum.HOMEPAGE_DEAL.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //政府管理
+        menu = menuRepository.findByKeyword(MenuEnum.GOVERNMENT_MANAGE.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOVERNMENT_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //建议类型管理
