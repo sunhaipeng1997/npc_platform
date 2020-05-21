@@ -38,6 +38,10 @@ public class Government extends BaseDomain {
 	@Column(name = "description" )
 	private String description;
 
+	//区政府还是镇政府  1镇 2区
+	@Column(name = "level")
+	private Byte level;
+
 	//政府地址
 	@Column(name = "address" )
 	private String address;
@@ -60,6 +64,12 @@ public class Government extends BaseDomain {
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "area", referencedColumnName = "id")
 	private Area area;
+
+	/**
+	 * 所属镇
+	 */
+	@OneToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	private Town town;
 
 	/**
 	 * 基本信息id

@@ -91,7 +91,12 @@ public class GovServiceImpl implements GovService {
         government = new Government();
         government.setName(govAddDto.getName());
         government.setArea(userDetails.getArea());
+        government.setTown(userDetails.getTown());
+        government.setLevel(userDetails.getLevel());
         government.setDescription(govAddDto.getDescription());
+        government.setLatitude(govAddDto.getLatitude());
+        government.setLongitude(govAddDto.getLongitude());
+        government.setAddress(govAddDto.getAddress());
         governmentRepository.saveAndFlush(government);
 
         //创建government_user
@@ -101,6 +106,7 @@ public class GovServiceImpl implements GovService {
             governmentUser.setTown(userDetails.getTown());
         }
         governmentUser.setLevel(userDetails.getLevel());
+        governmentUser.setGovernment(government);
         governmentUser.setAccount(account);
         governmentUserRepository.saveAndFlush(governmentUser);
         return body;
@@ -119,30 +125,34 @@ public class GovServiceImpl implements GovService {
         government.setDescription(govAddDto.getDescription());
         governmentRepository.saveAndFlush(government);
 
-        Account account = government.getGovernmentUser().getAccount();
-        if (accountRepository.findByUsernameAndUidIsNot(govAddDto.getAccount(), account.getUid()) != null) {
-            body.setMessage("该账号已存在，请重新输入");
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            return body;
-        }
-        account.setUsername(govAddDto.getAccount());
-        account.setMobile(govAddDto.getMobile());
-        accountRepository.saveAndFlush(account);
-
-        LoginUP loginUP = account.getLoginUP();
-        loginUP.setUsername(govAddDto.getAccount());
-        loginUP.setPassword(passwordEncoder.encode(govAddDto.getPassword()));
-        loginUPRepository.saveAndFlush(loginUP);
+//        Account account = government.getGovernmentUser().getAccount();
+//        if (accountRepository.findByUsernameAndUidIsNot(govAddDto.getAccount(), account.getUid()) != null) {
+//            body.setMessage("该账号已存在，请重新输入");
+//            body.setStatus(HttpStatus.BAD_REQUEST);
+//            return body;
+//        }
+//        account.setUsername(govAddDto.getAccount());
+//        accountRepository.saveAndFlush(account);
+//
+//        LoginUP loginUP = account.getLoginUP();
+//        loginUP.setUsername(govAddDto.getAccount());
+//        loginUPRepository.saveAndFlush(loginUP);
         return body;
     }
 
     @Override
     public RespBody detailGovernment(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
-        Account account = accountRepository.findByUid(userDetails.getUid());
-        Government government = governmentRepository.findByUid(account.getGovernmentUser().getGovernment().getUid());
+        Government government;
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            //区人大后台管理员
+            government = governmentRepository.findByAreaUidAndLevel(userDetails.getArea().getUid(), userDetails.getLevel());
+        }else {
+            //镇人大后台管理员
+            government = governmentRepository.findByTownUid(userDetails.getTown().getUid());
+        }
         if (government == null){
-            body.setMessage("该政府不存在");
+            body.setMessage("请添加政府");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }

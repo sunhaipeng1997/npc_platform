@@ -11,4 +11,8 @@ import com.cdkhd.npc.repository.base.BaseRepository;
 public interface GovernmentRepository extends BaseRepository<Government> {
 
     Government findByAreaUidAndName(String areaUid, String name);
+
+    Government findByAreaUidAndLevel(String areaUid, Byte level);
+
+    Government findByTownUid(String townUid);
 }
