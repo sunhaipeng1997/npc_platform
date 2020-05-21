@@ -26,13 +26,4 @@ public enum AccountRoleEnum {
     public Byte getValue() {
         return this.value;
     }
-
-    public static String getNameByValue(Byte val) {
-        for (AccountRoleEnum roleEnum : AccountRoleEnum.values()) {
-            if (roleEnum.value.equals(val)) {
-                return roleEnum.name;
-            }
-        }
-        return "";
-    }
 }

@@ -125,9 +125,14 @@ public class IndexServiceImpl implements IndexService {
             NpcMember npcMember = NpcMemberUtil.getCurrentIden(level, account.getNpcMembers());
             List<MenuVo> voList = getMenuVos4Npc(npcMember);
             body.setData(voList);
-            //当前身份为：政府/办理单位
-        } else if (role.equals(AccountRoleEnum.GOVERNMENT.getValue()) || role.equals(AccountRoleEnum.UNIT.getValue())) {
-            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.getNameByValue(role));
+            //当前身份为：政府
+        } else if (role.equals(AccountRoleEnum.GOVERNMENT.getValue())) {
+            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.toString());
+            List<MenuVo> voList = getMenuVos4GovOrUnit(accountRole);
+            body.setData(voList);
+            //当前身份为：办理单位
+        } else if (role.equals(AccountRoleEnum.UNIT.getValue())) {
+            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.toString());
             List<MenuVo> voList = getMenuVos4GovOrUnit(accountRole);
             body.setData(voList);
         }
