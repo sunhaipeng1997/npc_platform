@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,7 +29,7 @@ public class Unit extends BaseDomain {
 	private String mobile;
 
 	//单位状态  1、正常 2、锁定
-	private Byte status;
+	private Byte status = StatusEnum.ENABLED.getValue();
 
 	// 备注情况
 	private String comment;
@@ -51,6 +52,9 @@ public class Unit extends BaseDomain {
 	@OneToMany(targetEntity = UnitUser.class, mappedBy = "unit", orphanRemoval = true)
 	private Set<UnitUser> unitUser;
 
+	@Column(name = "is_del" )
+	private Boolean isDel = false;
+
 	@Column(name = "level" )
 	private Byte level;
 
@@ -61,4 +65,8 @@ public class Unit extends BaseDomain {
 	@ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "town", referencedColumnName = "id")
 	private Town town;
+
+	//单位照片
+	@Column(name = "avatar" )
+	private String avatar;
 }

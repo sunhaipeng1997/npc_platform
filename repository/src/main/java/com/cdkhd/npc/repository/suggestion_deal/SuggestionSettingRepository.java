@@ -6,4 +6,7 @@ import com.cdkhd.npc.repository.base.BaseRepository;
 public interface SuggestionSettingRepository extends BaseRepository<SuggestionSetting> {
 
 
+    SuggestionSetting findByLevelAndAreaUid(Byte level, String uid);
+
+    SuggestionSetting findByLevelAndTownUid(Byte level, String uid);
 }

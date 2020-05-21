@@ -2,6 +2,8 @@ package com.cdkhd.npc.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -26,7 +28,7 @@ public class UnitUser extends BaseDomain {
 
 	//工作人员性别
 	@Column(name = "gender")
-	private String gender;
+	private Byte gender;
 
 	//联系电话
 	@Column(name = "mobile")
@@ -34,7 +36,7 @@ public class UnitUser extends BaseDomain {
 
 	//状态  1、正常 2、锁定
 	@Column(name = "status")
-	private Byte status;
+	private Byte status = StatusEnum.ENABLED.getValue();
 
 	// 备注情况
 	@Column(name = "comment")
@@ -55,4 +57,6 @@ public class UnitUser extends BaseDomain {
 	@JoinColumn(name = "account", referencedColumnName = "id")
 	private Account account;
 
+	@Column(name = "is_del" )
+	private Boolean isDel = false;
 }

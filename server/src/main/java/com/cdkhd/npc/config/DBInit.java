@@ -600,7 +600,7 @@ public class DBInit {
         menuRepository.saveAndFlush(menu);
 
         //转办建议
-        permission = permissionRepository.findByKeyword(PermissionEnum.DEAL_AUDIT_SUGGESTION.getKeyword());//转办建议
+        permission = permissionRepository.findByKeyword(PermissionEnum.DEAL_CONVEY_SUGGESTIONS.getKeyword());//转办建议
         menu = menuRepository.findByKeyword(MenuEnum.WAIT_CONVEY_SUGGESTIONS.toString());//待转办
         menu.setPermission(permission);
         menuRepository.saveAndFlush(menu);

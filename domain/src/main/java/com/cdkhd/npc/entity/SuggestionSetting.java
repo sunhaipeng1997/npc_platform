@@ -1,49 +1,41 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
+
+import javax.persistence.*;
 import java.util.Date;
 
-/**
- * @Description
- * @Author  rfx
- * @Date 2019-12-03
- */
-
-@Setter
 @Getter
-@ToString
+@Setter
 @Entity
-@Table ( name ="suggestion_setting" )
+@Table(name = "suggestion_setting")
 public class SuggestionSetting extends BaseDomain {
 
-	/**
-	 * 完成时间
-	 */
-   	@Column(name = "finish_time" )
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date finishTime;
+    //办理期限（单位：天）
+    @Column(nullable = false)
+    private Integer deadline = 90;
 
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "create_user" )
-	private String createUser;
+    //催办频率（单位：天）
+    @Column(nullable = false)
+    private Integer urgeFre = 3;
 
-	/**
-	 * yyyy-MM-dd HH:mm:ss
-	 */
-   	@Column(name = "update_time" )
+    @Column(name = "update_user")
+    private String updateUser;
+
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "update_time")
     private Date updateTime;
 
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "update_user" )
-	private String updateUser;
+    @Column(name = "level" )
+    private Byte level;
+
+    @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Area area;
+
+    @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "town", referencedColumnName = "id")
+    private Town town;
 
 }

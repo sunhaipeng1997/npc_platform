@@ -56,9 +56,10 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     private TownRepository townRepository;
     private AccountRepository accountRepository;
     private AccountRoleRepository accountRoleRepository;
+    private GovernmentUserRepository governmentUserRepository;
 
     @Autowired
-    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, SessionService sessionService, NpcMemberGroupRepository npcMemberGroupRepository, NpcMemberRoleRepository npcMemberRoleRepository, TownRepository townRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository) {
+    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, SessionService sessionService, NpcMemberGroupRepository npcMemberGroupRepository, NpcMemberRoleRepository npcMemberRoleRepository, TownRepository townRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, GovernmentUserRepository governmentUserRepository) {
         this.npcMemberRepository = npcMemberRepository;
         this.sessionRepository = sessionRepository;
         this.sessionService = sessionService;
@@ -67,6 +68,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         this.townRepository = townRepository;
         this.accountRepository = accountRepository;
         this.accountRoleRepository = accountRoleRepository;
+        this.governmentUserRepository = governmentUserRepository;
     }
 
     /**
@@ -165,6 +167,13 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     public RespBody addOrUpdateNpcMember(UserDetailsImpl userDetails, NpcMemberAddDto dto) {
         RespBody body = new RespBody();
         NpcMember member;
+        GovernmentUser governmentUser = governmentUserRepository.findByAccountMobile(dto.getMobile());//查询下这个手机号，是不是政府的
+        if (governmentUser != null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("政府人员不能添加为代表。");
+            LOGGER.warn("手机号为 {} 是政府人员，不能添加为代表信息", dto.getMobile());
+            return body;
+        }
         if (StringUtils.isNotEmpty(dto.getUid())) {
             member = npcMemberRepository.findByLevelAndMobileAndUidIsNotAndIsDelFalse(userDetails.getLevel(), dto.getMobile(), dto.getUid());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
             if (member != null) {
@@ -194,7 +203,6 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 LOGGER.warn("手机号为 {} 代表已经存在，与本次添加的代表 {} 姓名不符", dto.getMobile(), dto.getName());
                 return body;
             }
-
             body.setMessage("修改代表成功");
         } else {
             member = npcMemberRepository.findByLevelAndMobileAndIsDelFalse(userDetails.getLevel(), dto.getMobile());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表
@@ -282,9 +290,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         Account account = null;//代表对应的账号信息
         for (Account account1 : accounts) {//判断账号的身份，将后台管理员给过滤掉
             List<String> keywords = account1.getAccountRoles().stream().map(AccountRole::getKeyword).collect(Collectors.toList());
-            if (keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() == null) {//如果这个账号的身份包含后台管理员，并且没有注册过小程序
-                continue;
-            } else if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && account1.getVoter() != null) {//账号没有包含后台管理员,并且注册了小程序
+            if (!keywords.contains(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()) && !keywords.contains(AccountRoleEnum.GOVERNMENT.getKeyword()) && account1.getVoter() != null) {//账号没有包含后台管理员,也不是政府的,并且注册了小程序
                 account = account1;//把这个账号跟代表身份关联起来
             }
         }

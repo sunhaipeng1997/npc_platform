@@ -6,10 +6,7 @@ import com.cdkhd.npc.entity.dto.TownAddDto;
 import com.cdkhd.npc.entity.dto.TownPageDto;
 import com.cdkhd.npc.entity.vo.TownDetailsVo;
 import com.cdkhd.npc.entity.vo.TownPageVo;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.LoginWayEnum;
-import com.cdkhd.npc.enums.PerformanceTypeEnum;
-import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.service.TownService;
@@ -163,38 +160,27 @@ public class TownServiceImpl implements TownService {
         khd_loginUP.setPassword(passwordEncoder.encode(accountPassword));
 
         account = new Account();
-        account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
+        account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())));
         account.setStatus(StatusEnum.ENABLED.getValue());
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         account.setMobile(townAddDto.getMobile());
         account.setIsDel(false);
         account.setLoginTimes(0);
         account.setUsername(townAddDto.getAccount());
-        account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
+        account.setSystems(systemRepository.findByKeyword(SystemEnum.MEMBER_HOUSE.toString()));
         accountRepository.saveAndFlush(account);
 
         //科鸿达
         Account khd_account = new Account();
-        khd_account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
+        khd_account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())));
         khd_account.setStatus(StatusEnum.ENABLED.getValue());
         khd_account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         khd_account.setMobile(accountMobile);
         khd_account.setIsDel(false);
         khd_account.setLoginTimes(0);
         khd_account.setUsername(townAddDto.getAccount() + accountSuffix);
-        khd_account.setSystems(systemRepository.findByKeyword("MEMBER_HOUSE"));
+        khd_account.setSystems(systemRepository.findByKeyword(SystemEnum.MEMBER_HOUSE.toString()));
         accountRepository.saveAndFlush(khd_account);
-
-//        Voter voter = new Voter();
-//        voter.setAccount(account);
-//        voter.setTown(town);
-//        voterRepository.saveAndFlush(voter);
-
-        //科鸿达
-//        Voter khd_voter = new Voter();
-//        khd_voter.setAccount(khd_account);
-//        khd_voter.setTown(town);
-//        voterRepository.saveAndFlush(khd_voter);
 
         loginUP.setAccount(account);
         loginUPRepository.saveAndFlush(loginUP);
