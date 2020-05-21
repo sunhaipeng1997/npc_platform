@@ -72,7 +72,7 @@ public class IndexServiceImpl implements IndexService {
                         govUser.getTown().getName() :
                         govUser.getArea().getName();
                 //生成一个LevelVo
-                LevelVo vo = LevelVo.convert(govUser.getUid(), areaTownName + role.getKeyword(),
+                LevelVo vo = LevelVo.convert(govUser.getUid(), areaTownName + role.getName(),
                         govUser.getLevel(), AccountRoleEnum.GOVERNMENT.getValue(), areaTownName);
                 levelVos.add(vo);
             //是办理单位
@@ -83,7 +83,7 @@ public class IndexServiceImpl implements IndexService {
                         unitUser.getUnit().getTown().getName() :
                         unitUser.getUnit().getArea().getName();
                 //生成一个LevelVo
-                LevelVo vo = LevelVo.convert(unitUser.getUid(), areaTownName + role.getKeyword(),
+                LevelVo vo = LevelVo.convert(unitUser.getUid(), areaTownName + role.getName(),
                         unitUser.getUnit().getLevel(), AccountRoleEnum.UNIT.getValue(), areaTownName);
                 levelVos.add(vo);
             }
@@ -120,23 +120,27 @@ public class IndexServiceImpl implements IndexService {
             return body;
         }
 
+        List<MenuVo> voList;
         //当前身份为：代表/人大工委（审核人员）
         if (role.equals(AccountRoleEnum.NPC_MEMBER.getValue())) {
             NpcMember npcMember = NpcMemberUtil.getCurrentIden(level, account.getNpcMembers());
-            List<MenuVo> voList = getMenuVos4Npc(npcMember);
-            body.setData(voList);
+            voList = getMenuVos4Npc(npcMember);
             //当前身份为：政府
         } else if (role.equals(AccountRoleEnum.GOVERNMENT.getValue())) {
-            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.toString());
-            List<MenuVo> voList = getMenuVos4GovOrUnit(accountRole);
-            body.setData(voList);
+            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.name());
+            voList = getMenuVos4GovOrUnit(accountRole);
             //当前身份为：办理单位
         } else if (role.equals(AccountRoleEnum.UNIT.getValue())) {
-            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.toString());
-            List<MenuVo> voList = getMenuVos4GovOrUnit(accountRole);
-            body.setData(voList);
+            AccountRole accountRole = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.name());
+            voList = getMenuVos4GovOrUnit(accountRole);
+        } else {
+            LOGGER.error("无法获取角色相关的小程序菜单，角色枚举值AccountRoleEnum.value：{}", role);
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("角色值参数role错误，获取菜单失败");
+            return body;
         }
 
+        body.setData(voList);
         return body;
     }
 
@@ -155,7 +159,7 @@ public class IndexServiceImpl implements IndexService {
                     return ps;
                 });
         //根据权限获取菜单
-        Set<Menu> menus = getMenusByPermission(permissions);
+        List<Menu> menus = getMenusByPermission(permissions);
 
         return classifyMenu(menus);
     }
@@ -167,7 +171,7 @@ public class IndexServiceImpl implements IndexService {
      */
     private List<MenuVo> getMenuVos4GovOrUnit(AccountRole role) {
         //根据权限获取菜单
-        Set<Menu> menus = getMenusByPermission(role.getPermissions());
+        List<Menu> menus = getMenusByPermission(role.getPermissions());
         return classifyMenu(menus);
     }
 
@@ -176,7 +180,7 @@ public class IndexServiceImpl implements IndexService {
      * @param permissions 权限
      * @return 菜单
      */
-    private Set<Menu> getMenusByPermission(Set<Permission> permissions) {
+    private List<Menu> getMenusByPermission(Set<Permission> permissions) {
         Set<Menu> roleMenus = permissions.stream()
                 .filter(permission -> permission.getStatus().equals(StatusEnum.ENABLED.getValue())) //有效权限
                 .map(Permission::getMenus)
@@ -189,7 +193,10 @@ public class IndexServiceImpl implements IndexService {
                 .filter(menu -> menu.getType().equals((byte)1)) //小程序菜单
                 .filter(menu -> menu.getSystems().getName().equals(SystemEnum.SUGGESTION.getName())) //当前建议办理系统的菜单
                 .collect(Collectors.toSet());
-        return roleMenus;
+        //根据id将菜单排序
+        List<Menu> sortedMenus = new ArrayList<>(roleMenus);
+        sortedMenus.sort(Comparator.comparing(Menu::getId));
+        return sortedMenus;
     }
 
     /**
@@ -199,7 +206,8 @@ public class IndexServiceImpl implements IndexService {
      */
     private List<MenuVo> classifyMenu(Collection<Menu> menus) {
         List<MenuVo> voList = new ArrayList<>();
-        Map<Menu, List<Menu>> map = new HashMap<>();
+        //使用LinkedHashMap避乱父菜单乱序
+        Map<Menu, List<Menu>> map = new LinkedHashMap<>();
 
         //获取菜单父子关系
         for (Menu menu : menus) {
@@ -214,9 +222,9 @@ public class IndexServiceImpl implements IndexService {
         }
 
         //根据父子关系生成MenuVo
-        for (Menu parent : map.keySet()) {
-            MenuVo pVo = MenuVo.convert(parent);
-            pVo.setChildren(map.get(parent).stream()
+        for (Map.Entry<Menu, List<Menu>> entry : map.entrySet()) {
+            MenuVo pVo = MenuVo.convert(entry.getKey());
+            pVo.setChildren(entry.getValue().stream()
                     .map(MenuVo::convert)
                     .collect(Collectors.toList()));
             voList.add(pVo);
