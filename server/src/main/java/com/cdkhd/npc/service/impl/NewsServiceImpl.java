@@ -613,16 +613,13 @@ public class NewsServiceImpl implements NewsService {
                 //用户查询条件
                 Specification<News> specification = (root, query, cb)->{
                     List<Predicate> predicateList = new ArrayList<>();
-
-                    predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                    predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getUid()));
                     predicateList.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
-
                     if(userDetails.getTown() != null){
                         if(dto.getLevel().equals(LevelEnum.TOWN.getValue())){
-                            predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),userDetails.getTown().getUid()));
+                            predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),npcMember.getUid()));
                         }
                     }
-
                     //按新闻状态查询
                     if (dto.getStatus() != -1) {
                         predicateList.add(cb.equal(root.get("status").as(Integer.class), dto.getStatus()));

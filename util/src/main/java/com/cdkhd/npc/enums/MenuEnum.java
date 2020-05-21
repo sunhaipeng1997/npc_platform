@@ -42,33 +42,33 @@ public enum MenuEnum {
 
     //建议办理
     //我的建议
-    SUGGESTION_DRAFT(null, "草稿",(byte)1,"personGrace","npc/my_draft","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
-    SUGGESTION_COMMITTED(null, "已提交",(byte)1,"personGrace","npc/my_submit","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
-    SUGGESTION_AUDIT_FAILURE(null, "审核失败",(byte)1,"personGrace","npc/my_failure","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
-    SUGGESTION_DONE(null, "已办完",(byte)1,"personGrace","npc/my_complete","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
-    SUGGESTION_COMPLETED(null, "已办结",(byte)1,"personGrace","npc/my_done","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_DRAFT(null, "草稿",(byte)1,"SUGGESTION_DRAFT","npc/my_draft","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_COMMITTED(null, "已提交",(byte)1,"SUGGESTION_COMMITTED","npc/my_submit","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_AUDIT_FAILURE(null, "审核失败",(byte)1,"SUGGESTION_AUDIT_FAILURE","npc/my_failure","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_DONE(null, "已办完",(byte)1,"SUGGESTION_DONE","npc/my_complete","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SUGGESTION_COMPLETED(null, "已办结",(byte)1,"SUGGESTION_COMPLETED","npc/my_done","MY_SUGGESTION_FOR_DEAL", "SUGGESTION"),
 
     //附议建议
-    OTHERS_SUGGESTIONS(null, "我能附议的",(byte)1,"personGrace","npc/can_second","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
-    SECONDED_SUGGESTIONS(null, "我附议的",(byte)1,"personGrace","npc/seconded","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
-    SECONDED_SUGGESTIONS_COMPLETED(null, "附议办结的",(byte)1,"personGrace","npc/second_done","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    OTHERS_SUGGESTIONS(null, "我能附议的",(byte)1,"OTHERS_SUGGESTIONS","npc/can_second","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SECONDED_SUGGESTIONS(null, "我附议的",(byte)1,"SECONDED_SUGGESTIONS","npc/seconded","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
+    SECONDED_SUGGESTIONS_COMPLETED(null, "附议办结的",(byte)1,"SECONDED_SUGGESTIONS_COMPLETED","npc/second_done","SECONDED_SUGGESTION_FOR_DEAL", "SUGGESTION"),
 
     //建议审核
-    WAIT_AUDIT_SUGGESTIONS(null, "待审核建议",(byte)1,"personGrace","auditor/to_audit","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
-    AUDIT_PASS_SUGGESTIONS(null, "审核通过的建议",(byte)1,"personGrace","auditor/audit_pass","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
-    AUDIT_FAILED_SUGGESTIONS(null, "审核失败的建议",(byte)1,"personGrace","auditor/audit_refuse","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
+    WAIT_AUDIT_SUGGESTIONS(null, "待审核建议",(byte)1,"WAIT_AUDIT_SUGGESTIONS","auditor/to_audit","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
+    AUDIT_PASS_SUGGESTIONS(null, "审核通过的建议",(byte)1,"AUDIT_PASS_SUGGESTIONS","auditor/audit_pass","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
+    AUDIT_FAILED_SUGGESTIONS(null, "审核失败的建议",(byte)1,"AUDIT_FAILED_SUGGESTIONS","auditor/audit_refuse","SUGGESTION_AUDIT_FOR_DEAL", "SUGGESTION"),
 
     // 建议转办
-    WAIT_CONVEY_SUGGESTIONS(null, "待转办",(byte)1,"personGrace","gov/to_forward","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
-    CONVEYED_SUGGESTIONS(null, "已转办",(byte)1,"personGrace","gov/forwarded","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
-    APPLY_DELAY_SUGGESTIONS(null, "延期申请",(byte)1,"personGrace","gov/delay_appl","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
-    APPLY_ADJUST_SUGGESTIONS(null, "调整单位申请",(byte)1,"personGrace","gov/adjust_appl","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    WAIT_CONVEY_SUGGESTIONS(null, "待转办",(byte)1,"WAIT_CONVEY_SUGGESTIONS","gov/to_forward","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    CONVEYED_SUGGESTIONS(null, "已转办",(byte)1,"CONVEYED_SUGGESTIONS","gov/forwarded","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    APPLY_DELAY_SUGGESTIONS(null, "延期申请",(byte)1,"APPLY_DELAY_SUGGESTIONS","gov/delay_appl","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    APPLY_ADJUST_SUGGESTIONS(null, "调整单位申请",(byte)1,"APPLY_ADJUST_SUGGESTIONS","gov/adjust_appl","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
 
     // 建议办理
-    WAIT_DEAL_SUGGESTIONS(null, "待办理",(byte)1,"personGrace","unit/to_deal","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
-    DEALING_SUGGESTIONS(null, "办理中",(byte)1,"personGrace","unit/dealing","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
-    DEAL_DONE_SUGGESTIONS(null, "已办完",(byte)1,"personGrace","unit/complete","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
-    DEAL_COMPLETED_SUGGESTIONS(null, "已办结",(byte)1,"personGrace","unit/done","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    WAIT_DEAL_SUGGESTIONS(null, "待办理",(byte)1,"WAIT_DEAL_SUGGESTIONS","unit/to_deal","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    DEALING_SUGGESTIONS(null, "办理中",(byte)1,"DEALING_SUGGESTIONS","unit/dealing","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    DEAL_DONE_SUGGESTIONS(null, "已办完",(byte)1,"DEAL_DONE_SUGGESTIONS","unit/complete","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    DEAL_COMPLETED_SUGGESTIONS(null, "已办结",(byte)1,"DEAL_COMPLETED_SUGGESTIONS","unit/done","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
 
 
     //后台菜单
@@ -107,25 +107,25 @@ public enum MenuEnum {
 
     //建议办理
     //人大后台管理员
-    HOMEPAGE_DEAL("dealIndex", "首页",(byte)2, "menu-dashboard", "/suggestion_deal/dealIndex",null, "SUGGESTION"),
-    GOVERNMENT_MANAGE("govManage", "政府管理",(byte)2, "menu-dashboard", "/suggestion_deal/govManage",null, "SUGGESTION"),
-    SUGGESTION_TYPE_DEAL("suggestionBusiness", "建议类型管理",(byte)2, "menu-suggestionType", "/member_house/suggestionBusiness",null, "SUGGESTION"),
-    SUGGESTION_DEAL("suggestionManage", "代表建议管理",(byte)2, "menu-suggestion", "/suggestion_deal/npc/suggestion",null, "SUGGESTION"),
-    NPC_SUGGESTION_COUNT("sugNpcStatistic", "建议办理统计",(byte)2, "menu-dashboard", "/suggestion_deal/npc/sugNpcStatistic",null, "SUGGESTION"),
+    HOMEPAGE_DEAL("dealIndex", "首页",(byte)2, "sug-dealIndex", "/suggestion_deal/dealIndex",null, "SUGGESTION"),
+    GOVERNMENT_MANAGE("govManage", "政府管理",(byte)2, "sug-govManage", "/suggestion_deal/govManage",null, "SUGGESTION"),
+    SUGGESTION_TYPE_DEAL("suggestionBusiness", "建议类型管理",(byte)2, "sug-suggestionBusiness", "/member_house/suggestionBusiness",null, "SUGGESTION"),
+    SUGGESTION_DEAL("suggestionManage", "代表建议管理",(byte)2, "sug-suggestionManage", "/suggestion_deal/npc/suggestion",null, "SUGGESTION"),
+    NPC_SUGGESTION_COUNT("sugNpcStatistic", "建议办理统计",(byte)2, "sug-sugNpcStatistic", "/suggestion_deal/npc/sugNpcStatistic",null, "SUGGESTION"),
 
     //政府
-    GOV_WAIT_CONVEY("toBeTransSug", "待转办的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/toBeTransSug",null, "SUGGESTION"),
-    GOV_ADJUST_CONVEY("applyAdjustSug", "申请调整的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/applyAdjustSug",null, "SUGGESTION"),
-    GOV_ADJUST_DELAY("applyDelaySug", "申请延期的建议",(byte)2, "menu-dashboard", "/suggestion_deal/gov/applyDelaySug",null, "SUGGESTION"),
-    UNIT_MANAGE("unitManage", "办理单位管理",(byte)2, "menu-dashboard", "/suggestion_deal/gov/unitManage",null, "SUGGESTION"),
-    SUGGESTION_SETTING("sugDealSetting", "建议办理设置",(byte)2, "menu-dashboard", "/suggestion_deal/gov/sugDealSetting",null, "SUGGESTION"),
-    GOV_COUNT("sugDealStatistic", "建议办理统计",(byte)2, "menu-dashboard", "/suggestion_deal/gov/sugDealStatistic",null, "SUGGESTION"),
+    GOV_WAIT_CONVEY("toBeTransSug", "待转办的建议",(byte)2, "sug-toBeTransSug", "/suggestion_deal/gov/toBeTransSug",null, "SUGGESTION"),
+    GOV_ADJUST_CONVEY("applyAdjustSug", "申请调整的建议",(byte)2, "sug-applyAdjustSug", "/suggestion_deal/gov/applyAdjustSug",null, "SUGGESTION"),
+    GOV_ADJUST_DELAY("applyDelaySug", "申请延期的建议",(byte)2, "sug-applyDelaySug", "/suggestion_deal/gov/applyDelaySug",null, "SUGGESTION"),
+    UNIT_MANAGE("unitManage", "办理单位管理",(byte)2, "sug-unitManage", "/suggestion_deal/gov/unitManage",null, "SUGGESTION"),
+    SUGGESTION_SETTING("sugDealSetting", "建议办理设置",(byte)2, "sug-sugDealSetting", "/suggestion_deal/gov/sugDealSetting",null, "SUGGESTION"),
+    GOV_COUNT("sugDealStatistic", "建议办理统计",(byte)2, "sug-sugDealStatistic", "/suggestion_deal/gov/sugDealStatistic",null, "SUGGESTION"),
 
     //办理单位
-    UNIT_WAIT_DEAL("toBeDoneSug", "待办建议",(byte)2, "menu-dashboard", "/suggestion_deal/unit/toBeDoneSug",null, "SUGGESTION"),
-    UNIT_DEALING("inDoingSug", "办理中",(byte)2, "menu-dashboard", "/suggestion_deal/unit/inDoingSug",null, "SUGGESTION"),
-    UNIT_DEAL_DONE("doneSug", "办理完成",(byte)2, "menu-dashboard", "/suggestion_deal/unit/doneSug",null, "SUGGESTION"),
-    UNIT_DEAL_COMPLETED("completedSug", "办结",(byte)2, "menu-dashboard", "/suggestion_deal/unit/completedSug",null, "SUGGESTION");
+    UNIT_WAIT_DEAL("toBeDoneSug", "待办建议",(byte)2, "sug-toBeDoneSug", "/suggestion_deal/unit/toBeDoneSug",null, "SUGGESTION"),
+    UNIT_DEALING("inDoingSug", "办理中",(byte)2, "sug-inDoingSug", "/suggestion_deal/unit/inDoingSug",null, "SUGGESTION"),
+    UNIT_DEAL_DONE("doneSug", "办理完成",(byte)2, "sug-doneSug", "/suggestion_deal/unit/doneSug",null, "SUGGESTION"),
+    UNIT_DEAL_COMPLETED("completedSug", "办结",(byte)2, "sug-completedSug", "/suggestion_deal/unit/completedSug",null, "SUGGESTION");
 
 
 
