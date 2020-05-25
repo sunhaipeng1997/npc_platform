@@ -4,6 +4,7 @@ import com.cdkhd.npc.entity.ConveyProcess;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.vo.BaseVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,7 @@ public class SugListItemVo extends BaseVo {
     private String title;
 
     //收到时间
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date receiveTime;
 
     //建议类型

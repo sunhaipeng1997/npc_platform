@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -25,6 +26,12 @@ public class UnitSuggestionApi {
     @GetMapping("/page_to_deal")
     public ResponseEntity findPageOfToDeal(@CurrentUser MobileUserDetailsImpl userDetails, PageDto pageDto) {
         RespBody body = unitSuggestionService.findPageOfToDeal(userDetails, pageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/to_deal/{uid}")
+    public ResponseEntity checkToDeal(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String uid) {
+        RespBody body = unitSuggestionService.checkToDealDetail(userDetails, uid);
         return ResponseEntity.ok(body);
     }
 }

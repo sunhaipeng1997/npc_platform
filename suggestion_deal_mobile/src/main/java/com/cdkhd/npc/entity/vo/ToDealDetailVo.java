@@ -2,11 +2,17 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.ConveyProcess;
 import com.cdkhd.npc.entity.Suggestion;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
+@Getter
+@Setter
 public class ToDealDetailVo {
     //转办时间
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date receiveTime;
 
     //办理单位类型

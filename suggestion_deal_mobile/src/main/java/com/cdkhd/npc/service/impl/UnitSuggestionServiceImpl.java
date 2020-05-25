@@ -74,7 +74,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         //未读消息在前
         orders.add(new Sort.Order(Sort.Direction.ASC, "view"));
         //按转办时间降序排序
-        orders.add(new Sort.Order(Sort.Direction.DESC, "receiveTime"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "conveyTime"));
         Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
 
         //待办建议查询条件
