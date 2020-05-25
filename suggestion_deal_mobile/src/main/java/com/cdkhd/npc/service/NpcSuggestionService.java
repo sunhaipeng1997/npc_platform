@@ -34,7 +34,7 @@ public interface NpcSuggestionService {
     * @Date: 2020/5/18
     * @Author: LiYang
     */
-    RespBody updateSuggestion(MobileUserDetailsImpl userDetails, SugAddDto sugAddDto);
+    RespBody updateSuggestion(SugAddDto sugAddDto);
 
     /**
      * @Description: 提交建议
@@ -43,7 +43,7 @@ public interface NpcSuggestionService {
      * @Date: 2020/5/18
      * @Author: LiYang
      */
-    RespBody submitSuggestion(String sugUid);
+    RespBody submitSuggestion(SugAddDto sugAddDto);
 
     /**
     * @Description: 撤回建议

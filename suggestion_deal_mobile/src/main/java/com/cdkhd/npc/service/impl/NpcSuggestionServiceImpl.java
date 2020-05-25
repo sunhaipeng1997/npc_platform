@@ -128,7 +128,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     }
 
     @Override
-    public RespBody updateSuggestion(MobileUserDetailsImpl userDetails, SugAddDto sugAddDto) {
+    public RespBody updateSuggestion(SugAddDto sugAddDto) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugAddDto.getUid());
         if (suggestion == null){
@@ -143,7 +143,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             suggestionImageRepository.deleteAll(images);
             suggestion.setTransUid(sugAddDto.getTransUid());
             suggestion.setCanOperate(true);
-            suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
+            suggestion.setStatus(sugAddDto.getStatus());
             suggestion.setRaiseTime(new Date());
             suggestion.setTitle(sugAddDto.getTitle());
             suggestion.setContent(sugAddDto.getContent());
@@ -163,9 +163,9 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     }
 
     @Override
-    public RespBody submitSuggestion(String sugUid) {
+    public RespBody submitSuggestion(SugAddDto sugAddDto) {
         RespBody body = new RespBody();
-        Suggestion suggestion = suggestionRepository.findByUid(sugUid);
+        Suggestion suggestion = suggestionRepository.findByUid(sugAddDto.getUid());
         if (suggestion == null){
             body.setMessage("该建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -284,8 +284,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                 predicates.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
                 if (sugPageDto.getStatus() != NpcSugStatusEnum.All.getValue()){  //分类
-                    if (sugPageDto.getStatus().equals(NpcSugStatusEnum.TO_BE_AUDITED.getValue())){  //草稿
-                        predicates.add(cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue()),
+                    if (sugPageDto.getStatus().equals(NpcSugStatusEnum.NOT_SUBMIT.getValue())){  //草稿
+                        predicates.add(cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()),
                                 cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue())));  // 0 1
                     }else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.AUDIT_FAILURE.getValue())){ //审核失败
                         predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));  // -1

@@ -55,14 +55,14 @@ public class NpcSuggestionApi {
 
     /**
     * @Description: 代表修改建议
-    * @Param: userDetails sugAddDto
+    * @Param: sugAddDto
     * @Return:
     * @Date: 2020/5/18
     * @Author: LiYang
     */
     @PostMapping("/updateSuggestion")
-    public ResponseEntity updateSuggestion(@CurrentUser MobileUserDetailsImpl userDetails, SugAddDto sugAddDto){
-        RespBody body = suggestionService.updateSuggestion(userDetails, sugAddDto);
+    public ResponseEntity updateSuggestion(SugAddDto sugAddDto){
+        RespBody body = suggestionService.updateSuggestion(sugAddDto);
         return ResponseEntity.ok(body);
     }
     /**
@@ -73,8 +73,8 @@ public class NpcSuggestionApi {
     * @Author: LiYang
     */
     @PostMapping("/submitSuggestion")
-    public ResponseEntity submitSuggestion(String sugUid){
-        RespBody body = suggestionService.submitSuggestion(sugUid);
+    public ResponseEntity submitSuggestion(SugAddDto sugAddDto){
+        RespBody body = suggestionService.submitSuggestion(sugAddDto);
         return ResponseEntity.ok(body);
     }
     /**
