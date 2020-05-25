@@ -58,6 +58,10 @@ public class Unit extends BaseDomain {
 	@Column(name = "level" )
 	private Byte level;
 
+	//办理结果
+	@OneToMany(targetEntity = Suggestion.class, mappedBy = "unit")
+	private Set<Suggestion> suggestions;
+
 	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "area", referencedColumnName = "id")
 	private Area area;

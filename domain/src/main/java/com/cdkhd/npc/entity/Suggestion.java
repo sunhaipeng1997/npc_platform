@@ -83,9 +83,6 @@ public class Suggestion extends BaseDomain {
     @Column(name = "refuse_times")
     private Integer refuseTimes;
 
-    @Column(name = "unit")
-    private String unit;
-
     @Column(name = "accept_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date acceptTime;
@@ -185,5 +182,8 @@ public class Suggestion extends BaseDomain {
     @JoinColumn(name = "suggestion_business", referencedColumnName = "id")
     private SuggestionBusiness suggestionBusiness;
 
-
+    //办理单位
+    @ManyToOne(targetEntity = Unit.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit", referencedColumnName = "id")
+    private Unit unit;
 }
