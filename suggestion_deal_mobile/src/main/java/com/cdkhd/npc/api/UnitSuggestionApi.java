@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -32,6 +33,18 @@ public class UnitSuggestionApi {
     @GetMapping("/to_deal/{uid}")
     public ResponseEntity checkToDeal(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String uid) {
         RespBody body = unitSuggestionService.checkToDealDetail(userDetails, uid);
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/adjust/{uid}")
+    public ResponseEntity applyAdjustUnit(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String cpUid, String adjustReason) {
+        RespBody body = unitSuggestionService.applyAdjust(userDetails, cpUid, adjustReason);
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/receive/{uid}")
+    public ResponseEntity startDealing(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String cpUid) {
+        RespBody body = unitSuggestionService.startDealing(userDetails, cpUid);
         return ResponseEntity.ok(body);
     }
 }

@@ -3,7 +3,6 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.dto.PageDto;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.vo.SugDetailVo;
 import com.cdkhd.npc.entity.vo.SugListItemVo;
 import com.cdkhd.npc.entity.vo.ToDealDetailVo;
 import com.cdkhd.npc.enums.AccountRoleEnum;
@@ -14,6 +13,7 @@ import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
 import com.cdkhd.npc.service.UnitSuggestionService;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,6 +147,105 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         ToDealDetailVo vo = ToDealDetailVo.convert(conveyProcess);
         body.setData(vo);
+        return body;
+    }
+
+    /**
+     * 申请调整办理单位
+     * @param userDetails
+     * @param conveyProcessUid 申请调整的转办记录uid
+     * @return
+     */
+    @Override
+    public RespBody applyAdjust(MobileUserDetailsImpl userDetails, String conveyProcessUid, String adjustReason) {
+        RespBody body = new RespBody();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限操作待转办建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，申请失败");
+            return body;
+        }
+
+        ConveyProcess conveyProcess = conveyProcessRepository.findByUid(conveyProcessUid);
+        if (!conveyProcess.getStatus().equals((byte)0)) {
+            LOGGER.error("该建议状态不是待办理，ConveyProcess uid: {}", conveyProcess.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议状态不是待办理，无法申请");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+        if (!conveyProcess.getUnit().getUid().equals(unitUser.getUnit().getUid())) {
+            LOGGER.error("该建议未转办给当前单位 \n " +
+                            "ConveyProcess uid: {} \n " +
+                            "Current User's Unit uid: {}",
+                    conveyProcess.getUid(), unitUser.getUnit().getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议未转办给你，申请调整失败");
+            return body;
+        }
+
+        if (StringUtils.isBlank(adjustReason)) {
+            LOGGER.error("申请调整理由不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("申请调整理由不能为空");
+            return body;
+        }
+
+        conveyProcess.setStatus((byte)2);
+        conveyProcess.setRemark(adjustReason);
+        //设置政府未读
+        conveyProcess.setMyView((byte)0);
+        conveyProcessRepository.saveAndFlush(conveyProcess);
+
+        return body;
+    }
+
+    /**
+     * 接受转办，开始办理
+     * @param userDetails
+     * @param conveyProcessUid 转办记录uid
+     * @return
+     */
+    @Override
+    public RespBody startDealing(MobileUserDetailsImpl userDetails, String conveyProcessUid) {
+        RespBody body = new RespBody();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限操作待转办建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法办理");
+            return body;
+        }
+
+        ConveyProcess conveyProcess = conveyProcessRepository.findByUid(conveyProcessUid);
+        if (!conveyProcess.getStatus().equals((byte)0)) {
+            LOGGER.error("该建议状态不是待办理，ConveyProcess uid: {}", conveyProcess.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议状态不是待办理，无法办理");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+        if (!conveyProcess.getUnit().getUid().equals(unitUser.getUnit().getUid())) {
+            LOGGER.error("该建议未转办给当前单位 \n " +
+                            "ConveyProcess uid: {} \n " +
+                            "Current User's Unit uid: {}",
+                    conveyProcess.getUid(), unitUser.getUnit().getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议未转办给你，无法办理");
+            return body;
+        }
+
+        conveyProcess.setStatus((byte)1);
+        conveyProcess.setMyView((byte)0);
+        Suggestion suggestion = conveyProcess.getSuggestion();
+        suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());
+        conveyProcessRepository.saveAndFlush(conveyProcess);
+
         return body;
     }
 

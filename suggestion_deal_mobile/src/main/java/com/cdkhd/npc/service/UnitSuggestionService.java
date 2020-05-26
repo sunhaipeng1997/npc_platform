@@ -8,4 +8,8 @@ public interface UnitSuggestionService {
     RespBody findPageOfToDeal(MobileUserDetailsImpl userDetails, PageDto pageDto);
 
     RespBody checkToDealDetail(MobileUserDetailsImpl userDetails, String conveyProcessUid);
+
+    RespBody applyAdjust(MobileUserDetailsImpl userDetails, String conveyProcessUid, String adjustReason);
+
+    RespBody startDealing(MobileUserDetailsImpl userDetails, String conveyProcessUid);
 }
