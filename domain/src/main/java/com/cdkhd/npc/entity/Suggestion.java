@@ -67,9 +67,15 @@ public class Suggestion extends BaseDomain {
     @Temporal(TemporalType.TIMESTAMP)
     private Date auditTime;
 
-    @Column(name = "convey_id")
-    private String conveyId;
+    //转办次数
+    @Column(name = "convey_times")
+    public Integer conveyTimes = 0;
 
+    //延期次数
+    @Column(name = "delay_times")
+    public Integer delayTimes = 0;
+
+    //转办时间
     @Column(name = "convey_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date conveyTime;
@@ -186,4 +192,11 @@ public class Suggestion extends BaseDomain {
     @ManyToOne(targetEntity = Unit.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "unit", referencedColumnName = "id")
     private Unit unit;
+
+    //建议预计办理完成时间
+    @Temporal(TemporalType.DATE)
+    @Column(name = "expect_date")
+    private Date expectDate;
+
+
 }

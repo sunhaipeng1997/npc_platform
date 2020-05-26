@@ -2,7 +2,7 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.SuggestionDto;
+import com.cdkhd.npc.entity.dto.GovSuggestionPageDto;
 import com.cdkhd.npc.service.GeneralService;
 import com.cdkhd.npc.service.UnitSuggestionService;
 import com.cdkhd.npc.vo.RespBody;
@@ -32,7 +32,7 @@ public class UintSuggestionController {
     }
 
     @GetMapping("/page_to_deal")
-    ResponseEntity pageToDeal(@CurrentUser UserDetailsImpl userDetails, SuggestionDto dto) {
+    ResponseEntity pageToDeal(@CurrentUser UserDetailsImpl userDetails, GovSuggestionPageDto dto) {
         RespBody body = suggestionService.findToDeal(userDetails, dto);
         return ResponseEntity.ok(body);
     }

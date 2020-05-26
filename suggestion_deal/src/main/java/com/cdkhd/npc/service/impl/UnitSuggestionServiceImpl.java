@@ -2,10 +2,9 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Suggestion;
-import com.cdkhd.npc.entity.dto.SuggestionDto;
+import com.cdkhd.npc.entity.dto.GovSuggestionPageDto;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
-import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.GeneralService;
 import com.cdkhd.npc.service.UnitSuggestionService;
@@ -52,7 +51,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
      * @return
      */
     @Override
-    public RespBody findToDeal(UserDetailsImpl userDetails, SuggestionDto dto) {
+    public RespBody findToDeal(UserDetailsImpl userDetails, GovSuggestionPageDto dto) {
         RespBody<PageVo<SuggestionVo>> body = new RespBody<>();
 
         //按条件分页查询代办建议
@@ -73,7 +72,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
      * @param status 建议状态
      * @return 分页查询结果
      */
-    private Page<Suggestion> findPage(UserDetailsImpl userDetails, SuggestionDto dto, SuggestionStatusEnum status) {
+    private Page<Suggestion> findPage(UserDetailsImpl userDetails, GovSuggestionPageDto dto, SuggestionStatusEnum status) {
         //分页查询条件
         Pageable pageable = PageRequest.of(dto.getPage()-1, dto.getSize(),
                 Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
@@ -98,22 +97,22 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
                 predicates.add(cb.like(root.get("title").as(String.class), "%" + dto.getTitle() + "%"));
             }
             //类型
-            if (StringUtils.isNotBlank(dto.getSuggestionBusiness())) {
-                predicates.add(cb.equal(root.get("suggestionBusiness").get("uid").as(String.class), dto.getSuggestionBusiness()));
+            if (StringUtils.isNotBlank(dto.getBusiness())) {
+                predicates.add(cb.equal(root.get("suggestionBusiness").get("uid").as(String.class), dto.getBusiness()));
             }
             //提出代表
-            if (StringUtils.isNotBlank(dto.getName())) {
-                predicates.add(cb.like(root.get("raiser").get("name").as(String.class), "%" + dto.getName() + "%"));
+            if (StringUtils.isNotBlank(dto.getMember())) {
+                predicates.add(cb.like(root.get("raiser").get("name").as(String.class), "%" + dto.getMember() + "%"));
             }
             if (StringUtils.isNotBlank(dto.getMobile())) {
                 predicates.add(cb.equal(root.get("raiser").get("mobile").as(String.class), dto.getMobile()));
             }
             //审核时间 开始
-            if (dto.getAuditStart() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("workAt").as(Date.class), dto.getAuditStart()));
+            if (dto.getDateStart() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("workAt").as(Date.class), dto.getDateStart()));
             }
-            if (dto.getAuditEnd() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("workAt").as(Date.class), dto.getAuditEnd()));
+            if (dto.getDateEnd() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("workAt").as(Date.class), dto.getDateEnd()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

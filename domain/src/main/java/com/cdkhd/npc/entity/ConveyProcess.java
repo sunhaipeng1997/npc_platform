@@ -1,5 +1,7 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.ConveyStatusEnum;
+import com.cdkhd.npc.enums.GovDealStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +20,15 @@ public class ConveyProcess extends BaseDomain {
 
     //转办结果 0 转办中  1、转办成功  2、转办失败
     @Column(nullable = false)
-    private Byte status = 0;
+    private Byte status = ConveyStatusEnum.CONVEYING.getValue();
+
+    //政府处理状态  0 未处理 1 已重新分配 2 无需重新分配
+    @Column(name = "deal_status")
+    private Byte dealStatus;
+
+    //本次转办是否处理完成  完成：单位接受了转办  或者  单位拒绝，政府已经重新转办或者选择不转办
+    @Column(name = "deal_done")
+    private Boolean dealDone;
 
     //转办次数
     @Column(name = "convey_times")
@@ -33,7 +43,7 @@ public class ConveyProcess extends BaseDomain {
 
     //办理单位类型 1、主办单位  2、协办单位
     @Column(nullable = false)
-    private Byte type = 1;
+    private Byte type;
 
     //办理单位是否已读，1：已读，0：未读
     @Column
