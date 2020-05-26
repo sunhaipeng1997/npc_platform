@@ -26,7 +26,7 @@ public class Result extends BaseDomain {
 
     //是否接受办理结果
     @Column(name = "accepted")
-    private Integer accepted;
+    private Boolean accepted;
 
     //原因
     @Column(name = "reason")

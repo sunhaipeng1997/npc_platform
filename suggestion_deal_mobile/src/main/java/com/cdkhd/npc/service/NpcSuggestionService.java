@@ -1,10 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.entity.dto.SugAddDto;
-import com.cdkhd.npc.entity.dto.SugAuditDto;
-import com.cdkhd.npc.entity.dto.SugBusDto;
-import com.cdkhd.npc.entity.dto.SugPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface NpcSuggestionService {
@@ -91,12 +88,33 @@ public interface NpcSuggestionService {
     RespBody npcMemberSug(MobileUserDetailsImpl userDetails, SugPageDto sugPageDto);
 
     /**
-    * @Description: s很合人员建议列表
+    * @Description: 审核人员建议列表
     * @Param:
     * @Return:
     * @Date: 2020/5/19
     * @Author: LiYang
     */
     RespBody auditorSug(MobileUserDetailsImpl userDetails, SugPageDto sugPageDto);
+
+    /**
+    * @Description: 代表接受办理结果并评价
+    * @Param:
+    * @Return:
+    * @Date: 2020/5/26
+    * @Author: LiYang
+    */
+    RespBody acceptResult(MobileUserDetailsImpl userDetails, SugAppraiseDto sugAppraiseDto);
+
+
+    /**
+    * @Description: 代表不接受办理结果
+    * @Param:
+    * @Return:
+    * @Date: 2020/5/26
+    * @Author: LiYang
+    */
+    RespBody refuseResult(SugAppraiseDto sugAppraiseDto);
+
+
 
 }

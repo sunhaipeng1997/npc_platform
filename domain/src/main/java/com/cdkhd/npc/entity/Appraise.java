@@ -19,11 +19,11 @@ import javax.persistence.*;
 @Table ( name ="appraise" )
 public class Appraise extends BaseDomain {
 
-	//办理结果是否满意 评分 1/2/3
+	//办理结果是否满意 评分 1/2/3/4/5
    	@Column(name = "result" )
 	private Byte result;
 
-	//办理态度是否满意 评分 1/2/3
+	//办理态度是否满意 评分 1/2/3/4/5
    	@Column(name = "attitude" )
 	private Byte attitude;
 

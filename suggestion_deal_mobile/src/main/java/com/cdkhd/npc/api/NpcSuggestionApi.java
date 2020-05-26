@@ -2,10 +2,7 @@ package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
-import com.cdkhd.npc.entity.dto.SugAddDto;
-import com.cdkhd.npc.entity.dto.SugAuditDto;
-import com.cdkhd.npc.entity.dto.SugBusDto;
-import com.cdkhd.npc.entity.dto.SugPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.service.NpcSuggestionService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,6 +149,32 @@ public class NpcSuggestionApi {
     @GetMapping("/auditorSug")
     public ResponseEntity auditorSug(@CurrentUser MobileUserDetailsImpl userDetails, SugPageDto sugPageDto) {
         RespBody body = suggestionService.auditorSug(userDetails, sugPageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+    * @Description: 代表接受办理结果
+    * @Param: userDetails sugAppraiseDto
+    * @Return:
+    * @Date: 2020/5/26
+    * @Author: LiYang
+    */
+    @PostMapping("/acceptResult")
+    public ResponseEntity acceptResult(@CurrentUser MobileUserDetailsImpl userDetails, SugAppraiseDto sugAppraiseDto){
+        RespBody body = suggestionService.acceptResult(userDetails, sugAppraiseDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+    * @Description: 代表不接受办理结果
+    * @Param: sugAppraiseDto
+    * @Return:
+    * @Date: 2020/5/26
+    * @Author: LiYang
+    */
+    @PostMapping("/refuseResult")
+    public ResponseEntity refuseResult(SugAppraiseDto sugAppraiseDto){
+        RespBody body = suggestionService.refuseResult(sugAppraiseDto);
         return ResponseEntity.ok(body);
     }
 }

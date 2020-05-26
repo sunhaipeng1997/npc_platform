@@ -22,9 +22,11 @@ import java.util.Set;
 @Table(name = "suggestion")
 public class Suggestion extends BaseDomain {
 
+    //建议标题
     @Column(name = "title")
     private String title;
 
+    //建议内容
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "content")
@@ -55,6 +57,7 @@ public class Suggestion extends BaseDomain {
     @Temporal(TemporalType.TIMESTAMP)
     private Date raiseTime;
 
+    //审核原因
     @Column(name = "reason")
     private String reason;
 
@@ -96,21 +99,33 @@ public class Suggestion extends BaseDomain {
     @Column(name = "deal_times")
     private Integer dealTimes;
 
+    //办完时间
     @Column(name = "finish_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date finishTime;
 
+    //办结时间
     @Column(name = "accomplish_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date accomplishTime;
 
+    //是否催办
     @Column(name = "urge")
-    private Integer urge;
+    private Boolean urge = false;
+
+    //催办等级
+    @Column(name = "urge_level")
+    private Integer urgeLevel = 0;
+
+    //是否快到期了
+    @Column(name = "close_deadline")
+    private Boolean closeDeadLine = false;
 
     //审核人员是否查看
     @Column(name = "view")
     private Boolean view = false;
 
+    //是否删除
     @Column(name = "del")
     private Boolean isDel = false;
 
@@ -118,11 +133,17 @@ public class Suggestion extends BaseDomain {
     @Column(name = "trans_uid")
     private String transUid;
 
+    //建议级别 1 镇 2 区
     @Column(name = "level")
     private Byte level;
 
     //前端是否显示撤回按钮，默认为true
+    @Column(name = "canRevoke")
     private Boolean canOperate = true;
+
+    //转办人
+    @OneToOne(targetEntity = GovernmentUser.class, fetch = FetchType.LAZY)
+    private GovernmentUser governmentUser;
 
     //建议图片
     @OneToMany(targetEntity = SuggestionImage.class, mappedBy = "suggestion")

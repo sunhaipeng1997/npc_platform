@@ -7,7 +7,7 @@ public enum NpcSugStatusEnum {
     TO_BE_AUDITED((byte)2,"已提交"),
     AUDIT_FAILURE((byte)3,"审核失败"),
     DONE((byte)4,"已办完"),
-    COMPLETED((byte)5,"已办完");
+    COMPLETED((byte)5,"已办结");
 
     private Byte value;
     private String name;

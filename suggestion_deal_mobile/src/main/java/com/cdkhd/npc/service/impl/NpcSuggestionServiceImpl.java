@@ -2,17 +2,22 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.SugAddDto;
-import com.cdkhd.npc.entity.dto.SugAuditDto;
-import com.cdkhd.npc.entity.dto.SugBusDto;
-import com.cdkhd.npc.entity.dto.SugPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.SugDetailVo;
-import com.cdkhd.npc.enums.*;
+import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.NpcSugStatusEnum;
+import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
+import com.cdkhd.npc.repository.base.GovernmentUserRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionImageRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
+import com.cdkhd.npc.repository.suggestion_deal.AppraiseRepository;
+import com.cdkhd.npc.repository.suggestion_deal.ResultRepository;
+import com.cdkhd.npc.repository.suggestion_deal.UnitRepository;
+import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
 import com.cdkhd.npc.service.NpcSuggestionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
@@ -20,6 +25,8 @@ import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,29 +60,49 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
 
     private final SuggestionReplyRepository suggestionReplyRepository;
 
+    private final AppraiseRepository appraiseRepository;
+
+    private final ResultRepository resultRepository;
+
+    private final UnitSuggestionRepository unitSuggestionRepository;
+
+    private final UnitRepository unitRepository;
+
+    private final GovernmentUserRepository governmentUserRepository;
+
     @Autowired
     public NpcSuggestionServiceImpl(AccountRepository accountRepository,
                                     SuggestionRepository suggestionRepository,
                                     SuggestionBusinessRepository suggestionBusinessRepository,
                                     SuggestionImageRepository suggestionImageRepository,
-                                    SuggestionReplyRepository suggestionReplyRepository) {
+                                    SuggestionReplyRepository suggestionReplyRepository,
+                                    AppraiseRepository appraiseRepository,
+                                    ResultRepository resultRepository,
+                                    UnitSuggestionRepository unitSuggestionRepository,
+                                    UnitRepository unitRepository,
+                                    GovernmentUserRepository governmentUserRepository) {
         this.accountRepository = accountRepository;
         this.suggestionRepository = suggestionRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
         this.suggestionImageRepository = suggestionImageRepository;
         this.suggestionReplyRepository = suggestionReplyRepository;
+        this.appraiseRepository = appraiseRepository;
+        this.resultRepository = resultRepository;
+        this.unitSuggestionRepository = unitSuggestionRepository;
+        this.unitRepository = unitRepository;
+        this.governmentUserRepository = governmentUserRepository;
     }
 
     @Override
     public RespBody sugBusList(MobileUserDetailsImpl userDetails, SugBusDto sugBusDto) {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
-        if (sugBusDto.getLevel().equals(LevelEnum.TOWN.getValue())){
-            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
-        }else if (sugBusDto.getLevel().equals(LevelEnum.AREA.getValue()) ||
-                (sugBusDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
+        if (sugBusDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+        } else if (sugBusDto.getLevel().equals(LevelEnum.AREA.getValue()) ||
+                (sugBusDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
             //区上或者是街道统一使用区上的建议类型
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -131,13 +158,13 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody updateSuggestion(SugAddDto sugAddDto) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugAddDto.getUid());
-        if (suggestion == null){
+        if (suggestion == null) {
             body.setMessage("此建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        suggestion = suggestionRepository.findByUidAndTransUid(sugAddDto.getUid(),sugAddDto.getTransUid());
-        if (null == suggestion){  //第一次提交且有附件就删除之前的图片
+        suggestion = suggestionRepository.findByUidAndTransUid(sugAddDto.getUid(), sugAddDto.getTransUid());
+        if (null == suggestion) {  //第一次提交且有附件就删除之前的图片
             suggestion = suggestionRepository.findByUid(sugAddDto.getUid());
             Set<SuggestionImage> images = suggestion.getSuggestionImages();
             suggestionImageRepository.deleteAll(images);
@@ -155,9 +182,9 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             }
             suggestion.setSuggestionBusiness(suggestionBusiness);
             suggestionRepository.saveAndFlush(suggestion);
-            if (sugAddDto.getImage() != null) {  //有附件，保存附件信息
-                this.saveCover(sugAddDto.getImage(), suggestion);
-            }
+        }
+        if (sugAddDto.getImage() != null) {  //有附件，保存附件信息
+            this.saveCover(sugAddDto.getImage(), suggestion);
         }
         return body;
     }
@@ -166,7 +193,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody submitSuggestion(SugAddDto sugAddDto) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugAddDto.getUid());
-        if (suggestion == null){
+        if (suggestion == null) {
             body.setMessage("该建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
@@ -180,18 +207,18 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody revokeSuggestion(String sugUid) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugUid);
-        if (suggestion == null){
+        if (suggestion == null) {
             body.setMessage("该建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
         Date expireAt = DateUtils.addMinutes(suggestion.getRaiseTime(), 5);
-        if (expireAt.before(new Date())){
+        if (expireAt.before(new Date())) {
             body.setMessage("该建议已经提交超过5分钟，无法撤回");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        if (suggestion.getView()){
+        if (suggestion.getView()) {
             body.setMessage("该建议已被审核人员查看，无法撤回");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
@@ -206,7 +233,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody suggestionDetail(String sugUid) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugUid);
-        if (suggestion == null){
+        if (suggestion == null) {
             body.setMessage("该建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
@@ -220,14 +247,14 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody deleteSuggestion(String sugUid) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugUid);
-        if (suggestion == null){
+        if (suggestion == null) {
             body.setMessage("该建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
         if (!suggestion.getStatus().equals(SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()) &&
                 !suggestion.getStatus().equals(SuggestionStatusEnum.NOT_SUBMITTED.getValue()) &&
-                !suggestion.getStatus().equals(SuggestionStatusEnum.AUDIT_FAILURE.getValue())){
+                !suggestion.getStatus().equals(SuggestionStatusEnum.AUDIT_FAILURE.getValue())) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该建议无法删除");
             return body;
@@ -241,16 +268,16 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody auditSuggestion(MobileUserDetailsImpl userDetails, SugAuditDto sugAuditDto) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugAuditDto.getUid());
-        if (suggestion == null){
+        if (suggestion == null) {
             body.setMessage("该建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(sugAuditDto.getLevel(), account.getNpcMembers());
-        if (sugAuditDto.getStatus().equals(StatusEnum.ENABLED.getValue())){  //接受
+        if (sugAuditDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {  //接受
             suggestion.setStatus(SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue());  //将建议状态设置成“已提交政府”
-        }else {
+        } else {
             suggestion.setStatus(SuggestionStatusEnum.AUDIT_FAILURE.getValue());  //将建议状态设置成“审核失败”
         }
         suggestion.setAuditor(npcMember);  //审核人
@@ -283,17 +310,17 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 List<Predicate> predicates = new ArrayList<>();
                 predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                 predicates.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
-                if (sugPageDto.getStatus() != NpcSugStatusEnum.All.getValue()){  //分类
-                    if (sugPageDto.getStatus().equals(NpcSugStatusEnum.NOT_SUBMIT.getValue())){  //草稿
+                if (sugPageDto.getStatus() != NpcSugStatusEnum.All.getValue()) {  //分类
+                    if (sugPageDto.getStatus().equals(NpcSugStatusEnum.NOT_SUBMIT.getValue())) {  //草稿
                         predicates.add(cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()),
                                 cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue())));  // 0 1
-                    }else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.AUDIT_FAILURE.getValue())){ //审核失败
+                    } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.AUDIT_FAILURE.getValue())) { //审核失败
                         predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));  // -1
-                    }else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.DONE.getValue())){ //已办完
+                    } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.DONE.getValue())) { //已办完
                         predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));  // 6
-                    }else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.COMPLETED.getValue())){ //已办结
+                    } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.COMPLETED.getValue())) { //已办结
                         predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));  // 7
-                    }else {  //已提交
+                    } else {  //已提交
                         Predicate predicate = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  // 2
                         predicate = cb.or(predicate, cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));  // 3
                         predicate = cb.or(predicate, cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()));  // 4
@@ -303,7 +330,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 }
                 Predicate[] p = new Predicate[predicates.size()];
                 query.where(cb.and(predicates.toArray(p)));
-                query.orderBy(cb.desc(root.get("status")),cb.desc(root.get("raiseTime")));
+                query.orderBy(cb.desc(root.get("status")), cb.desc(root.get("raiseTime")));
                 return query.getRestriction();
             }, page);
             vo.setContent(pageRes.stream().map(SugDetailVo::convert).sorted(Comparator.comparing(SugDetailVo::getMyView)).collect(Collectors.toList()));
@@ -326,13 +353,13 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             //已经撤回的建议不查出来
             predicates.add(cb.notEqual(root.get("status").as(Boolean.class), SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-            if (sugPageDto.getLevel().equals(LevelEnum.TOWN.getValue())){  //镇建议审核人员
+            if (sugPageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {  //镇建议审核人员
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
-            if (sugPageDto.getStatus() != NpcSugStatusEnum.All.getValue()){
-                if (sugPageDto.getStatus().equals(SuggestionStatusEnum.NOT_SUBMITTED.getValue())){  //1 未审核
+            if (sugPageDto.getStatus() != NpcSugStatusEnum.All.getValue()) {
+                if (sugPageDto.getStatus().equals(SuggestionStatusEnum.NOT_SUBMITTED.getValue())) {  //1 未审核
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));
-                }else if (sugPageDto.getStatus().equals(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue())){  //2 已审核
+                } else if (sugPageDto.getStatus().equals(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue())) {  //2 已审核
                     Predicate predicate = cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue());  // 1 未提交
                     predicate = cb.and(predicate, cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));  // 2 待审核
                     predicates.add(predicate);
@@ -340,12 +367,84 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             }
             Predicate[] p = new Predicate[predicates.size()];
             query.where(cb.and(predicates.toArray(p)));
-            query.orderBy(cb.asc(root.get("view")),cb.asc(root.get("status")),cb.desc(root.get("createTime")));
+            query.orderBy(cb.asc(root.get("view")), cb.asc(root.get("status")), cb.desc(root.get("createTime")));
             return query.getRestriction();
         }, page);
         vo.setContent(pageRes.stream().map(SugDetailVo::convert).collect(Collectors.toList()));
         vo.copy(pageRes);
         body.setData(vo);
+        return body;
+    }
+
+    @Override
+    public RespBody acceptResult(MobileUserDetailsImpl userDetails, SugAppraiseDto sugAppraiseDto) {
+        RespBody body = new RespBody();
+        Suggestion suggestion = suggestionRepository.findByUid(sugAppraiseDto.getUid());
+        if (suggestion == null) {
+            body.setMessage("该建议不存在");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        Result result = null;
+        for (Result rs : suggestion.getResults()) {
+            if (rs.getAccepted() == null) {
+                result = rs;
+            }
+        }
+        result.setReason(sugAppraiseDto.getReason());
+        result.setAccepted(true);
+        resultRepository.saveAndFlush(result);
+
+        suggestion.setStatus(SuggestionStatusEnum.ACCOMPLISHED.getValue());//修改建议为办结状态
+        suggestion.setAccomplishTime(new Date());
+        suggestion.setCloseDeadLine(false);//完结之后，不再通知到期
+        suggestion.setUrge(false);//完结之后，不再催办
+        suggestion.setUrgeLevel(0);//完结之后，清空催办等级
+        suggestionRepository.saveAndFlush(suggestion);
+
+        Appraise appraise = new Appraise();
+        appraise.setAttitude(sugAppraiseDto.getAttitude());
+        appraise.setResult(sugAppraiseDto.getResult());
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(sugAppraiseDto.getLevel(), account.getNpcMembers());
+        appraise.setNpcMember(npcMember);
+        appraise.setReason(sugAppraiseDto.getReason());
+        appraise.setSuggestion(suggestion);
+        appraiseRepository.saveAndFlush(appraise);
+
+        return body;
+    }
+
+    @Override
+    public RespBody refuseResult(SugAppraiseDto sugAppraiseDto) {
+        RespBody body = new RespBody();
+
+        Suggestion suggestion = suggestionRepository.findByUid(sugAppraiseDto.getUid());
+        if (suggestion == null) {
+            body.setMessage("该建议不存在");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        //代表不接受结果，办理单位需要重新办理
+        Result result = null;
+        for (Result rs : suggestion.getResults()) {
+            if (rs.getAccepted() == null) {
+                result = rs;
+            }
+        }
+        result.setReason(sugAppraiseDto.getReason());
+        result.setAccepted(false);
+        resultRepository.saveAndFlush(result);
+
+        ConveySugDto conveySugDto = new ConveySugDto();
+        conveySugDto.setUid(suggestion.getUid());
+        conveySugDto.setMainUnit(suggestion.getUnit().getUid());
+        //办理单位方面转办流程记录
+        this.unitDeal(suggestion, conveySugDto, suggestion.getGovernmentUser().getUid());
+        suggestion.setDealTimes(suggestion.getDealTimes() + 1);
+        suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());  //将建议状态设置成“办理中”
+        suggestionRepository.saveAndFlush(suggestion);
         return body;
     }
 
@@ -371,10 +470,69 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         Date beforeDate = beforeTime.getTime();
         for (Suggestion suggestion : suggestions) {
             //已被查看或者已经超过5分钟不可撤回
-            if (suggestion.getView() || !suggestion.getRaiseTime().after(beforeDate)){
+            if (suggestion.getView() || !suggestion.getRaiseTime().after(beforeDate)) {
                 suggestion.setCanOperate(false);
             }
         }
         suggestionRepository.saveAll(suggestions);
+    }
+
+    /**
+     * 代表拒绝结果后办理单位方面重新办理流程记录
+     *
+     * @param suggestion
+     * @param conveySugDto
+     * @param userUid
+     */
+    private void unitDeal(Suggestion suggestion, ConveySugDto conveySugDto, String userUid) {
+        Set<UnitSuggestion> unitSuggestionList = Sets.newHashSet();
+        if (conveySugDto.getMainUnit() != null) {
+            //主办单位
+            UnitSuggestion unitSuggestion = new UnitSuggestion();
+            Unit unit = unitRepository.findByUid(conveySugDto.getUid());
+            unitSuggestion.setUnit(unit);//办理单位
+            unitSuggestion.setSuggestion(suggestion);//建议
+            unitSuggestion.setType((byte) 1);//主办单位
+            GovernmentUser governmentUser = governmentUserRepository.findByUid(userUid);
+            unitSuggestion.setGovernmentUser(governmentUser);  //转交的政府人员
+            unitSuggestion.setReceiveTime(new Date());
+            unitSuggestion.setAccept(true);//默认状态是接受建议
+            unitSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
+            unitSuggestion.setUnitUser(this.getUnitUser(suggestion, conveySugDto.getMainUnit()));
+            unitSuggestionList.add(unitSuggestion);
+        }
+        //协办单位
+        if (conveySugDto.getSponsorUnits() != null) {
+            for (String sponsorUnit : conveySugDto.getSponsorUnits()) {
+                UnitSuggestion sponsorSuggestion = new UnitSuggestion();
+                Unit unit = new Unit();
+                unit.setUid(sponsorUnit);
+                sponsorSuggestion.setUnit(unit);//办理单位
+                sponsorSuggestion.setSuggestion(suggestion);//建议
+                sponsorSuggestion.setType((byte) 2);//协办单位
+                GovernmentUser governmentUser = new GovernmentUser();
+                governmentUser.setUid(userUid);  //转交的政府人员uid
+                sponsorSuggestion.setGovernmentUser(governmentUser);
+                sponsorSuggestion.setReceiveTime(new Date());//收到时间
+                sponsorSuggestion.setAccept(true);//默认状态是接受建议
+                sponsorSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
+                sponsorSuggestion.setUnitUser(this.getUnitUser(suggestion, sponsorUnit));
+                unitSuggestionList.add(sponsorSuggestion);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(unitSuggestionList)) {
+            unitSuggestionRepository.saveAll(unitSuggestionList);
+        }
+    }
+
+    private UnitUser getUnitUser(Suggestion suggestion, String unitUid) {
+        UnitUser unitUser = null;
+        for (UnitSuggestion unitSuggestion : suggestion.getUnitSuggestions()) {
+            if (suggestion.getDealTimes().equals(unitSuggestion.getDealTimes()) && unitSuggestion.getUnit().getUid().equals(unitUid)){
+                unitUser = unitSuggestion.getUnitUser();
+                break;
+            }
+        }
+        return unitUser;
     }
 }
