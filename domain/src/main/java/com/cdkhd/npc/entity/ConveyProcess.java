@@ -38,7 +38,7 @@ public class ConveyProcess extends BaseDomain {
     @Column(name = "convey_time")
     private Date conveyTime = new Date();
 
-    //单位处理时间
+    //办理单位处理时间
     @Column(name = "unit_deal_time")
     private Date unitDealTime;
 
