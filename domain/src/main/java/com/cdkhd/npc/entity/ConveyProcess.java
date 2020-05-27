@@ -45,11 +45,11 @@ public class ConveyProcess extends BaseDomain {
     @Column(nullable = false)
     private Byte type;
 
-    //办理单位是否已读，1：已读，0：未读
+    //办理单位是否已读
     @Column(name = "unit_view")
     private Boolean unitView = false;
 
-    //办理单位回复是否已读，1：已读，0：未读
+    //办理单位回复是否已读
     @Column(name = "gov_view")
     private Boolean govView = true;
 

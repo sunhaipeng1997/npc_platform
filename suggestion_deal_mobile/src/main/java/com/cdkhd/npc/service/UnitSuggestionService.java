@@ -12,4 +12,6 @@ public interface UnitSuggestionService {
     RespBody applyAdjust(MobileUserDetailsImpl userDetails, String conveyProcessUid, String adjustReason);
 
     RespBody startDealing(MobileUserDetailsImpl userDetails, String conveyProcessUid);
+
+    RespBody findPageOfInDealing(MobileUserDetailsImpl userDetails, PageDto pageDto);
 }
