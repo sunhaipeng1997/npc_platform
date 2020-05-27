@@ -18,7 +18,7 @@ import java.util.Date;
 @Table(name = "convey_process")
 public class ConveyProcess extends BaseDomain {
 
-    //转办结果 0 转办中  1、转办成功  2、转办失败
+    //转办结果 0 单位待处理  1、单位接受  2、单位拒绝
     @Column(nullable = false)
     private Byte status = ConveyStatusEnum.CONVEYING.getValue();
 
@@ -28,7 +28,7 @@ public class ConveyProcess extends BaseDomain {
 
     //本次转办是否处理完成  完成：单位接受了转办  或者  单位拒绝，政府已经重新转办或者选择不转办
     @Column(name = "deal_done")
-    private Boolean dealDone;
+    private Boolean dealDone = false;
 
     //转办次数
     @Column(name = "convey_times")
@@ -37,6 +37,10 @@ public class ConveyProcess extends BaseDomain {
     //转办时间
     @Column(name = "convey_time")
     private Date conveyTime = new Date();
+
+    //单位处理时间
+    @Column(name = "unit_deal_time")
+    private Date unitDealTime;
 
     //拒绝原因
     private String remark;
