@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.UnitAddOrUpdateDto;
 import com.cdkhd.npc.entity.dto.UnitPageDto;
 import com.cdkhd.npc.entity.dto.UnitUserAddOrUpdateDto;
@@ -90,4 +91,7 @@ public interface UnitService {
 
     //重置单位人员的登录密码
     RespBody resetPwd(String uid);
+
+    //根据类型获取单位下拉列表
+    RespBody unitListByType(BaseDto baseDto);
 }

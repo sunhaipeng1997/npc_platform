@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.UnitAddOrUpdateDto;
 import com.cdkhd.npc.entity.dto.UnitPageDto;
@@ -456,6 +457,15 @@ public class UnitServiceImpl implements UnitService {
         final String accountPassword = env.getProperty("account.password");
         loginUP.setPassword(passwordEncoder.encode(accountPassword));
         loginUPRepository.saveAndFlush(loginUP);
+        return body;
+    }
+
+    @Override
+    public RespBody unitListByType(BaseDto baseDto) {
+        RespBody body = new RespBody();
+        List<Unit> units = unitRepository.findBySuggestionBusinessUidAndStatusAndIsDelFalse(baseDto.getUid(),StatusEnum.ENABLED.getValue());
+        List<CommonVo> commonVos = units.stream().map(unit -> CommonVo.convert(unit.getUid(),unit.getName())).collect(Collectors.toList());
+        body.setData(commonVos);
         return body;
     }
 }

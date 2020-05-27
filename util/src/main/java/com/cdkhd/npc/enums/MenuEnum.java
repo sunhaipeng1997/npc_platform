@@ -63,6 +63,9 @@ public enum MenuEnum {
     CONVEYED_SUGGESTIONS(null, "已转办",(byte)1,"CONVEYED_SUGGESTIONS","gov/forwarded","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
     APPLY_DELAY_SUGGESTIONS(null, "延期申请",(byte)1,"APPLY_DELAY_SUGGESTIONS","gov/delay_appl","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
     APPLY_ADJUST_SUGGESTIONS(null, "调整单位申请",(byte)1,"APPLY_ADJUST_SUGGESTIONS","gov/adjust_appl","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+    GOV_DEALING_SUGGESTIONS(null, "办理中",(byte)1,"DEALING_SUGGESTIONS","gov/dealing","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    GOV_FINISHED_SUGGESTIONS(null, "已办完",(byte)1,"DEAL_DONE_SUGGESTIONS","gov/finished","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
+    GOV_COMPLETED_SUGGESTIONS(null, "已办结",(byte)1,"DEAL_COMPLETED_SUGGESTIONS","gov/completed","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
 
     // 建议办理
     WAIT_DEAL_SUGGESTIONS(null, "待办理",(byte)1,"WAIT_DEAL_SUGGESTIONS","unit/to_deal","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
@@ -117,6 +120,9 @@ public enum MenuEnum {
     GOV_WAIT_CONVEY("toBeTransSug", "待转办的建议",(byte)2, "sug-toBeTransSug", "/suggestion_deal/gov/toBeTransSug",null, "SUGGESTION"),
     GOV_ADJUST_CONVEY("applyAdjustSug", "申请调整的建议",(byte)2, "sug-applyAdjustSug", "/suggestion_deal/gov/applyAdjustSug",null, "SUGGESTION"),
     GOV_ADJUST_DELAY("applyDelaySug", "申请延期的建议",(byte)2, "sug-applyDelaySug", "/suggestion_deal/gov/applyDelaySug",null, "SUGGESTION"),
+    GOV_DEALING("govDealingSug", "办理中的建议",(byte)2, "sug-inDoingSug", "/suggestion_deal/gov/dealingSug",null, "SUGGESTION"),
+    GOV_FINISHED("govFinishedSug", "办理完成的建议",(byte)2, "sug-doneSug", "/suggestion_deal/gov/finishedSug",null, "SUGGESTION"),
+    GOV_COMPLETED("govCompletedSug", "办结的建议",(byte)2, "sug-completedSug", "/suggestion_deal/gov/completedSug",null, "SUGGESTION"),
     UNIT_MANAGE("unitManage", "办理单位管理",(byte)2, "sug-unitManage", "/suggestion_deal/gov/unitManage",null, "SUGGESTION"),
     SUGGESTION_SETTING("sugDealSetting", "建议办理设置",(byte)2, "sug-sugDealSetting", "/suggestion_deal/gov/sugDealSetting",null, "SUGGESTION"),
     GOV_COUNT("sugDealStatistic", "建议办理统计",(byte)2, "sug-sugDealStatistic", "/suggestion_deal/gov/sugDealStatistic",null, "SUGGESTION"),

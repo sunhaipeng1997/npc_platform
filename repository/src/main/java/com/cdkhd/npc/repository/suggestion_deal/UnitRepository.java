@@ -19,4 +19,5 @@ public interface UnitRepository extends BaseRepository<Unit> {
 
     List<Unit> findByLevelAndTownUidAndStatusAndIsDelFalse(Byte value, String uid, Byte status);
 
+    List<Unit> findBySuggestionBusinessUidAndStatusAndIsDelFalse(String uid, Byte value);
 }

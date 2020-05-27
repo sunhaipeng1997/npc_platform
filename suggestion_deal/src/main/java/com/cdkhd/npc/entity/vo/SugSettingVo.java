@@ -12,12 +12,13 @@ import javax.persistence.Column;
 @Setter
 public class SugSettingVo extends BaseVo {
 
-    //办理期限（单位：天）
-    @Column(nullable = false)
+    //临期提醒（单位：天）
     private Integer deadline;
 
+    //办理期限（单位：天）
+    private Integer expectDate;
+
     //催办频率（单位：天）
-    @Column(nullable = false)
     private Integer urgeFre;
 
     public static SugSettingVo convert(SuggestionSetting suggestionSetting) {

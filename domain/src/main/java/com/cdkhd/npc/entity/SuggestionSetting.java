@@ -13,11 +13,15 @@ import java.util.Date;
 public class SuggestionSetting extends BaseDomain {
 
     //办理期限（单位：天）
-    @Column(nullable = false)
-    private Integer deadline = 90;
+    @Column(name = "expect_date", nullable = false)
+    private Integer expectDate = 90;
+
+    //临期提醒（单位：天）
+    @Column(name = "deadline", nullable = false)
+    private Integer deadline = 15;
 
     //催办频率（单位：天）
-    @Column(nullable = false)
+    @Column(name = "urge_fre", nullable = false)
     private Integer urgeFre = 3;
 
     @Column(name = "update_user")

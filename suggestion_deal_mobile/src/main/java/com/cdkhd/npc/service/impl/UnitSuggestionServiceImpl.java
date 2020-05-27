@@ -8,7 +8,7 @@ import com.cdkhd.npc.entity.vo.ToDealDetailVo;
 import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
-import com.cdkhd.npc.repository.suggestion_deal.ConveyProcessRepository;
+import com.cdkhd.npc.repository.base.ConveyProcessRepository;
 import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
 import com.cdkhd.npc.service.UnitSuggestionService;
 import com.cdkhd.npc.vo.PageVo;

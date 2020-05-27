@@ -85,6 +85,15 @@ public class UnitController {
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 根据类型获取单位下拉列表
+     */
+    @GetMapping("/unitListByType")
+    public ResponseEntity unitListByType(BaseDto baseDto) {
+        RespBody body = unitService.unitListByType(baseDto);
+        return ResponseEntity.ok(body);
+    }
+
 
     /**
      * 分页查询单位人员信息

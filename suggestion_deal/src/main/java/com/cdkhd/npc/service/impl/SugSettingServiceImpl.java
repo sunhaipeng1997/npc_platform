@@ -63,6 +63,7 @@ public class SugSettingServiceImpl implements SugSettingService {
             return body;
         }
         SuggestionSetting suggestionSetting = suggestionSettingRepository.findByUid(sugSettingDto.getUid());
+        suggestionSetting.setExpectDate(sugSettingDto.getExpectDate());//默认建议办理周期
         suggestionSetting.setDeadline(sugSettingDto.getDeadline());//默认建议办理周期
         suggestionSetting.setUrgeFre(sugSettingDto.getUrgeFre());//默认催办频率
         suggestionSettingRepository.saveAndFlush(suggestionSetting);

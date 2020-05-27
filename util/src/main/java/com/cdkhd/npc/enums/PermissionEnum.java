@@ -30,6 +30,7 @@ public enum PermissionEnum {
     DEAL_CONVEY_SUGGESTIONS("转办建议"),
     GOV_DELAY_SUGGESTION("延期建议"),
     GOV_ADJUST_SUGGESTION("调整单位"),
+    GOV_URGE_SUGGESTION("查看建议情况"),
     UNIT_WAIT_DEAL_SUGGESTION("单位待办理"),
     UNIT_DEAL_SUGGESTION("单位办理建议"),
 
@@ -71,6 +72,9 @@ public enum PermissionEnum {
     GOV_WAIT_CONVEY("待转办"),
     GOV_ADJUST_CONVEY("调整单位"),
     GOV_ADJUST_DELAY("申请延期"),
+    GOV_DEALING("办理中列表"),
+    GOV_FINISHED("办理完成列表"),
+    GOV_COMPLETED("办结列表"),
     UNIT_MANAGE("办理单位管理"),
     SUGGESTION_SETTING("建议设置"),
     GOV_COUNT("统计"),
