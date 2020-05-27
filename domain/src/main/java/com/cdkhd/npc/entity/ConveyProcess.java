@@ -46,12 +46,12 @@ public class ConveyProcess extends BaseDomain {
     private Byte type;
 
     //办理单位是否已读，1：已读，0：未读
-    @Column
-    private Byte view;
+    @Column(name = "unit_view")
+    private Boolean unitView = false;
 
     //办理单位回复是否已读，1：已读，0：未读
-    @Column
-    private Byte  myView;
+    @Column(name = "gov_view")
+    private Boolean govView = true;
 
     //目标办理单位
     @OneToOne(targetEntity = Unit.class, fetch = FetchType.LAZY)
