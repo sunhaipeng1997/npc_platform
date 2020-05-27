@@ -98,11 +98,11 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         RespBody body = new RespBody();
         List<SuggestionBusiness> sb = Lists.newArrayList();
         if (sugBusDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         } else if (sugBusDto.getLevel().equals(LevelEnum.AREA.getValue()) ||
                 (sugBusDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))) {
             //区上或者是街道统一使用区上的建议类型
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
+            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -168,21 +168,21 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             suggestion = suggestionRepository.findByUid(sugAddDto.getUid());
             Set<SuggestionImage> images = suggestion.getSuggestionImages();
             suggestionImageRepository.deleteAll(images);
-            suggestion.setTransUid(sugAddDto.getTransUid());
-            suggestion.setCanOperate(true);
-            suggestion.setStatus(sugAddDto.getStatus());
-            suggestion.setRaiseTime(new Date());
-            suggestion.setTitle(sugAddDto.getTitle());
-            suggestion.setContent(sugAddDto.getContent());
-            SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(sugAddDto.getBusiness());
-            if (suggestionBusiness == null) {
-                body.setStatus(HttpStatus.BAD_REQUEST);
-                body.setMessage("建议类型不能为空");
-                return body;
-            }
-            suggestion.setSuggestionBusiness(suggestionBusiness);
-            suggestionRepository.saveAndFlush(suggestion);
         }
+        suggestion.setTransUid(sugAddDto.getTransUid());
+        suggestion.setCanOperate(true);
+        suggestion.setStatus(sugAddDto.getStatus());
+        suggestion.setRaiseTime(new Date());
+        suggestion.setTitle(sugAddDto.getTitle());
+        suggestion.setContent(sugAddDto.getContent());
+        SuggestionBusiness suggestionBusiness = suggestionBusinessRepository.findByUid(sugAddDto.getBusiness());
+        if (suggestionBusiness == null) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("建议类型不能为空");
+            return body;
+        }
+        suggestion.setSuggestionBusiness(suggestionBusiness);
+        suggestionRepository.saveAndFlush(suggestion);
         if (sugAddDto.getImage() != null) {  //有附件，保存附件信息
             this.saveCover(sugAddDto.getImage(), suggestion);
         }
@@ -356,13 +356,17 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             if (sugPageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {  //镇建议审核人员
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
+
             if (sugPageDto.getStatus() != NpcSugStatusEnum.All.getValue()) {
-                if (sugPageDto.getStatus().equals(SuggestionStatusEnum.NOT_SUBMITTED.getValue())) {  //1 未审核
+                if (sugPageDto.getStatus().equals(NpcSugStatusEnum.NOT_SUBMIT.getValue())) {  //1 待审核
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));
-                } else if (sugPageDto.getStatus().equals(SuggestionStatusEnum.SUBMITTED_AUDIT.getValue())) {  //2 已审核
-                    Predicate predicate = cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue());  // 1 未提交
-                    predicate = cb.and(predicate, cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));  // 2 待审核
+                } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.TO_BE_AUDITED.getValue())) {  //2 审核通过
+                    Predicate predicate = cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue());  // 不等于 1 未提交
+                    predicate = cb.and(predicate, cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));  // 不等于 2 待审核
+                    predicate = cb.and(predicate, cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));  // 不等于 -1 审核失败
                     predicates.add(predicate);
+                } else {  // 3 审核失败
+                    predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));  // -1 审核失败
                 }
             }
             Predicate[] p = new Predicate[predicates.size()];
@@ -439,6 +443,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
 
         ConveySugDto conveySugDto = new ConveySugDto();
         conveySugDto.setUid(suggestion.getUid());
+
         conveySugDto.setMainUnit(suggestion.getUnit().getUid());
         //办理单位方面转办流程记录
         this.unitDeal(suggestion, conveySugDto, suggestion.getGovernmentUser().getUid());
@@ -505,13 +510,11 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         if (conveySugDto.getSponsorUnits() != null) {
             for (String sponsorUnit : conveySugDto.getSponsorUnits()) {
                 UnitSuggestion sponsorSuggestion = new UnitSuggestion();
-                Unit unit = new Unit();
-                unit.setUid(sponsorUnit);
+                Unit unit = unitRepository.findByUid(sponsorUnit);
                 sponsorSuggestion.setUnit(unit);//办理单位
                 sponsorSuggestion.setSuggestion(suggestion);//建议
                 sponsorSuggestion.setType((byte) 2);//协办单位
-                GovernmentUser governmentUser = new GovernmentUser();
-                governmentUser.setUid(userUid);  //转交的政府人员uid
+                GovernmentUser governmentUser = governmentUserRepository.findByUid(userUid);
                 sponsorSuggestion.setGovernmentUser(governmentUser);
                 sponsorSuggestion.setReceiveTime(new Date());//收到时间
                 sponsorSuggestion.setAccept(true);//默认状态是接受建议
