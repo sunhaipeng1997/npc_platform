@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,7 +38,7 @@ public class UnitSuggestion extends BaseDomain {
     @Column(name = "receive_time")
     private Date receiveTime;
 
-    //办理单位收到时间
+    //办理单位接受时间
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "accept_time")
     private Date acceptTime = new Date();
@@ -74,7 +76,7 @@ public class UnitSuggestion extends BaseDomain {
 
     //办理流程
     @OneToMany(targetEntity = HandleProcess.class, mappedBy = "unitSuggestion")
-    private Set<HandleProcess> processes;
+    private List<HandleProcess> processes = new ArrayList<>();
 
     // 建议
     @ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)

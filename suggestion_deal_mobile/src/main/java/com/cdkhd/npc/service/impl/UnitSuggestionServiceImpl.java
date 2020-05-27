@@ -240,11 +240,21 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             return body;
         }
 
+        //设置ConveyProcess和Suggestion状态
         conveyProcess.setStatus((byte)1);
         conveyProcess.setMyView((byte)0);
         Suggestion suggestion = conveyProcess.getSuggestion();
         suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());
         conveyProcessRepository.saveAndFlush(conveyProcess);
+
+        //创建UnitSuggestion记录
+        UnitSuggestion unitSuggestion = new UnitSuggestion();
+        unitSuggestion.setType(conveyProcess.getType());
+        unitSuggestion.setUnitUser(unitUser);
+        unitSuggestion.setUnit(unitUser.getUnit());
+        unitSuggestion.setGovernmentUser(conveyProcess.getGovernmentUser());
+        unitSuggestion.setSuggestion(suggestion);
+        unitSuggestionRepository.saveAndFlush(unitSuggestion);
 
         return body;
     }
