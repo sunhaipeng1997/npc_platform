@@ -3,6 +3,7 @@ package com.cdkhd.npc.entity.vo;
 import com.cdkhd.npc.entity.ConveyProcess;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionImage;
+import com.cdkhd.npc.entity.UnitSuggestion;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -46,18 +47,32 @@ public class SugListItemVo extends BaseVo {
     }
 
     public static SugListItemVo convert(ConveyProcess process) {
-        Suggestion suggestion = process.getSuggestion();
         boolean unread = !process.getUnitView();
 
-        //获取建议封面图，当建议有图片时，选取第一张作为封面
-        String coverUrl = "";
-        if (!suggestion.getSuggestionImages().isEmpty()) {
-            List<SuggestionImage> imageList = new ArrayList<>(suggestion.getSuggestionImages());
-            imageList.sort(Comparator.comparing(SuggestionImage::getId));
-            coverUrl = imageList.get(0).getUrl();
-        }
+        Suggestion suggestion = process.getSuggestion();
+        String coverUrl = getCoverUrl(suggestion);
 
         return new SugListItemVo(process.getUid(), suggestion.getTitle(), process.getConveyTime(),
                 suggestion.getSuggestionBusiness().getName(), unread, coverUrl);
+    }
+
+    public static SugListItemVo convert(UnitSuggestion unitSuggestion) {
+        boolean unread = !unitSuggestion.getUnitView();
+
+        Suggestion suggestion = unitSuggestion.getSuggestion();
+        String coverUrl = getCoverUrl(suggestion);
+
+        return new SugListItemVo(unitSuggestion.getUid(), suggestion.getTitle(), unitSuggestion.getAcceptTime(),
+                suggestion.getSuggestionBusiness().getName(), unread, coverUrl);
+    }
+
+    //获取建议封面图，当建议有图片时，选取第一张作为封面
+    private static String getCoverUrl(Suggestion suggestion) {
+        if (!suggestion.getSuggestionImages().isEmpty()) {
+            List<SuggestionImage> imageList = new ArrayList<>(suggestion.getSuggestionImages());
+            imageList.sort(Comparator.comparing(SuggestionImage::getId));
+            return imageList.get(0).getUrl();
+        }
+        return "";
     }
 }

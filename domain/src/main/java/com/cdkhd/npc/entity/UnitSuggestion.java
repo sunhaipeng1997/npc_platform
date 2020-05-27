@@ -22,6 +22,10 @@ public class UnitSuggestion extends BaseDomain {
     //办理单位性质 1 主办单位  2 协办单位
     private Byte type;
 
+    //办理单位是否查看
+    @Column(name = "unit_view")
+    private Boolean unitView = false;
+
     //办理单位收到时间
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "receive_time")

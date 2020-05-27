@@ -275,7 +275,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
     public RespBody findPageOfInDealing(MobileUserDetailsImpl userDetails, PageDto pageDto) {
         RespBody<PageVo<SugListItemVo>> body = new RespBody<>();
 
-        /*Account account = accountRepository.findByUid(userDetails.getUid());
+        Account account = accountRepository.findByUid(userDetails.getUid());
         if (!checkIdentity(account)) {
             LOGGER.error("用户无权限查询办理中建议，Account username: {}", account.getUsername());
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -288,28 +288,28 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         //构造分页条件
         List<Sort.Order> orders = new ArrayList<>();
         //未读消息在前
-        orders.add(new Sort.Order(Sort.Direction.ASC, "view"));
+        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
         //按接受时间降序排序
         orders.add(new Sort.Order(Sort.Direction.DESC, "acceptTime"));
         Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
 
-        //待办建议查询条件
-        Specification<Unit> spec = (root, query, cb) -> {
+        //办理中建议查询条件
+        Specification<UnitSuggestion> spec = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
             //建议未删除
             predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
-            //建议状态为已转交办理单位
+            //建议状态为办理中
             predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
-                    SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()));
-            //转办过程的状态为转办中
-            predicateList.add(cb.equal(root.get("status").as(Byte.class), (byte)0));
-            //建议转交给当前单位
+                    SuggestionStatusEnum.HANDLING.getValue()));
+            //unitSug的finish为false未办完
+            predicateList.add(cb.isFalse(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
             predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
                     unitUser.getUnit().getUid()));
             return cb.and(predicateList.toArray(new Predicate[0]));
         };
 
-        Page<ConveyProcess> page = conveyProcessRepository.findAll(spec, pageable);
+        Page<UnitSuggestion> page = unitSuggestionRepository.findAll(spec, pageable);
         List<SugListItemVo> sugListItemVoList = page.stream()
                 .map(SugListItemVo::convert)
                 .collect(Collectors.toList());
@@ -317,7 +317,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         PageVo<SugListItemVo> pageVo = new PageVo<>(page, pageDto);
         pageVo.setContent(sugListItemVoList);
 
-        body.setData(pageVo);*/
+        body.setData(pageVo);
         return body;
     }
 
