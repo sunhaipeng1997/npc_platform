@@ -47,7 +47,7 @@ public class SugListItemVo extends BaseVo {
 
     public static SugListItemVo convert(ConveyProcess process) {
         Suggestion suggestion = process.getSuggestion();
-        boolean unread = process.getView().equals((byte)0);
+        boolean unread = !process.getUnitView();
 
         //获取建议封面图，当建议有图片时，选取第一张作为封面
         String coverUrl = "";

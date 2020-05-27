@@ -1,7 +1,6 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.ConveyProcess;
-import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
