@@ -215,7 +215,7 @@ public class Suggestion extends BaseDomain {
     private Unit unit;
 
     //建议预计办理完成时间
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expect_date")
     private Date expectDate;
 

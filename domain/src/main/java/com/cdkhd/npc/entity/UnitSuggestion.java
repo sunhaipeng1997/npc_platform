@@ -84,6 +84,10 @@ public class UnitSuggestion extends BaseDomain {
     @Column(name = "delay_times")
     public Integer delayTimes = 0;
 
+    //单位预计办理完成时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "expect_date")
+    private Date expectDate;
 
 }
 

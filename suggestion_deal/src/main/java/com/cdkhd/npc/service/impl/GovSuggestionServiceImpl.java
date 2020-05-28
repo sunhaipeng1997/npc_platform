@@ -7,6 +7,7 @@ import com.cdkhd.npc.entity.dto.ConveySuggestionDto;
 import com.cdkhd.npc.entity.dto.DelaySuggestionDto;
 import com.cdkhd.npc.entity.dto.GovSuggestionPageDto;
 import com.cdkhd.npc.entity.vo.ConveyProcessVo;
+import com.cdkhd.npc.entity.vo.DelaySuggestionVo;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.ConveyProcessRepository;
@@ -73,6 +74,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
     private DelaySuggestionRepository delaySuggestionRepository;
 
     private UnitSuggestionRepository unitSuggestionRepository;
+
 
 
 
@@ -317,13 +319,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             body.setMessage(message);
             return body;
         }
-        Suggestion suggestion = suggestionRepository.findByUid(delaySuggestionDto.getUid());
-        DelaySuggestion delaySuggestion = null;
-        for (DelaySuggestion suggestionDelaySuggestion : suggestion.getDelaySuggestions()) {
-            if (suggestionDelaySuggestion.getAccept() == null && suggestionDelaySuggestion.getDelayTimes().equals(suggestion.getDelayTimes())) {
-                delaySuggestion = suggestionDelaySuggestion;
-            }
-        }
+        DelaySuggestion delaySuggestion = delaySuggestionRepository.findByUid(delaySuggestionDto.getUid());
         if (delaySuggestion == null) {
             String message = "找不到该建议的延期申请，请重试！";
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -333,11 +329,15 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         delaySuggestion.setAccept(delaySuggestionDto.getResult());
         delaySuggestion.setDelayTime(delaySuggestionDto.getDelayDate());//实际延期时间
         delaySuggestion.setRemark(delaySuggestionDto.getRemark());//审批原因
+        Suggestion suggestion = delaySuggestion.getSuggestion();//对应的建议
+        UnitSuggestion unitSuggestion = delaySuggestion.getUnitSuggestion();//单位建议
         if (delaySuggestionDto.getResult()){
             suggestion.setDelayTimes(suggestion.getDelayTimes()==null?1:suggestion.getDelayTimes()+1);
             suggestion.setExpectDate(delaySuggestionDto.getDelayDate());
-//            delaySuggestion.setDelayTimes(suggestion.getDelayTimes()+1);
             delaySuggestion.setSuggestion(suggestion);
+            unitSuggestion.setDelayTimes(unitSuggestion.getDelayTimes()==null?1:unitSuggestion.getDelayTimes()+1);
+            unitSuggestion.setExpectDate(delaySuggestionDto.getDelayDate());
+            delaySuggestion.setUnitSuggestion(unitSuggestion);
         }
         delaySuggestionRepository.saveAndFlush(delaySuggestion);
         return body;
@@ -493,20 +493,18 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         RespBody body = new RespBody();
         int begin = govSuggestionPageDto.getPage() - 1;
         Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), Sort.Direction.fromString(govSuggestionPageDto.getDirection()), govSuggestionPageDto.getProperty());
-        Page<UnitSuggestion> unitSuggestionPage = this.getUnitSuggestion(userDetails, govSuggestionPageDto, page);
-//        PageVo<ConveyProcessVo> vo = new PageVo<>(unitSuggestionPage, govSuggestionPageDto);
-//        List<ConveyProcessVo> conveyProcessVos = unitSuggestionPage.getContent().stream().map(ConveyProcessVo::convertSug).collect(Collectors.toList());
-//        vo.setContent(conveyProcessVos);
-//        body.setData(vo);
+        Page<DelaySuggestion> delaySuggestionPage = this.getDelaySuggestion(userDetails, govSuggestionPageDto, page);
+        PageVo<DelaySuggestionVo> vo = new PageVo<>(delaySuggestionPage, govSuggestionPageDto);
+        List<DelaySuggestionVo> delaySuggestionVos = delaySuggestionPage.getContent().stream().map(DelaySuggestionVo::convert).collect(Collectors.toList());
+        vo.setContent(delaySuggestionVos);
+        body.setData(vo);
         return body;
     }
 
-    private Page<UnitSuggestion> getUnitSuggestion(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto, Pageable page){
-        Page<UnitSuggestion> unitSuggestionPage = unitSuggestionRepository.findAll((Specification<UnitSuggestion>) (root, query, cb) -> {
+    private Page<DelaySuggestion> getDelaySuggestion(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto, Pageable page){
+        Page<DelaySuggestion> delaySuggestionPage = delaySuggestionRepository.findAll((Specification<DelaySuggestion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.isFalse(root.get("dealDone").as(Boolean.class)));//这个转办没有完成
-            predicates.add(cb.equal(root.get("dealStatus").as(Byte.class),GovDealStatusEnum.NOT_DEAL.getValue()));//政府未处理
-            predicates.add(cb.equal(root.get("status").as(Byte.class),ConveyStatusEnum.CONVEY_FAILED.getValue()));//单位拒绝了
+            predicates.add(cb.isNull(root.get("accept").as(Boolean.class)));//这个转办没有完成
             predicates.add(cb.equal(root.get("suggestion").get("level").as(Byte.class), userDetails.getLevel()));//如果是镇上的，就只能查询镇上的
             predicates.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
@@ -526,18 +524,18 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             }
             //单位处理时间 开始
             if (govSuggestionPageDto.getDateStart() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("unitDealTime").as(Date.class), govSuggestionPageDto.getDateStart()));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), govSuggestionPageDto.getDateStart()));
             }
             if (govSuggestionPageDto.getDateEnd() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("unitDealTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
+                predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
             }
             //办理单位
             if (StringUtils.isNotEmpty(govSuggestionPageDto.getUnit())){
-                predicates.add(cb.equal(root.get("unit").get("uid").as(String.class), govSuggestionPageDto.getUnit()));
+                predicates.add(cb.equal(root.get("unitSuggestion").get("unit").get("uid").as(String.class), govSuggestionPageDto.getUnit()));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
-        return unitSuggestionPage;
+        return delaySuggestionPage;
     }
 
 }

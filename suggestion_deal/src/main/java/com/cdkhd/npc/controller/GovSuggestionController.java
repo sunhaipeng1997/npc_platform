@@ -77,11 +77,20 @@ public class GovSuggestionController {
 
 
     /**
-     * 条件查询建议列表
+     * 条件查询申请重新转办的建议列表
      */
     @GetMapping("/applyConvey")
     public ResponseEntity applyConvey(@CurrentUser UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
         RespBody body = suggestionService.applyConvey(userDetails, govSuggestionPageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 条件查询申请延期的建议列表
+     */
+    @GetMapping("/applyDelay")
+    public ResponseEntity applyDelay(@CurrentUser UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
+        RespBody body = suggestionService.applyDelay(userDetails, govSuggestionPageDto);
         return ResponseEntity.ok(body);
     }
 }
