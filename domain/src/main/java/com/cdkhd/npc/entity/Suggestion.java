@@ -177,6 +177,9 @@ public class Suggestion extends BaseDomain {
     @OneToMany(targetEntity = Result.class, mappedBy = "suggestion")
     private Set<Result> results;
 
+    @OneToMany(targetEntity = Seconded.class, mappedBy = "suggestion")
+    private Set<Seconded> secondedSet;
+
     //对应的区
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "area", referencedColumnName = "id")

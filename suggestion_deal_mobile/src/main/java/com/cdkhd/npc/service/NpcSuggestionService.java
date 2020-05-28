@@ -114,6 +114,15 @@ public interface NpcSuggestionService {
     * @Author: LiYang
     */
     RespBody refuseResult(SugAppraiseDto sugAppraiseDto);
+    
+    /**
+    * @Description: 代表附议建议
+    * @Param: 
+    * @Return: 
+    * @Date: 2020/5/28
+    * @Author: LiYang
+    */
+    RespBody secondSuggestion(MobileUserDetailsImpl userDetails, SugSecondDto sugSecondDto);
 
 
 

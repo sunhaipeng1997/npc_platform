@@ -177,4 +177,17 @@ public class NpcSuggestionApi {
         RespBody body = suggestionService.refuseResult(sugAppraiseDto);
         return ResponseEntity.ok(body);
     }
+
+    /**
+    * @Description: 代表附议建议
+    * @Param: userDetails sugSecondDto
+    * @Return:
+    * @Date: 2020/5/28
+    * @Author: LiYang
+    */
+    @PostMapping("/secondSuggestion")
+    public ResponseEntity secondSuggestion(@CurrentUser MobileUserDetailsImpl userDetails, SugSecondDto sugSecondDto){
+        RespBody body = suggestionService.secondSuggestion(userDetails, sugSecondDto);
+        return ResponseEntity.ok(body);
+    }
 }

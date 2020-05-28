@@ -14,10 +14,7 @@ import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionImageRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
-import com.cdkhd.npc.repository.suggestion_deal.AppraiseRepository;
-import com.cdkhd.npc.repository.suggestion_deal.ResultRepository;
-import com.cdkhd.npc.repository.suggestion_deal.UnitRepository;
-import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
+import com.cdkhd.npc.repository.suggestion_deal.*;
 import com.cdkhd.npc.service.NpcSuggestionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
@@ -40,6 +37,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,6 +69,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
 
     private final GovernmentUserRepository governmentUserRepository;
 
+    private final SecondedRepository secondedRepository;
+
     @Autowired
     public NpcSuggestionServiceImpl(AccountRepository accountRepository,
                                     SuggestionRepository suggestionRepository,
@@ -80,7 +81,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                                     ResultRepository resultRepository,
                                     UnitSuggestionRepository unitSuggestionRepository,
                                     UnitRepository unitRepository,
-                                    GovernmentUserRepository governmentUserRepository) {
+                                    GovernmentUserRepository governmentUserRepository, SecondedRepository secondedRepository) {
         this.accountRepository = accountRepository;
         this.suggestionRepository = suggestionRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
@@ -91,6 +92,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         this.unitSuggestionRepository = unitSuggestionRepository;
         this.unitRepository = unitRepository;
         this.governmentUserRepository = governmentUserRepository;
+        this.secondedRepository = secondedRepository;
     }
 
     @Override
@@ -309,7 +311,11 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
                 List<Predicate> predicates = new ArrayList<>();
                 predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-                predicates.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
+                if (!(sugPageDto.getStatus().equals(NpcSugStatusEnum.CAN_SECONDED.getValue()) ||
+                        sugPageDto.getStatus().equals(NpcSugStatusEnum.HAS_SECONDED.getValue()) ||
+                        sugPageDto.getStatus().equals(NpcSugStatusEnum.SECONDED_COMPLETED.getValue()))) {
+                    predicates.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
+                }
                 if (sugPageDto.getStatus() != NpcSugStatusEnum.All.getValue()) {  //分类
                     if (sugPageDto.getStatus().equals(NpcSugStatusEnum.NOT_SUBMIT.getValue())) {  //草稿
                         predicates.add(cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()),
@@ -320,12 +326,40 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                         predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));  // 6
                     } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.COMPLETED.getValue())) { //已办结
                         predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));  // 7
+                    } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.CAN_SECONDED.getValue())) {  //我能附议的
+                        predicates.add(cb.notEqual(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));  //剔除我自己提的
+                        predicates.add(cb.equal(root.get("level").as(Byte.class), sugPageDto.getLevel()));  //与我同级别
+                        predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));  //与我同区
+                        if (npcMember.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                            predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));  //与我同镇
+                        }
+                        predicates.add(cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()),
+                                cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue())));  //待审核或待转办
+                        List<Seconded> secondeds = secondedRepository.findByNpcMemberUid(npcMember.getUid());//剔除已经附议的建议
+                        if (CollectionUtils.isNotEmpty(secondeds)) {
+                            Set<String> sugUids = secondeds.stream().map(seconded -> seconded.getSuggestion().getUid()).collect(Collectors.toSet());
+                            predicates.add(root.get("uid").in(sugUids).not());
+                        }
+                    } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.HAS_SECONDED.getValue())) {  //我已附议的建议
+                        Join<Suggestion, Seconded> join = root.join("secondedSet", JoinType.LEFT);//左连接，把附议表加进来
+                        //root.get  表示suggestion的字段
+                        predicates.add(cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));  //建议未办结
+                        // join.get  表示seconded的字段
+                        predicates.add(cb.equal(join.get("npcMember").get("uid").as(String.class), npcMember.getUid()));  //该代表提出的附议
+
+                    } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.SECONDED_COMPLETED.getValue())) {  //附议办结的建议
+                        Join<Suggestion, Seconded> join = root.join("secondedSet", JoinType.LEFT);//左连接，把附议表加进来
+                        //root.get  表示suggestion的字段
+                        predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));  //建议办结
+                        // join.get  表示seconded的字段
+                        predicates.add(cb.equal(join.get("npcMember").get("uid").as(String.class), npcMember.getUid()));  //该代表提出的附议
                     } else {  //已提交
-                        Predicate predicate = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  // 2
-                        predicate = cb.or(predicate, cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));  // 3
-                        predicate = cb.or(predicate, cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()));  // 4
-                        predicate = cb.or(predicate, cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue()));  // 5
-                        predicates.add(predicate);
+                        Predicate submittedAudit = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  // 2
+                        Predicate submittedGovernment = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue());  // 2
+                        Predicate transferredUnit = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());  // 2
+                        Predicate handling = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue());  // 2
+                        Predicate or = cb.or(submittedAudit, submittedGovernment, transferredUnit, handling);
+                        predicates.add(or);
                     }
                 }
                 Predicate[] p = new Predicate[predicates.size()];
@@ -453,6 +487,27 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         return body;
     }
 
+    @Override
+    public RespBody secondSuggestion(MobileUserDetailsImpl userDetails, SugSecondDto sugSecondDto) {
+        RespBody body = new RespBody();
+
+        Suggestion suggestion = suggestionRepository.findByUid(sugSecondDto.getUid());
+        if (suggestion == null) {
+            body.setMessage("该建议不存在");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(sugSecondDto.getLevel(), account.getNpcMembers());
+        Seconded seconded = new Seconded();
+        seconded.setAddition(sugSecondDto.getAddition());
+        seconded.setNpcMember(npcMember);
+        seconded.setSecondedTime(new Date());
+        seconded.setSuggestion(suggestion);
+        secondedRepository.saveAndFlush(seconded);
+        return body;
+    }
+
     public void saveCover(MultipartFile cover, Suggestion suggestion) {
         //保存图片到文件系统
         String url = ImageUploadUtil.saveImage("suggestionImage", cover, 500, 500);
@@ -529,7 +584,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     private UnitUser getUnitUser(Suggestion suggestion, String unitUid) {
         UnitUser unitUser = null;
         for (UnitSuggestion unitSuggestion : suggestion.getUnitSuggestions()) {
-            if (suggestion.getDealTimes().equals(unitSuggestion.getDealTimes()) && unitSuggestion.getUnit().getUid().equals(unitUid)){
+            if (suggestion.getDealTimes().equals(unitSuggestion.getDealTimes()) && unitSuggestion.getUnit().getUid().equals(unitUid)) {
                 unitUser = unitSuggestion.getUnitUser();
                 break;
             }

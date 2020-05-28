@@ -194,4 +194,7 @@ public class NpcMember extends BaseDomain {
 	@OneToMany(targetEntity = NotificationViewDetail.class, mappedBy = "receiver", orphanRemoval = true)
 	private Set<NotificationViewDetail> receivedNotificationsView = new HashSet<>();
 
+	@OneToMany(targetEntity = Seconded.class, fetch = FetchType.LAZY, mappedBy = "npcMember")
+	private Set<Seconded> secondedSet;
+
 }
