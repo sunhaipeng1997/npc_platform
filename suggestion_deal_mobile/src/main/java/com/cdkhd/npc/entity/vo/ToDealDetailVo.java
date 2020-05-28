@@ -18,7 +18,7 @@ public class ToDealDetailVo extends BaseVo {
     //办理单位类型
     private String unitType;
 
-    //转办单位
+    //转办政府
     private String govName;
 
     //建议详情

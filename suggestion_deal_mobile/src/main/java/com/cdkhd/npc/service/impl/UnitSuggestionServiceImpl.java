@@ -5,6 +5,7 @@ import com.cdkhd.npc.dto.PageDto;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.SugListItemVo;
 import com.cdkhd.npc.entity.vo.ToDealDetailVo;
+import com.cdkhd.npc.entity.vo.UnitSugDetailVo;
 import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.ConveyStatusEnum;
 import com.cdkhd.npc.enums.GovDealStatusEnum;
@@ -318,6 +319,51 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         pageVo.setContent(sugListItemVoList);
 
         body.setData(pageVo);
+        return body;
+    }
+
+    /**
+     * 查看办理中建议详情
+     * @param userDetails
+     * @param unitSuggestionUid
+     * @return
+     */
+    @Override
+    public RespBody checkDealingDetail(MobileUserDetailsImpl userDetails, String unitSuggestionUid) {
+        RespBody<UnitSugDetailVo> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限查询建议详情，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法查询建议详情");
+            return body;
+        }
+
+        UnitSuggestion unitSuggestion = unitSuggestionRepository.findByUid(unitSuggestionUid);
+        if (unitSuggestion.getFinish()) {
+            LOGGER.error("该建议状态不在办理中，UnitSuggestion uid: {}", unitSuggestion.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议状态不在办理中，无法查看");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid()) || !unitSuggestion.getUnitUser().getUid().equals(unitUser.getUid())) {
+            LOGGER.error("该建议未转办给当前单位/办理人员 \n " +
+                            "UnitSuggestion uid: {} \n " +
+                            "Current User's uid: {}",
+                    unitSuggestion.getUid(), unitUser.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议未转办给你，你无法查看建议详情");
+            return body;
+        }
+
+        unitSuggestion.setUnitView(true);
+        unitSuggestionRepository.saveAndFlush(unitSuggestion);
+
+        UnitSugDetailVo vo = UnitSugDetailVo.convert(unitSuggestion);
+        body.setData(vo);
         return body;
     }
 
