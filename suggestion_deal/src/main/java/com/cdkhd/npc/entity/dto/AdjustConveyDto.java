@@ -26,6 +26,6 @@ public class AdjustConveyDto extends BaseDto {
     private Byte dealStatus;
 
     //调整说明
-	private String remark;
+	private String desc;
 
 }

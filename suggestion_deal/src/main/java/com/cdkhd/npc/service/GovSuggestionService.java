@@ -46,4 +46,16 @@ public interface GovSuggestionService {
      * @return
      */
     RespBody adjustConvey(UserDetailsImpl userDetails, AdjustConveyDto adjustConveyDto);
+
+
+    /**
+     * 申请调整的建议
+     **/
+    RespBody applyConvey(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto);
+
+    /**
+     * 申请延期的建议
+     **/
+    RespBody applyDelay(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto);
+
 }

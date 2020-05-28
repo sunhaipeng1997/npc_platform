@@ -74,4 +74,14 @@ public class GovSuggestionController {
     public void exportGovSuggestion(@CurrentUser UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto, HttpServletRequest req, HttpServletResponse res) {
         suggestionService.exportGovSuggestion(userDetails, govSuggestionPageDto,req,res);
     }
+
+
+    /**
+     * 条件查询建议列表
+     */
+    @GetMapping("/applyConvey")
+    public ResponseEntity applyConvey(@CurrentUser UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
+        RespBody body = suggestionService.applyConvey(userDetails, govSuggestionPageDto);
+        return ResponseEntity.ok(body);
+    }
 }

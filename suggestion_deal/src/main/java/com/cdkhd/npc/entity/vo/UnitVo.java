@@ -24,6 +24,12 @@ public class UnitVo extends BaseVo {
     //单位地址
     private String address;
 
+    //经度
+    private String longitude;
+
+    //纬度
+    private String latitude;
+
     //单位业务
     private String business;
 

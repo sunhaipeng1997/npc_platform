@@ -153,7 +153,7 @@ public class Suggestion extends BaseDomain {
     @OneToMany(targetEntity = ConveyProcess.class, mappedBy = "suggestion")
     private Set<ConveyProcess> ConveyProcesses;
 
-    //政府转办记录
+    //延期申请记录
     @OneToMany(targetEntity = DelaySuggestion.class, mappedBy = "suggestion")
     private Set<DelaySuggestion> DelaySuggestions;
 

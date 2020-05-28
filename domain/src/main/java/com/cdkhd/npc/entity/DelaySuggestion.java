@@ -40,4 +40,10 @@ public class DelaySuggestion extends BaseDomain {
     @ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "suggestion", referencedColumnName = "id")
     private Suggestion suggestion;
+
+    // 单位办理情况
+    @ManyToOne(targetEntity = UnitSuggestion.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "unitSuggestion", referencedColumnName = "id")
+    private UnitSuggestion unitSuggestion;
+
 }

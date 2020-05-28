@@ -22,17 +22,6 @@ public class UnitSuggestion extends BaseDomain {
     //办理单位性质 1 主办单位  2 协办单位
     private Byte type;
 
-    //办理单位是否接受
-    private Boolean accept;
-
-    //办理单位拒绝原因
-    @Column(name = "refuse_reason")
-    private String refuseReason;
-
-    //办理单位拒绝次数
-    @Column(name = "refuse_times")
-    private Integer refuseTimes = 0;
-
     //办理单位收到时间
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "receive_time")
@@ -82,6 +71,15 @@ public class UnitSuggestion extends BaseDomain {
     @ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "suggestion", referencedColumnName = "id")
     private Suggestion suggestion;
+
+    //延期申请记录
+    @OneToMany(targetEntity = DelaySuggestion.class, mappedBy = "unitSuggestion")
+    private Set<DelaySuggestion> DelaySuggestions;
+
+    //单位申请的延期次数
+    @Column(name = "delay_times")
+    public Integer delayTimes = 0;
+
 
 }
 

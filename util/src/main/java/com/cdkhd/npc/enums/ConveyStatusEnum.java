@@ -2,9 +2,9 @@ package com.cdkhd.npc.enums;
 
 public enum ConveyStatusEnum {
 
-    CONVEYING((byte)0, "转办中"),
-    CONVEY_SUCCESS((byte)1, "转办成功"),
-    CONVEY_FAILED((byte)2, "转办失败");
+    CONVEYING((byte)0, "单位待处理"),
+    CONVEY_SUCCESS((byte)1, "单位接受"),
+    CONVEY_FAILED((byte)2, "单位拒绝");
 
     private Byte value;
     private String name;

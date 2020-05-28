@@ -7,4 +7,6 @@ public interface GovernmentUserRepository extends BaseRepository<GovernmentUser>
     GovernmentUser findByAccountUsername(String username);
 
     GovernmentUser findByAccountMobile(String mobile);
+
+    GovernmentUser findByAccountUid(String uid);
 }

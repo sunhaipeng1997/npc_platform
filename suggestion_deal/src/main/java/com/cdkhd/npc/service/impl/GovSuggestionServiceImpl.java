@@ -6,6 +6,7 @@ import com.cdkhd.npc.entity.dto.AdjustConveyDto;
 import com.cdkhd.npc.entity.dto.ConveySuggestionDto;
 import com.cdkhd.npc.entity.dto.DelaySuggestionDto;
 import com.cdkhd.npc.entity.dto.GovSuggestionPageDto;
+import com.cdkhd.npc.entity.vo.ConveyProcessVo;
 import com.cdkhd.npc.entity.vo.SuggestionVo;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.ConveyProcessRepository;
@@ -13,6 +14,7 @@ import com.cdkhd.npc.repository.base.DelaySuggestionRepository;
 import com.cdkhd.npc.repository.base.GovernmentUserRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.repository.suggestion_deal.UnitRepository;
+import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
 import com.cdkhd.npc.service.GovSuggestionService;
 import com.cdkhd.npc.util.ExcelCode;
 import com.cdkhd.npc.vo.PageVo;
@@ -70,15 +72,18 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
 
     private DelaySuggestionRepository delaySuggestionRepository;
 
+    private UnitSuggestionRepository unitSuggestionRepository;
+
 
 
     @Autowired
-    public GovSuggestionServiceImpl(SuggestionRepository suggestionRepository, UnitRepository unitRepository, GovernmentUserRepository governmentUserRepository, ConveyProcessRepository conveyProcessRepository, DelaySuggestionRepository delaySuggestionRepository) {
+    public GovSuggestionServiceImpl(SuggestionRepository suggestionRepository, UnitRepository unitRepository, GovernmentUserRepository governmentUserRepository, ConveyProcessRepository conveyProcessRepository, DelaySuggestionRepository delaySuggestionRepository, UnitSuggestionRepository unitSuggestionRepository) {
         this.suggestionRepository = suggestionRepository;
         this.unitRepository = unitRepository;
         this.governmentUserRepository = governmentUserRepository;
         this.conveyProcessRepository = conveyProcessRepository;
         this.delaySuggestionRepository = delaySuggestionRepository;
+        this.unitSuggestionRepository = unitSuggestionRepository;
     }
 
     @Override
@@ -227,7 +232,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
                 predicates.add(cb.like(root.get("raiser").get("name").as(String.class), "%" + govSuggestionPageDto.getMember() + "%"));
             }
             if (StringUtils.isNotEmpty(govSuggestionPageDto.getMobile())) {
-                predicates.add(cb.equal(root.get("raiser").get("mobile").as(String.class), govSuggestionPageDto.getMobile()));
+                predicates.add(cb.like(root.get("raiser").get("mobile").as(String.class), "%" +govSuggestionPageDto.getMobile() + "%"));
             }
             //审核时间 开始
             if (govSuggestionPageDto.getDateStart() != null) {
@@ -238,11 +243,13 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             }
             //办理单位
             if (StringUtils.isNotEmpty(govSuggestionPageDto.getUnit())){
-                predicates.add(cb.equal(root.get("auditTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
+                predicates.add(cb.equal(root.get("unit").get("uid").as(String.class), govSuggestionPageDto.getUnit()));
             }
             if (null != govSuggestionPageDto.getSearchType()) {
                 if (govSuggestionPageDto.getSearchType().equals(GovSugTypeEnum.WAIT_DEAL_SUG.getValue())){//待转交的建议
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));//状态为已转交政府
+                    Join<Suggestion, ConveyProcess> join = root.join("ConveyProcesses", JoinType.LEFT);
+                    predicates.add(cb.isNull(join));//没有转办记录的
                 }else if (govSuggestionPageDto.getSearchType().equals(GovSugTypeEnum.ADJUST_UNIT_SUG.getValue())) { //申请调整单位的建议
                     Join<Suggestion, ConveyProcess> join = root.join("ConveyProcesses", JoinType.LEFT);
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));//状态为已转交政府
@@ -286,7 +293,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         Suggestion suggestion = suggestionRepository.findByUid(conveySuggestionDto.getUid());
         suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());
         suggestion.setConveyTime(new Date());
-        Integer conveyTimes = suggestion.getConveyTimes() + 1;//转办次数
+        Integer conveyTimes = suggestion.getConveyTimes()==null?1:suggestion.getConveyTimes() + 1;//转办次数
         suggestion.setConveyTimes(conveyTimes);
         suggestion.setUnit(unitRepository.findByUid(conveySuggestionDto.getMainUnit()));
         suggestionRepository.saveAndFlush(suggestion);
@@ -327,7 +334,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         delaySuggestion.setDelayTime(delaySuggestionDto.getDelayDate());//实际延期时间
         delaySuggestion.setRemark(delaySuggestionDto.getRemark());//审批原因
         if (delaySuggestionDto.getResult()){
-            suggestion.setDelayTimes(suggestion.getDelayTimes()+1);
+            suggestion.setDelayTimes(suggestion.getDelayTimes()==null?1:suggestion.getDelayTimes()+1);
             suggestion.setExpectDate(delaySuggestionDto.getDelayDate());
 //            delaySuggestion.setDelayTimes(suggestion.getDelayTimes()+1);
             delaySuggestion.setSuggestion(suggestion);
@@ -355,19 +362,21 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         ConveyProcess conveyProcess = conveyProcessRepository.findByUid(adjustConveyDto.getUid());
         Suggestion suggestion = conveyProcess.getSuggestion();
         for (ConveyProcess process : suggestion.getConveyProcesses()) {
-            if (process.getUnit().getUid().equals(adjustConveyDto.getUnit()) && !process.getDealDone()){
+            if (process.getUnit().getUid().equals(adjustConveyDto.getUnit()) && !process.getDealDone() && !process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){
                 String message = "该单位已经参与本条建议,请重新选择一个单位！";
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage(message);
                 return body;
             }
         }
-        conveyProcess.setStatus(ConveyStatusEnum.CONVEYING.getValue());
+//        conveyProcess.setStatus(ConveyStatusEnum.CONVEYING.getValue());
         conveyProcess.setDealStatus(adjustConveyDto.getDealStatus());
+        conveyProcess.setGovView(true);
         conveyProcess.setDealDone(true);
+        conveyProcess.setDescription(adjustConveyDto.getDesc());
         conveyProcessRepository.saveAndFlush(conveyProcess);
         //然后保存新的办理单位信息
-        if (StringUtils.isNotEmpty(adjustConveyDto.getUnit())) {//如果有信息的办理单位，那么就保存，如果没有，那么就不处理
+        if (adjustConveyDto.getDealStatus().equals(GovDealStatusEnum.RE_CONVEY.getValue()) && StringUtils.isNotEmpty(adjustConveyDto.getUnit())) {//如果有信息的办理单位，那么就保存，如果没有，那么就不处理
             suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());
             suggestion.setConveyTime(new Date());
             Integer conveyTimes = suggestion.getConveyTimes() + 1;//转办次数
@@ -376,10 +385,10 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             ConveySuggestionDto conveySuggestionDto = new ConveySuggestionDto();
             if (adjustConveyDto.getUnitType().equals(UnitTypeEnum.MAIN_UNIT.getValue())) {
                 suggestion.setUnit(unitRepository.findByUid(adjustConveyDto.getUid()));
-                conveySuggestionDto.setMainUnit(adjustConveyDto.getUid());
+                conveySuggestionDto.setMainUnit(adjustConveyDto.getUnit());
             } else if (adjustConveyDto.getUnitType().equals(UnitTypeEnum.CO_UNIT.getValue())) {
                 List<String> spinsordId = Lists.newArrayList();
-                spinsordId.add(adjustConveyDto.getUid());
+                spinsordId.add(adjustConveyDto.getUnit());
                 conveySuggestionDto.setCoUnits(spinsordId);
             }
             suggestionRepository.saveAndFlush(suggestion);
@@ -401,7 +410,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         //主办单位
         if (conveySuggestionDto.getMainUnit() != null) {
             ConveyProcess conveyProcess = new ConveyProcess();
-            conveyProcess.setGovernmentUser(governmentUserRepository.findByUid(uid));
+            conveyProcess.setGovernmentUser(governmentUserRepository.findByAccountUid(uid));
             conveyProcess.setUnit(unitRepository.findByUid(conveySuggestionDto.getMainUnit()));
             conveyProcess.setType(UnitTypeEnum.MAIN_UNIT.getValue());
             conveyProcess.setConveyTimes(conveyTimes);
@@ -411,18 +420,124 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         //协办单位
         if (CollectionUtils.isNotEmpty(conveySuggestionDto.getCoUnits())) {
             for (String coUnit : conveySuggestionDto.getCoUnits()) {
-                ConveyProcess coUnitCnvey = new ConveyProcess();
-                coUnitCnvey.setGovernmentUser(governmentUserRepository.findByUid(uid));
-                coUnitCnvey.setUnit(unitRepository.findByUid(conveySuggestionDto.getMainUnit()));
-                coUnitCnvey.setConveyTimes(conveyTimes);
-                coUnitCnvey.setType(UnitTypeEnum.CO_UNIT.getValue());
-                coUnitCnvey.setSuggestion(suggestion);
-                conveyProcessList.add(coUnitCnvey);
+                ConveyProcess coUnitConvey = new ConveyProcess();
+                coUnitConvey.setGovernmentUser(governmentUserRepository.findByAccountUid(uid));
+                coUnitConvey.setUnit(unitRepository.findByUid(coUnit));
+                coUnitConvey.setConveyTimes(conveyTimes);
+                coUnitConvey.setType(UnitTypeEnum.CO_UNIT.getValue());
+                coUnitConvey.setSuggestion(suggestion);
+                conveyProcessList.add(coUnitConvey);
             }
         }
         if (CollectionUtils.isNotEmpty(conveyProcessList)) {
             conveyProcessRepository.saveAll(conveyProcessList);
         }
+    }
+
+
+    @Override
+    public RespBody applyConvey(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
+        RespBody body = new RespBody();
+        int begin = govSuggestionPageDto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), Sort.Direction.fromString(govSuggestionPageDto.getDirection()), govSuggestionPageDto.getProperty());
+        Page<ConveyProcess> conveyProcessPage = this.getConveyProcess(userDetails, govSuggestionPageDto, page);
+        PageVo<ConveyProcessVo> vo = new PageVo<>(conveyProcessPage, govSuggestionPageDto);
+        List<ConveyProcessVo> conveyProcessVos = conveyProcessPage.getContent().stream().map(ConveyProcessVo::convertSug).collect(Collectors.toList());
+        vo.setContent(conveyProcessVos);
+        body.setData(vo);
+        return body;
+    }
+
+    private Page<ConveyProcess> getConveyProcess(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto, Pageable page){
+        Page<ConveyProcess> conveyProcessPage = conveyProcessRepository.findAll((Specification<ConveyProcess>) (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isFalse(root.get("dealDone").as(Boolean.class)));//这个转办没有完成
+            predicates.add(cb.equal(root.get("dealStatus").as(Byte.class),GovDealStatusEnum.NOT_DEAL.getValue()));//政府未处理
+            predicates.add(cb.equal(root.get("status").as(Byte.class),ConveyStatusEnum.CONVEY_FAILED.getValue()));//单位拒绝了
+            predicates.add(cb.equal(root.get("suggestion").get("level").as(Byte.class), userDetails.getLevel()));//如果是镇上的，就只能查询镇上的
+            predicates.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicates.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+            }
+            //标题
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getTitle())) {
+                predicates.add(cb.like(root.get("suggestion").get("title").as(String.class), "%" + govSuggestionPageDto.getTitle() + "%"));
+            }
+            //类型
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getBusiness())) {
+                predicates.add(cb.equal(root.get("suggestion").get("suggestionBusiness").get("uid").as(String.class), govSuggestionPageDto.getBusiness()));
+            }
+            //提出代表
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getMember())) {
+                predicates.add(cb.like(root.get("suggestion").get("raiser").get("name").as(String.class), "%" + govSuggestionPageDto.getMember() + "%"));
+            }
+            //单位处理时间 开始
+            if (govSuggestionPageDto.getDateStart() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("unitDealTime").as(Date.class), govSuggestionPageDto.getDateStart()));
+            }
+            if (govSuggestionPageDto.getDateEnd() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("unitDealTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
+            }
+            //办理单位
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getUnit())){
+                predicates.add(cb.equal(root.get("unit").get("uid").as(String.class), govSuggestionPageDto.getUnit()));
+            }
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        }, page);
+        return conveyProcessPage;
+    }
+
+
+    @Override
+    public RespBody applyDelay(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
+        RespBody body = new RespBody();
+        int begin = govSuggestionPageDto.getPage() - 1;
+        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), Sort.Direction.fromString(govSuggestionPageDto.getDirection()), govSuggestionPageDto.getProperty());
+        Page<UnitSuggestion> unitSuggestionPage = this.getUnitSuggestion(userDetails, govSuggestionPageDto, page);
+//        PageVo<ConveyProcessVo> vo = new PageVo<>(unitSuggestionPage, govSuggestionPageDto);
+//        List<ConveyProcessVo> conveyProcessVos = unitSuggestionPage.getContent().stream().map(ConveyProcessVo::convertSug).collect(Collectors.toList());
+//        vo.setContent(conveyProcessVos);
+//        body.setData(vo);
+        return body;
+    }
+
+    private Page<UnitSuggestion> getUnitSuggestion(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto, Pageable page){
+        Page<UnitSuggestion> unitSuggestionPage = unitSuggestionRepository.findAll((Specification<UnitSuggestion>) (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isFalse(root.get("dealDone").as(Boolean.class)));//这个转办没有完成
+            predicates.add(cb.equal(root.get("dealStatus").as(Byte.class),GovDealStatusEnum.NOT_DEAL.getValue()));//政府未处理
+            predicates.add(cb.equal(root.get("status").as(Byte.class),ConveyStatusEnum.CONVEY_FAILED.getValue()));//单位拒绝了
+            predicates.add(cb.equal(root.get("suggestion").get("level").as(Byte.class), userDetails.getLevel()));//如果是镇上的，就只能查询镇上的
+            predicates.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                predicates.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+            }
+            //标题
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getTitle())) {
+                predicates.add(cb.like(root.get("suggestion").get("title").as(String.class), "%" + govSuggestionPageDto.getTitle() + "%"));
+            }
+            //类型
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getBusiness())) {
+                predicates.add(cb.equal(root.get("suggestion").get("suggestionBusiness").get("uid").as(String.class), govSuggestionPageDto.getBusiness()));
+            }
+            //提出代表
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getMember())) {
+                predicates.add(cb.like(root.get("suggestion").get("raiser").get("name").as(String.class), "%" + govSuggestionPageDto.getMember() + "%"));
+            }
+            //单位处理时间 开始
+            if (govSuggestionPageDto.getDateStart() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("unitDealTime").as(Date.class), govSuggestionPageDto.getDateStart()));
+            }
+            if (govSuggestionPageDto.getDateEnd() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("unitDealTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
+            }
+            //办理单位
+            if (StringUtils.isNotEmpty(govSuggestionPageDto.getUnit())){
+                predicates.add(cb.equal(root.get("unit").get("uid").as(String.class), govSuggestionPageDto.getUnit()));
+            }
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        }, page);
+        return unitSuggestionPage;
     }
 
 }

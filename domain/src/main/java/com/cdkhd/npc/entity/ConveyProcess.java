@@ -45,6 +45,10 @@ public class ConveyProcess extends BaseDomain {
     //拒绝原因
     private String remark;
 
+    //调整说明
+    @Column(name = "description")
+    private String description;
+
     //办理单位类型 1、主办单位  2、协办单位
     @Column(nullable = false)
     private Byte type;

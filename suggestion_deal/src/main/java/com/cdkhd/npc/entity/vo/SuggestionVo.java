@@ -1,8 +1,10 @@
 package com.cdkhd.npc.entity.vo;
 
+import com.cdkhd.npc.entity.ConveyProcess;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -57,7 +59,7 @@ public class SuggestionVo extends BaseVo {
    	//审核时间
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date auditAt;
+    private Date auditTime;
 
    	//转办时间
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -101,9 +103,12 @@ public class SuggestionVo extends BaseVo {
     //单位名称
     private String unitName;
 
+    private List<ConveyProcessVo> conveyProcessVos;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
         BeanUtils.copyProperties(suggestion, vo);
+        vo.setStatusName(SuggestionStatusEnum.getName(suggestion.getStatus()));
         vo.setMemberName(suggestion.getRaiser().getName());
         vo.setMemberMobile(suggestion.getRaiser().getMobile());
         if (suggestion.getAuditor() != null) {
@@ -120,6 +125,7 @@ public class SuggestionVo extends BaseVo {
         }
         vo.setLevelName(LevelEnum.getName(suggestion.getLevel()));
         vo.setUnitName(suggestion.getLevel().equals(LevelEnum.AREA.getValue())?suggestion.getArea().getName():suggestion.getTown().getName());
+        vo.setConveyProcessVos(suggestion.getConveyProcesses().stream().map(ConveyProcessVo::convert).collect(Collectors.toList()));
         return vo;
     }
 }
