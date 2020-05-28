@@ -501,7 +501,6 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             GovernmentUser governmentUser = governmentUserRepository.findByUid(userUid);
             unitSuggestion.setGovernmentUser(governmentUser);  //转交的政府人员
             unitSuggestion.setReceiveTime(new Date());
-            unitSuggestion.setAccept(true);//默认状态是接受建议
             unitSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
             unitSuggestion.setUnitUser(this.getUnitUser(suggestion, conveySugDto.getMainUnit()));
             unitSuggestionList.add(unitSuggestion);
@@ -517,7 +516,6 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 GovernmentUser governmentUser = governmentUserRepository.findByUid(userUid);
                 sponsorSuggestion.setGovernmentUser(governmentUser);
                 sponsorSuggestion.setReceiveTime(new Date());//收到时间
-                sponsorSuggestion.setAccept(true);//默认状态是接受建议
                 sponsorSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
                 sponsorSuggestion.setUnitUser(this.getUnitUser(suggestion, sponsorUnit));
                 unitSuggestionList.add(sponsorSuggestion);

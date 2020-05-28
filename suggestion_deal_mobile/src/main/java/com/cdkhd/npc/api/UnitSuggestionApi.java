@@ -53,4 +53,10 @@ public class UnitSuggestionApi {
         RespBody body = unitSuggestionService.findPageOfInDealing(userDetails, pageDto);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/in_dealing/{uid}")
+    public ResponseEntity checkDealingDetail(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String uid) {
+        RespBody body = unitSuggestionService.checkDealingDetail(userDetails, uid);
+        return ResponseEntity.ok(body);
+    }
 }

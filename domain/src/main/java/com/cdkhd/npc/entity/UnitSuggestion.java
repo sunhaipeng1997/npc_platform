@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity;
 
+import com.cdkhd.npc.enums.GovDealStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,7 +35,7 @@ public class UnitSuggestion extends BaseDomain {
     //办理单位接受时间
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "accept_time")
-    private Date acceptTime = new Date();
+    private Date acceptTime;
 
     //办理单位办理次数
     @Column(name = "deal_times")
@@ -48,8 +49,8 @@ public class UnitSuggestion extends BaseDomain {
     //办理单位，是否处理完成（办理完成，拒绝完成）
     private Boolean finish = false;
 
-    //政府处理过程 1 未处理 2 已重新分配 3 无需重新分配
-    private Byte status = 1;
+    //政府处理过程 未处理 已重新分配 无需重新分配
+    private Byte status = GovDealStatusEnum.NOT_DEAL.getValue();
 
     //当前办理人员
     @OneToOne(targetEntity = UnitUser.class, fetch = FetchType.LAZY)

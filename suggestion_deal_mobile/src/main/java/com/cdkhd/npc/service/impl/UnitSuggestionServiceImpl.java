@@ -6,17 +6,16 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.SugListItemVo;
 import com.cdkhd.npc.entity.vo.ToDealDetailVo;
 import com.cdkhd.npc.entity.vo.UnitSugDetailVo;
-import com.cdkhd.npc.enums.AccountRoleEnum;
-import com.cdkhd.npc.enums.ConveyStatusEnum;
-import com.cdkhd.npc.enums.GovDealStatusEnum;
-import com.cdkhd.npc.enums.SuggestionStatusEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.ConveyProcessRepository;
+import com.cdkhd.npc.repository.suggestion_deal.SuggestionSettingRepository;
 import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
 import com.cdkhd.npc.service.UnitSuggestionService;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,12 +44,14 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
     private AccountRepository accountRepository;
     private ConveyProcessRepository conveyProcessRepository;
     private UnitSuggestionRepository unitSuggestionRepository;
+    private SuggestionSettingRepository suggestionSettingRepository;
 
     @Autowired
-    public UnitSuggestionServiceImpl(AccountRepository accountRepository, ConveyProcessRepository conveyProcessRepository, UnitSuggestionRepository unitSuggestionRepository) {
+    public UnitSuggestionServiceImpl(AccountRepository accountRepository, ConveyProcessRepository conveyProcessRepository, UnitSuggestionRepository unitSuggestionRepository, SuggestionSettingRepository suggestionSettingRepository) {
         this.accountRepository = accountRepository;
         this.conveyProcessRepository = conveyProcessRepository;
         this.unitSuggestionRepository = unitSuggestionRepository;
+        this.suggestionSettingRepository = suggestionSettingRepository;
     }
 
     /**
@@ -254,9 +256,20 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());
         conveyProcessRepository.saveAndFlush(conveyProcess);
 
+        //计算办理截止时间
+        SuggestionSetting setting = findSetting(unitUser.getUnit());
+        int defaultDealTimeLimit = setting.getExpectDate();
+        Date now  = new Date();
+        Date expectDate = DateUtils.addDays(now, defaultDealTimeLimit);
+
+        suggestion.setAcceptTime(now);
+        suggestion.setExpectDate(expectDate);
+
         //创建UnitSuggestion记录
         UnitSuggestion unitSuggestion = new UnitSuggestion();
         unitSuggestion.setType(conveyProcess.getType());
+        unitSuggestion.setAcceptTime(now);
+        unitSuggestion.setExpectDate(expectDate);
         unitSuggestion.setUnitUser(unitUser);
         unitSuggestion.setUnit(unitUser.getUnit());
         unitSuggestion.setGovernmentUser(conveyProcess.getGovernmentUser());
@@ -380,5 +393,19 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             }
         }
         return false;
+    }
+
+    /**
+     * 为当前单位查找系统设置
+     * @param unit
+     * @return 建议办理系统系统设置
+     */
+    private SuggestionSetting findSetting(Unit unit) {
+        if (unit.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            return suggestionSettingRepository.findByLevelAndTownUid(unit.getLevel(), unit.getTown().getUid());
+        } else if (unit.getLevel().equals(LevelEnum.AREA.getValue())) {
+            return suggestionSettingRepository.findByLevelAndAreaUid(unit.getLevel(), unit.getArea().getUid());
+        }
+        throw new RuntimeException("当前单位的Level值不合法");
     }
 }
