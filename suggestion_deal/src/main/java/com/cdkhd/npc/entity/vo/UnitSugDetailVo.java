@@ -59,4 +59,14 @@ public class UnitSugDetailVo extends BaseVo {
         vo.setUnitVo(UnitVo.convert(unitSug.getUnit()));
         return vo;
     }
+
+    public static UnitSugDetailVo convertNoSug(UnitSuggestion unitSug) {
+        UnitSugDetailVo vo = new UnitSugDetailVo();
+        BeanUtils.copyProperties(unitSug,vo);
+        vo.setUnitType(unitSug.getType());
+        vo.setUnitTypeName(UnitTypeEnum.getName(unitSug.getType()));
+        vo.setProcesses(unitSug.getProcesses().stream().map(HandleProcessVo::convert).collect(Collectors.toList()));
+        vo.setUnitVo(UnitVo.convert(unitSug.getUnit()));
+        return vo;
+    }
 }

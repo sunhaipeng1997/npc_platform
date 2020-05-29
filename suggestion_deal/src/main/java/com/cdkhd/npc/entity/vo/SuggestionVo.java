@@ -3,8 +3,10 @@ package com.cdkhd.npc.entity.vo;
 import com.cdkhd.npc.entity.ConveyProcess;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionImage;
+import com.cdkhd.npc.entity.UnitSuggestion;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
+import com.cdkhd.npc.enums.UnitTypeEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -18,6 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -102,8 +105,18 @@ public class SuggestionVo extends BaseVo {
 
     //单位名称
     private String unitName;
+    private String coUitName;
 
+    //转办流程
     private List<ConveyProcessVo> conveyProcessVos;
+
+    //办理流程
+    private List<UnitSugDetailVo> unitSugDetailVos;
+
+    //预计办理时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectDate;
 
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
@@ -119,13 +132,22 @@ public class SuggestionVo extends BaseVo {
         }
         vo.setSuggestionBusiness(SuggestionBusinessVo.convert(suggestion.getSuggestionBusiness()));
         vo.setBusinessName(suggestion.getSuggestionBusiness().getName());
-        vo.setSuggestionReplyVos(suggestion.getReplies().stream().map(reply -> SuggestionReplyVo.convert(reply)).collect(Collectors.toList()));
+        vo.setSuggestionReplyVos(suggestion.getReplies().stream().map(SuggestionReplyVo::convert).collect(Collectors.toList()));
         if (CollectionUtils.isNotEmpty(suggestion.getSuggestionImages())){
             vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
         }
         vo.setLevelName(LevelEnum.getName(suggestion.getLevel()));
-        vo.setUnitName(suggestion.getLevel().equals(LevelEnum.AREA.getValue())?suggestion.getArea().getName():suggestion.getTown().getName());
+        vo.setUnitName(suggestion.getUnit() != null? suggestion.getUnit().getName():"");
         vo.setConveyProcessVos(suggestion.getConveyProcesses().stream().map(ConveyProcessVo::convert).collect(Collectors.toList()));
+        vo.setUnitSugDetailVos(suggestion.getUnitSuggestions().stream().map(UnitSugDetailVo::convertNoSug).collect(Collectors.toList()));
+        StringJoiner stringJoiner = new StringJoiner("、");
+        for (UnitSuggestion unitSuggestion : suggestion.getUnitSuggestions()) {
+            if (unitSuggestion.getType().equals(UnitTypeEnum.CO_UNIT.getValue())) {
+                stringJoiner.add(unitSuggestion.getUnit().getName());
+            }
+        }
+        vo.setCoUitName(stringJoiner.toString());
         return vo;
     }
+
 }

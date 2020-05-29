@@ -1,6 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.AdjustConveyDto;
 import com.cdkhd.npc.entity.dto.ConveySuggestionDto;
 import com.cdkhd.npc.entity.dto.DelaySuggestionDto;
@@ -34,7 +35,7 @@ public interface GovSuggestionService {
     /**
      * 转办单位
      * @param userDetails
-     * @param conveySuggestionDto
+     * @param delaySuggestionDto
      * @return
      */
     RespBody delaySuggestion(UserDetailsImpl userDetails, DelaySuggestionDto delaySuggestionDto);
@@ -42,7 +43,7 @@ public interface GovSuggestionService {
     /**
      * 调整办理单位
      * @param userDetails
-     * @param conveySuggestionDto
+     * @param adjustConveyDto
      * @return
      */
     RespBody adjustConvey(UserDetailsImpl userDetails, AdjustConveyDto adjustConveyDto);
@@ -58,4 +59,11 @@ public interface GovSuggestionService {
      **/
     RespBody applyDelay(UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto);
 
+    /**
+     * 催办建议
+     * @param userDetails
+     * @param baseDto
+     * @return
+     */
+    RespBody urgeSug(UserDetailsImpl userDetails, BaseDto baseDto);
 }

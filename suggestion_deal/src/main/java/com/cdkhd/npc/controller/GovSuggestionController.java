@@ -2,6 +2,7 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.entity.dto.AdjustConveyDto;
 import com.cdkhd.npc.entity.dto.ConveySuggestionDto;
 import com.cdkhd.npc.entity.dto.DelaySuggestionDto;
@@ -91,6 +92,16 @@ public class GovSuggestionController {
     @GetMapping("/applyDelay")
     public ResponseEntity applyDelay(@CurrentUser UserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
         RespBody body = suggestionService.applyDelay(userDetails, govSuggestionPageDto);
+        return ResponseEntity.ok(body);
+    }
+
+
+    /**
+     * 条件查询申请延期的建议列表
+     */
+    @GetMapping("/urgeSug")
+    public ResponseEntity urgeSug(@CurrentUser UserDetailsImpl userDetails, BaseDto baseDto) {
+        RespBody body = suggestionService.urgeSug(userDetails, baseDto);
         return ResponseEntity.ok(body);
     }
 }

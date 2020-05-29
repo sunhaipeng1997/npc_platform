@@ -83,19 +83,24 @@ public class Suggestion extends BaseDomain {
     @Temporal(TemporalType.TIMESTAMP)
     private Date conveyTime;
 
+    //是否接受
     @Column(name = "accept")
     private Boolean accept;
 
+    //拒绝原因
     @Column(name = "refusal_reason")
     private String refusalReason;
 
+    //单位拒绝次数
     @Column(name = "refuse_times")
     private Integer refuseTimes;
 
+    //单位接受时间
     @Column(name = "accept_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date acceptTime;
 
+    //办理次数，主要是记录重新办理
     @Column(name = "deal_times")
     private Integer dealTimes;
 
@@ -151,11 +156,11 @@ public class Suggestion extends BaseDomain {
 
     //政府转办记录
     @OneToMany(targetEntity = ConveyProcess.class, mappedBy = "suggestion")
-    private Set<ConveyProcess> ConveyProcesses;
+    private Set<ConveyProcess> conveyProcesses;
 
     //延期申请记录
     @OneToMany(targetEntity = DelaySuggestion.class, mappedBy = "suggestion")
-    private Set<DelaySuggestion> DelaySuggestions;
+    private Set<DelaySuggestion> delaySuggestions;
 
     //办理单位办理记录
     @OneToMany(targetEntity = UnitSuggestion.class, mappedBy = "suggestion")
