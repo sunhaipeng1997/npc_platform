@@ -71,6 +71,10 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
 
     private final SecondedRepository secondedRepository;
 
+    private final UrgeRepository urgeRepository;
+
+    private final SuggestionSettingRepository suggestionSettingRepository;
+
     @Autowired
     public NpcSuggestionServiceImpl(AccountRepository accountRepository,
                                     SuggestionRepository suggestionRepository,
@@ -81,7 +85,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                                     ResultRepository resultRepository,
                                     UnitSuggestionRepository unitSuggestionRepository,
                                     UnitRepository unitRepository,
-                                    GovernmentUserRepository governmentUserRepository, SecondedRepository secondedRepository) {
+                                    GovernmentUserRepository governmentUserRepository, SecondedRepository secondedRepository, UrgeRepository urgeRepository, SuggestionSettingRepository suggestionSettingRepository) {
         this.accountRepository = accountRepository;
         this.suggestionRepository = suggestionRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
@@ -93,6 +97,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         this.unitRepository = unitRepository;
         this.governmentUserRepository = governmentUserRepository;
         this.secondedRepository = secondedRepository;
+        this.urgeRepository = urgeRepository;
+        this.suggestionSettingRepository = suggestionSettingRepository;
     }
 
     @Override
@@ -232,13 +238,23 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     }
 
     @Override
-    public RespBody suggestionDetail(String sugUid) {
+    public RespBody suggestionDetail(ViewDto viewDto) {
         RespBody body = new RespBody();
-        Suggestion suggestion = suggestionRepository.findByUid(sugUid);
+        Suggestion suggestion = suggestionRepository.findByUid(viewDto.getSugUid());
         if (suggestion == null) {
             body.setMessage("该建议不存在");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
+        }
+        //我查看审核人给我回复的消息，消除红点
+        if (StatusEnum.ENABLED.getValue().equals(viewDto.getType())){
+            for (SuggestionReply reply : suggestion.getReplies()) {
+                reply.setView(true);
+            }
+            suggestionRepository.saveAndFlush(suggestion);
+        }else if (StatusEnum.DISABLED.getValue().equals(viewDto.getType())) {
+            suggestion.setView(true);
+            suggestionRepository.saveAndFlush(suggestion);
         }
         SugDetailVo sugDetailVo = SugDetailVo.convert(suggestion);
         body.setData(sugDetailVo);
@@ -505,6 +521,63 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         seconded.setSecondedTime(new Date());
         seconded.setSuggestion(suggestion);
         secondedRepository.saveAndFlush(seconded);
+        return body;
+    }
+
+    @Override
+    public RespBody urgeSuggestion(MobileUserDetailsImpl userDetails, String sugUid) {
+        RespBody body = new RespBody();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        Suggestion suggestion = suggestionRepository.findByUid(sugUid);
+
+        if (suggestion == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议不存在");
+            return body;
+        }
+
+        if (suggestion.getStatus() != 4 && suggestion.getStatus() != 5) {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该状态下建议不能催办");
+            return body;
+        }
+
+//        int urgeFre = suggestionSettingRepository.findUrgeFre();//催办周期
+        int urgeFre = 7;  //暂时写死为7天
+
+        Calendar beforeTime = Calendar.getInstance();
+        beforeTime.add(Calendar.DATE, -urgeFre);
+        Date urgeDate = beforeTime.getTime();  //当前时间的 催办周期天数之前
+
+        Boolean canUrge = false;
+        int urgeScore = 0;
+        if (suggestion.getUrge()) {//如果该建议已经催办过
+            for (Urge urge : suggestion.getUrges()) {
+                urgeScore += urge.getScore();
+                if (urge.getAccount().getUid().equals(account.getUid()) && urge.getCreateTime().before(urgeDate)) {//距离上一次催办已经过去了设置的时间了，那么才可以进行下一次催办
+                    canUrge = true;
+                }
+            }
+        } else {
+            canUrge = true;
+        }
+        if (canUrge) {
+            Urge urge = new Urge();
+            urge.setType((byte)1);  //1 代表催办
+            urge.setCreateTime(new Date());
+            urge.setAccount(account);
+            urge.setScore(1);         //代表催办一次1分，联工委催办一次4分，政府催办一次16分
+            suggestion.setUrge(true);
+            suggestion.setUrgeLevel(urgeScore + urge.getScore());//重新计算催办等级
+            urge.setSuggestion(suggestion);
+            urgeRepository.saveAndFlush(urge);
+        } else {
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage(urgeFre + "天内请勿重复催办");
+            return body;
+        }
+        body.setMessage("催办成功");
         return body;
     }
 

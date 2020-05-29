@@ -58,7 +58,7 @@ public interface NpcSuggestionService {
     * @Date: 2020/5/18
     * @Author: LiYang
     */
-    RespBody suggestionDetail(String sugUid);
+    RespBody suggestionDetail(ViewDto viewDto);
 
     /**
     * @Description: 删除建议
@@ -114,16 +114,22 @@ public interface NpcSuggestionService {
     * @Author: LiYang
     */
     RespBody refuseResult(SugAppraiseDto sugAppraiseDto);
-    
+
     /**
     * @Description: 代表附议建议
-    * @Param: 
-    * @Return: 
+    * @Param:
+    * @Return:
     * @Date: 2020/5/28
     * @Author: LiYang
     */
     RespBody secondSuggestion(MobileUserDetailsImpl userDetails, SugSecondDto sugSecondDto);
 
-
-
+    /**
+    * @Description: 代表催办建议
+    * @Param:
+    * @Return:
+    * @Date: 2020/5/29
+    * @Author: LiYang
+    */
+    RespBody urgeSuggestion(MobileUserDetailsImpl userDetails, String sugUid);
 }

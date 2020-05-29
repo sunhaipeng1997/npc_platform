@@ -95,8 +95,8 @@ public class NpcSuggestionApi {
     * @Author: LiYang
     */
     @GetMapping("/suggestionDetail")
-    public ResponseEntity suggestionDetail(String sugUid){
-        RespBody body = suggestionService.suggestionDetail(sugUid);
+    public ResponseEntity suggestionDetail(ViewDto viewDto){
+        RespBody body = suggestionService.suggestionDetail(viewDto);
         return ResponseEntity.ok(body);
     }
 
@@ -188,6 +188,19 @@ public class NpcSuggestionApi {
     @PostMapping("/secondSuggestion")
     public ResponseEntity secondSuggestion(@CurrentUser MobileUserDetailsImpl userDetails, SugSecondDto sugSecondDto){
         RespBody body = suggestionService.secondSuggestion(userDetails, sugSecondDto);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+    * @Description: 代表催办建议
+    * @Param: userDetails sugUid
+    * @Return:
+    * @Date: 2020/5/29
+    * @Author: LiYang
+    */
+    @PostMapping("/urgeSuggestion")
+    public ResponseEntity urgeSuggestion(@CurrentUser MobileUserDetailsImpl userDetails, String sugUid){
+        RespBody body = suggestionService.urgeSuggestion(userDetails, sugUid);
         return ResponseEntity.ok(body);
     }
 }
