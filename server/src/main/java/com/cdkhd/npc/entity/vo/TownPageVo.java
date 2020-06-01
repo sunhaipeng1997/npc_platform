@@ -43,7 +43,7 @@ public class TownPageVo extends BaseVo {
         Set<BackgroundAdmin> backgroundAdmins = town.getBackgroundAdmins();
         if (backgroundAdmins.size() <= 2){
             for(BackgroundAdmin backgroundAdmin : backgroundAdmins){
-                if (!backgroundAdmin.getAccount().getLoginUP().getUsername().contains("@cdkhd")){
+                if (!backgroundAdmin.getAccount().getLoginUP().getUsername().contains("cdkhd")){
                     vo.setMobile(backgroundAdmin.getAccount().getMobile());
                 }
             }
