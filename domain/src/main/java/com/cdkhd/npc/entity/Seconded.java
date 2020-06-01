@@ -30,6 +30,9 @@ public class Seconded extends BaseDomain {
    	@Column(name = "attachment_id" )
 	private String attachmentId;
 
+    @Column(name = "view" )
+    private Boolean view = false;
+
 	//附议的时间
 	@Column(name = "seconded_time")
 	private Date secondedTime = new Date();

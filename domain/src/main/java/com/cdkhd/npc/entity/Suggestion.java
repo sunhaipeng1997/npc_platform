@@ -130,6 +130,14 @@ public class Suggestion extends BaseDomain {
     @Column(name = "view")
     private Boolean view = false;
 
+    //办理单位办完建议后，代表是否查看
+    @Column(name = "doneView")
+    private Boolean doneView = false;
+
+    //政府是否查看
+    @Column(name = "govView")
+    private Boolean govView = false;
+
     //是否删除
     @Column(name = "del")
     private Boolean isDel = false;
