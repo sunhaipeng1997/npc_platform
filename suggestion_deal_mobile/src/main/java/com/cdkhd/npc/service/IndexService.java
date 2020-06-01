@@ -7,4 +7,6 @@ public interface IndexService {
     RespBody getIdentityInfo(MobileUserDetailsImpl userDetails);
 
     RespBody getMenus(MobileUserDetailsImpl userDetails, Byte role, Byte level);
+
+    RespBody countUnRead(MobileUserDetailsImpl userDetails, Byte level);
 }

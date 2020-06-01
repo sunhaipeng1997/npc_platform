@@ -289,6 +289,7 @@ public class MenuServiceImpl implements MenuService {
                     predicateList.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
                 }
                 predicateList.add(cb.equal(root.get("view").as(Boolean.class), false));
+                predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
                 predicateList.add(cb.equal(root.get("suggestion").get("raiser").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
@@ -335,7 +336,7 @@ public class MenuServiceImpl implements MenuService {
                 }
                 predicateList.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));//todo 建议状态
                 predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
-//                predicateList.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
+                predicateList.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
             obj.put(MenuEnum.AUDIT_SUGGESTION.toString(), suggestions.size());

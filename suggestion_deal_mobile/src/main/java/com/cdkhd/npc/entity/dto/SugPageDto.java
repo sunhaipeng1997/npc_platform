@@ -19,6 +19,9 @@ public class SugPageDto extends PageDto {
     // 1：未审核  2：已审核  0：全部(对审核人员来说)
     private Byte status;
 
+    //在小程序“已提交”建议中，细分成：全部（1）、未审核（2）、已审核（3）
+    private Byte subStatus;
+
     //代表当前身份 1镇 2区
     private Byte level;
 

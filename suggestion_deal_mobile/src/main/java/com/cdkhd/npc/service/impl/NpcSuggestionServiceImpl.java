@@ -246,16 +246,18 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        //我查看审核人给我回复的消息，消除红点
+        //代表查看
         if (StatusEnum.ENABLED.getValue().equals(viewDto.getType())){
             for (SuggestionReply reply : suggestion.getReplies()) {
                 reply.setView(true);
             }
-            suggestionRepository.saveAndFlush(suggestion);
         }else if (StatusEnum.DISABLED.getValue().equals(viewDto.getType())) {
             suggestion.setView(true);
-            suggestionRepository.saveAndFlush(suggestion);
         }
+        if (viewDto.getChangeDoneView()){
+            suggestion.setDoneView(true);
+        }
+        suggestionRepository.saveAndFlush(suggestion);
         SugDetailVo sugDetailVo = SugDetailVo.convert(suggestion);
         body.setData(sugDetailVo);
         return body;
@@ -336,8 +338,6 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                     if (sugPageDto.getStatus().equals(NpcSugStatusEnum.NOT_SUBMIT.getValue())) {  //草稿
                         predicates.add(cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HAS_BEEN_REVOKE.getValue()),
                                 cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue())));  // 0 1
-                    } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.AUDIT_FAILURE.getValue())) { //审核失败
-                        predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));  // -1
                     } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.DONE.getValue())) { //已办完
                         predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));  // 6
                     } else if (sugPageDto.getStatus().equals(NpcSugStatusEnum.COMPLETED.getValue())) { //已办结
@@ -370,11 +370,19 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                         // join.get  表示seconded的字段
                         predicates.add(cb.equal(join.get("npcMember").get("uid").as(String.class), npcMember.getUid()));  //该代表提出的附议
                     } else {  //已提交
+                        Predicate or;
                         Predicate submittedAudit = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());  // 2
-                        Predicate submittedGovernment = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue());  // 2
-                        Predicate transferredUnit = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());  // 2
-                        Predicate handling = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue());  // 2
-                        Predicate or = cb.or(submittedAudit, submittedGovernment, transferredUnit, handling);
+                        Predicate submittedGovernment = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue());  // 3
+                        Predicate transferredUnit = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());  // 4
+                        Predicate handling = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue());  // 5
+                        Predicate failure = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue());  // -1
+                        if (sugPageDto.getSubStatus().equals((byte)1)){  //全部
+                            or = cb.or(submittedAudit, submittedGovernment, transferredUnit, handling, failure);
+                        }else if (sugPageDto.getSubStatus().equals((byte)2)){  //未审核
+                            or = submittedAudit;
+                        }else {  //3 已审核
+                            or = cb.or(submittedGovernment, transferredUnit, handling, failure);
+                        }
                         predicates.add(or);
                     }
                 }

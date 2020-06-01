@@ -14,4 +14,7 @@ public class ViewDto {
     //2、审核人点击的，查看新提交的数据的时候消除未读
     private Byte type;
 
+    //是否应当将doneView字段置为true
+    private Boolean changeDoneView;
+
 }

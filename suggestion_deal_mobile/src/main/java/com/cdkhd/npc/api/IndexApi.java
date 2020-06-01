@@ -31,4 +31,10 @@ public class IndexApi {
         RespBody body = indexService.getMenus(userDetails, role, level);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/countUnRead")
+    public ResponseEntity countUnRead(@CurrentUser MobileUserDetailsImpl userDetails, Byte level){
+        RespBody body = indexService.countUnRead(userDetails, level);
+        return ResponseEntity.ok(body);
+    }
 }

@@ -1,25 +1,30 @@
 package com.cdkhd.npc.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.LevelVo;
 import com.cdkhd.npc.entity.vo.MenuVo;
-import com.cdkhd.npc.enums.AccountRoleEnum;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.StatusEnum;
-import com.cdkhd.npc.enums.SystemEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.AccountRoleRepository;
+import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
+import com.cdkhd.npc.repository.member_house.SuggestionRepository;
+import com.cdkhd.npc.repository.suggestion_deal.SecondedRepository;
 import com.cdkhd.npc.service.IndexService;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.RespBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,11 +34,17 @@ public class IndexServiceImpl implements IndexService {
 
     private AccountRepository accountRepository;
     private AccountRoleRepository accountRoleRepository;
+    private SuggestionRepository suggestionRepository;
+    private SecondedRepository secondedRepository;
+    private SuggestionReplyRepository suggestionReplyRepository;
 
     @Autowired
-    public IndexServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository) {
+    public IndexServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SuggestionRepository suggestionRepository, SecondedRepository secondedRepository, SuggestionReplyRepository suggestionReplyRepository) {
         this.accountRepository = accountRepository;
         this.accountRoleRepository = accountRoleRepository;
+        this.suggestionRepository = suggestionRepository;
+        this.secondedRepository = secondedRepository;
+        this.suggestionReplyRepository = suggestionReplyRepository;
     }
 
     /**
@@ -141,6 +152,95 @@ public class IndexServiceImpl implements IndexService {
         }
 
         body.setData(voList);
+        return body;
+    }
+
+    /**
+     * 获取所选当前身份的菜单对应的未读内容数量
+     * @param userDetails 当前用户
+     * @param level 区域等级
+     * @return 数量
+     */
+    @Override
+    public RespBody countUnRead(MobileUserDetailsImpl userDetails, Byte level) {
+        RespBody body = new RespBody();
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(level, account.getNpcMembers());
+        JSONObject jsonObject = new JSONObject();
+        if (npcMember != null){
+
+            //已审核且代表未读的建议数量
+            List<SuggestionReply> suggestionReplies = suggestionReplyRepository.findAll((Specification<SuggestionReply>) (root, query, cb) -> {
+                List<Predicate> predicateList = new ArrayList<>();
+                predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+                predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
+                predicateList.add(cb.equal(root.get("suggestion").get("raiser").get("uid").as(String.class), npcMember.getUid()));
+                return cb.and(predicateList.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.SUGGESTION_COMMITTED.toString(), suggestionReplies.size());
+
+            //已办完且代表未读的建议数量
+            List<Suggestion> notViewDoneSugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
+                predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));
+                predicates.add(cb.isFalse(root.get("doneView").as(Boolean.class)));  //doneView字段为false
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.SUGGESTION_DONE.toString(), notViewDoneSugList.size());
+
+            //代表能附议的建议数量
+            List<Suggestion> canSecondSugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicates.add(cb.notEqual(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));  //剔除我自己提的
+                predicates.add(cb.equal(root.get("level").as(Byte.class),level));  //与我同级别
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));  //与我同区
+                if (npcMember.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));  //与我同镇
+                }
+                predicates.add(cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()),
+                        cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue())));  //待审核或待转办
+                List<Seconded> secondeds = secondedRepository.findByNpcMemberUid(npcMember.getUid());//剔除已经附议的建议
+                if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(secondeds)) {
+                    Set<String> sugUids = secondeds.stream().map(seconded -> seconded.getSuggestion().getUid()).collect(Collectors.toSet());
+                    predicates.add(root.get("uid").in(sugUids).not());
+                }
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.OTHERS_SUGGESTIONS.toString(), canSecondSugList.size());
+
+            //代表附议办结的且自己还未查看的建议数量
+            List<Suggestion> notViewSecondDoneSugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                Join<Suggestion, Seconded> join = root.join("secondedSet", JoinType.LEFT);//左连接，把附议表加进来
+                //root.get  表示suggestion的字段
+                predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));  //建议办结
+                // join.get  表示seconded的字段
+                predicates.add(cb.equal(join.get("npcMember").get("uid").as(String.class), npcMember.getUid()));  //该代表提出的附议
+                predicates.add(cb.isFalse(join.get("view").as(Boolean.class)));
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.SECONDED_SUGGESTIONS_COMPLETED.toString(), notViewSecondDoneSugList.size());
+
+            //待审核的建议 只有审核人员有此菜单
+            List<Suggestion> toBeAuditedSugList = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("level").as(Byte.class), level));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                if (level.equals(LevelEnum.TOWN.getValue())) {
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                }
+                predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));//todo 建议状态
+                predicates.add(cb.isFalse(root.get("view").as(Boolean.class)));
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.WAIT_AUDIT_SUGGESTIONS.toString(), toBeAuditedSugList.size());
+        }
+        body.setData(jsonObject);
         return body;
     }
 

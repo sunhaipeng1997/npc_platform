@@ -6,10 +6,12 @@ import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.entity.SuggestionReply;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -32,6 +34,10 @@ public class SugDetailVo extends BaseVo {
     //建议的内容
     private String content;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date raiseTime;
+
     //状态
     private Byte status;
 
@@ -50,8 +56,11 @@ public class SugDetailVo extends BaseVo {
     //审核人员是否查看待审核信息
     private Boolean view;
 
-    //我是否查看审核结果
+    //代表是否查看审核结果
     private Boolean myView = true;
+
+    //代表是否查看办完的建议
+    private Boolean doneView;
 
     //transUid
     private String transUid;
