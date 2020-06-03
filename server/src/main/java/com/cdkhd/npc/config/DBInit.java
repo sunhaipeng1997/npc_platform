@@ -1,23 +1,35 @@
 package com.cdkhd.npc.config;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
+import com.cdkhd.npc.util.SysUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 //数据初始化配置类
 @Configuration
 public class DBInit {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBInit.class);
+
     private AccountRoleRepository accountRoleRepository;
     private NpcMemberRoleRepository npcMemberRoleRepository;
     private PermissionRepository permissionRepository;
@@ -33,11 +45,18 @@ public class DBInit {
     private SessionRepository sessionRepository;
     private PerformanceTypeRepository performanceTypeRepository;
 
+    private WeChatMenuRepository weChatMenuRepository;
+    private WeChatAccessTokenRepository weChatAccessTokenRepository;
+    private RestTemplate restTemplate;
+
+    private final String CURRENT_APPID;
+    private final String CURRENT_APPSECRET;
+    private final String REDIRECT_URL;
 
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DBInit(AccountRoleRepository accountRoleRepository, NpcMemberRoleRepository npcMemberRoleRepository, PermissionRepository permissionRepository, SystemRepository systemRepository, MenuRepository menuRepository, CommonDictRepository commonDictRepository, Environment env, AreaRepository areaRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, BackgroundAdminRepository backgroundAdminRepository, SystemSettingRepository systemSettingRepository, SessionRepository sessionRepository, PerformanceTypeRepository performanceTypeRepository, PasswordEncoder passwordEncoder) {
+    public DBInit(AccountRoleRepository accountRoleRepository, NpcMemberRoleRepository npcMemberRoleRepository, PermissionRepository permissionRepository, SystemRepository systemRepository, MenuRepository menuRepository, CommonDictRepository commonDictRepository, Environment env, AreaRepository areaRepository, AccountRepository accountRepository, LoginUPRepository loginUPRepository, BackgroundAdminRepository backgroundAdminRepository, SystemSettingRepository systemSettingRepository, SessionRepository sessionRepository, PerformanceTypeRepository performanceTypeRepository, WeChatMenuRepository weChatMenuRepository, WeChatAccessTokenRepository weChatAccessTokenRepository, RestTemplate restTemplate, PasswordEncoder passwordEncoder) {
         this.accountRoleRepository = accountRoleRepository;
         this.npcMemberRoleRepository = npcMemberRoleRepository;
         this.permissionRepository = permissionRepository;
@@ -52,6 +71,12 @@ public class DBInit {
         this.systemSettingRepository = systemSettingRepository;
         this.sessionRepository = sessionRepository;
         this.performanceTypeRepository = performanceTypeRepository;
+        this.weChatMenuRepository = weChatMenuRepository;
+        this.weChatAccessTokenRepository = weChatAccessTokenRepository;
+        this.restTemplate = restTemplate;
+        CURRENT_APPID = env.getProperty("service_app.appid");
+        CURRENT_APPSECRET = env.getProperty("service_app.appsecret");
+        REDIRECT_URL = env.getProperty("service_app.redirect_url");
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -71,6 +96,7 @@ public class DBInit {
         initSession();
         initSystemSetting();
         initPerformanceType();
+        insertWeichatMenu();
     }
 
     private void initPerformanceType() {
@@ -1238,25 +1264,154 @@ public class DBInit {
         }
     }
 
-    //为大数据平台初始化一个Account
-    /*private void initBDAccount(String username, String mobile, String rawPwd) {
-        Account account = accountRepository.findByUsername(username);
-        if (account == null) {
-            account = new Account();
-            account.setUsername(username);
-            account.setMobile(mobile);
-            account.setLoginTimes(0);  //登录次数初始化为0
-            account.setLoginWay((byte) 1);//账号密码方式登录
-            accountRepository.saveAndFlush(account);
+    private void insertWeichatMenu() {
+        JSONArray array = new JSONArray();
+        List<WeChatMenu> menus = new ArrayList<>();
+        // 登录公众号
+        String uniqueKey = "weichat_user_auth";
+        WeChatMenu menu = weChatMenuRepository.findByUniqueKey(uniqueKey);
+        if (menu == null) {
+            menu = new WeChatMenu();
+            JSONObject obj = new JSONObject();
+            menu.setUniqueKey(uniqueKey);
+
+            String name = "登录公众号";
+            menu.setName(name);
+            obj.put("name", name);
+
+            String type = "view";
+            menu.setType(type);
+            obj.put("type", type);
+
+            String url = String.format(
+                    "https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s#wechat_redirect",
+                    CURRENT_APPID,
+                    REDIRECT_URL,
+                    "snsapi_userinfo",
+                    SysUtil.uid()
+
+            );
+            menu.setUrl(url);
+            obj.put("url", url);
+            menus.add(menu);
+            array.add(obj);
         }
 
-        LoginUP loginUP = loginUPRepository.findByUsername(username);
-        if (loginUP == null) {
-            loginUP = new LoginUP();
-            loginUP.setUsername(username);
-            loginUP.setPassword(passwordEncoder.encode(rawPwd)); //保存hash后的密码
-            loginUP.setAccount(account);
-            loginUPRepository.saveAndFlush(loginUP);
+        // 跳转到小程序
+        uniqueKey = "weichat_jumpto_miniprogram";
+        menu = weChatMenuRepository.findByUniqueKey(uniqueKey);
+        if (menu == null) {
+            menu = new WeChatMenu();
+            JSONObject obj = new JSONObject();
+            menu.setUniqueKey(uniqueKey);
+
+            String name = "跳转到小程序";
+            menu.setName(name);
+            obj.put("name", name);
+
+            String type = "miniprogram";
+            menu.setType(type);
+            obj.put("type", type);
+
+            String appid = env.getProperty("miniapp.appid");
+            menu.setAppid(appid);
+            obj.put("appid", appid);
+
+            String url = env.getProperty("service_app.pagepath");
+            menu.setUrl(url);
+            obj.put("url", url);
+
+            String pagepath = env.getProperty("service_app.pagepath");
+            menu.setPagepath(pagepath);
+            obj.put("pagepath", pagepath);
+
+            menus.add(menu);
+            array.add(obj);
         }
-    }*/
+
+        if (!array.isEmpty()) {
+            String appid = env.getProperty("service_app.appid");
+            WeChatAccessToken token = weChatAccessTokenRepository.findByAppid(appid);
+            if (token == null) {
+                token = getToken();
+            }
+            if (token != null) {
+                if (!verifyToken(token)) token = getToken();
+                pushMenus(token, array, menus);
+            }
+
+        }
+
+    }
+
+    private void pushMenus(WeChatAccessToken token, JSONArray array, List<WeChatMenu> menus) {
+        JSONObject root = new JSONObject();
+        root.put("button", array);
+        String postMenuUrl = String.format("https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s", token.getAccessToken());
+        HttpHeaders headers = new HttpHeaders();
+        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        HttpEntity<String> reqEntity = new HttpEntity<>(root.toJSONString(), headers);
+        ResponseEntity<JSONObject> respEntity = restTemplate.postForEntity(postMenuUrl, reqEntity, JSONObject.class);
+        if (respEntity.getStatusCode() == HttpStatus.OK) {
+            JSONObject body = respEntity.getBody();
+            if (body == null) return;
+            if (body.getIntValue("errcode") == 0) {
+                weChatMenuRepository.saveAll(menus);
+                LOGGER.info("create menu success.");
+                return;
+            }
+        }
+        LOGGER.warn("create menu failed.");
+    }
+
+//    @Scheduled(cron = "0 0/20 * * * ?")
+//    private void refreshToken() {
+//        getToken();
+//    }
+
+    public WeChatAccessToken getToken() {
+
+        WeChatAccessToken token = weChatAccessTokenRepository.findByAppid(CURRENT_APPID);
+        if (token != null) {
+            if (verifyToken(token)) return token;
+        } else {
+            token = new WeChatAccessToken();
+            token.setAppid(CURRENT_APPID);
+        }
+
+        LOGGER.info("get token at: {}", DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+        // 构造获取access_token 的url
+        String url = String.format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", CURRENT_APPID, CURRENT_APPSECRET);
+        ResponseEntity<JSONObject> respEntity = restTemplate.getForEntity(url, JSONObject.class);
+        if (respEntity.getStatusCode() == HttpStatus.OK) {
+            JSONObject body = respEntity.getBody();
+            if (body != null) {
+                token.setAccessToken(body.getString("access_token"));
+                weChatAccessTokenRepository.saveAndFlush(token);
+                return token;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean verifyToken(WeChatAccessToken token) {
+        if (token == null) return false;
+        String url = String.format("https://api.weixin.qq.com/cgi-bin/menu/get?access_token=%s", token.getAccessToken());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Accept", MediaType.APPLICATION_JSON_UTF8_VALUE);
+        HttpEntity<String> reqEntity = new HttpEntity<>(null, httpHeaders);
+        ResponseEntity<JSONObject> respEntity = restTemplate.exchange(url, HttpMethod.GET, reqEntity, JSONObject.class);
+        if (respEntity.getStatusCode() == HttpStatus.OK) {
+            JSONObject body = respEntity.getBody();
+            if (body != null) {
+                if (body.getIntValue("errcode") == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

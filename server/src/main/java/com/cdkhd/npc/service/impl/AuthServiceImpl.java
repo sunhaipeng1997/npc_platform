@@ -8,10 +8,7 @@ import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.PasswordDto;
 import com.cdkhd.npc.entity.dto.UsernamePasswordDto;
 import com.cdkhd.npc.entity.vo.MenuVo;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.LoginWayEnum;
-import com.cdkhd.npc.enums.MenuEnum;
-import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.service.AuthService;
 import com.cdkhd.npc.util.BDSmsUtils;
@@ -611,30 +608,30 @@ public class AuthServiceImpl implements AuthService {
         String openid = obj.getString("openid");
         String nickname = obj.getString("nickname");
 
-//        LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
-//        if (loginWeChat == null) {
-//            loginWeChat = new LoginWeChat();
-//            loginWeChat.setOpenId(openid);
-//            loginWeChat.setUnionId(unionid);
-//
-//            loginWeChatRepository.saveAndFlush(loginWeChat);
-//        }
-//
-//        Account account = loginWeChat.getAccount();
-//        if (account == null) {
-//            account = new Account();
-//            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
-//            account.setLoginWeChat(loginWeChat);
-//            account.setStatus(StatusEnum.ENABLED.getValue());
-//
-//            //初始时只有选民权限
-//            account.getAccountRoles().add(accountRoleRepository.findByKeyword("VOTER"));
-//            accountRepository.saveAndFlush(account);
-//
-//            loginWeChat.setAccount(account);
-//            loginWeChatRepository.saveAndFlush(loginWeChat);
-//
-//        }
+        LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
+        if (loginWeChat == null) {
+            loginWeChat = new LoginWeChat();
+            loginWeChat.setOpenId(openid);
+            loginWeChat.setUnionId(unionid);
+
+            loginWeChatRepository.saveAndFlush(loginWeChat);
+        }
+
+        Account account = loginWeChat.getAccount();
+        if (account == null) {
+            account = new Account();
+            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
+            account.setLoginWeChat(loginWeChat);
+            account.setStatus(StatusEnum.ENABLED.getValue());
+
+            //初始时只有选民权限
+            account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword()));
+            accountRepository.saveAndFlush(account);
+
+            loginWeChat.setAccount(account);
+            loginWeChatRepository.saveAndFlush(loginWeChat);
+
+        }
 
         return "authSuccess";
     }
