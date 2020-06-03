@@ -54,13 +54,16 @@ public class SugDetailVo extends BaseVo {
     private List<String> images;
 
     //审核人员是否查看待审核信息
-    private Boolean view;
+    private Boolean view = false;
 
     //代表是否查看审核结果
     private Boolean myView = true;
 
     //代表是否查看办完的建议
-    private Boolean doneView;
+    private Boolean doneView = false;
+
+    //代表是否查看附议办结的建议
+    private Boolean secondDoneView = false;
 
     //transUid
     private String transUid;

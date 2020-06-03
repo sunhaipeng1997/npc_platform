@@ -58,7 +58,7 @@ public interface NpcSuggestionService {
     * @Date: 2020/5/18
     * @Author: LiYang
     */
-    RespBody suggestionDetail(ViewDto viewDto);
+    RespBody suggestionDetail(MobileUserDetailsImpl userDetails, ViewDto viewDto);
 
     /**
     * @Description: 删除建议

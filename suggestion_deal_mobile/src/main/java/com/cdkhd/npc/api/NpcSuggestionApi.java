@@ -95,8 +95,8 @@ public class NpcSuggestionApi {
     * @Author: LiYang
     */
     @GetMapping("/suggestionDetail")
-    public ResponseEntity suggestionDetail(ViewDto viewDto){
-        RespBody body = suggestionService.suggestionDetail(viewDto);
+    public ResponseEntity suggestionDetail(@CurrentUser MobileUserDetailsImpl userDetails, ViewDto viewDto){
+        RespBody body = suggestionService.suggestionDetail(userDetails, viewDto);
         return ResponseEntity.ok(body);
     }
 

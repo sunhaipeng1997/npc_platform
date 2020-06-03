@@ -238,7 +238,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     }
 
     @Override
-    public RespBody suggestionDetail(ViewDto viewDto) {
+    public RespBody suggestionDetail(MobileUserDetailsImpl userDetails, ViewDto viewDto) {
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(viewDto.getSugUid());
         if (suggestion == null) {
@@ -246,16 +246,30 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(viewDto.getLevel(), account.getNpcMembers());
         //代表查看
-        if (StatusEnum.ENABLED.getValue().equals(viewDto.getType())){
+        if (StatusEnum.ENABLED.getValue().equals(viewDto.getType())) {
             for (SuggestionReply reply : suggestion.getReplies()) {
                 reply.setView(true);
             }
-        }else if (StatusEnum.DISABLED.getValue().equals(viewDto.getType())) {
+        } else if (StatusEnum.DISABLED.getValue().equals(viewDto.getType())) {
             suggestion.setView(true);
         }
-        if (viewDto.getChangeDoneView()){
+        //代表消去办理完成的未读
+        if (viewDto.getChangeDoneView()) {
             suggestion.setDoneView(true);
+        }
+        //代表消去附议办结的未读
+        if (viewDto.getChangeSecondView()) {
+            Set<Seconded> secondedSet = suggestion.getSecondedSet();
+            for (Seconded seconded : secondedSet) {
+                if (seconded.getNpcMember().getUid().equals(npcMember.getUid())) {
+                    seconded.setView(true);
+                    secondedRepository.saveAndFlush(seconded);
+                    break;
+                }
+            }
         }
         suggestionRepository.saveAndFlush(suggestion);
         SugDetailVo sugDetailVo = SugDetailVo.convert(suggestion);
@@ -376,11 +390,11 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                         Predicate transferredUnit = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());  // 4
                         Predicate handling = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue());  // 5
                         Predicate failure = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue());  // -1
-                        if (sugPageDto.getSubStatus().equals((byte)1)){  //全部
+                        if (sugPageDto.getSubStatus().equals((byte) 1)) {  //全部
                             or = cb.or(submittedAudit, submittedGovernment, transferredUnit, handling, failure);
-                        }else if (sugPageDto.getSubStatus().equals((byte)2)){  //未审核
+                        } else if (sugPageDto.getSubStatus().equals((byte) 2)) {  //未审核
                             or = submittedAudit;
-                        }else {  //3 已审核
+                        } else {  //3 已审核
                             or = cb.or(submittedGovernment, transferredUnit, handling, failure);
                         }
                         predicates.add(or);
@@ -391,7 +405,22 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 query.orderBy(cb.desc(root.get("status")), cb.desc(root.get("raiseTime")));
                 return query.getRestriction();
             }, page);
-            vo.setContent(pageRes.stream().map(SugDetailVo::convert).sorted(Comparator.comparing(SugDetailVo::getMyView)).collect(Collectors.toList()));
+            List<Suggestion> suggestions = pageRes.getContent();
+            List<SugDetailVo> sugDetailVos = pageRes.stream().map(SugDetailVo::convert).sorted(Comparator.comparing(SugDetailVo::getMyView)).collect(Collectors.toList());
+            for (SugDetailVo sugDetailVo : sugDetailVos) {
+                for (Suggestion suggestion : suggestions){
+                    if (sugDetailVo.getUid().equals(suggestion.getUid())){
+                        for (Seconded seconded : suggestion.getSecondedSet()){
+                            if (seconded.getNpcMember().getUid().equals(npcMember.getUid()) && seconded.getView() == true){
+                                sugDetailVo.setSecondDoneView(true);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            vo.setContent(sugDetailVos);
             vo.copy(pageRes);
         }
         body.setData(vo);
@@ -402,6 +431,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody auditorSug(MobileUserDetailsImpl userDetails, SugPageDto sugPageDto) {
         RespBody body = new RespBody();
         int begin = sugPageDto.getPage() - 1;
+
         Pageable page = PageRequest.of(begin, sugPageDto.getSize());
         PageVo<SugDetailVo> vo = new PageVo<>(sugPageDto);
         Page<Suggestion> pageRes = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
@@ -432,7 +462,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             query.orderBy(cb.asc(root.get("view")), cb.asc(root.get("status")), cb.desc(root.get("createTime")));
             return query.getRestriction();
         }, page);
-        vo.setContent(pageRes.stream().map(SugDetailVo::convert).collect(Collectors.toList()));
+        List<SugDetailVo> sugDetailVos = pageRes.stream().map(SugDetailVo::convert).collect(Collectors.toList());
+        vo.setContent(sugDetailVos);
         vo.copy(pageRes);
         body.setData(vo);
         return body;
@@ -539,7 +570,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         Suggestion suggestion = suggestionRepository.findByUid(sugUid);
 
-        if (suggestion == null){
+        if (suggestion == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该建议不存在");
             return body;
@@ -572,7 +603,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         }
         if (canUrge) {
             Urge urge = new Urge();
-            urge.setType((byte)1);  //1 代表催办
+            urge.setType((byte) 1);  //1 代表催办
             urge.setCreateTime(new Date());
             urge.setAccount(account);
             urge.setScore(1);         //代表催办一次1分，联工委催办一次4分，政府催办一次16分
