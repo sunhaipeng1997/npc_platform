@@ -6,10 +6,12 @@ import com.cdkhd.npc.entity.SuggestionImage;
 import com.cdkhd.npc.entity.SuggestionReply;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -31,6 +33,10 @@ public class SuggestionVo extends BaseVo {
 
     //建议的内容
     private String content;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date raiseTime;
 
     //提出代表信息
     private NpcMemberVo npcMemberVo;
