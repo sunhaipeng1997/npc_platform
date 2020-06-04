@@ -284,6 +284,7 @@ public class MenuServiceImpl implements MenuService {
             List<SuggestionReply> suggestionReplies = suggestionReplyRepository.findAll((Specification<SuggestionReply>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("suggestion").get("level").as(Byte.class), level));
+                predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
                 predicateList.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicateList.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class), npcMember.getTown().getUid()));
@@ -329,6 +330,7 @@ public class MenuServiceImpl implements MenuService {
             List<Suggestion> suggestions = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("level").as(Byte.class), level));
+                predicateList.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
                 predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     predicateList.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
