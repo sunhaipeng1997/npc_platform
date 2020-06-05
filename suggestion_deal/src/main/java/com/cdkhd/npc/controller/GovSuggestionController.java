@@ -99,7 +99,7 @@ public class GovSuggestionController {
     /**
      * 条件查询申请延期的建议列表
      */
-    @GetMapping("/urgeSug")
+    @PostMapping("/urgeSug")
     public ResponseEntity urgeSug(@CurrentUser UserDetailsImpl userDetails, BaseDto baseDto) {
         RespBody body = suggestionService.urgeSug(userDetails, baseDto);
         return ResponseEntity.ok(body);

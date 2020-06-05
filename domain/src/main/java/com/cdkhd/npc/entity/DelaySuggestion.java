@@ -46,4 +46,11 @@ public class DelaySuggestion extends BaseDomain {
     @JoinColumn(name = "unitSuggestion", referencedColumnName = "id")
     private UnitSuggestion unitSuggestion;
 
+    //办理单位是否查看
+    @Column(name = "unit_view")
+    private Boolean unitView = true;
+
+    //办理单位回复是否查看
+    @Column(name = "gov_view")
+    private Boolean govView = false;
 }

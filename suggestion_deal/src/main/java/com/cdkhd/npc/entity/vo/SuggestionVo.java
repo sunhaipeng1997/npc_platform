@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -105,7 +106,7 @@ public class SuggestionVo extends BaseVo {
 
     //单位名称
     private String unitName;
-    private String coUitName;
+    private String coUnitName;
 
     //转办流程
     private List<ConveyProcessVo> conveyProcessVos;
@@ -117,6 +118,18 @@ public class SuggestionVo extends BaseVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date expectDate;
+
+    //是否催办
+    private Boolean urge;
+
+    //催办等级
+    private Integer urgeLevel;
+
+    //是否快到期了
+    private Boolean closeDeadLine;
+
+    //是否超期了
+    private Boolean exceedLimit;
 
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
@@ -146,7 +159,7 @@ public class SuggestionVo extends BaseVo {
                 stringJoiner.add(unitSuggestion.getUnit().getName());
             }
         }
-        vo.setCoUitName(stringJoiner.toString());
+        vo.setCoUnitName(StringUtils.isNotEmpty(stringJoiner.toString())?stringJoiner.toString():"无");
         return vo;
     }
 

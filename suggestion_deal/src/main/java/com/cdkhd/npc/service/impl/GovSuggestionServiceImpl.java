@@ -242,13 +242,6 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             if (StringUtils.isNotEmpty(govSuggestionPageDto.getMobile())) {
                 predicates.add(cb.like(root.get("raiser").get("mobile").as(String.class), "%" +govSuggestionPageDto.getMobile() + "%"));
             }
-            //审核时间 开始
-            if (govSuggestionPageDto.getDateStart() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("auditTime").as(Date.class), govSuggestionPageDto.getDateStart()));
-            }
-            if (govSuggestionPageDto.getDateEnd() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("auditTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
-            }
             //办理单位
             if (StringUtils.isNotEmpty(govSuggestionPageDto.getUnit())){
                 Join<Suggestion, UnitSuggestion> join = root.join("unitSuggestions", JoinType.LEFT);
@@ -259,6 +252,13 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));//状态为已转交政府
                     Join<Suggestion, ConveyProcess> join = root.join("conveyProcesses", JoinType.LEFT);
                     predicates.add(cb.isNull(join));//没有转办记录的
+                    //审核时间 开始
+                    if (govSuggestionPageDto.getDateStart() != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("auditTime").as(Date.class), govSuggestionPageDto.getDateStart()));
+                    }
+                    if (govSuggestionPageDto.getDateEnd() != null) {
+                        predicates.add(cb.lessThanOrEqualTo(root.get("auditTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
+                    }
                 }else if (govSuggestionPageDto.getSearchType().equals(GovSugTypeEnum.ADJUST_UNIT_SUG.getValue())) { //申请调整单位的建议
                     Join<Suggestion, ConveyProcess> join = root.join("conveyProcesses", JoinType.LEFT);
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));//状态为已转交政府
@@ -274,8 +274,22 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue()));//状态为办理中的建议
                 }else if (govSuggestionPageDto.getSearchType().equals(GovSugTypeEnum.FINISH_SUG.getValue())) {//已办完的建议
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));//状态为办理完成的建议
+                    //办理完成时间 开始
+                    if (govSuggestionPageDto.getDateStart() != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("finishTime").as(Date.class), govSuggestionPageDto.getDateStart()));
+                    }
+                    if (govSuggestionPageDto.getDateEnd() != null) {
+                        predicates.add(cb.lessThanOrEqualTo(root.get("finishTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
+                    }
                 }else if (govSuggestionPageDto.getSearchType().equals(GovSugTypeEnum.ACCOMPLISHED_SUG.getValue())) {//已办结的建议
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));//状态办结的建议
+                    //办理完成时间 开始
+                    if (govSuggestionPageDto.getDateStart() != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("accomplishTime").as(Date.class), govSuggestionPageDto.getDateStart()));
+                    }
+                    if (govSuggestionPageDto.getDateEnd() != null) {
+                        predicates.add(cb.lessThanOrEqualTo(root.get("accomplishTime").as(Date.class), govSuggestionPageDto.getDateEnd()));
+                    }
                 }
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
@@ -321,7 +335,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
     public RespBody delaySuggestion(UserDetailsImpl userDetails, DelaySuggestionDto delaySuggestionDto) {
         RespBody body = new RespBody();
         if (StringUtils.isEmpty(delaySuggestionDto.getUid()) || delaySuggestionDto.getDelayDate() == null || delaySuggestionDto.getResult() == null) {
-            String message = "申请延期失败，请重试！";
+            String message = "延期失败，请重试！";
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage(message);
             return body;

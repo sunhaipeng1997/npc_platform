@@ -126,6 +126,10 @@ public class Suggestion extends BaseDomain {
     @Column(name = "close_deadline")
     private Boolean closeDeadLine = false;
 
+    //是否超期了
+    @Column(name = "exceed_limit")
+    private Boolean exceedLimit = false;
+
     //审核人员是否查看
     @Column(name = "view")
     private Boolean view = false;
@@ -151,7 +155,7 @@ public class Suggestion extends BaseDomain {
     private Byte level;
 
     //前端是否显示撤回按钮，默认为true
-    @Column(name = "canRevoke")
+    @Column(name = "can_revoke")
     private Boolean canOperate = true;
 
     //转办人
@@ -190,6 +194,7 @@ public class Suggestion extends BaseDomain {
     @OneToMany(targetEntity = Result.class, mappedBy = "suggestion")
     private Set<Result> results;
 
+    //附议
     @OneToMany(targetEntity = Seconded.class, mappedBy = "suggestion")
     private Set<Seconded> secondedSet;
 
