@@ -3,15 +3,20 @@ package com.cdkhd.npc.api;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.dto.PageDto;
+import com.cdkhd.npc.entity.dto.HandleProcessAddDto;
+import com.cdkhd.npc.entity.dto.ResultAddDto;
 import com.cdkhd.npc.service.UnitSuggestionService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.Date;
 
 @Controller
 @RequestMapping("/api/suggestion_deal_mobile/unit")
@@ -57,6 +62,25 @@ public class UnitSuggestionApi {
     @GetMapping("/in_dealing/{uid}")
     public ResponseEntity checkDealingDetail(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String uid) {
         RespBody body = unitSuggestionService.checkDealingDetail(userDetails, uid);
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/delay/{uid}")
+    public ResponseEntity applyDelay(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String usUid,
+                                     @DateTimeFormat(pattern = "yyyy-MM-dd") Date delayUntil, String reason) {
+        RespBody body = unitSuggestionService.applyDelay(userDetails, usUid, delayUntil, reason);
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/process")
+    public ResponseEntity addProcess(@CurrentUser MobileUserDetailsImpl userDetails, HandleProcessAddDto toAdd) {
+        RespBody body = unitSuggestionService.addHandleProcess(userDetails, toAdd);
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/finish")
+    public ResponseEntity finishDeal(@CurrentUser MobileUserDetailsImpl userDetails, ResultAddDto toAdd) {
+        RespBody body = unitSuggestionService.finishDeal(userDetails, toAdd);
         return ResponseEntity.ok(body);
     }
 }

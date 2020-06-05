@@ -8,6 +8,10 @@ package com.cdkhd.npc.repository.suggestion_deal;
 import com.cdkhd.npc.entity.UnitSuggestion;
 import com.cdkhd.npc.repository.base.BaseRepository;
 
+import java.util.List;
+
 public interface UnitSuggestionRepository extends BaseRepository<UnitSuggestion> {
     UnitSuggestion findByUid(String uid);
+
+    List<UnitSuggestion> findBySuggestionUidAndType(String uid, Byte type);
 }

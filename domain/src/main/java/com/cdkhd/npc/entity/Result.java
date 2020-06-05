@@ -24,21 +24,19 @@ public class Result extends BaseDomain {
     @Column(name = "result")
     private String result;
 
-    //是否接受办理结果
+    //结果图片，存储在UnitImage中
+
+    //代表是否接受办理结果
     @Column(name = "accepted")
     private Boolean accepted;
 
-    //原因
+    //代表拒绝的原因
     @Column(name = "reason")
     private String reason;
 
-    //办理结果 反馈给主办单位
+    //关联的办理单位建议
     @OneToOne(targetEntity = UnitSuggestion.class, fetch = FetchType.LAZY)
     private UnitSuggestion unitSuggestion;
-
-    //结果附件
-    @OneToMany(targetEntity = Attachment.class, cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
-    private Set<Attachment> attachments;
 
     //对应的建议
     @ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
