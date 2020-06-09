@@ -65,7 +65,7 @@ public class UnitSuggestion extends BaseDomain {
     private Unit unit;
 
     //办理结果 协办单位反馈给主办单位的结果说明
-    @OneToOne(targetEntity = Result.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Result.class, fetch = FetchType.LAZY, mappedBy = "unitSuggestion")
     private Result result;
 
     // 转交的政府人员id

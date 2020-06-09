@@ -5,6 +5,7 @@ import com.cdkhd.npc.dto.PageDto;
 import com.cdkhd.npc.entity.dto.HandleProcessAddDto;
 import com.cdkhd.npc.entity.dto.ResultAddDto;
 import com.cdkhd.npc.vo.RespBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -26,4 +27,6 @@ public interface UnitSuggestionService {
     RespBody addHandleProcess(MobileUserDetailsImpl userDetails, HandleProcessAddDto toAdd);
 
     RespBody finishDeal(MobileUserDetailsImpl userDetails, ResultAddDto toAdd);
+
+    RespBody uploadOneImage(MobileUserDetailsImpl userDetails, MultipartFile image, Byte type);
 }

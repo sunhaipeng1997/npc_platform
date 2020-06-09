@@ -4,16 +4,10 @@ import com.cdkhd.npc.dto.BaseDto;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.List;
 
-/**
- * 由于微信小程序上传图片一次请求只能上传一张图，
- * 故在第一次上传时生成HandleProcess，并返回其uid，
- * 上传后续图片时，带上该uid参数，表示为其添加图片
- * （注：此处的uid参数在BaseDto中）。
- */
 @Getter
 @Setter
 public class HandleProcessAddDto extends BaseDto {
@@ -28,5 +22,5 @@ public class HandleProcessAddDto extends BaseDto {
     private String description;
 
     //过程图片
-    private MultipartFile image;
+    private List<String> imageUrls;
 }

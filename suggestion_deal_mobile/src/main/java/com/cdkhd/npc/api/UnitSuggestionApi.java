@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -69,6 +70,12 @@ public class UnitSuggestionApi {
     public ResponseEntity applyDelay(@CurrentUser MobileUserDetailsImpl userDetails, @PathVariable("uid") String usUid,
                                      @DateTimeFormat(pattern = "yyyy-MM-dd") Date delayUntil, String reason) {
         RespBody body = unitSuggestionService.applyDelay(userDetails, usUid, delayUntil, reason);
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/image")
+    public ResponseEntity uploadOneImage(@CurrentUser MobileUserDetailsImpl userDetails, MultipartFile image, Byte type) {
+        RespBody body = unitSuggestionService.uploadOneImage(userDetails, image, type);
         return ResponseEntity.ok(body);
     }
 
