@@ -77,7 +77,7 @@ public enum PermissionEnum {
     GOV_COMPLETED("办结列表"),
     UNIT_MANAGE("办理单位管理"),
     SUGGESTION_SETTING("建议设置"),
-    GOV_COUNT("统计"),
+//    GOV_COUNT("统计"),
 
     //办理单位
     UNIT_WAIT_DEAL("办理单待办理列表"),

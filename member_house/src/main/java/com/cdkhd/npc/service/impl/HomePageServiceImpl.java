@@ -230,10 +230,9 @@ public class HomePageServiceImpl implements HomePageService {
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
             predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
-            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {//街道人大的履职类型修改为区上的
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         });

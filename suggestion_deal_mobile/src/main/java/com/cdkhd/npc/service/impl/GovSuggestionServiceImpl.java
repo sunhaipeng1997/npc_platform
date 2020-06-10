@@ -78,7 +78,15 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         RespBody body = new RespBody();
         //查询代表的建议之前首先查询系统配置
         int begin = govSuggestionPageDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), Sort.Direction.fromString(govSuggestionPageDto.getDirection()), govSuggestionPageDto.getProperty());
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "govView");//先按查看状态排序
+        Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(viewSort);
+        orders.add(statusSort);
+        orders.add(createAt);
+        Sort sort = Sort.by(orders);
+        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), sort);
         Page<Suggestion> suggestionPage = this.getSuggestionPage(userDetails, govSuggestionPageDto, page);
         PageVo<GovSugListVo> vo = new PageVo<>(suggestionPage, govSuggestionPageDto);
         List<GovSugListVo> suggestionVos = suggestionPage.getContent().stream().map(suggestion -> GovSugListVo.convert(suggestion,govSuggestionPageDto.getSearchType())).collect(Collectors.toList());
@@ -226,6 +234,12 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             body.setMessage(message);
             return body;
         }
+        if (adjustConveyDto.getUnitType().equals(UnitTypeEnum.MAIN_UNIT.getValue()) && adjustConveyDto.getDealStatus().equals(GovDealStatusEnum.NOT_NEED_CONVEY.getValue())) {
+            String message = "主办单位必须选择,请重试！";
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage(message);
+            return body;
+        }
         if (adjustConveyDto.getUnitType().equals(UnitTypeEnum.MAIN_UNIT.getValue()) && StringUtils.isEmpty(adjustConveyDto.getUnit())) {
             String message = "主办单位必须选择,请重试！";
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -236,7 +250,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         ConveyProcess conveyProcess = conveyProcessRepository.findByUid(adjustConveyDto.getUid());
         Suggestion suggestion = conveyProcess.getSuggestion();
         for (ConveyProcess process : suggestion.getConveyProcesses()) {
-            if (process.getUnit().getUid().equals(adjustConveyDto.getUnit()) && !process.getDealDone() && !process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){
+            if (!process.getUid().equals(adjustConveyDto.getUid()) && process.getUnit().getUid().equals(adjustConveyDto.getUnit()) && !process.getDealDone() && !process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){
                 String message = "该单位已经参与本条建议,请重新选择一个单位！";
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage(message);
@@ -251,7 +265,16 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         conveyProcessRepository.saveAndFlush(conveyProcess);
         //然后保存新的办理单位信息
         if (adjustConveyDto.getDealStatus().equals(GovDealStatusEnum.RE_CONVEY.getValue()) && StringUtils.isNotEmpty(adjustConveyDto.getUnit())) {//如果有信息的办理单位，那么就保存，如果没有，那么就不处理
-            suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());
+            Boolean acceptAll = true;//这个地方判断下，有可能不止一个单位申请调整，全部调整完了才能修改建议的状态
+            for (ConveyProcess process : suggestion.getConveyProcesses()) {
+                if (!process.getDealDone() && process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){//有拒绝的建议，并且没有处理完这个拒绝，政府就还需要继续处理
+                    //所有没有处理完的建议都没有被拒绝，就表示政府这边不需要在处理了
+                    acceptAll = false;
+                }
+            }
+            if (acceptAll) {
+                suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());//这个地方不能直接修改建议状态
+            }
             suggestion.setConveyTime(new Date());
             Integer conveyTimes = suggestion.getConveyTimes() + 1;//转办次数
             suggestion.setConveyTimes(conveyTimes);
@@ -275,7 +298,13 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
     public RespBody applyConvey(MobileUserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
         RespBody body = new RespBody();
         int begin = govSuggestionPageDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), Sort.Direction.fromString(govSuggestionPageDto.getDirection()), govSuggestionPageDto.getProperty());
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "govView");//先按查看状态排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(viewSort);
+        orders.add(createAt);
+        Sort sort = Sort.by(orders);
+        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), sort);
         Page<ConveyProcess> conveyProcessPage = this.getConveyProcess(userDetails, govSuggestionPageDto, page);
         PageVo<ConveyListVo> vo = new PageVo<>(conveyProcessPage, govSuggestionPageDto);
         List<ConveyListVo> conveyListVos = conveyProcessPage.getContent().stream().map(ConveyListVo::convertSug).collect(Collectors.toList());
@@ -304,7 +333,13 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
     public RespBody applyDelay(MobileUserDetailsImpl userDetails, GovSuggestionPageDto govSuggestionPageDto) {
         RespBody body = new RespBody();
         int begin = govSuggestionPageDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), Sort.Direction.fromString(govSuggestionPageDto.getDirection()), govSuggestionPageDto.getProperty());
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "govView");//先按查看状态排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(viewSort);
+        orders.add(createAt);
+        Sort sort = Sort.by(orders);
+        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), sort);
         Page<DelaySuggestion> delaySuggestionPage = this.getDelaySuggestion(userDetails, govSuggestionPageDto, page);
         PageVo<DelayListVo> vo = new PageVo<>(delaySuggestionPage, govSuggestionPageDto);
         List<DelayListVo> delaySuggestionVos = delaySuggestionPage.getContent().stream().map(DelayListVo::convert).collect(Collectors.toList());
@@ -395,6 +430,8 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             body.setMessage("获取建议详情失败，请重试！");
             return body;
         }
+        suggestion.setGovView(true);
+        suggestionRepository.saveAndFlush(suggestion);
         GovSugDetailVo govSugDetailVo = GovSugDetailVo.convert(suggestion);
         body.setData(govSugDetailVo);
         return body;
@@ -414,6 +451,8 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             body.setMessage("获取建议详情失败，请重试！");
             return body;
         }
+        delaySuggestion.setGovView(true);
+        delaySuggestionRepository.saveAndFlush(delaySuggestion);
         DelaySuggestionVo delaySuggestionVo = DelaySuggestionVo.convert(delaySuggestion);
         body.setData(delaySuggestionVo);
         return body;
@@ -433,6 +472,8 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             body.setMessage("获取建议详情失败，请重试！");
             return body;
         }
+        conveyProcess.setGovView(true);
+        conveyProcessRepository.saveAndFlush(conveyProcess);
         AdjustSuggestionVo adjustSuggestionVo = AdjustSuggestionVo.convert(conveyProcess);
         body.setData(adjustSuggestionVo);
         return body;

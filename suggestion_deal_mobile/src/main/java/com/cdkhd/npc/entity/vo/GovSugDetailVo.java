@@ -86,7 +86,9 @@ public class GovSugDetailVo extends BaseVo {
         vo.setRaiser(suggestion.getRaiser().getName());
         vo.setAuditor(suggestion.getAuditor().getName());
         vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
-        vo.setMainUnit(suggestion.getUnit().getName());
+        if (suggestion.getUnit() != null) {
+            vo.setMainUnit(suggestion.getUnit().getName());
+        }
         if (suggestion.getUnitSuggestions() != null) {
             StringJoiner stringJoiner = new StringJoiner("、");
             for (UnitSuggestion unitSuggestion : suggestion.getUnitSuggestions()) {

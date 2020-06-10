@@ -398,7 +398,16 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         conveyProcessRepository.saveAndFlush(conveyProcess);
         //然后保存新的办理单位信息
         if (adjustConveyDto.getDealStatus().equals(GovDealStatusEnum.RE_CONVEY.getValue()) && StringUtils.isNotEmpty(adjustConveyDto.getUnit())) {//如果有信息的办理单位，那么就保存，如果没有，那么就不处理
-            suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());
+            Boolean acceptAll = true;//这个地方判断下，有可能不止一个单位申请调整，全部调整完了才能修改建议的状态
+            for (ConveyProcess process : suggestion.getConveyProcesses()) {
+                if (!process.getDealDone() && process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){//有拒绝的建议，并且没有处理完这个拒绝，政府就还需要继续处理
+                    //所有没有处理完的建议都没有被拒绝，就表示政府这边不需要在处理了
+                    acceptAll = false;
+                }
+            }
+            if (acceptAll) {
+                suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());//这个地方不能直接修改建议状态
+            }
             suggestion.setConveyTime(new Date());
             Integer conveyTimes = suggestion.getConveyTimes() + 1;//转办次数
             suggestion.setConveyTimes(conveyTimes);

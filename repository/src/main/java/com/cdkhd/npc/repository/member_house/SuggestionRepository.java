@@ -16,6 +16,9 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
 
     List<Suggestion> findByRaiserUid(String npcUid);
 
+    List<Suggestion> findBySuggestionBusinessUid(String businessUid);
+
+
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.createTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")
     Integer countTownTodayNumber(Date today, Byte level, String uid);
 
@@ -36,4 +39,24 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     @Query("select count(sug.uid) from Suggestion sug " +
             "where sug.area.id=?1 and sug.isDel=false and sug.status>=3 ")
     Integer countAll(Long areaId);
+
+
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.auditTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")
+    Integer countTownMonthNewNumber(Date date, Byte level, String uid);
+
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.auditTime >= ?1 and sug.level = ?2 and sug.area.uid = ?3")
+    Integer countAreaMonthNewNumber(Date date, Byte level, String uid);
+
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.accomplishTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")
+    Integer countTownMonthCompletedNumber(Date date, Byte level, String uid);
+
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.accomplishTime >= ?1 and sug.level = ?2 and sug.area.uid = ?3")
+    Integer countAreaMonthCompletedNumber(Date date, Byte level, String uid);
+
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.level = ?1 and sug.town.uid = ?2 and (sug.status = 4 or sug.status = 5)")
+    Integer countTownDealingNumber(Byte level, String uid);
+
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.level = ?1 and sug.area.uid = ?2 and (sug.status = 4 or sug.status = 5)")
+    Integer countAreaDealingNumber(Byte level, String uid);
+
 }

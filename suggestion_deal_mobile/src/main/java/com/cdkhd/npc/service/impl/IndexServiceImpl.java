@@ -8,6 +8,8 @@ import com.cdkhd.npc.entity.vo.MenuVo;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.AccountRoleRepository;
+import com.cdkhd.npc.repository.base.ConveyProcessRepository;
+import com.cdkhd.npc.repository.base.DelaySuggestionRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.repository.suggestion_deal.SecondedRepository;
@@ -37,14 +39,18 @@ public class IndexServiceImpl implements IndexService {
     private SuggestionRepository suggestionRepository;
     private SecondedRepository secondedRepository;
     private SuggestionReplyRepository suggestionReplyRepository;
+    private DelaySuggestionRepository delaySuggestionRepository;
+    private ConveyProcessRepository conveyProcessRepository;
 
     @Autowired
-    public IndexServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SuggestionRepository suggestionRepository, SecondedRepository secondedRepository, SuggestionReplyRepository suggestionReplyRepository) {
+    public IndexServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SuggestionRepository suggestionRepository, SecondedRepository secondedRepository, SuggestionReplyRepository suggestionReplyRepository, DelaySuggestionRepository delaySuggestionRepository, ConveyProcessRepository conveyProcessRepository) {
         this.accountRepository = accountRepository;
         this.accountRoleRepository = accountRoleRepository;
         this.suggestionRepository = suggestionRepository;
         this.secondedRepository = secondedRepository;
         this.suggestionReplyRepository = suggestionReplyRepository;
+        this.delaySuggestionRepository = delaySuggestionRepository;
+        this.conveyProcessRepository = conveyProcessRepository;
     }
 
     /**
@@ -167,8 +173,8 @@ public class IndexServiceImpl implements IndexService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(level, account.getNpcMembers());
         JSONObject jsonObject = new JSONObject();
+        //代表
         if (npcMember != null){
-
             //已审核且代表未读的建议数量
             List<SuggestionReply> suggestionReplies = suggestionReplyRepository.findAll((Specification<SuggestionReply>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
@@ -239,6 +245,103 @@ public class IndexServiceImpl implements IndexService {
                 return cb.and(predicates.toArray(new Predicate[0]));
             });
             jsonObject.put(MenuEnum.WAIT_AUDIT_SUGGESTIONS.toString(), toBeAuditedSugList.size());
+        }
+        //政府
+        GovernmentUser governmentUser = account.getGovernmentUser();
+        if (governmentUser != null){
+            //待转办的建议
+            List<Suggestion> waitConveySugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("level").as(Byte.class),level));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class),governmentUser.getArea().getUid()));
+                if (level.equals(LevelEnum.TOWN.getValue())){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
+                }
+                predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));
+                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.WAIT_CONVEY_SUGGESTIONS.toString(), waitConveySugList.size());
+
+            //申请延期的建议
+            List<DelaySuggestion> delaySugList = delaySuggestionRepository.findAll((Specification<DelaySuggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("suggestion").get("level").as(Byte.class),level));
+                predicates.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class),governmentUser.getArea().getUid()));
+                if (level.equals(LevelEnum.TOWN.getValue())){
+                    predicates.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
+                }
+                predicates.add(cb.equal(root.get("suggestion").get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue()));
+                predicates.add(cb.isNull(root.get("accept")));//延期未处理
+                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.APPLY_DELAY_SUGGESTIONS.toString(), delaySugList.size());
+
+
+            //申请调整单位的建议
+            List<ConveyProcess> adjustSugList = conveyProcessRepository.findAll((Specification<ConveyProcess>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("suggestion").get("level").as(Byte.class),level));
+                predicates.add(cb.equal(root.get("suggestion").get("area").get("uid").as(String.class),governmentUser.getArea().getUid()));
+                if (level.equals(LevelEnum.TOWN.getValue())){
+                    predicates.add(cb.equal(root.get("suggestion").get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
+                }
+//                predicates.add(cb.equal(root.get("suggestion").get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));//建议状态为待转交
+                predicates.add(cb.equal(root.get("status").as(Byte.class), ConveyStatusEnum.CONVEY_FAILED.getValue()));
+                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.APPLY_ADJUST_SUGGESTIONS.toString(), adjustSugList.size());
+
+
+            //办理中的建议
+            List<Suggestion> dealingSugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("level").as(Byte.class),level));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class),governmentUser.getArea().getUid()));
+                if (level.equals(LevelEnum.TOWN.getValue())){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
+                }
+                predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue()));
+//                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.GOV_DEALING_SUGGESTIONS.toString(), dealingSugList.size());
+
+            //办理完成的建议
+            List<Suggestion> finishSugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("level").as(Byte.class),level));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class),governmentUser.getArea().getUid()));
+                if (level.equals(LevelEnum.TOWN.getValue())){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
+                }
+                predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));
+//                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.GOV_FINISHED_SUGGESTIONS.toString(), finishSugList.size());
+
+            //办结的建议
+            List<Suggestion> completedSugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicates.add(cb.equal(root.get("level").as(Byte.class),level));
+                predicates.add(cb.equal(root.get("area").get("uid").as(String.class),governmentUser.getArea().getUid()));
+                if (level.equals(LevelEnum.TOWN.getValue())){
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
+                }
+                predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));
+//                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                return cb.and(predicates.toArray(new Predicate[0]));
+            });
+            jsonObject.put(MenuEnum.GOV_COMPLETED_SUGGESTIONS.toString(), completedSugList.size());
         }
         body.setData(jsonObject);
         return body;

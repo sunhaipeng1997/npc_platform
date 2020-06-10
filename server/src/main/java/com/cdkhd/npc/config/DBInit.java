@@ -608,9 +608,9 @@ public class DBInit {
         menu = menuRepository.findByKeyword(MenuEnum.WAIT_CONVEY_SUGGESTIONS.toString());//待转办
         menu.setPermission(permission);
         menuRepository.saveAndFlush(menu);
-        menu = menuRepository.findByKeyword(MenuEnum.CONVEYED_SUGGESTIONS.toString());//已转办
-        menu.setPermission(permission);
-        menuRepository.saveAndFlush(menu);
+//        menu = menuRepository.findByKeyword(MenuEnum.CONVEYED_SUGGESTIONS.toString());//已转办
+//        menu.setPermission(permission);
+//        menuRepository.saveAndFlush(menu);
 
         //延期申请
         menu = menuRepository.findByKeyword(MenuEnum.APPLY_DELAY_SUGGESTIONS.toString());//延期申请
@@ -841,9 +841,9 @@ public class DBInit {
         menuRepository.saveAndFlush(menu);
 
         //统计
-        menu = menuRepository.findByKeyword(MenuEnum.GOV_COUNT.toString());
-        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));
-        menuRepository.saveAndFlush(menu);
+//        menu = menuRepository.findByKeyword(MenuEnum.GOV_COUNT.toString());
+//        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));
+//        menuRepository.saveAndFlush(menu);
 
         //办理单待办理列表
         menu = menuRepository.findByKeyword(MenuEnum.UNIT_WAIT_DEAL.toString());

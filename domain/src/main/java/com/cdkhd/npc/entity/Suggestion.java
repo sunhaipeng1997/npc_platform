@@ -102,7 +102,7 @@ public class Suggestion extends BaseDomain {
 
     //办理次数，主要是记录重新办理
     @Column(name = "deal_times")
-    private Integer dealTimes;
+    private Integer dealTimes = 0;
 
     //办完时间
     @Column(name = "finish_time")

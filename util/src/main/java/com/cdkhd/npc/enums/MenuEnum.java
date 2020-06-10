@@ -59,7 +59,7 @@ public enum MenuEnum {
 
     // 建议转办
     WAIT_CONVEY_SUGGESTIONS(null, "待转办",(byte)1,"WAIT_CONVEY_SUGGESTIONS","gov/to_forward","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
-    CONVEYED_SUGGESTIONS(null, "已转办",(byte)1,"CONVEYED_SUGGESTIONS","gov/dealing","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
+//    CONVEYED_SUGGESTIONS(null, "已转办",(byte)1,"CONVEYED_SUGGESTIONS","gov/dealing","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
     APPLY_DELAY_SUGGESTIONS(null, "延期申请",(byte)1,"APPLY_DELAY_SUGGESTIONS","gov/delay_apply","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
     APPLY_ADJUST_SUGGESTIONS(null, "调整单位申请",(byte)1,"APPLY_ADJUST_SUGGESTIONS","gov/adjust_apply","SUGGESTION_CONVEY_FOR_DEAL", "SUGGESTION"),
     GOV_DEALING_SUGGESTIONS(null, "办理中",(byte)1,"DEALING_SUGGESTIONS","gov/dealing","SUGGESTION_DEAL_FOR_DEAL", "SUGGESTION"),
@@ -124,7 +124,7 @@ public enum MenuEnum {
     GOV_COMPLETED("govCompletedSug", "办结的建议",(byte)2, "sug-completedSug", "/suggestion_deal/gov/completedSug",null, "SUGGESTION"),
     UNIT_MANAGE("unitManage", "办理单位管理",(byte)2, "sug-unitManage", "/suggestion_deal/gov/unitManage",null, "SUGGESTION"),
     SUGGESTION_SETTING("sugDealSetting", "建议办理设置",(byte)2, "sug-sugDealSetting", "/suggestion_deal/gov/sugDealSetting",null, "SUGGESTION"),
-    GOV_COUNT("sugDealStatistic", "建议办理统计",(byte)2, "sug-sugDealStatistic", "/suggestion_deal/gov/sugDealStatistic",null, "SUGGESTION"),
+//    GOV_COUNT("sugDealStatistic", "建议办理统计",(byte)2, "sug-sugDealStatistic", "/suggestion_deal/gov/sugDealStatistic",null, "SUGGESTION"),
 
     //办理单位
     UNIT_WAIT_DEAL("toBeDoneSug", "待办建议",(byte)2, "sug-toBeDoneSug", "/suggestion_deal/unit/toBeDoneSug",null, "SUGGESTION"),
