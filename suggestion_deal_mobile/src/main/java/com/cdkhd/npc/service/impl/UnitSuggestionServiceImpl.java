@@ -229,7 +229,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
     }
 
     /**
-     * 接受转办，开始办理 todo 只有所有单位都接受转办的建议之后，才能修改 Suggestion 的状态为办理中
+     * 接受转办，开始办理
      * @param userDetails
      * @param conveyProcessUid 转办记录uid
      * @return
@@ -265,12 +265,10 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             return body;
         }
 
-        //设置ConveyProcess和Suggestion状态
+        //设置ConveyProcess的状态
         conveyProcess.setStatus(ConveyStatusEnum.CONVEY_SUCCESS.getValue());
         conveyProcess.setGovView(false);
         conveyProcess.setDealDone(true);
-        Suggestion suggestion = conveyProcess.getSuggestion();
-        suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());
         conveyProcessRepository.saveAndFlush(conveyProcess);
 
         //计算办理截止时间
@@ -278,9 +276,6 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         int defaultDealTimeLimit = setting.getExpectDate();
         Date now  = new Date();
         Date expectDate = DateUtils.addDays(now, defaultDealTimeLimit);
-
-        suggestion.setAcceptTime(now);
-        suggestion.setExpectDate(expectDate);
 
         //创建UnitSuggestion记录
         UnitSuggestion unitSuggestion = new UnitSuggestion();
@@ -290,8 +285,25 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         unitSuggestion.setUnitUser(unitUser);
         unitSuggestion.setUnit(unitUser.getUnit());
         unitSuggestion.setGovernmentUser(conveyProcess.getGovernmentUser());
-        unitSuggestion.setSuggestion(suggestion);
+        unitSuggestion.setSuggestion(conveyProcess.getSuggestion());
         unitSuggestionRepository.saveAndFlush(unitSuggestion);
+
+        //只有该建议的所有转办流程都结束之后，才能修改 Suggestion 的状态为办理中
+        Suggestion suggestion = conveyProcess.getSuggestion();
+        List<ConveyProcess> conveyProcessList = conveyProcessRepository.findBySuggestionId(suggestion.getId());
+        boolean allDone = true; //结束标志
+        for (ConveyProcess process : conveyProcessList) {
+            if (!process.getDealDone()) {
+                allDone = false;
+                break;
+            }
+        }
+        if (allDone) {
+            suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());
+            suggestion.setAcceptTime(now);
+            suggestion.setExpectDate(expectDate);
+            suggestionRepository.saveAndFlush(suggestion);
+        }
 
         return body;
     }
@@ -677,7 +689,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         if (type.equals(ImageTypeEnum.HANDLE_PROCESS.getValue())) {
             kind = "handleProcessImage";
         } else if (type.equals(ImageTypeEnum.HANDLE_RESULT.getValue())) {
-            kind = "handleProcessImage";
+            kind = "resultImage";
         } else {
             LOGGER.error("参数 type 不合法");
             body.setStatus(HttpStatus.BAD_REQUEST);
