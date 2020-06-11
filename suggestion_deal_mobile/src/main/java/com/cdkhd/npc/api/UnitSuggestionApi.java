@@ -90,4 +90,10 @@ public class UnitSuggestionApi {
         RespBody body = unitSuggestionService.finishDeal(userDetails, toAdd);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/page_done")
+    public ResponseEntity findPageOf(@CurrentUser MobileUserDetailsImpl userDetails, PageDto pageDto) {
+        RespBody body = unitSuggestionService.findPageOfDone(userDetails, pageDto);
+        return ResponseEntity.ok(body);
+    }
 }

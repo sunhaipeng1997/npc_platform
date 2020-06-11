@@ -288,8 +288,14 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         unitSuggestion.setSuggestion(conveyProcess.getSuggestion());
         unitSuggestionRepository.saveAndFlush(unitSuggestion);
 
-        //只有该建议的所有转办流程都结束之后，才能修改 Suggestion 的状态为办理中
+        //如果当前接受转办的是主办单位，设置 Suggestion 的 unit （主办单位）字段
         Suggestion suggestion = conveyProcess.getSuggestion();
+        if (conveyProcess.getType().equals(UnitTypeEnum.MAIN_UNIT.getValue())) {
+            suggestion.setUnit(unitUser.getUnit());
+            suggestionRepository.saveAndFlush(suggestion);
+        }
+
+        //只有该建议的所有转办流程都结束之后，才能修改 Suggestion 的状态为办理中
         List<ConveyProcess> conveyProcessList = conveyProcessRepository.findBySuggestionId(suggestion.getId());
         boolean allDone = true; //结束标志
         for (ConveyProcess process : conveyProcessList) {
@@ -708,6 +714,17 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         body.setData(url);
         return body;
+    }
+
+    /**
+     * 查看已办完建议
+     * @param userDetails
+     * @param pageDto
+     * @return
+     */
+    @Override
+    public RespBody findPageOfDone(MobileUserDetailsImpl userDetails, PageDto pageDto) {
+        return null;
     }
 
     /**
