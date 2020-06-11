@@ -29,4 +29,6 @@ public interface UnitSuggestionService {
     RespBody finishDeal(MobileUserDetailsImpl userDetails, ResultAddDto toAdd);
 
     RespBody uploadOneImage(MobileUserDetailsImpl userDetails, MultipartFile image, Byte type);
+
+    RespBody findPageOfDone(MobileUserDetailsImpl userDetails, PageDto pageDto);
 }

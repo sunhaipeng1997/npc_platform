@@ -467,7 +467,7 @@ public class DBInit {
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_COMPLETED.getKeyword()));   //办结的建议
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_MANAGE.getKeyword()));   //办理单位管理
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_SETTING.getKeyword()));   //建议设置
-        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));   //统计
+//        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));   //统计
         govUser.setPermissions(govPermissions);
         accountRoleRepository.save(govUser);
 
