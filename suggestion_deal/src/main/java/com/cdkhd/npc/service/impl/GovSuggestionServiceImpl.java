@@ -383,7 +383,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         ConveyProcess conveyProcess = conveyProcessRepository.findByUid(adjustConveyDto.getUid());
         Suggestion suggestion = conveyProcess.getSuggestion();
         for (ConveyProcess process : suggestion.getConveyProcesses()) {
-            if (process.getUnit().getUid().equals(adjustConveyDto.getUnit()) && !process.getDealDone() && !process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){
+            if (!process.getUid().equals(adjustConveyDto.getUid()) && process.getUnit().getUid().equals(adjustConveyDto.getUnit()) && !process.getDealDone() && !process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){
                 String message = "该单位已经参与本条建议,请重新选择一个单位！";
                 body.setStatus(HttpStatus.BAD_REQUEST);
                 body.setMessage(message);

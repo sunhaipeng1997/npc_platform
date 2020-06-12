@@ -147,7 +147,7 @@ public class IndexServiceImpl implements IndexService {
         ArrayList<String> xaxis = new ArrayList<>();
         ArrayList<Integer> yaxis = new ArrayList<>();
         for (SuggestionBusiness suggestionBusiness : suggestionBusinesses) {
-            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUid(suggestionBusiness.getUid());
+            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUidAndStatusGreaterThanEqual(suggestionBusiness.getUid(),SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue());
             xaxis.add(suggestionBusiness.getName());
             yaxis.add(allSugs.size());
         }

@@ -25,6 +25,9 @@ public class Result extends BaseDomain {
     private String result;
 
     //结果图片，存储在UnitImage中
+    //建议图片
+    @OneToMany(targetEntity = UnitImage.class, mappedBy = "belongToId")
+    private Set<UnitImage> resultImages;
 
     //代表是否接受办理结果
     @Column(name = "accepted")
@@ -39,7 +42,7 @@ public class Result extends BaseDomain {
     private UnitSuggestion unitSuggestion;
 
     //对应的建议
-    @ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "suggestion", referencedColumnName = "id")
     private Suggestion suggestion;
 

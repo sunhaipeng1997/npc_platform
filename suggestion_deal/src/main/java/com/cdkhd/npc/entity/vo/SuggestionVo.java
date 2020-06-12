@@ -1,9 +1,6 @@
 package com.cdkhd.npc.entity.vo;
 
-import com.cdkhd.npc.entity.ConveyProcess;
-import com.cdkhd.npc.entity.Suggestion;
-import com.cdkhd.npc.entity.SuggestionImage;
-import com.cdkhd.npc.entity.UnitSuggestion;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.enums.UnitTypeEnum;
@@ -19,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.Column;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
@@ -91,6 +89,9 @@ public class SuggestionVo extends BaseVo {
     //代表手机号
     private String memberMobile;
 
+    //复议人
+    private String seconded;
+
     //审核人
     private String auditor;
 
@@ -131,6 +132,12 @@ public class SuggestionVo extends BaseVo {
     //是否超期了
     private Boolean exceedLimit;
 
+    //办理结果
+    private ResultVo resultVo;
+
+    //评价
+    private AppraiseVo appraiseVo;
+
     public static SuggestionVo convert(Suggestion suggestion) {
         SuggestionVo vo = new SuggestionVo();
         BeanUtils.copyProperties(suggestion, vo);
@@ -152,7 +159,7 @@ public class SuggestionVo extends BaseVo {
         vo.setLevelName(LevelEnum.getName(suggestion.getLevel()));
         vo.setUnitName(suggestion.getUnit() != null? suggestion.getUnit().getName():"");
         vo.setConveyProcessVos(suggestion.getConveyProcesses().stream().map(ConveyProcessVo::convert).collect(Collectors.toList()));
-        vo.setUnitSugDetailVos(suggestion.getUnitSuggestions().stream().map(UnitSugDetailVo::convertNoSug).collect(Collectors.toList()));
+        vo.setUnitSugDetailVos(suggestion.getUnitSuggestions().stream().sorted(Comparator.comparing(UnitSuggestion::getType)).map(UnitSugDetailVo::convertNoSug).collect(Collectors.toList()));
         StringJoiner stringJoiner = new StringJoiner("、");
         for (UnitSuggestion unitSuggestion : suggestion.getUnitSuggestions()) {
             if (unitSuggestion.getType().equals(UnitTypeEnum.CO_UNIT.getValue())) {
@@ -160,6 +167,17 @@ public class SuggestionVo extends BaseVo {
             }
         }
         vo.setCoUnitName(StringUtils.isNotEmpty(stringJoiner.toString())?stringJoiner.toString():"无");
+        StringJoiner secondedJ = new StringJoiner("、");
+        for (Seconded seconded : suggestion.getSecondedSet()) {
+            secondedJ.add(seconded.getNpcMember().getName());
+        }
+        vo.setSeconded(secondedJ.toString());
+        if (suggestion.getResult() != null) {
+            vo.setResultVo(ResultVo.convert(suggestion.getResult()));
+        }
+        if (suggestion.getAppraise() != null){
+            vo.setAppraiseVo(AppraiseVo.convert(suggestion.getAppraise()));
+        }
         return vo;
     }
 

@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @Description
@@ -28,7 +29,9 @@ public class HandleProcess extends BaseDomain {
     @Column(name = "description")
     private String description;
 
-    //流程图片存储在UnitImage中
+    //建议图片
+    @OneToMany(targetEntity = UnitImage.class, mappedBy = "belongToId")
+    private Set<UnitImage> processImages;
 
     //办理单位办理记录
     @ManyToOne(targetEntity = UnitSuggestion.class, fetch = FetchType.LAZY)

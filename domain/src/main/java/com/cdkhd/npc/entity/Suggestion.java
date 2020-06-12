@@ -191,8 +191,8 @@ public class Suggestion extends BaseDomain {
     private Set<Urge> urges;
 
     //办理结果
-    @OneToMany(targetEntity = Result.class, mappedBy = "suggestion")
-    private Set<Result> results;
+    @OneToOne(targetEntity = Result.class, fetch = FetchType.LAZY)
+    private Result result;
 
     //附议
     @OneToMany(targetEntity = Seconded.class, mappedBy = "suggestion")

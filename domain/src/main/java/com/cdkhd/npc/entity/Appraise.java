@@ -37,6 +37,7 @@ public class Appraise extends BaseDomain {
 
 	//对应的建议
 	@OneToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "suggestion", referencedColumnName = "id")
 	private Suggestion suggestion;
 
 }

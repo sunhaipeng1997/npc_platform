@@ -1,5 +1,6 @@
 package com.cdkhd.npc.entity.vo;
 
+import com.cdkhd.npc.entity.HandleProcess;
 import com.cdkhd.npc.entity.UnitSuggestion;
 import com.cdkhd.npc.enums.UnitTypeEnum;
 import com.cdkhd.npc.vo.BaseVo;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,14 +23,14 @@ public class UnitSugDetailVo extends BaseVo {
     private String unitTypeName;
 
     //办理单位接受时间
-    @JsonFormat(pattern = "yy-MM-dd", timezone = "GMT+08")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08")
     private Date acceptTime;
 
     //办理单位办理次数
     private Integer dealTimes;
 
     //办理单位办完时间
-    @JsonFormat(pattern = "yy-MM-dd", timezone = "GMT+08")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08")
     private Date finishTime;
 
     //办理单位，是否处理完成（办理完成，拒绝完成）
@@ -38,7 +40,7 @@ public class UnitSugDetailVo extends BaseVo {
     private Byte status = 1;
 
     //办理结果 协办单位反馈给主办单位的结果说明
-    private ResultVo result;
+    private ResultVo resultVo;
 
     //办理流程
     private List<HandleProcessVo> processes = new ArrayList<>();
@@ -54,9 +56,12 @@ public class UnitSugDetailVo extends BaseVo {
         BeanUtils.copyProperties(unitSug,vo);
         vo.setUnitType(unitSug.getType());
         vo.setUnitTypeName(UnitTypeEnum.getName(unitSug.getType()));
-        vo.setProcesses(unitSug.getProcesses().stream().map(HandleProcessVo::convert).collect(Collectors.toList()));
+        vo.setProcesses(unitSug.getProcesses().stream().sorted(Comparator.comparing(HandleProcess::getHandleTime)).map(HandleProcessVo::convert).collect(Collectors.toList()));
         vo.setSuggestion(SuggestionVo.convert(unitSug.getSuggestion()));
         vo.setUnitVo(UnitVo.convert(unitSug.getUnit()));
+        if (unitSug.getResult() != null) {
+            vo.setResultVo(ResultVo.convert(unitSug.getResult()));
+        }
         return vo;
     }
 
@@ -65,8 +70,11 @@ public class UnitSugDetailVo extends BaseVo {
         BeanUtils.copyProperties(unitSug,vo);
         vo.setUnitType(unitSug.getType());
         vo.setUnitTypeName(UnitTypeEnum.getName(unitSug.getType()));
-        vo.setProcesses(unitSug.getProcesses().stream().map(HandleProcessVo::convert).collect(Collectors.toList()));
+        vo.setProcesses(unitSug.getProcesses().stream().sorted(Comparator.comparing(HandleProcess::getHandleTime)).map(HandleProcessVo::convert).collect(Collectors.toList()));
         vo.setUnitVo(UnitVo.convert(unitSug.getUnit()));
+        if (unitSug.getResult() != null) {
+            vo.setResultVo(ResultVo.convert(unitSug.getResult()));
+        }
         return vo;
     }
 }
