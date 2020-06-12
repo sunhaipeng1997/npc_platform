@@ -411,7 +411,6 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             suggestion.setConveyTime(new Date());
             Integer conveyTimes = suggestion.getConveyTimes() + 1;//转办次数
             suggestion.setConveyTimes(conveyTimes);
-            //政府方面转办流程记录办理单位
             ConveySuggestionDto conveySuggestionDto = new ConveySuggestionDto();
             if (adjustConveyDto.getUnitType().equals(UnitTypeEnum.MAIN_UNIT.getValue())) {
                 suggestion.setUnit(unitRepository.findByUid(adjustConveyDto.getUid()));

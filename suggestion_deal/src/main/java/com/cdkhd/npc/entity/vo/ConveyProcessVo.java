@@ -8,11 +8,13 @@ import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.StringJoiner;
 
 /**
  * @Description
@@ -35,6 +37,11 @@ public class ConveyProcessVo extends BaseVo {
     //本次转办是否处理完成  完成：单位接受了转办  或者  单位拒绝，政府已经重新转办或者选择不转办
     private Boolean dealDone;
 
+    //提出时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date raiseTime;
+
     //办理单位处理时间
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -44,6 +51,8 @@ public class ConveyProcessVo extends BaseVo {
     private Integer conveyTimes;
 
     //转办时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date conveyTime;
 
     //拒绝原因
@@ -65,16 +74,22 @@ public class ConveyProcessVo extends BaseVo {
     //转办人
     private String conveyUser;
 
+    //附议人
+    private String seconded;
+
+    //审核人
+    private String auditor;
+
+    //审核时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date auditTime;
+
     //对应的建议
     private SuggestionVo suggestionVo;
 
     public static ConveyProcessVo convertSug(ConveyProcess conveyProcess) {
-        ConveyProcessVo vo = new ConveyProcessVo();
-        BeanUtils.copyProperties(conveyProcess,vo);
-        vo.setStatusName(ConveyStatusEnum.getName(conveyProcess.getStatus()));
-        vo.setDealStatusName(GovDealStatusEnum.getName(conveyProcess.getDealStatus()));
-        vo.setTypeName(UnitTypeEnum.getName(conveyProcess.getType()));
-        vo.setUnitVo(UnitVo.convert(conveyProcess.getUnit()));
+        ConveyProcessVo vo = convert(conveyProcess);
         vo.setSuggestionVo(SuggestionVo.convert(conveyProcess.getSuggestion()));
         return vo;
     }
@@ -87,6 +102,14 @@ public class ConveyProcessVo extends BaseVo {
         vo.setDealStatusName(GovDealStatusEnum.getName(conveyProcess.getDealStatus()));
         vo.setTypeName(UnitTypeEnum.getName(conveyProcess.getType()));
         vo.setUnitVo(UnitVo.convert(conveyProcess.getUnit()));
+        vo.setRaiseTime(conveyProcess.getSuggestion().getRaiseTime());
+        StringJoiner secondedName = new StringJoiner("、");
+        for (Seconded seconded : conveyProcess.getSuggestion().getSecondedSet()) {
+            secondedName.add(seconded.getNpcMember().getName());
+        }
+        vo.setSeconded(StringUtils.isNotEmpty(secondedName.toString())?secondedName.toString():"无");
+        vo.setAuditor(conveyProcess.getSuggestion().getAuditor().getName());
+        vo.setAuditTime(conveyProcess.getSuggestion().getAuditTime());
         return vo;
     }
 }
