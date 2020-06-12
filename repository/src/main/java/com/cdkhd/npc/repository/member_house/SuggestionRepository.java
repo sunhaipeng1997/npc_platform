@@ -16,7 +16,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
 
     List<Suggestion> findByRaiserUid(String npcUid);
 
-    List<Suggestion> findBySuggestionBusinessUidAndStatusGreaterThanEqual(String businessUid,Byte status);
+    List<Suggestion> findBySuggestionBusinessUidAndStatusGreaterThanEqualAndStatusNot(String businessUid,Byte status,Byte not);
 
 
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.createTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")

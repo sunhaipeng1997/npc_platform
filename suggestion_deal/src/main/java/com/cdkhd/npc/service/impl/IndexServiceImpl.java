@@ -113,6 +113,7 @@ public class IndexServiceImpl implements IndexService {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
             predicates.add(cb.greaterThanOrEqualTo(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));//建议状态在提交到政府以后
+            predicates.add(cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue()));//除去自行办理
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         });
         return suggestionList;
@@ -147,7 +148,7 @@ public class IndexServiceImpl implements IndexService {
         ArrayList<String> xaxis = new ArrayList<>();
         ArrayList<Integer> yaxis = new ArrayList<>();
         for (SuggestionBusiness suggestionBusiness : suggestionBusinesses) {
-            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUidAndStatusGreaterThanEqual(suggestionBusiness.getUid(),SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue());
+            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUidAndStatusGreaterThanEqualAndStatusNot(suggestionBusiness.getUid(),SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue(),SuggestionStatusEnum.SELF_HANDLE.getValue());
             xaxis.add(suggestionBusiness.getName());
             yaxis.add(allSugs.size());
         }
