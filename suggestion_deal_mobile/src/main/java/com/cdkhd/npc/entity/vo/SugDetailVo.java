@@ -13,6 +13,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +78,12 @@ public class SugDetailVo extends BaseVo {
     private int my_suggestion_number;
 
     private int timeout;
+
+    //单位延期记录
+    private List<DelaySuggestionVo> delaySuggestionVos = new ArrayList<>();
+
+    //评价详情
+    private AppraiseVo appraiseVo;
 
     public static SugDetailVo convert(Suggestion suggestion) {
         SugDetailVo vo = new SugDetailVo();

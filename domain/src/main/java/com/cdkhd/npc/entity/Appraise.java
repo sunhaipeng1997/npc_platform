@@ -36,8 +36,7 @@ public class Appraise extends BaseDomain {
 	private NpcMember npcMember;
 
 	//对应的建议
-	@ManyToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "suggestion", referencedColumnName = "id")
+	@OneToOne(targetEntity = Suggestion.class, fetch = FetchType.LAZY)
 	private Suggestion suggestion;
 
 }

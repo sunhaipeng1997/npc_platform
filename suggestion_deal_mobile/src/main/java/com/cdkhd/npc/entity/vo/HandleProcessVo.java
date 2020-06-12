@@ -22,9 +22,7 @@ public class HandleProcessVo extends BaseVo {
 
     public static HandleProcessVo convert(HandleProcess hp) {
         HandleProcessVo vo = new HandleProcessVo();
-
         BeanUtils.copyProperties(hp, vo);
-
         return vo;
     }
 }

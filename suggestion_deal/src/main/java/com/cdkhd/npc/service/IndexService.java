@@ -1,11 +1,6 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.dto.BaseDto;
-import com.cdkhd.npc.entity.dto.UnitAddOrUpdateDto;
-import com.cdkhd.npc.entity.dto.UnitPageDto;
-import com.cdkhd.npc.entity.dto.UnitUserAddOrUpdateDto;
-import com.cdkhd.npc.entity.dto.UnitUserPageDto;
 import com.cdkhd.npc.vo.RespBody;
 
 public interface IndexService {
@@ -51,4 +46,21 @@ public interface IndexService {
     RespBody sugUnitCompletedLine(UserDetailsImpl userDetails);
 
 
+    /**
+    * @Description: 管理员获取本月新增建议数量
+    * @Param:
+    * @Return:
+    * @Date: 2020/6/11
+    * @Author: LiYang
+    */
+    RespBody adminGetSugNumber(UserDetailsImpl userDetails);
+
+    /**
+    * @Description: 人大后台管理员首页建议数量趋势图
+    * @Param:
+    * @Return:
+    * @Date: 2020/6/11
+    * @Author: LiYang
+    */
+    RespBody adminGetSugCount(UserDetailsImpl userDetails);
 }

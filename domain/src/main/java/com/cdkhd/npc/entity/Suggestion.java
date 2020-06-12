@@ -162,6 +162,10 @@ public class Suggestion extends BaseDomain {
     @OneToOne(targetEntity = GovernmentUser.class, fetch = FetchType.LAZY)
     private GovernmentUser governmentUser;
 
+    //建议评价
+    @OneToOne(targetEntity = Appraise.class, fetch = FetchType.LAZY)
+    private Appraise appraise;
+
     //建议图片
     @OneToMany(targetEntity = SuggestionImage.class, mappedBy = "suggestion")
     private Set<SuggestionImage> suggestionImages;
@@ -181,10 +185,6 @@ public class Suggestion extends BaseDomain {
     //建议回复
     @OneToMany(targetEntity = SuggestionReply.class, mappedBy = "suggestion", orphanRemoval = true)
     private Set<SuggestionReply> replies = new HashSet<>();
-
-    //建议评价
-    @OneToMany(targetEntity = Appraise.class, mappedBy = "suggestion", orphanRemoval = true)
-    private Set<Appraise> appraises;
 
     //催办记录
     @OneToMany(targetEntity = Urge.class, mappedBy = "suggestion")

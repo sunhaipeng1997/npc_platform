@@ -3,6 +3,7 @@ package com.cdkhd.npc.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.vo.AdminHomePageVo;
 import com.cdkhd.npc.entity.vo.HomePageVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
@@ -24,7 +25,6 @@ import javax.persistence.criteria.Predicate;
 import java.util.*;
 
 import static com.cdkhd.npc.util.SysUtil.getLast12Month;
-
 
 @Service
 public class IndexServiceImpl implements IndexService {
@@ -58,13 +58,13 @@ public class IndexServiceImpl implements IndexService {
         cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONDAY), cal.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
         Date monthDate = cal.getTime();
-        if(userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
-            newSug = suggestionRepository.countTownMonthNewNumber(monthDate,LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());//本月新审核过的
-            completedSug = suggestionRepository.countTownMonthCompletedNumber(monthDate,LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());//本月完成的
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            newSug = suggestionRepository.countTownMonthNewNumber(monthDate, LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());//本月新审核过的
+            completedSug = suggestionRepository.countTownMonthCompletedNumber(monthDate, LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());//本月完成的
             dealingSug = suggestionRepository.countTownDealingNumber(LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());//办理中的
-        }else{
-            newSug = suggestionRepository.countAreaMonthNewNumber(monthDate,LevelEnum.AREA.getValue(), userDetails.getArea().getUid());//本月新审核过的
-            completedSug = suggestionRepository.countAreaMonthCompletedNumber(monthDate,LevelEnum.AREA.getValue(), userDetails.getArea().getUid());//本月完成的
+        } else {
+            newSug = suggestionRepository.countAreaMonthNewNumber(monthDate, LevelEnum.AREA.getValue(), userDetails.getArea().getUid());//本月新审核过的
+            completedSug = suggestionRepository.countAreaMonthCompletedNumber(monthDate, LevelEnum.AREA.getValue(), userDetails.getArea().getUid());//本月完成的
             dealingSug = suggestionRepository.countAreaDealingNumber(LevelEnum.AREA.getValue(), userDetails.getArea().getUid());//办理中的
         }
         HomePageVo homePageVo = new HomePageVo();
@@ -90,7 +90,7 @@ public class IndexServiceImpl implements IndexService {
         for (Date date : last12Month) {
             Date startAt = allDate.get(index);
             Date endAt = allDate.get(++index);
-            List<Suggestion> allSugs = this.getSuggestions(userDetails,startAt,endAt);
+            List<Suggestion> allSugs = this.getSuggestions(userDetails, startAt, endAt);
             xaxis.add(DateFormatUtils.format(date, "yyyy-MM"));
             yaxis.add(allSugs.size());
         }
@@ -125,12 +125,12 @@ public class IndexServiceImpl implements IndexService {
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 //这里需要判断是不是街道，
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-                if (userDetails.getTown().getType() == (byte)1) {
+                if (userDetails.getTown().getType() == (byte) 1) {
                     predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
-                }else{
+                } else {
                     predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));//街道的话，用区上的类型
                 }
-            }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
             }
@@ -165,12 +165,12 @@ public class IndexServiceImpl implements IndexService {
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 //这里需要判断是不是街道，
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-                if (userDetails.getTown().getType() == (byte)1) {
+                if (userDetails.getTown().getType() == (byte) 1) {
                     predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
-                }else{
+                } else {
                     predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));//街道的话，用区上的类型
                 }
-            }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
             }
@@ -216,5 +216,63 @@ public class IndexServiceImpl implements IndexService {
         return body;
     }
 
+    @Override
+    public RespBody adminGetSugNumber(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
 
+        Integer newSug;  //本月代表新增建议
+//        Integer auditPassSug;  //本月审核通过的建议
+//        Integer auditRefuseSug;  //本月审核不通过的建议
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), 1, 0, 0, 0);
+        Date start = cal.getTime();
+        Date end = DateUtils.addMonths(start, 1);
+
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {  //镇管理员
+            //新增的建议不包括status == 0(撤回)和1(草稿箱)的建议
+            newSug = suggestionRepository.adminCountTownMonthNewNumber(start, end, LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());
+//            auditPassSug = suggestionRepository.adminCountTownMonthAuditPassNumber(monthDate, LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());
+//            auditRefuseSug = suggestionRepository.adminCountTownAuditRefuseNumber(monthDate, LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());
+        } else {  //区管理员
+            newSug = suggestionRepository.adminCountAreaMonthNewNumber(start, end, LevelEnum.AREA.getValue(), userDetails.getArea().getUid());
+//            auditPassSug = suggestionRepository.adminCountAreaMonthAuditPassNumber(monthDate, LevelEnum.AREA.getValue(), userDetails.getArea().getUid());
+//            auditRefuseSug = suggestionRepository.adminCountAreaAuditRefuseNumber(monthDate, LevelEnum.AREA.getValue(), userDetails.getArea().getUid());
+        }
+
+        AdminHomePageVo adminHomePageVo = new AdminHomePageVo();
+        adminHomePageVo.setNewSug(newSug);
+//        adminHomePageVo.setAuditPassSug(auditPassSug);
+//        adminHomePageVo.setAuditRefuseSug(auditRefuseSug);
+        body.setData(adminHomePageVo);
+        return body;
+    }
+
+    @Override
+    public RespBody adminGetSugCount(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        ArrayList<Date> last12Month = getLast12Month();
+        Collections.reverse(last12Month);
+        ArrayList<Date> allDate = new ArrayList<>(13);
+        allDate.addAll(last12Month);
+        allDate.add(DateUtils.addMonths(last12Month.get(11), 1));
+        ArrayList<String> xaxis = new ArrayList<>();
+        ArrayList<Integer> yaxis = new ArrayList<>();
+        int index = 0;
+        for (Date date : last12Month) {
+            Date startAt = allDate.get(index++);
+            Date endAt = allDate.get(index);
+            int num = 0;
+            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+                num = suggestionRepository.adminCountTownMonthNewNumber(startAt, endAt, LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());
+            }
+            xaxis.add(DateFormatUtils.format(date, "yyyy-MM"));
+            yaxis.add(num);
+        }
+        JSONObject data = new JSONObject();
+        data.put("xaxis", xaxis);
+        data.put("yaxis", yaxis);
+        body.setData(data);
+        return body;
+    }
 }

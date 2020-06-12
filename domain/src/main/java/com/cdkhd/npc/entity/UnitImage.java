@@ -21,7 +21,6 @@ public class UnitImage extends BaseDomain {
     //图片类型，参见枚举ImageTypeEnum
     @Column
     private Byte type;
-
     //关联的实体id
     @Column
     private Long belongToId;

@@ -132,4 +132,13 @@ public interface NpcSuggestionService {
     * @Author: LiYang
     */
     RespBody urgeSuggestion(MobileUserDetailsImpl userDetails, String sugUid);
+
+    /**
+    * @Description: 获取建议的办理流程
+    * @Param:
+    * @Return:
+    * @Date: 2020/6/8
+    * @Author: LiYang
+    */
+    RespBody handleProcessDetail(String sugUid, Byte type);
 }

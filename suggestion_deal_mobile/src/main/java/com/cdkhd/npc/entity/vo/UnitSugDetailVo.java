@@ -16,15 +16,21 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class UnitSugDetailVo extends BaseVo {
+
+    //办理单位名称
+    private String unitName;
+
+    //办理单位性质 1 主办 2 协办
     private Byte unitType;
-    //办理单位性质 主办单位/协办单位
+
+    //办理单位性质名称 主办单位/协办单位
     private String unitTypeName;
 
-    //转办的政府单位
+    //转办的政府单位名称
     private String govName;
 
     //办理单位接受时间
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+08")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08")
     private Date acceptTime;
 
     //预计办理完成时间
@@ -48,11 +54,10 @@ public class UnitSugDetailVo extends BaseVo {
         UnitSugDetailVo vo = new UnitSugDetailVo();
 
         String unitTypeName = UnitTypeEnum.getName(unitSug.getType());
-        List<HandleProcessVo> processVos = unitSug.getProcesses().stream()
-                .map(HandleProcessVo::convert)
-                .collect(Collectors.toList());
+        List<HandleProcessVo> processVos = unitSug.getProcesses().stream().map(HandleProcessVo::convert).collect(Collectors.toList());
 
         BeanUtils.copyProperties(unitSug, vo);
+        vo.setUnitName(unitSug.getUnit().getName());
         vo.setUnitType(unitSug.getType());
         vo.setUnitTypeName(unitTypeName);
         vo.setGovName(unitSug.getGovernmentUser().getGovernment().getName());

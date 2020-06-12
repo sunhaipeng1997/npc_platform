@@ -3,11 +3,11 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
+import com.cdkhd.npc.entity.vo.AppraiseVo;
+import com.cdkhd.npc.entity.vo.HandleProcessVo;
 import com.cdkhd.npc.entity.vo.SugDetailVo;
-import com.cdkhd.npc.enums.LevelEnum;
-import com.cdkhd.npc.enums.NpcSugStatusEnum;
-import com.cdkhd.npc.enums.StatusEnum;
-import com.cdkhd.npc.enums.SuggestionStatusEnum;
+import com.cdkhd.npc.entity.vo.UnitSugDetailVo;
+import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.GovernmentUserRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
@@ -73,6 +73,10 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
 
     private final UrgeRepository urgeRepository;
 
+    private final UnitImageRepository unitImageRepository;
+
+    private final HandleProcessRepository handleProcessRepository;
+
     private final SuggestionSettingRepository suggestionSettingRepository;
 
     @Autowired
@@ -85,7 +89,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                                     ResultRepository resultRepository,
                                     UnitSuggestionRepository unitSuggestionRepository,
                                     UnitRepository unitRepository,
-                                    GovernmentUserRepository governmentUserRepository, SecondedRepository secondedRepository, UrgeRepository urgeRepository, SuggestionSettingRepository suggestionSettingRepository) {
+                                    GovernmentUserRepository governmentUserRepository, SecondedRepository secondedRepository, UrgeRepository urgeRepository, UnitImageRepository unitImageRepository, HandleProcessRepository handleProcessRepository, SuggestionSettingRepository suggestionSettingRepository) {
         this.accountRepository = accountRepository;
         this.suggestionRepository = suggestionRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
@@ -98,6 +102,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         this.governmentUserRepository = governmentUserRepository;
         this.secondedRepository = secondedRepository;
         this.urgeRepository = urgeRepository;
+        this.unitImageRepository = unitImageRepository;
+        this.handleProcessRepository = handleProcessRepository;
         this.suggestionSettingRepository = suggestionSettingRepository;
     }
 
@@ -248,6 +254,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         }
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(viewDto.getLevel(), account.getNpcMembers());
+
         //代表查看
         if (StatusEnum.ENABLED.getValue().equals(viewDto.getType())) {
             for (SuggestionReply reply : suggestion.getReplies()) {
@@ -272,7 +279,14 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             }
         }
         suggestionRepository.saveAndFlush(suggestion);
+
         SugDetailVo sugDetailVo = SugDetailVo.convert(suggestion);
+        AppraiseVo appraiseVo = null;
+        if (suggestion.getAppraise() != null) {
+            appraiseVo = AppraiseVo.convert(suggestion.getAppraise());
+            appraiseVo.setNpcMemberName(suggestion.getAppraise().getNpcMember().getName());
+        }
+        sugDetailVo.setAppraiseVo(appraiseVo);
         body.setData(sugDetailVo);
         return body;
     }
@@ -408,10 +422,10 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             List<Suggestion> suggestions = pageRes.getContent();
             List<SugDetailVo> sugDetailVos = pageRes.stream().map(SugDetailVo::convert).sorted(Comparator.comparing(SugDetailVo::getMyView)).collect(Collectors.toList());
             for (SugDetailVo sugDetailVo : sugDetailVos) {
-                for (Suggestion suggestion : suggestions){
-                    if (sugDetailVo.getUid().equals(suggestion.getUid())){
-                        for (Seconded seconded : suggestion.getSecondedSet()){
-                            if (seconded.getNpcMember().getUid().equals(npcMember.getUid()) && seconded.getView() == true){
+                for (Suggestion suggestion : suggestions) {
+                    if (sugDetailVo.getUid().equals(suggestion.getUid())) {
+                        for (Seconded seconded : suggestion.getSecondedSet()) {
+                            if (seconded.getNpcMember().getUid().equals(npcMember.getUid()) && seconded.getView() == true) {
                                 sugDetailVo.setSecondDoneView(true);
                                 break;
                             }
@@ -617,6 +631,35 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             return body;
         }
         body.setMessage("催办成功");
+        return body;
+    }
+
+    @Override
+    public RespBody handleProcessDetail(String sugUid, Byte type) {
+        RespBody body = new RespBody();
+        Suggestion suggestion = suggestionRepository.findByUid(sugUid);
+        if (suggestion == null) {
+            body.setMessage("该建议不存在");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        List<UnitSugDetailVo> unitSugDetailVos = new ArrayList<>();
+        Set<UnitSuggestion> unitSuggestions = suggestion.getUnitSuggestions();
+        if (unitSuggestions != null) {
+            for (UnitSuggestion unitSuggestion : unitSuggestions) {
+                if (unitSuggestion.getType().equals(type)) {
+                    UnitSugDetailVo unitSugDetailVo = UnitSugDetailVo.convert(unitSuggestion);
+                    List<HandleProcessVo> processes = unitSugDetailVo.getProcesses();  //该条办理记录的处理流程集合
+                    for (HandleProcessVo handleProcessVo : processes){
+                        List<UnitImage> unitImages = unitImageRepository.findByTypeAndBelongToId(ImageTypeEnum.HANDLE_PROCESS.getValue(), handleProcessRepository.findByUid(handleProcessVo.getUid()).getId());
+                        handleProcessVo.setImages(unitImages.stream().map(UnitImage::getUrl).collect(Collectors.toList()));
+                    }
+                    unitSugDetailVos.add(unitSugDetailVo);
+                }
+            }
+        }
+        body.setData(unitSugDetailVos);
         return body;
     }
 

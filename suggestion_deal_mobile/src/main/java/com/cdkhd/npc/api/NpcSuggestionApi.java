@@ -203,4 +203,17 @@ public class NpcSuggestionApi {
         RespBody body = suggestionService.urgeSuggestion(userDetails, sugUid);
         return ResponseEntity.ok(body);
     }
+
+    /**
+    * @Description: 获取该条建议的办理流程
+    * @Param: sugUid type(1:主办单位  2：协办单位)
+    * @Return:
+    * @Date: 2020/6/8
+    * @Author: LiYang
+    */
+    @GetMapping("/handleProcessDetail")
+    public ResponseEntity handleProcessDetail(String sugUid, Byte type) {
+        RespBody body = suggestionService.handleProcessDetail(sugUid, type);
+        return ResponseEntity.ok(body);
+    }
 }
