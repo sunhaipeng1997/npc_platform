@@ -8,7 +8,6 @@ import com.cdkhd.npc.entity.vo.HomePageVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
-import com.cdkhd.npc.repository.base.GovernmentUserRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.repository.suggestion_deal.UnitRepository;
@@ -34,17 +33,14 @@ public class IndexServiceImpl implements IndexService {
 
     private SuggestionBusinessRepository suggestionBusinessRepository;
 
-    private GovernmentUserRepository governmentUserRepository;
-
     private SuggestionRepository suggestionRepository;
 
     private UnitSuggestionRepository unitSuggestionRepository;
 
     @Autowired
-    public IndexServiceImpl(UnitRepository unitRepository, SuggestionBusinessRepository suggestionBusinessRepository, GovernmentUserRepository governmentUserRepository, SuggestionRepository suggestionRepository, UnitSuggestionRepository unitSuggestionRepository) {
+    public IndexServiceImpl(UnitRepository unitRepository, SuggestionBusinessRepository suggestionBusinessRepository, SuggestionRepository suggestionRepository, UnitSuggestionRepository unitSuggestionRepository) {
         this.unitRepository = unitRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
-        this.governmentUserRepository = governmentUserRepository;
         this.suggestionRepository = suggestionRepository;
         this.unitSuggestionRepository = unitSuggestionRepository;
     }
@@ -292,7 +288,7 @@ public class IndexServiceImpl implements IndexService {
         ArrayList<String> xaxis = new ArrayList<>();
         ArrayList<Integer> yaxis = new ArrayList<>();
         for (SuggestionBusiness suggestionBusiness : suggestionBusinesses) {
-            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUidAndStatusGreaterThan(suggestionBusiness.getUid(),SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
+            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUidAndStatusGreaterThanAndLevel(suggestionBusiness.getUid(),SuggestionStatusEnum.SUBMITTED_AUDIT.getValue(), userDetails.getLevel());
             xaxis.add(suggestionBusiness.getName());
             yaxis.add(allSugs.size());
         }
@@ -304,40 +300,74 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public RespBody adminSugNumGroupBySubordinate(UserDetailsImpl userDetails) {
+    public RespBody adminSugNumGroupBySubordinate(UserDetailsImpl userDetails, Byte type) { //type == 1 :办理中，type == 2 :办结
         RespBody body = new RespBody();
         List<String> xaxis;  //横坐标
-        List<Integer> yaxis;  //纵坐标
+        List<Integer> yaxis = new ArrayList<>();  //纵坐标
+        Map<String, Integer> map;
         if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {  //如果是区管理员就按镇分组统计
             Area area = userDetails.getArea();
             Set<Town> towns = area.getTowns();
-            xaxis = towns.stream().map(Town::getName).collect(Collectors.toList());
-            yaxis = towns.stream().map(town -> countTownPassAuditSugNum(town)).collect(Collectors.toList());
-        }else {  //如果是镇管理员就按小组分组统计（审核通过的建议）
+            if (type == 1) {
+                map = towns.stream().collect(Collectors.toMap(Town::getName, town -> countTownDoingSugNum(town)));
+            }else {
+                map = towns.stream().collect(Collectors.toMap(Town::getName, town -> countTownFinishSugNum(town)));
+            }
+        }else {  //如果是镇管理员就按小组分组统计（正在办理中的建议）
             Town town = userDetails.getTown();
             Set<NpcMemberGroup> npcMemberGroups = town.getNpcMemberGroups();
-            xaxis = npcMemberGroups.stream().map(NpcMemberGroup::getName).collect(Collectors.toList());
-            yaxis = npcMemberGroups.stream().map(npcMemberGroup -> countGroupPassAuditSugNum(npcMemberGroup)).collect(Collectors.toList());
+            if (type == 1) {
+                map = npcMemberGroups.stream().collect(Collectors.toMap(NpcMemberGroup::getName, npcMemberGroup -> countGroupDoingSugNum(npcMemberGroup)));
+            }else {
+                map = npcMemberGroups.stream().collect(Collectors.toMap(NpcMemberGroup::getName, npcMemberGroup -> countGroupFinishSugNum(npcMemberGroup)));
+            }
         }
+        xaxis = new ArrayList<>(map.keySet());
+        Collections.sort(xaxis);
+        for (String name : xaxis) {
+            yaxis.add(map.get(name));
+        }
+        yaxis = xaxis.stream().map(name -> map.get(name)).collect(Collectors.toList());
 
+        String level;
+        if (LevelEnum.AREA.getValue().equals(userDetails.getLevel())) {
+            level = type == (byte)1 ? "各镇办理中建议总数" : "各镇办结建议总数";
+        }else {
+            level = type == (byte)1 ? "各小组办理中建议总数" : "各小组办结建议总数";
+        }
         JSONObject data = new JSONObject();
         data.put("xaxis", xaxis);
         data.put("yaxis", yaxis);
-        data.put("level", userDetails.getLevel() == LevelEnum.AREA.getValue() ? "各镇办理中建议总数" : "各小组办理中建议总数");
+        data.put("level", level);
         body.setData(data);
         return body;
     }
+
     /*
-    * 查询该镇的代表所提出的审核通过的建议
+    * 查询该镇正在办理中的建议
     * */
-    public int countTownPassAuditSugNum(Town town) {
-        return suggestionRepository.countTownPassAuditSugNum(town.getUid(), LevelEnum.TOWN.getValue(), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
+    public int countTownDoingSugNum(Town town) {
+        return suggestionRepository.countTownDoingSugNum(town.getUid(), LevelEnum.AREA.getValue());
     }
 
     /*
-     * 查询该小组的代表所提出的审核通过的建议
+     * 查询该镇办结的建议
      * */
-    public int countGroupPassAuditSugNum(NpcMemberGroup npcMemberGroup) {
-        return suggestionRepository.countGroupPassAuditSugNum(npcMemberGroup.getUid(), LevelEnum.TOWN.getValue(), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
+    public int countTownFinishSugNum(Town town) {
+        return suggestionRepository.countTownFinishSugNum(town.getUid(), LevelEnum.AREA.getValue());
+    }
+
+    /*
+     * 查询该小组正在办理中的建议
+     * */
+    public int countGroupDoingSugNum(NpcMemberGroup npcMemberGroup) {
+        return suggestionRepository.countGroupDoingSugNum(npcMemberGroup.getUid(), LevelEnum.TOWN.getValue());
+    }
+
+    /*
+     * 查询该小组办结的建议
+     * */
+    public int countGroupFinishSugNum(NpcMemberGroup npcMemberGroup) {
+        return suggestionRepository.countGroupFinishSugNum(npcMemberGroup.getUid(), LevelEnum.TOWN.getValue());
     }
 }

@@ -18,15 +18,23 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
 
     List<Suggestion> findBySuggestionBusinessUid(String businessUid);
 
-    List<Suggestion> findBySuggestionBusinessUidAndStatusGreaterThan(String businessUid, Byte status);
+    List<Suggestion> findBySuggestionBusinessUidAndStatusGreaterThanAndLevel(String businessUid, Byte status, Byte level);
 
     //统计该镇办理中的所有建议数量（包括状态为“办完”但还未“办结”的）
-    @Query(value = "select  count (sug.uid) from Suggestion as sug where sug.town.uid = ?1 and sug.level = ?2 and sug.status >= 3")
-    Integer countTownPassAuditSugNum(String uid, Byte value, Byte status);
+    @Query(value = "select  count (sug.uid) from Suggestion as sug where sug.town.uid = ?1 and sug.level = ?2 and sug.status in (3, 4, 5, 6)")
+    Integer countTownDoingSugNum(String uid, Byte value);
 
-    //统计该小组审核通过的所有建议数量
-    @Query(value = "select  count (sug.uid) from Suggestion as sug where sug.raiser.npcMemberGroup.uid = ?1 and sug.level = ?2 and sug.status >= 3")
-    Integer countGroupPassAuditSugNum(String uid, Byte value, Byte status);
+    //统计该镇办结的所有建议数量
+    @Query(value = "select  count (sug.uid) from Suggestion as sug where sug.town.uid = ?1 and sug.level = ?2 and sug.status in (7, 8)")
+    Integer countTownFinishSugNum(String uid, Byte value);
+
+    //统计该小组办理中的所有建议数量
+    @Query(value = "select  count (sug.uid) from Suggestion as sug where sug.raiser.npcMemberGroup.uid = ?1 and sug.level = ?2 and sug.status in (3, 4, 5, 6)")
+    Integer countGroupDoingSugNum(String uid, Byte value);
+
+    //统计该小组办结的所有建议数量
+    @Query(value = "select  count (sug.uid) from Suggestion as sug where sug.raiser.npcMemberGroup.uid = ?1 and sug.level = ?2 and sug.status in (7, 8)")
+    Integer countGroupFinishSugNum(String uid, Byte value);
 
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.createTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")
     Integer countTownTodayNumber(Date today, Byte level, String uid);

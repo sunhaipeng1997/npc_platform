@@ -351,7 +351,6 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOVERNMENT_MANAGE.getKeyword()));//政府管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));//建议类型管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));//代表建议管理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NPC_SUGGESTION_COUNT.getKeyword()));//建议办理统计
 
         bgAdmin.setPermissions(bgAdminPermissions);
         accountRoleRepository.save(bgAdmin);
@@ -479,7 +478,7 @@ public class DBInit {
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL_SUGGESTION.getKeyword()));   //单位待办理
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_SUGGESTION.getKeyword()));   //单位办理建议
         //后台
-        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_HOMEPAGE_DEAL.getKeyword()));   //首页
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_HOMEPAGE_DEAL.getKeyword()));   //首页
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL.getKeyword()));   //办理单待办理列表
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEALING.getKeyword()));   //办理单位办理中列表
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_DONE.getKeyword()));   //办理单位办理完成列表
@@ -795,11 +794,6 @@ public class DBInit {
         //代表建议管理
         menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_DEAL.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));
-        menuRepository.saveAndFlush(menu);
-
-        //建议办理统计
-        menu = menuRepository.findByKeyword(MenuEnum.NPC_SUGGESTION_COUNT.toString());
-        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NPC_SUGGESTION_COUNT.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //政府

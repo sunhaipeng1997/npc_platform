@@ -76,10 +76,10 @@ public interface IndexService {
 
     /**
     * @Description: 人大后台管理员首页建议按下属机构分组统计新增建议
-    * @Param:
+    * @Param: type: 1办理中  2办结
     * @Return:
     * @Date: 2020/6/12
     * @Author: LiYang
     */
-    RespBody adminSugNumGroupBySubordinate(UserDetailsImpl userDetails);
+    RespBody adminSugNumGroupBySubordinate(UserDetailsImpl userDetails, Byte type);
 }

@@ -113,8 +113,8 @@ public class IndexController {
     * @Author: LiYang
     */
     @GetMapping("/adminSugNumGroupBySubordinate")
-    public ResponseEntity adminSugNumGroupBySubordinate(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.adminSugNumGroupBySubordinate(userDetails);
+    public ResponseEntity adminSugNumGroupBySubordinate(@CurrentUser UserDetailsImpl userDetails, Byte type) {
+        RespBody body = indexService.adminSugNumGroupBySubordinate(userDetails, type);
         return ResponseEntity.ok(body);
     }
 }

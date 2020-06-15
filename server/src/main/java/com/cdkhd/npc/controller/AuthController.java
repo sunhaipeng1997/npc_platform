@@ -39,13 +39,13 @@ public class AuthController {
 
     @GetMapping("/menus")
     public ResponseEntity menus(@CurrentUser UserDetailsImpl userDetails, BaseDto baseDto) {
-        RespBody body = authService.menus(userDetails,baseDto);
+        RespBody body = authService.menus(userDetails, baseDto);
         return ResponseEntity.ok(body);
     }
 
     @PostMapping("/updatePwd")
     public ResponseEntity updatePwd(@CurrentUser UserDetailsImpl userDetails, PasswordDto passwordDto) {
-        RespBody body = authService.updatePwd(userDetails,passwordDto);
+        RespBody body = authService.updatePwd(userDetails, passwordDto);
         return ResponseEntity.ok(body);
     }
 
