@@ -24,45 +24,45 @@ public class IndexController {
     /**
      * 政府首页本月数量显示
      */
-    @GetMapping("/getSugNumber")
-    public ResponseEntity getSugNumber(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.getSugNumber(userDetails);
+    @GetMapping("/getGovSugNumber")
+    public ResponseEntity getGovSugNumber(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = indexService.getGovSugNumber(userDetails);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 政府首页建议数量趋势图
      */
-    @GetMapping("/getSugCount")
-    public ResponseEntity getSugCount(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.getSugCount(userDetails);
+    @GetMapping("/getGovSugCount")
+    public ResponseEntity getGovSugCount(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = indexService.getGovSugCount(userDetails);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 政府首页建议按类型统计图
      */
-    @GetMapping("/sugBusinessLine")
-    public ResponseEntity sugBusinessLine(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.sugBusinessLine(userDetails);
+    @GetMapping("/sugGovBusinessLine")
+    public ResponseEntity sugGovBusinessLine(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = indexService.sugGovBusinessLine(userDetails);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 政府首页建议办理中的建议统计图
      */
-    @GetMapping("/sugUnitDealingLine")
-    public ResponseEntity sugUnitDealingLine(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.sugUnitDealingLine(userDetails);
+    @GetMapping("/sugGovUnitDealingLine")
+    public ResponseEntity sugGovUnitDealingLine(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = indexService.sugGovUnitDealingLine(userDetails);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 政府首页建议办结的建议统计图
      */
-    @GetMapping("/sugUnitCompletedLine")
-    public ResponseEntity sugUnitCompletedLine(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.sugUnitCompletedLine(userDetails);
+    @GetMapping("/sugGovUnitCompletedLine")
+    public ResponseEntity sugGovUnitCompletedLine(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = indexService.sugGovUnitCompletedLine(userDetails);
         return ResponseEntity.ok(body);
     }
 

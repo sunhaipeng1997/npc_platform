@@ -50,7 +50,7 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public RespBody getSugNumber(UserDetailsImpl userDetails) {
+    public RespBody getGovSugNumber(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         Integer newSug = 0;
         Integer completedSug = 0;
@@ -77,7 +77,7 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public RespBody getSugCount(UserDetailsImpl userDetails) {
+    public RespBody getGovSugCount(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         ArrayList<Date> last12Month = getLast12Month();
         ArrayList<Date> allDate = new ArrayList<>(13);
@@ -113,8 +113,13 @@ public class IndexServiceImpl implements IndexService {
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             }
-            predicates.add(cb.greaterThanOrEqualTo(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()));//建议状态在提交到政府以后
-            predicates.add(cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue()));//除去自行办理
+            Predicate submittedGovernment = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue());//待转交
+            Predicate transferredUnit = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());//单位待接收
+            Predicate handling = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue());//办理中
+            Predicate handled = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue());//办理完成
+            Predicate accomplished = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue());//办结
+            Predicate or = cb.or(submittedGovernment,transferredUnit,handling,handled,accomplished);
+            predicates.add(or);//过滤建议状态
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         });
         return suggestionList;
@@ -143,13 +148,13 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public RespBody sugBusinessLine(UserDetailsImpl userDetails) {
+    public RespBody sugGovBusinessLine(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         List<SuggestionBusiness> suggestionBusinesses = this.getSuggestionBusiness(userDetails);
         ArrayList<String> xaxis = new ArrayList<>();
         ArrayList<Integer> yaxis = new ArrayList<>();
         for (SuggestionBusiness suggestionBusiness : suggestionBusinesses) {
-            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUidAndStatusGreaterThanEqualAndStatusNot(suggestionBusiness.getUid(),SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue(),SuggestionStatusEnum.SELF_HANDLE.getValue());
+            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUid(suggestionBusiness.getUid()).stream().filter(sug -> sug.getStatus().equals(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()) || sug.getStatus().equals(SuggestionStatusEnum.HANDLING.getValue()) || sug.getStatus().equals(SuggestionStatusEnum.HANDLED.getValue())).collect(Collectors.toList());
             xaxis.add(suggestionBusiness.getName());
             yaxis.add(allSugs.size());
         }
@@ -183,7 +188,7 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public RespBody sugUnitDealingLine(UserDetailsImpl userDetails) {
+    public RespBody sugGovUnitDealingLine(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         List<Unit> unitList = this.getUnitList(userDetails);
         ArrayList<String> xaxis = new ArrayList<>();
@@ -201,7 +206,7 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public RespBody sugUnitCompletedLine(UserDetailsImpl userDetails) {
+    public RespBody sugGovUnitCompletedLine(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         List<Unit> unitList = this.getUnitList(userDetails);
         ArrayList<String> xaxis = new ArrayList<>();

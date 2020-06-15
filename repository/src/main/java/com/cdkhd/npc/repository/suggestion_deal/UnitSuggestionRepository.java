@@ -19,7 +19,7 @@ public interface UnitSuggestionRepository extends BaseRepository<UnitSuggestion>
     UnitSuggestion findByUid(String uid);
 
 
-    @Query(value = "select distinct unitSug.suggestion from UnitSuggestion as unitSug where unitSug.unit.uid = ?1 and (unitSug.suggestion.status = 4 or unitSug.suggestion.status = 5)")
+    @Query(value = "select distinct unitSug.suggestion from UnitSuggestion as unitSug where unitSug.unit.uid = ?1 and (unitSug.suggestion.status = 4 or unitSug.suggestion.status = 5 or unitSug.suggestion.status = 6)")
     List<Suggestion> findDealingSuggestionByUnitUid(String unitUid);
 
     @Query(value = "select distinct unitSug.suggestion from UnitSuggestion as unitSug where unitSug.unit.uid = ?1 and unitSug.suggestion.status = 7")

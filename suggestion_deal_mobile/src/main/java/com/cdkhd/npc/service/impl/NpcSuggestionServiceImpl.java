@@ -493,12 +493,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             return body;
         }
 
-        Result result = null;
-        for (Result rs : suggestion.getResults()) {
-            if (rs.getAccepted() == null) {
-                result = rs;
-            }
-        }
+        Result result = suggestion.getResult();
         result.setReason(sugAppraiseDto.getReason());
         result.setAccepted(true);
         resultRepository.saveAndFlush(result);
@@ -534,12 +529,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             return body;
         }
         //代表不接受结果，办理单位需要重新办理
-        Result result = null;
-        for (Result rs : suggestion.getResults()) {
-            if (rs.getAccepted() == null) {
-                result = rs;
-            }
-        }
+        Result result = suggestion.getResult();
         result.setReason(sugAppraiseDto.getReason());
         result.setAccepted(false);
         resultRepository.saveAndFlush(result);

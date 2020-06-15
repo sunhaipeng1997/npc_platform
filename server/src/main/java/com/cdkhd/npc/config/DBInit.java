@@ -851,6 +851,12 @@ public class DBInit {
 //        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));
 //        menuRepository.saveAndFlush(menu);
 
+        //首页
+        menu = menuRepository.findByKeyword(MenuEnum.UNIT_HOMEPAGE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_HOMEPAGE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+
         //办理单待办理列表
         menu = menuRepository.findByKeyword(MenuEnum.UNIT_WAIT_DEAL.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL.getKeyword()));

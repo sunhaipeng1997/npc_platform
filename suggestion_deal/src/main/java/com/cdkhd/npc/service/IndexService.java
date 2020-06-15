@@ -13,7 +13,7 @@ public interface IndexService {
      * @param userDetails
      * @return
      */
-    RespBody getSugNumber(UserDetailsImpl userDetails);
+    RespBody getGovSugNumber(UserDetailsImpl userDetails);
 
 
     /**
@@ -21,21 +21,21 @@ public interface IndexService {
      * @param userDetails
      * @return
      */
-    RespBody getSugCount(UserDetailsImpl userDetails);
+    RespBody getGovSugCount(UserDetailsImpl userDetails);
 
     /**
      * 建议类型统计图
      * @param userDetails
      * @return
      */
-    RespBody sugBusinessLine(UserDetailsImpl userDetails);
+    RespBody sugGovBusinessLine(UserDetailsImpl userDetails);
 
     /**
      *  单位办理中的统计图
      * @param userDetails
      * @return
      */
-    RespBody sugUnitDealingLine(UserDetailsImpl userDetails);
+    RespBody sugGovUnitDealingLine(UserDetailsImpl userDetails);
 
 
     /**
@@ -43,7 +43,7 @@ public interface IndexService {
      * @param userDetails
      * @return
      */
-    RespBody sugUnitCompletedLine(UserDetailsImpl userDetails);
+    RespBody sugGovUnitCompletedLine(UserDetailsImpl userDetails);
 
 
     /**

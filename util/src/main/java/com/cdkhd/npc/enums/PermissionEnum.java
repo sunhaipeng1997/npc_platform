@@ -81,6 +81,7 @@ public enum PermissionEnum {
 //    GOV_COUNT("统计"),
 
     //办理单位
+    UNIT_HOMEPAGE_DEAL("办理单位建议办理首页"),
     UNIT_WAIT_DEAL("办理单待办理列表"),
     UNIT_DEALING("办理单位办理中列表"),
     UNIT_DEAL_DONE("办理单位办理完成列表"),

@@ -16,7 +16,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
 
     List<Suggestion> findByRaiserUid(String npcUid);
 
-    List<Suggestion> findBySuggestionBusinessUidAndStatusGreaterThanEqualAndStatusNot(String businessUid, Byte status, Byte not);
+    List<Suggestion> findBySuggestionBusinessUid(String businessUid);
 
     List<Suggestion> findBySuggestionBusinessUidAndStatusGreaterThan(String businessUid, Byte status);
 
@@ -61,10 +61,10 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.accomplishTime >= ?1 and sug.level = ?2 and sug.area.uid = ?3")
     Integer countAreaMonthCompletedNumber(Date date, Byte level, String uid);
 
-    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.level = ?1 and sug.town.uid = ?2 and (sug.status = 4 or sug.status = 5)")
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.level = ?1 and sug.town.uid = ?2 and (sug.status = 4 or sug.status = 5 or sug.status = 6)")
     Integer countTownDealingNumber(Byte level, String uid);
 
-    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.level = ?1 and sug.area.uid = ?2 and (sug.status = 4 or sug.status = 5)")
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.level = ?1 and sug.area.uid = ?2 and (sug.status = 4 or sug.status = 5 or sug.status = 6)")
     Integer countAreaDealingNumber(Byte level, String uid);
 
     //镇人大后台管理员查看本月新增的建议
