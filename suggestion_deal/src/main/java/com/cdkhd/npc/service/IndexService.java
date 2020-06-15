@@ -62,5 +62,24 @@ public interface IndexService {
     * @Date: 2020/6/11
     * @Author: LiYang
     */
-    RespBody adminGetSugCount(UserDetailsImpl userDetails);
+    RespBody adminNewSugNum(UserDetailsImpl userDetails);
+
+    /**
+    * @Description: 人大后台管理员首页建议按类型统计图
+    * @Param:
+    * @Return:
+    * @Date: 2020/6/12
+    * @Author: LiYang
+    */
+    RespBody adminSugBusinessLine(UserDetailsImpl userDetails);
+
+
+    /**
+    * @Description: 人大后台管理员首页建议按下属机构分组统计新增建议
+    * @Param:
+    * @Return:
+    * @Date: 2020/6/12
+    * @Author: LiYang
+    */
+    RespBody adminSugNumGroupBySubordinate(UserDetailsImpl userDetails);
 }

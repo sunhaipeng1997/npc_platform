@@ -109,13 +109,14 @@ public enum MenuEnum {
 
     //建议办理
     //人大后台管理员
-    HOMEPAGE_DEAL("dealIndex", "首页",(byte)2, "sug-dealIndex", "/suggestion_deal/dealIndex",null, "SUGGESTION"),
+    NPC_HOMEPAGE_DEAL("npcDealIndex", "首页",(byte)2, "sug-dealIndex", "/suggestion_deal/npc/npcDealIndex",null, "SUGGESTION"),
     GOVERNMENT_MANAGE("govManage", "政府管理",(byte)2, "sug-govManage", "/suggestion_deal/govManage",null, "SUGGESTION"),
     SUGGESTION_TYPE_DEAL("suggestionBusiness", "建议类型管理",(byte)2, "sug-suggestionBusiness", "/member_house/suggestionBusiness",null, "SUGGESTION"),
     SUGGESTION_DEAL("suggestionManage", "代表建议管理",(byte)2, "sug-suggestionManage", "/suggestion_deal/npc/suggestion",null, "SUGGESTION"),
     NPC_SUGGESTION_COUNT("sugNpcStatistic", "建议办理统计",(byte)2, "sug-sugNpcStatistic", "/suggestion_deal/npc/sugNpcStatistic",null, "SUGGESTION"),
 
     //政府
+    GOV_HOMEPAGE_DEAL("dealIndex", "首页",(byte)2, "sug-dealIndex", "/suggestion_deal/dealIndex",null, "SUGGESTION"),
     GOV_WAIT_CONVEY("toBeTransSug", "待转办的建议",(byte)2, "sug-toBeTransSug", "/suggestion_deal/gov/toBeTransSug",null, "SUGGESTION"),
     GOV_ADJUST_CONVEY("applyAdjustSug", "申请调整的建议",(byte)2, "sug-applyAdjustSug", "/suggestion_deal/gov/applyAdjustSug",null, "SUGGESTION"),
     GOV_ADJUST_DELAY("applyDelaySug", "申请延期的建议",(byte)2, "sug-applyDelaySug", "/suggestion_deal/gov/applyDelaySug",null, "SUGGESTION"),

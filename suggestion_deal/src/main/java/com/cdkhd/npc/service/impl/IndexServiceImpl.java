@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.cdkhd.npc.util.SysUtil.getLast12Month;
 
@@ -250,7 +251,7 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public RespBody adminGetSugCount(UserDetailsImpl userDetails) {
+    public RespBody adminNewSugNum(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();
         ArrayList<Date> last12Month = getLast12Month();
         Collections.reverse(last12Month);
@@ -266,6 +267,8 @@ public class IndexServiceImpl implements IndexService {
             int num = 0;
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 num = suggestionRepository.adminCountTownMonthNewNumber(startAt, endAt, LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());
+            }else {
+                num = suggestionRepository.adminCountAreaMonthNewNumber(startAt, endAt, LevelEnum.AREA.getValue(), userDetails.getArea().getUid());
             }
             xaxis.add(DateFormatUtils.format(date, "yyyy-MM"));
             yaxis.add(num);
@@ -275,5 +278,61 @@ public class IndexServiceImpl implements IndexService {
         data.put("yaxis", yaxis);
         body.setData(data);
         return body;
+    }
+
+    @Override
+    public RespBody adminSugBusinessLine(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        List<SuggestionBusiness> suggestionBusinesses = this.getSuggestionBusiness(userDetails);
+        ArrayList<String> xaxis = new ArrayList<>();
+        ArrayList<Integer> yaxis = new ArrayList<>();
+        for (SuggestionBusiness suggestionBusiness : suggestionBusinesses) {
+            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUidAndStatusGreaterThan(suggestionBusiness.getUid(),SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
+            xaxis.add(suggestionBusiness.getName());
+            yaxis.add(allSugs.size());
+        }
+        JSONObject data = new JSONObject();
+        data.put("xaxis", xaxis);
+        data.put("yaxis", yaxis);
+        body.setData(data);
+        return body;
+    }
+
+    @Override
+    public RespBody adminSugNumGroupBySubordinate(UserDetailsImpl userDetails) {
+        RespBody body = new RespBody();
+        List<String> xaxis;  //横坐标
+        List<Integer> yaxis;  //纵坐标
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {  //如果是区管理员就按镇分组统计
+            Area area = userDetails.getArea();
+            Set<Town> towns = area.getTowns();
+            xaxis = towns.stream().map(Town::getName).collect(Collectors.toList());
+            yaxis = towns.stream().map(town -> countTownPassAuditSugNum(town)).collect(Collectors.toList());
+        }else {  //如果是镇管理员就按小组分组统计（审核通过的建议）
+            Town town = userDetails.getTown();
+            Set<NpcMemberGroup> npcMemberGroups = town.getNpcMemberGroups();
+            xaxis = npcMemberGroups.stream().map(NpcMemberGroup::getName).collect(Collectors.toList());
+            yaxis = npcMemberGroups.stream().map(npcMemberGroup -> countGroupPassAuditSugNum(npcMemberGroup)).collect(Collectors.toList());
+        }
+
+        JSONObject data = new JSONObject();
+        data.put("xaxis", xaxis);
+        data.put("yaxis", yaxis);
+        data.put("level", userDetails.getLevel() == LevelEnum.AREA.getValue() ? "各镇办理中建议总数" : "各小组办理中建议总数");
+        body.setData(data);
+        return body;
+    }
+    /*
+    * 查询该镇的代表所提出的审核通过的建议
+    * */
+    public int countTownPassAuditSugNum(Town town) {
+        return suggestionRepository.countTownPassAuditSugNum(town.getUid(), LevelEnum.TOWN.getValue(), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
+    }
+
+    /*
+     * 查询该小组的代表所提出的审核通过的建议
+     * */
+    public int countGroupPassAuditSugNum(NpcMemberGroup npcMemberGroup) {
+        return suggestionRepository.countGroupPassAuditSugNum(npcMemberGroup.getUid(), LevelEnum.TOWN.getValue(), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
     }
 }

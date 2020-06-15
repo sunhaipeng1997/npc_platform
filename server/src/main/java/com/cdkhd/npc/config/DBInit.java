@@ -345,8 +345,9 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));//代表权限管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SESSION_MANAGE.getKeyword()));//届期管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//系统设置
+
         //建议办理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));//建议办理首页
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NPC_HOMEPAGE_DEAL.getKeyword()));//建议办理首页
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOVERNMENT_MANAGE.getKeyword()));//政府管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));//建议类型管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));//代表建议管理
@@ -458,7 +459,7 @@ public class DBInit {
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_SUGGESTION.getKeyword()));   //调整单位
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_URGE_SUGGESTION.getKeyword()));   //查看建议情况
         //后台
-        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));   //首页
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_HOMEPAGE_DEAL.getKeyword()));   //首页
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_WAIT_CONVEY.getKeyword()));   //待转办
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_CONVEY.getKeyword()));   //调整单位
         govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_DELAY.getKeyword()));   //申请延期
@@ -478,7 +479,7 @@ public class DBInit {
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL_SUGGESTION.getKeyword()));   //单位待办理
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_SUGGESTION.getKeyword()));   //单位办理建议
         //后台
-        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));   //首页
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_HOMEPAGE_DEAL.getKeyword()));   //首页
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL.getKeyword()));   //办理单待办理列表
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEALING.getKeyword()));   //办理单位办理中列表
         unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_DONE.getKeyword()));   //办理单位办理完成列表
@@ -777,8 +778,8 @@ public class DBInit {
         //建议办理
         //后台管理员
         //首页
-        menu = menuRepository.findByKeyword(MenuEnum.HOMEPAGE_DEAL.toString());
-        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE_DEAL.getKeyword()));
+        menu = menuRepository.findByKeyword(MenuEnum.NPC_HOMEPAGE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NPC_HOMEPAGE_DEAL.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //政府管理
@@ -802,6 +803,11 @@ public class DBInit {
         menuRepository.saveAndFlush(menu);
 
         //政府
+        //首页
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_HOMEPAGE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_HOMEPAGE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
         //待转办
         menu = menuRepository.findByKeyword(MenuEnum.GOV_WAIT_CONVEY.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_WAIT_CONVEY.getKeyword()));

@@ -86,9 +86,9 @@ public class IndexController {
     * @Date: 2020/6/11
     * @Author: LiYang
     */
-    @GetMapping("/adminGetSugCount")
-    public ResponseEntity adminGetSugCount(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.adminGetSugCount(userDetails);
+    @GetMapping("/adminNewSugNum")
+    public ResponseEntity adminNewSugNum(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = indexService.adminNewSugNum(userDetails);
         return ResponseEntity.ok(body);
     }
 
@@ -101,7 +101,20 @@ public class IndexController {
     */
     @GetMapping("/adminSugBusinessLine")
     public ResponseEntity adminSugBusinessLine(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = indexService.sugBusinessLine(userDetails);
+        RespBody body = indexService.adminSugBusinessLine(userDetails);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+    * @Description: 人大后台管理员首页建议按下属机构分组统计新增建议
+    * @Param:
+    * @Return:
+    * @Date: 2020/6/12
+    * @Author: LiYang
+    */
+    @GetMapping("/adminSugNumGroupBySubordinate")
+    public ResponseEntity adminSugNumGroupBySubordinate(@CurrentUser UserDetailsImpl userDetails) {
+        RespBody body = indexService.adminSugNumGroupBySubordinate(userDetails);
         return ResponseEntity.ok(body);
     }
 }

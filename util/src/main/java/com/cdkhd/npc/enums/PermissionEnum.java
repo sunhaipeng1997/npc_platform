@@ -61,7 +61,7 @@ public enum PermissionEnum {
     TOWN_MANAGE("镇管理"),
     VILLAGE_MANAGE("村管理"),
     //建议办理
-    HOMEPAGE_DEAL("建议办理首页"),
+    NPC_HOMEPAGE_DEAL("人大管理员建议办理首页"),
     GOVERNMENT_MANAGE("政府管理"),
     SUGGESTION_TYPE_DEAL("建议类型管理"),
     SUGGESTION_DEAL("代表建议管理"),
@@ -69,6 +69,7 @@ public enum PermissionEnum {
 
 
     //政府
+    GOV_HOMEPAGE_DEAL("政府建议办理首页"),
     GOV_WAIT_CONVEY("待转办"),
     GOV_ADJUST_CONVEY("调整单位"),
     GOV_ADJUST_DELAY("申请延期"),
