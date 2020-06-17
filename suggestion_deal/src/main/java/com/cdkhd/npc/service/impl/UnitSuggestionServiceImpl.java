@@ -2,16 +2,21 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
+import com.cdkhd.npc.entity.dto.HandleProcessAddDto;
+import com.cdkhd.npc.entity.dto.InDealingPageDto;
+import com.cdkhd.npc.entity.dto.ResultAddDto;
 import com.cdkhd.npc.entity.dto.ToDealPageDto;
+import com.cdkhd.npc.entity.vo.InDealingListItemVo;
 import com.cdkhd.npc.entity.vo.ToDealListItemVo;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.ConveyProcessRepository;
+import com.cdkhd.npc.repository.base.DelaySuggestionRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
-import com.cdkhd.npc.repository.suggestion_deal.SuggestionSettingRepository;
-import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
+import com.cdkhd.npc.repository.suggestion_deal.*;
 import com.cdkhd.npc.service.GeneralService;
 import com.cdkhd.npc.service.UnitSuggestionService;
+import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +32,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
 import java.util.*;
@@ -44,15 +50,23 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
     private AccountRepository accountRepository;
     private UnitSuggestionRepository unitSuggestionRepository;
     private SuggestionSettingRepository suggestionSettingRepository;
+    private DelaySuggestionRepository delaySuggestionRepository;
+    private HandleProcessRepository handleProcessRepository;
+    private UnitImageRepository unitImageRepository;
+    private ResultRepository resultRepository;
 
     @Autowired
-    public UnitSuggestionServiceImpl(SuggestionRepository suggestionRepository, GeneralService generalService, ConveyProcessRepository conveyProcessRepository, AccountRepository accountRepository, UnitSuggestionRepository unitSuggestionRepository, SuggestionSettingRepository suggestionSettingRepository) {
+    public UnitSuggestionServiceImpl(SuggestionRepository suggestionRepository, GeneralService generalService, ConveyProcessRepository conveyProcessRepository, AccountRepository accountRepository, UnitSuggestionRepository unitSuggestionRepository, SuggestionSettingRepository suggestionSettingRepository, DelaySuggestionRepository delaySuggestionRepository, HandleProcessRepository handleProcessRepository, UnitImageRepository unitImageRepository, ResultRepository resultRepository) {
         this.suggestionRepository = suggestionRepository;
         this.generalService = generalService;
         this.conveyProcessRepository = conveyProcessRepository;
         this.accountRepository = accountRepository;
         this.unitSuggestionRepository = unitSuggestionRepository;
         this.suggestionSettingRepository = suggestionSettingRepository;
+        this.delaySuggestionRepository = delaySuggestionRepository;
+        this.handleProcessRepository = handleProcessRepository;
+        this.unitImageRepository = unitImageRepository;
+        this.resultRepository = resultRepository;
     }
 
     /**
@@ -289,52 +303,391 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
     }
 
     /**
-     * 分页查询建议
-     * @param userDetails 当前用户
-     * @param dto 查询参数
-     * @param status 建议状态
-     * @return 分页查询结果
+     * 分页查询办理中建议
+     * @param userDetails
+     * @param pageDto
+     * @return
      */
-    /*private Page<Suggestion> findPage(UserDetailsImpl userDetails, GovSuggestionPageDto dto, SuggestionStatusEnum status) {
-        //分页查询条件
-        Pageable pageable = PageRequest.of(dto.getPage()-1, dto.getSize(),
-                Sort.Direction.fromString(dto.getDirection()), dto.getProperty());
+    @Override
+    public RespBody findPageOfInDealing(UserDetailsImpl userDetails, InDealingPageDto pageDto) {
+        RespBody<PageVo<InDealingListItemVo>> body = new RespBody<>();
 
-        //其他查询条件
-        Specification<Suggestion> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限查询办理中建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法查询办理中建议");
+            return body;
+        }
 
-            //标题
-            if (StringUtils.isNotBlank(dto.getTitle())) {
-                predicates.add(cb.like(root.get("title").as(String.class), "%" + dto.getTitle() + "%"));
-            }
-            //类型
-            if (StringUtils.isNotBlank(dto.getBusiness())) {
-                predicates.add(cb.equal(root.get("suggestionBusiness").get("uid").as(String.class), dto.getBusiness()));
-            }
-            //提出代表
-            if (StringUtils.isNotBlank(dto.getMember())) {
-                predicates.add(cb.like(root.get("raiser").get("name").as(String.class), "%" + dto.getMember() + "%"));
-            }
-            if (StringUtils.isNotBlank(dto.getMobile())) {
-                predicates.add(cb.equal(root.get("raiser").get("mobile").as(String.class), dto.getMobile()));
-            }
-            //审核时间 开始
-            if (dto.getDateStart() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("workAt").as(Date.class), dto.getDateStart()));
-            }
-            if (dto.getDateEnd() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("workAt").as(Date.class), dto.getDateEnd()));
-            }
+        UnitUser unitUser = account.getUnitUser();
 
-            return cb.and(predicates.toArray(new Predicate[0]));
+        //构造分页条件
+        List<Sort.Order> orders = new ArrayList<>();
+        //未读消息在前
+//        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
+        //按受理时间降序排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "acceptTime"));
+        Pageable pageable = PageRequest
+                .of(pageDto.getPage() - 1, pageDto.getSize(), Sort.by(orders));
+
+        //待办建议查询条件
+        Specification<UnitSuggestion> inDealingSpec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为办理中
+            /*predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.HANDLING.getValue()));*/
+            //unitSuggestion的状态为办理中
+            predicateList.add(cb.isFalse(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            return cb.and(predicateList.toArray(new Predicate[0]));
         };
 
-        //基础查询条件
-//        Specification<Suggestion> baseSpec = generalService.basePredicates(userDetails, status);
+        //前端筛选条件
+        Specification<UnitSuggestion> filterSpec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
 
-        return suggestionRepository.findAll(spec, pageable);
-    }*/
+            //标题
+            if (StringUtils.isNotBlank(pageDto.getTitle())) {
+                predicateList.add(cb.like(root.get("suggestion").get("title").as(String.class), "%" + pageDto.getTitle() + "%"));
+            }
+            //类型
+            if (StringUtils.isNotBlank(pageDto.getBusinessUid())) {
+                predicateList.add(cb.equal(root.get("suggestion").get("suggestionBusiness").get("uid").as(String.class), pageDto.getBusinessUid()));
+            }
+
+            //提出代表
+            if (StringUtils.isNotBlank(pageDto.getMemberName())) {
+                predicateList.add(cb.like(root.get("suggestion").get("raiser").get("name").as(String.class), "%" + pageDto.getMemberName() + "%"));
+            }
+            if (StringUtils.isNotBlank(pageDto.getMemberMobile())) {
+                predicateList.add(cb.equal(root.get("suggestion").get("raiser").get("mobile").as(String.class), pageDto.getMemberMobile()));
+            }
+
+            //受理时间 开始
+            if (pageDto.getDateStart() != null) {
+                predicateList.add(cb.greaterThanOrEqualTo(root.get("acceptTime").as(Date.class), pageDto.getDateStart()));
+            }
+            //受理时间 结束
+            if (pageDto.getDateEnd() != null) {
+                predicateList.add(cb.lessThanOrEqualTo(root.get("acceptTime").as(Date.class), pageDto.getDateEnd()));
+            }
+
+            if (Objects.nonNull(pageDto.getUnitType()) && !pageDto.getUnitType().equals((byte)0)) {
+                predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getUnitType()));
+            }
+
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+
+        Page<UnitSuggestion> page = unitSuggestionRepository.findAll(inDealingSpec.and(filterSpec), pageable);
+
+        List<InDealingListItemVo> inDealingListItemVoList = page.stream()
+                .map(InDealingListItemVo::convert)
+                .collect(Collectors.toList());
+
+        PageVo<InDealingListItemVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(inDealingListItemVoList);
+
+        body.setData(pageVo);
+        return body;
+    }
+
+    /**
+     * 申请延期建议
+     * @param userDetails
+     * @param unitSuggestionUid
+     * @param delayUntil 申请延期至的日期
+     * @param reason 原因
+     * @return
+     */
+    @Override
+    public RespBody applyDelay(UserDetailsImpl userDetails, String unitSuggestionUid, Date delayUntil, String reason) {
+        RespBody body = new RespBody();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限操作办理中建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，申请失败");
+            return body;
+        }
+
+        UnitSuggestion unitSuggestion = unitSuggestionRepository.findByUid(unitSuggestionUid);
+        if (unitSuggestion.getFinish()) {
+            LOGGER.error("该建议状态不在办理中，UnitSuggestion uid: {}", unitSuggestion.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议状态不在办理中，申请失败");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid()) || !unitSuggestion.getUnitUser().getUid().equals(unitUser.getUid())) {
+            LOGGER.error("该建议未转办给当前单位/办理人员 \n " +
+                            "UnitSuggestion uid: {} \n " +
+                            "Current User's uid: {}",
+                    unitSuggestion.getUid(), unitUser.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议未转办给你，无法申请延期");
+            return body;
+        }
+
+        if (StringUtils.isBlank(reason)) {
+            LOGGER.error("申请延期理由不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("申请延期理由不能为空");
+            return body;
+        }
+
+        if (delayUntil == null || delayUntil.before(unitSuggestion.getExpectDate())) {
+            LOGGER.error("申请延期日期参数不合法，delayUntil: {}", delayUntil);
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("申请延期日期不合法");
+            return body;
+        }
+
+        //检查是否有正在申请延期的建议
+        Set<DelaySuggestion> delaySuggestions = unitSuggestion.getDelaySuggestions();
+        for (DelaySuggestion delaySug : delaySuggestions) {
+            if (delaySug.getAccept() == null) {
+                LOGGER.error("还有未审核的延期申请，暂时无法申请延期");
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("还有未审核的延期申请，暂时无法申请延期");
+                return body;
+            }
+        }
+
+        //添加延期申请记录
+        DelaySuggestion delay = new DelaySuggestion();
+        delay.setApplyTime(delayUntil);
+        delay.setReason(reason);
+        delay.setUnitSuggestion(unitSuggestion);
+        delay.setSuggestion(unitSuggestion.getSuggestion());
+        delaySuggestionRepository.saveAndFlush(delay);
+
+        return body;
+    }
+
+    /**
+     * 添加办理过程
+     * @param userDetails
+     * @param toAdd
+     * @return
+     */
+    @Override
+    public RespBody addHandleProcess(UserDetailsImpl userDetails, HandleProcessAddDto toAdd) {
+        RespBody<String> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限操作办理中建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，添加失败");
+            return body;
+        }
+
+        if (StringUtils.isBlank(toAdd.getUnitSugUid())) {
+            LOGGER.error("参数不合法，unitSugUid不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("unitSugUid为空，添加失败");
+            return body;
+        }
+
+        UnitSuggestion unitSuggestion = unitSuggestionRepository.findByUid(toAdd.getUnitSugUid());
+        if (unitSuggestion.getFinish()) {
+            LOGGER.error("该建议状态不在办理中，UnitSuggestion uid: {}", unitSuggestion.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议状态不在办理中，添加失败");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid()) || !unitSuggestion.getUnitUser().getUid().equals(unitUser.getUid())) {
+            LOGGER.error("该建议未转办给当前单位/办理人员 \n " +
+                            "UnitSuggestion uid: {} \n " +
+                            "Current User's uid: {}",
+                    unitSuggestion.getUid(), unitUser.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议未转办给你，无法添加流程");
+            return body;
+        }
+
+        //参数校验
+        if (toAdd.getHandleTime() == null || StringUtils.isBlank(toAdd.getDescription())) {
+            LOGGER.error("参数不合法，handleTime和description不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("handleTime或description为空，添加失败");
+            return body;
+        }
+
+        //新增流程
+        HandleProcess process = new HandleProcess();
+        process.setHandleTime(toAdd.getHandleTime());
+        process.setDescription(toAdd.getDescription());
+        process.setUnitSuggestion(unitSuggestion);
+        handleProcessRepository.saveAndFlush(process);
+
+        //保存图片
+        List<UnitImage> unitImageList = new ArrayList<>();
+        for (String url : toAdd.getImageUrls()) {
+            UnitImage image = new UnitImage();
+            image.setType(ImageTypeEnum.HANDLE_PROCESS.getValue());
+            image.setBelongToId(process.getId());
+            image.setUrl(url);
+            unitImageList.add(image);
+        }
+        unitImageRepository.saveAll(unitImageList);
+
+        return body;
+    }
+
+    /**
+     * 完成办理，添加办理结果。
+     * 主办单位完成办理时，所有的协办单位必须已经完成办理
+     * @param userDetails
+     * @param toAdd
+     * @return
+     */
+    @Override
+    public RespBody finishDeal(UserDetailsImpl userDetails, ResultAddDto toAdd) {
+        RespBody body = new RespBody();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限操作办理中建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法完成办理");
+            return body;
+        }
+
+        //参数校验
+        if (StringUtils.isBlank(toAdd.getUnitSugUid()) || StringUtils.isBlank(toAdd.getResult())) {
+            LOGGER.error("参数不合法，unitSugUid / result 不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("参数不完整，操作失败");
+            return body;
+        }
+
+        UnitSuggestion unitSuggestion = unitSuggestionRepository.findByUid(toAdd.getUnitSugUid());
+        UnitUser unitUser = account.getUnitUser();
+        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid()) || !unitSuggestion.getUnitUser().getUid().equals(unitUser.getUid())) {
+            LOGGER.error("该建议未转办给当前单位/办理人员 \n " +
+                            "UnitSuggestion uid: {} \n " +
+                            "Current User's uid: {}",
+                    unitSuggestion.getUid(), unitUser.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议未转办给你，无法完成办理");
+            return body;
+        }
+
+        //检查建议状态
+        if (unitSuggestion.getFinish()) {
+            LOGGER.error("该建议状态不在办理中，UnitSuggestion uid: {}", unitSuggestion.getUid());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("该建议状态不在办理中，操作失败");
+            return body;
+        }
+
+        //是否可以完成办理
+        if (!canFinish(unitSuggestion)) {
+            LOGGER.error("有协办单位尚未完成办理");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("有协办单位尚未完成办理，无法完成办理");
+            return body;
+        }
+
+        //添加办理结果
+        Result result = new Result();
+        result.setResult(toAdd.getResult());
+        result.setUnitSuggestion(unitSuggestion);
+        result.setSuggestion(unitSuggestion.getSuggestion());
+        resultRepository.saveAndFlush(result);
+
+        //保存结果图片
+        List<UnitImage> unitImageList = new ArrayList<>();
+        for (String url : toAdd.getImageUrls()) {
+            UnitImage image = new UnitImage();
+            image.setType(ImageTypeEnum.HANDLE_RESULT.getValue());
+            image.setBelongToId(result.getId());
+            image.setUrl(url);
+            unitImageList.add(image);
+        }
+        unitImageRepository.saveAll(unitImageList);
+
+        //修改 UnitSuggestion 的相关字段
+        Date now = new Date();
+        unitSuggestion.setFinishTime(now);
+        unitSuggestion.setFinish(true);
+        unitSuggestionRepository.saveAndFlush(unitSuggestion);
+
+        //只有主办单位完成办理的时候，才能修改 Suggestion 的状态
+        if (unitSuggestion.getType().equals(UnitTypeEnum.MAIN_UNIT.getValue())) {
+            Suggestion suggestion = unitSuggestion.getSuggestion();
+            suggestion.setStatus(SuggestionStatusEnum.HANDLED.getValue());
+            suggestion.setFinishTime(now);
+            suggestionRepository.saveAndFlush(suggestion);
+        }
+
+        return body;
+    }
+
+    /**
+     * 上传一张图片（办理流程，办理结果），写入磁盘，返回图片url
+     * @param userDetails
+     * @param image 图片二进制数据
+     * @param type 图片类型
+     * @return 图片访问url
+     */
+    @Override
+    public RespBody uploadOneImage(UserDetailsImpl userDetails, MultipartFile image, Byte type) {
+        RespBody<String> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限添加图片，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，添加图片失败");
+            return body;
+        }
+
+        //参数校验
+        if (image == null || type == null) {
+            LOGGER.error("参数不合法，image 和 type 不能为空");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("参数不完整，添加图片失败");
+            return body;
+        }
+
+        //校验type值的范围
+        String kind;
+        if (type.equals(ImageTypeEnum.HANDLE_PROCESS.getValue())) {
+            kind = "handleProcessImage";
+        } else if (type.equals(ImageTypeEnum.HANDLE_RESULT.getValue())) {
+            kind = "resultImage";
+        } else {
+            LOGGER.error("参数 type 不合法");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("参数 type 不合法，添加图片失败");
+            return body;
+        }
+
+        //存储图片
+        String url = ImageUploadUtil.saveImage(kind, image);
+        if (url.equals("error")) {
+            LOGGER.error("图片写入磁盘失败");
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            body.setMessage("图片上传失败");
+            return body;
+        }
+
+        body.setData(url);
+        return body;
+    }
 
     /**
      * 检查一个账号是否有办理单位角色
@@ -363,5 +716,25 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             return suggestionSettingRepository.findByLevelAndAreaUid(unit.getLevel(), unit.getArea().getUid());
         }
         throw new RuntimeException("当前单位的Level值不合法");
+    }
+
+    /**
+     * 检查一个办理中建议能否完成办理
+     * @param unitSuggestion
+     * @return
+     */
+    private boolean canFinish(UnitSuggestion unitSuggestion) {
+        //主办单位只有在所有协办单位完成办理之后，才能完成办理
+        if (unitSuggestion.getType().equals(UnitTypeEnum.MAIN_UNIT.getValue())) {
+            List<UnitSuggestion> assistUnitSugs = unitSuggestionRepository
+                    .findBySuggestionUidAndType(unitSuggestion.getSuggestion().getUid(), UnitTypeEnum.CO_UNIT.getValue());
+            for (UnitSuggestion unitSug : assistUnitSugs) {
+                if (!unitSug.getFinish()) {
+                    LOGGER.info("协办单位尚未完成办理，UnitSuggestion Uid: {}", unitSug.getUid());
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

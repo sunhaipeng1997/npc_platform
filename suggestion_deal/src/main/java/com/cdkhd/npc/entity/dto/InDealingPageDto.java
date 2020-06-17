@@ -8,12 +8,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-/**
- * 分页查询待办建议Dto
- */
 @Getter
 @Setter
-public class ToDealPageDto extends PageDto {
+public class InDealingPageDto extends PageDto {
     //建议标题
     private String title;
 
