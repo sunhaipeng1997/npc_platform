@@ -44,6 +44,12 @@ public class UintSuggestionController {
         return ResponseEntity.ok(body);
     }
 
+    @GetMapping("/to_deal/detail/{uid}")
+    ResponseEntity checkToDealDetail(@CurrentUser UserDetailsImpl userDetails, @PathVariable("uid") String cpUid) {
+        RespBody body = suggestionService.checkToDealDetail(userDetails, cpUid);
+        return ResponseEntity.ok(body);
+    }
+
     @PostMapping("/adjust/{uid}")
     public ResponseEntity applyAdjustUnit(@CurrentUser UserDetailsImpl userDetails, @PathVariable("uid") String cpUid, String adjustReason) {
         RespBody body = suggestionService.applyAdjust(userDetails, cpUid, adjustReason);
@@ -59,6 +65,12 @@ public class UintSuggestionController {
     @GetMapping("/page_in_dealing")
     ResponseEntity pageInDealing(@CurrentUser UserDetailsImpl userDetails, InDealingPageDto pageDto) {
         RespBody body = suggestionService.findPageOfInDealing(userDetails, pageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/detail/{uid}")
+    ResponseEntity checkDetail(@CurrentUser UserDetailsImpl userDetails, @PathVariable("uid") String usUid) {
+        RespBody body = suggestionService.checkDetail(userDetails, usUid);
         return ResponseEntity.ok(body);
     }
 

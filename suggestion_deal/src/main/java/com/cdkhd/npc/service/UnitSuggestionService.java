@@ -15,11 +15,15 @@ public interface UnitSuggestionService {
 
     RespBody findToDeal(UserDetailsImpl userDetails, ToDealPageDto pageDto);
 
+    RespBody checkToDealDetail(UserDetailsImpl userDetails, String cpUid);
+
     RespBody applyAdjust(UserDetailsImpl userDetails, String conveyProcessUid, String adjustReason);
 
     RespBody startDealing(UserDetailsImpl userDetails, String conveyProcessUid);
 
     RespBody findPageOfInDealing(UserDetailsImpl userDetails, InDealingPageDto pageDto);
+
+    RespBody checkDetail(UserDetailsImpl userDetails, String usUid);
 
     RespBody applyDelay(UserDetailsImpl userDetails, String unitSuggestionUid, Date delayUntil, String reason);
 

@@ -307,7 +307,6 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         if (allDone) {
             suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());
             suggestion.setAcceptTime(now);
-            suggestion.setExpectDate(expectDate);
             suggestionRepository.saveAndFlush(suggestion);
         }
 
@@ -657,6 +656,10 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             Suggestion suggestion = unitSuggestion.getSuggestion();
             suggestion.setStatus(SuggestionStatusEnum.HANDLED.getValue());
             suggestion.setFinishTime(now);
+            //设置代表未查看
+            suggestion.setDoneView(false);
+            //设置政府未查看
+            suggestion.setGovView(false);
             suggestionRepository.saveAndFlush(suggestion);
         }
 
