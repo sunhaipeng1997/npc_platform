@@ -43,19 +43,33 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     Integer countAreaTodayNumber(Date today, Byte level, String uid);
 
     //由于JPA查询结果只能映射实体类，故需要在sql中使用 new 语法
-    @Query("select new com.cdkhd.npc.vo.CountVo(town.name, count(sug.uid)) from Suggestion sug, Town town " +
-            "where sug.town=town.id and sug.area.id=?1 and sug.isDel=false and sug.level=1 and sug.status>=3 " +
-            "group by sug.town")
-    List<CountVo> count4Town(Long areaId);
+    @Query("select new com.cdkhd.npc.vo.CountVo(sug.town.name, count(sug.uid)) from Suggestion sug " +
+            "where sug.area.id=?1 and sug.isDel=false and sug.level=2 and sug.status>=3 " +
+            "group by sug.town.id")
+    List<CountVo> countByArea(Long areaId);
 
-    @Query("select new com.cdkhd.npc.vo.CountVo(stype.name, count(sug.uid)) from Suggestion sug, SuggestionBusiness stype " +
-            "where sug.suggestionBusiness=stype.id and sug.area.id=?1 and sug.isDel=false and sug.level=1 and sug.status>=3 " +
-            "group by sug.suggestionBusiness")
-    List<CountVo> count4Type(Long areaId);
+    @Query("select new com.cdkhd.npc.vo.CountVo(sug.raiser.npcMemberGroup.name, count(sug.uid)) from Suggestion sug " +
+            "where sug.isDel=false and sug.level=1 and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 " +
+            "group by sug.raiser.npcMemberGroup.id")
+    List<CountVo> countByTown(Long areaId, String townUid);
+
+    @Query("select new com.cdkhd.npc.vo.CountVo(sug.suggestionBusiness.name, count(sug.uid)) from Suggestion sug " +
+            "where sug.area.id=?1 and sug.isDel=false and sug.level=2 and sug.status>=3 " +
+            "group by sug.suggestionBusiness.id")
+    List<CountVo> countByAreaType(Long areaId);
+
+    @Query("select new com.cdkhd.npc.vo.CountVo(sug.suggestionBusiness.name, count(sug.uid)) from Suggestion sug " +
+            "where sug.isDel=false and sug.level=1 and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 " +
+            "group by sug.suggestionBusiness.id")
+    List<CountVo> countByTownType(Long areaId, String townUid);
 
     @Query("select count(sug.uid) from Suggestion sug " +
-            "where sug.area.id=?1 and sug.isDel=false and sug.status>=3 ")
-    Integer countAll(Long areaId);
+            "where sug.isDel=false and sug.level=2 and sug.area.id=?1 and sug.status>=3 ")
+    Integer countAll4Area(Long areaId);
+
+    @Query("select count(sug.uid) from Suggestion sug " +
+            "where sug.isDel=false and sug.level=1 and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 ")
+    Integer countAll4Town(Long areaId, String townUid);
 
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.auditTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")
     Integer countTownMonthNewNumber(Date date, Byte level, String uid);

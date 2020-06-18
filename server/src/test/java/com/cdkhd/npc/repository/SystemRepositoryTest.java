@@ -47,7 +47,7 @@ public class SystemRepositoryTest {
 
     @Test
     public void testCount() {
-        List<CountVo> countVos = suggestionRepository.count4Town(1L);
+        List<CountVo> countVos = suggestionRepository.countByArea(1L);
         System.out.println(countVos);
     }
 }

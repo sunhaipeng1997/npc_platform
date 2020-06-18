@@ -8,15 +8,15 @@ public interface ThirdService {
 
     AreaVo getRelation(UserDetailsImpl userDetails);
 
-    RespBody countSuggestions4Town(UserDetailsImpl userDetails);
+    RespBody countSuggestions4Town(UserDetailsImpl userDetails, Byte level, String uid);
 
-    RespBody countOpinions4Town(UserDetailsImpl userDetails);
+    RespBody countOpinions4Town(UserDetailsImpl userDetails, Byte level, String uid);
 
-    RespBody countPerformances4Town(UserDetailsImpl userDetails);
+    RespBody countPerformances4Town(UserDetailsImpl userDetails, Byte level, String uid);
 
-    RespBody countSuggestions4Type(UserDetailsImpl userDetails);
+    RespBody countSuggestions4Type(UserDetailsImpl userDetails, Byte level, String uid);
 
-    RespBody countEducation4NpcMember(UserDetailsImpl userDetails);
+    RespBody countEducation4NpcMember(UserDetailsImpl userDetails, Byte level, String uid);
 
-    RespBody countAll(UserDetailsImpl userDetails);
+    RespBody countAll(UserDetailsImpl userDetails, Byte level, String uid);
 }
