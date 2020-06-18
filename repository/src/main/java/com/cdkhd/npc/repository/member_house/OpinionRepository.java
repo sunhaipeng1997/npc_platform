@@ -21,12 +21,21 @@ public interface OpinionRepository extends BaseRepository<Opinion> {
     @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime >= ?1 and opinion.level = ?2 and opinion.area.uid = ?3")
     Integer countAreaTodayNumber(Date today, Byte level, String uid);
 
-    @Query("select new com.cdkhd.npc.vo.CountVo(town.name, count(op.uid)) from Opinion op, Town town " +
-            "where op.town=town.id and op.area.id=?1 and op.isDel=false and op.level=1 " +
-            "group by op.town")
-    List<CountVo> count4Town(Long areaId);
+    @Query("select new com.cdkhd.npc.vo.CountVo(op.town.name, count(op.uid)) from Opinion op " +
+            "where op.area.id=?1 and op.isDel=false and op.level=2 " +
+            "group by op.town.id")
+    List<CountVo> countByArea(Long areaId);
+
+    @Query("select new com.cdkhd.npc.vo.CountVo(op.receiver.npcMemberGroup.name, count(op.uid)) from Opinion op " +
+            "where op.isDel=false and op.level=1 and op.area.id=?1 and op.town.uid=?2 " +
+            "group by op.receiver.npcMemberGroup.id")
+    List<CountVo> countByTown(Long areaId, String townUid);
 
     @Query("select count(op.uid) from Opinion op " +
-            "where op.area.id=?1 and op.isDel=false")
-    Integer countAll(Long areaId);
+            "where op.level=2 and op.area.id=?1 and op.isDel=false")
+    Integer countAll4Area(Long areaId);
+
+    @Query("select count(op.uid) from Opinion op " +
+            "where op.level=1 and op.area.id=?1 and op.town.uid=?2 and op.isDel=false")
+    Integer countAll4Town(Long areaId, String townUid);
 }

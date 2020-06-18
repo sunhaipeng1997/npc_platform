@@ -22,14 +22,23 @@ public interface PerformanceRepository extends BaseRepository<Performance> {
 
     List<Performance> findByPerformanceTypeUid(String uid);
 
-    @Query("select new com.cdkhd.npc.vo.CountVo(town.name, count(pfm.uid)) from Performance pfm, Town town " +
-            "where pfm.town=town.id and pfm.area.id=?1 and pfm.isDel=false and pfm.level=1 and pfm.status=1 " +
-            "group by pfm.town")
-    List<CountVo> count4Town(Long areaId);
+    @Query("select new com.cdkhd.npc.vo.CountVo(pfm.town.name, count(pfm.uid)) from Performance pfm " +
+            "where pfm.area.id=?1 and pfm.isDel=false and pfm.level=2 and pfm.status=1 " +
+            "group by pfm.town.id")
+    List<CountVo> countByArea(Long areaId);
+
+    @Query("select new com.cdkhd.npc.vo.CountVo(pfm.npcMember.npcMemberGroup.name, count(pfm.uid)) from Performance pfm " +
+            "where pfm.isDel=false and pfm.level=1 and pfm.area.id=?1 and pfm.town.uid=?2 and pfm.status=1 " +
+            "group by pfm.npcMember.npcMemberGroup.id")
+    List<CountVo> countByTown(Long areaId, String townUid);
 
     @Query("select count(pfm.uid) from Performance pfm " +
-            "where pfm.area.id=?1 and pfm.isDel=false and pfm.status=1")
-    Integer countAll(Long areaId);
+            "where pfm.level=2 and pfm.area.id=?1 and pfm.isDel=false and pfm.status=1")
+    Integer countAll4Area(Long areaId);
+
+    @Query("select count(pfm.uid) from Performance pfm " +
+            "where pfm.level=1 and pfm.area.id=?1 and pfm.town.uid=?2 and pfm.isDel=false and pfm.status=1")
+    Integer countAll4Town(Long areaId, String townUid);
 
     List<Performance> findByNpcMemberUidAndIsDelFalse(String uid);
 }
