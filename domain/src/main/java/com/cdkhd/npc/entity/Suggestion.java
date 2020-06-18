@@ -163,7 +163,7 @@ public class Suggestion extends BaseDomain {
     private GovernmentUser governmentUser;
 
     //建议评价
-    @OneToOne(targetEntity = Appraise.class, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "suggestion", targetEntity = Appraise.class, fetch = FetchType.LAZY)
     private Appraise appraise;
 
     //建议图片
@@ -191,7 +191,7 @@ public class Suggestion extends BaseDomain {
     private Set<Urge> urges;
 
     //办理结果
-    @OneToOne(targetEntity = Result.class, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "suggestion", targetEntity = Result.class, fetch = FetchType.LAZY)
     private Result result;
 
     //附议
