@@ -50,6 +50,18 @@ public class GovSugListVo extends BaseVo {
     //协办单位
     private String coUnit;
 
+    //是否催办
+    private Boolean urge;
+
+    //催办等级
+    private Integer urgeLevel;
+
+    //是否快到期了
+    private Boolean closeDeadLine;
+
+    //是否超期了
+    private Boolean exceedLimit;
+
     //组装待审核列表
     public static GovSugListVo convert(Suggestion suggestion,Byte searchType) {
         GovSugListVo vo = new GovSugListVo();

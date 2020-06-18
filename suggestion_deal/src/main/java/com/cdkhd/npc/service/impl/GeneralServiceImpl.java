@@ -3,12 +3,15 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionBusiness;
+import com.cdkhd.npc.entity.SuggestionSetting;
 import com.cdkhd.npc.entity.Town;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.repository.base.TownRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
+import com.cdkhd.npc.repository.member_house.SuggestionRepository;
+import com.cdkhd.npc.repository.suggestion_deal.SuggestionSettingRepository;
 import com.cdkhd.npc.service.GeneralService;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
@@ -22,6 +25,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +37,15 @@ public class GeneralServiceImpl implements GeneralService {
 
     private SuggestionBusinessRepository suggestionBusinessRepository;
     private TownRepository townRepository;
+    private SuggestionSettingRepository suggestionSettingRepository;
+    private SuggestionRepository suggestionRepository;
 
     @Autowired
-    public GeneralServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, TownRepository townRepository) {
+    public GeneralServiceImpl(SuggestionBusinessRepository suggestionBusinessRepository, TownRepository townRepository, SuggestionSettingRepository suggestionSettingRepository, SuggestionRepository suggestionRepository) {
         this.suggestionBusinessRepository = suggestionBusinessRepository;
         this.townRepository = townRepository;
+        this.suggestionSettingRepository = suggestionSettingRepository;
+        this.suggestionRepository = suggestionRepository;
     }
 
     /**
@@ -103,5 +112,27 @@ public class GeneralServiceImpl implements GeneralService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    @Override
+    public void scanSuggestions(UserDetailsImpl userDetails) {
+        SuggestionSetting suggestionSetting = null;
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            suggestionSetting = suggestionSettingRepository.findByLevelAndTownUid(LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            suggestionSetting = suggestionSettingRepository.findByLevelAndAreaUid(LevelEnum.AREA.getValue(), userDetails.getArea().getUid());
+        }
+        if (suggestionSetting != null) {
+            List<Suggestion> suggestions = suggestionRepository.findByExpectDateIsNotNullAndFinishTimeIsNullAndIsDelFalse();
+            Date now = new Date();
+            for (Suggestion suggestion : suggestions) {
+                if (now.after(suggestion.getExpectDate())){//超期
+                    suggestion.setExceedLimit(true);
+                }else if ((suggestion.getExpectDate().getTime() - now.getTime())/ (1000L*3600L*24L) < suggestionSetting.getDeadline()){//临期
+                    suggestion.setCloseDeadLine(true);
+                }
+            }
+            suggestionRepository.saveAll(suggestions);
+        }
     }
 }

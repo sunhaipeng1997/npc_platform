@@ -14,7 +14,7 @@ import java.util.List;
 
 @Setter
 @Getter
-public class ConveySuggestionDto extends BaseDto {
+public class ConveySuggestionDto extends LevelDto {
 
    	//主办单位
 	private String mainUnit;

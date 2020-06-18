@@ -323,7 +323,7 @@ public class IndexServiceImpl implements IndexService {
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
                 }
                 predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));
-//                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
                 return cb.and(predicates.toArray(new Predicate[0]));
             });
             jsonObject.put(MenuEnum.GOV_FINISHED_SUGGESTIONS.toString(), finishSugList.size());
@@ -338,7 +338,7 @@ public class IndexServiceImpl implements IndexService {
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class),governmentUser.getTown().getUid()));
                 }
                 predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.ACCOMPLISHED.getValue()));
-//                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
+                predicates.add(cb.isFalse(root.get("govView").as(Boolean.class)));  //doneView字段为false
                 return cb.and(predicates.toArray(new Predicate[0]));
             });
             jsonObject.put(MenuEnum.GOV_COMPLETED_SUGGESTIONS.toString(), completedSugList.size());

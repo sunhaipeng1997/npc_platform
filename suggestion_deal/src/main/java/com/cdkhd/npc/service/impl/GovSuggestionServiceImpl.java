@@ -19,6 +19,7 @@ import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.repository.suggestion_deal.SuggestionSettingRepository;
 import com.cdkhd.npc.repository.suggestion_deal.UnitRepository;
 import com.cdkhd.npc.repository.suggestion_deal.UrgeRepository;
+import com.cdkhd.npc.service.GeneralService;
 import com.cdkhd.npc.service.GovSuggestionService;
 import com.cdkhd.npc.util.ExcelCode;
 import com.cdkhd.npc.vo.PageVo;
@@ -79,11 +80,11 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
 
     private AccountRepository accountRepository;
 
-
+    private GeneralService generalService;
 
 
     @Autowired
-    public GovSuggestionServiceImpl(SuggestionRepository suggestionRepository, UnitRepository unitRepository, GovernmentUserRepository governmentUserRepository, ConveyProcessRepository conveyProcessRepository, DelaySuggestionRepository delaySuggestionRepository, UrgeRepository urgeRepository, SuggestionSettingRepository suggestionSettingRepository, AccountRepository accountRepository) {
+    public GovSuggestionServiceImpl(SuggestionRepository suggestionRepository, UnitRepository unitRepository, GovernmentUserRepository governmentUserRepository, ConveyProcessRepository conveyProcessRepository, DelaySuggestionRepository delaySuggestionRepository, UrgeRepository urgeRepository, SuggestionSettingRepository suggestionSettingRepository, AccountRepository accountRepository, GeneralService generalService) {
         this.suggestionRepository = suggestionRepository;
         this.unitRepository = unitRepository;
         this.governmentUserRepository = governmentUserRepository;
@@ -92,6 +93,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         this.urgeRepository = urgeRepository;
         this.suggestionSettingRepository = suggestionSettingRepository;
         this.accountRepository = accountRepository;
+        this.generalService = generalService;
     }
 
     @Override
@@ -99,7 +101,24 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         RespBody body = new RespBody();
         //查询代表的建议之前首先查询系统配置
         int begin = govSuggestionPageDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), Sort.Direction.fromString(govSuggestionPageDto.getDirection()), govSuggestionPageDto.getProperty());
+        generalService.scanSuggestions(userDetails);
+        Sort.Order urge = new Sort.Order(Sort.Direction.DESC, "urge");//催办
+        Sort.Order urgeLevel = new Sort.Order(Sort.Direction.DESC, "urgeLevel");//催办
+        Sort.Order exceedLimit = new Sort.Order(Sort.Direction.DESC, "exceedLimit");//超期
+        Sort.Order closeDeadLine = new Sort.Order(Sort.Direction.DESC, "closeDeadLine");//临期
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "govView");//先按查看状态排序
+        Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(urge);
+        orders.add(urgeLevel);
+        orders.add(exceedLimit);
+        orders.add(closeDeadLine);
+        orders.add(viewSort);
+        orders.add(statusSort);
+        orders.add(createAt);
+        Sort sort = Sort.by(orders);
+        Pageable page = PageRequest.of(begin, govSuggestionPageDto.getSize(), sort);
         Page<Suggestion> suggestionPage = this.getSuggestionPage(userDetails, govSuggestionPageDto, page);
         PageVo<SuggestionVo> vo = new PageVo<>(suggestionPage, govSuggestionPageDto);
         List<SuggestionVo> suggestionVos = suggestionPage.getContent().stream().map(SuggestionVo::convert).collect(Collectors.toList());
@@ -319,6 +338,17 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         Integer conveyTimes = suggestion.getConveyTimes()==null?1:suggestion.getConveyTimes() + 1;//转办次数
         suggestion.setConveyTimes(conveyTimes);
         suggestion.setUnit(unitRepository.findByUid(conveySuggestionDto.getMainUnit()));
+        SuggestionSetting suggestionSetting = null;
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
+            suggestionSetting = suggestionSettingRepository.findByLevelAndTownUid(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
+        }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+            suggestionSetting = suggestionSettingRepository.findByLevelAndAreaUid(LevelEnum.AREA.getValue(),userDetails.getArea().getUid());
+        }
+        if (suggestionSetting != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DATE, suggestionSetting.getExpectDate());
+            suggestion.setExpectDate(calendar.getTime());
+        }
         suggestionRepository.saveAndFlush(suggestion);
         //政府方面转办流程记录办理单位
         this.govConvey(suggestion, conveySuggestionDto, userDetails.getUid(), conveyTimes);
@@ -348,17 +378,19 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             return body;
         }
         delaySuggestion.setAccept(delaySuggestionDto.getResult());
-        delaySuggestion.setDelayTime(delaySuggestionDto.getDelayDate());//实际延期时间
         delaySuggestion.setRemark(delaySuggestionDto.getRemark());//审批原因
-        Suggestion suggestion = delaySuggestion.getSuggestion();//对应的建议
-        UnitSuggestion unitSuggestion = delaySuggestion.getUnitSuggestion();//单位建议
-        if (delaySuggestionDto.getResult()){
-            suggestion.setDelayTimes(suggestion.getDelayTimes()==null?1:suggestion.getDelayTimes()+1);
-            suggestion.setExpectDate(delaySuggestionDto.getDelayDate());
-            delaySuggestion.setSuggestion(suggestion);
-            unitSuggestion.setDelayTimes(unitSuggestion.getDelayTimes()==null?1:unitSuggestion.getDelayTimes()+1);
-            unitSuggestion.setExpectDate(delaySuggestionDto.getDelayDate());
-            delaySuggestion.setUnitSuggestion(unitSuggestion);
+        if (delaySuggestionDto.getResult()) {
+            delaySuggestion.setDelayTime(delaySuggestionDto.getDelayDate());//实际延期时间
+            Suggestion suggestion = delaySuggestion.getSuggestion();//对应的建议
+            UnitSuggestion unitSuggestion = delaySuggestion.getUnitSuggestion();//单位建议
+            if (delaySuggestionDto.getResult()) {
+                suggestion.setDelayTimes(suggestion.getDelayTimes() == null ? 1 : suggestion.getDelayTimes() + 1);
+                suggestion.setExpectDate(delaySuggestionDto.getDelayDate());
+                delaySuggestion.setSuggestion(suggestion);
+                unitSuggestion.setDelayTimes(unitSuggestion.getDelayTimes() == null ? 1 : unitSuggestion.getDelayTimes() + 1);
+                unitSuggestion.setExpectDate(delaySuggestionDto.getDelayDate());
+                delaySuggestion.setUnitSuggestion(unitSuggestion);
+            }
         }
         delaySuggestionRepository.saveAndFlush(delaySuggestion);
         return body;
@@ -399,14 +431,23 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
         //然后保存新的办理单位信息
         if (adjustConveyDto.getDealStatus().equals(GovDealStatusEnum.RE_CONVEY.getValue()) && StringUtils.isNotEmpty(adjustConveyDto.getUnit())) {//如果有信息的办理单位，那么就保存，如果没有，那么就不处理
             Boolean acceptAll = true;//这个地方判断下，有可能不止一个单位申请调整，全部调整完了才能修改建议的状态
+            Boolean isDealing = true;//这个建议未申请调整的其他建议是否已经开始办理，全部都开始办理的话，得把这个建议改为办理中
             for (ConveyProcess process : suggestion.getConveyProcesses()) {
                 if (!process.getDealDone() && process.getStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){//有拒绝的建议，并且没有处理完这个拒绝，政府就还需要继续处理
                     //所有没有处理完的建议都没有被拒绝，就表示政府这边不需要在处理了
                     acceptAll = false;
                 }
+                //无需重新分配建议的时候，判断其他建议是否已经开办了
+                if (!process.getDealDone()){
+                    isDealing = false;
+                }
             }
             if (acceptAll) {
-                suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());//这个地方不能直接修改建议状态
+                if (adjustConveyDto.getDealStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue()) && isDealing){
+                    suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());//所有的建议开始办理了，需要把建议状态改为办理中
+                }else{
+                    suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());//还有些建议没有办理，那么就将建议改为待接收
+                }
             }
             suggestion.setConveyTime(new Date());
             Integer conveyTimes = suggestion.getConveyTimes() + 1;//转办次数

@@ -27,10 +27,6 @@ public class UnitSuggestion extends BaseDomain {
     @Column(name = "unit_view")
     private Boolean unitView = false;
 
-    //代表处理完办理结果后，办理单位是否查看
-    @Column(name = "completeView")
-    private Boolean completeView = false;
-
     //办理单位收到时间
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "receive_time")

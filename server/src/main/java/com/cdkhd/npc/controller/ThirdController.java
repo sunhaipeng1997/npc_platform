@@ -16,7 +16,7 @@ import java.util.List;
 
 //作为大数据展示平台的数据查询接口
 @RestController
-@RequestMapping("/api/server/third")
+@RequestMapping("/api/manager/third")
 public class ThirdController {
 
     private  ThirdService thirdService;

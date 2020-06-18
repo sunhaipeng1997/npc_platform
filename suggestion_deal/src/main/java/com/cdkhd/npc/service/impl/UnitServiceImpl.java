@@ -287,7 +287,7 @@ public class UnitServiceImpl implements UnitService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        if (StringUtils.isEmpty(unitUserAddOrUpdateDto.getUid()) && unitUserAddOrUpdateDto.getPassword().equals(unitUserAddOrUpdateDto.getConfirmPwd())){
+        if (StringUtils.isEmpty(unitUserAddOrUpdateDto.getUid()) && !unitUserAddOrUpdateDto.getPassword().equals(unitUserAddOrUpdateDto.getConfirmPwd())){
             body.setMessage("两次输入的密码不一致！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;

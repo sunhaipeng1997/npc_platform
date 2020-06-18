@@ -28,11 +28,20 @@ public class UploadController {
     }
 
     /**
-     * 上传文件
+     * 上传头像
      * */
     @PostMapping
     public ResponseEntity upload(@CurrentUser UserDetailsImpl userDetails, MultipartFile file){
         RespBody body = uploadService.upload(userDetails, file);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 上传其他图片  400 * 300
+     * */
+    @PostMapping("/uploadPic")
+    public ResponseEntity uploadPic(@CurrentUser UserDetailsImpl userDetails, MultipartFile file){
+        RespBody body = uploadService.uploadPic(userDetails, file);
         return ResponseEntity.ok(body);
     }
 

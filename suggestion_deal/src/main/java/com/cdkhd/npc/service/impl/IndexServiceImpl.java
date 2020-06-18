@@ -150,7 +150,7 @@ public class IndexServiceImpl implements IndexService {
         ArrayList<String> xaxis = new ArrayList<>();
         ArrayList<Integer> yaxis = new ArrayList<>();
         for (SuggestionBusiness suggestionBusiness : suggestionBusinesses) {
-            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUid(suggestionBusiness.getUid()).stream().filter(sug -> sug.getStatus().equals(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()) || sug.getStatus().equals(SuggestionStatusEnum.HANDLING.getValue()) || sug.getStatus().equals(SuggestionStatusEnum.HANDLED.getValue())).collect(Collectors.toList());
+            List<Suggestion> allSugs = suggestionRepository.findBySuggestionBusinessUid(suggestionBusiness.getUid()).stream().filter(sug -> sug.getStatus().equals(SuggestionStatusEnum.SUBMITTED_GOVERNMENT.getValue()) || sug.getStatus().equals(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()) || sug.getStatus().equals(SuggestionStatusEnum.HANDLING.getValue()) || sug.getStatus().equals(SuggestionStatusEnum.HANDLED.getValue())).collect(Collectors.toList());
             xaxis.add(suggestionBusiness.getName());
             yaxis.add(allSugs.size());
         }

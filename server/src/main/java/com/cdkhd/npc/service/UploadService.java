@@ -10,4 +10,6 @@ public interface UploadService {
 
     RespBody upload(UserDetailsImpl userDetails, MultipartFile avatar);
 
+    RespBody uploadPic(UserDetailsImpl userDetails, MultipartFile avatar);
+
 }

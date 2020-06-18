@@ -63,4 +63,26 @@ public class UploadServiceImpl implements UploadService {
         body.setData(url);
         return body;
     }
+
+    @Override
+    public RespBody uploadPic(UserDetailsImpl userDetails, MultipartFile avatar) {
+        RespBody<String> body = new RespBody<>();
+        if (avatar == null){
+            body.setMessage("图片上传失败！请稍后重试");
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("图片上传保存失败");
+            return body;
+        }
+        //保存代表头像至文件系统
+        String url = ImageUploadUtil.saveImage("work_station_avatar", avatar,400, 300);
+        if (url.equals("error")) {
+            body.setMessage("图片上传失败！请稍后重试");
+            body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("图片上传保存失败");
+            return body;
+        }
+        body.setMessage("图片上传成功");
+        body.setData(url);
+        return body;
+    }
 }

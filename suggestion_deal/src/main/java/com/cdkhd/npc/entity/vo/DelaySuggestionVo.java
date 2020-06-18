@@ -52,6 +52,11 @@ public class DelaySuggestionVo extends BaseVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date delayTime;
 
+    //预计完成时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectDate;
+
     // 建议
     private SuggestionVo suggestionVo;
 
@@ -61,6 +66,7 @@ public class DelaySuggestionVo extends BaseVo {
     public static DelaySuggestionVo convert(DelaySuggestion delaySuggestion) {
         DelaySuggestionVo vo = new DelaySuggestionVo();
         BeanUtils.copyProperties(delaySuggestion,vo);
+        vo.setExpectDate(delaySuggestion.getSuggestion().getExpectDate());
         vo.setSuggestionVo(SuggestionVo.convert(delaySuggestion.getSuggestion()));
         vo.setUnitSugDetailVo(UnitSugDetailVo.convert(delaySuggestion.getUnitSuggestion()));
         return vo;

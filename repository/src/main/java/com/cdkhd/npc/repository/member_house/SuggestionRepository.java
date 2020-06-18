@@ -83,4 +83,6 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.raiseTime >= ?1 and sug.raiseTime < ?2 and sug.level = ?3 and sug.area.uid = ?4 and sug.status not in (-1, 0, 1, 2)")
     Integer adminCountAreaMonthNewNumber(Date start, Date end, Byte level, String uid);
 
+    List<Suggestion> findByExpectDateIsNotNullAndFinishTimeIsNullAndIsDelFalse();
+
 }
