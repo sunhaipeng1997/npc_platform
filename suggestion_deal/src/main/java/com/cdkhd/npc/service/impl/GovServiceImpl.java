@@ -1,4 +1,5 @@
-package com.cdkhd.npc.service.impl;/*
+package com.cdkhd.npc.service.impl;
+/*
  * @description:政府模块服务层实现类
  * @author:liyang
  * @create:2020-05-20
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class GovServiceImpl implements GovService {
@@ -61,9 +64,16 @@ public class GovServiceImpl implements GovService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        Account account = accountRepository.findByUsername(govAddDto.getAccount());
+        Account account = accountRepository.findByUsername(govAddDto.getAccount());  //账号名称不能重复
         if (account != null) {
             body.setMessage("该账号已存在，请换个账号重新输入");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        List<Account> mobiles = accountRepository.findByMobile(govAddDto.getMobile());//手机号不能重复
+        if (!mobiles.isEmpty()) {
+            body.setMessage("该手机号已被使用，请重新输入");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }

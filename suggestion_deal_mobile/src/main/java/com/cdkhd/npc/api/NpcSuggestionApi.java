@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @Controller
 @RequestMapping("/api/suggestion_deal_mobile/npc_suggestion")
 public class NpcSuggestionApi {
@@ -214,6 +217,21 @@ public class NpcSuggestionApi {
     @GetMapping("/handleProcessDetail")
     public ResponseEntity handleProcessDetail(String sugUid, Byte type) {
         RespBody body = suggestionService.handleProcessDetail(sugUid, type);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+    * @Description: 代表建议详情，生成doc文档
+    * @Param:
+    * @Return:
+    * @Date: 2020/6/16
+    * @Author: LiYang
+    */
+    @GetMapping("/detailDoc")
+    public ResponseEntity detailDoc(HttpServletRequest req, HttpServletResponse res, String sugUid) {
+        String result = suggestionService.detailDoc(req, res, sugUid);
+        RespBody body = new RespBody();
+        body.setData(result);
         return ResponseEntity.ok(body);
     }
 }

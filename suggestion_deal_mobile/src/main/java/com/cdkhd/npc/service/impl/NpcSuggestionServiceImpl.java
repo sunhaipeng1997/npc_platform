@@ -21,9 +21,15 @@ import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import com.deepoove.poi.XWPFTemplate;
+import com.deepoove.poi.data.NumbericRenderData;
+import com.deepoove.poi.data.TextRenderData;
+import com.deepoove.poi.data.builder.StyleBuilder;
+import com.deepoove.poi.data.style.Style;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +46,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -332,6 +345,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         suggestion.setAuditReason(sugAuditDto.getReason());
         suggestion.setAuditTime(new Date());
         suggestion.setReason(sugAuditDto.getReason());
+        suggestion.setGovView(false);  //审核过后将govView字段改成false，便于政府未读查询
         suggestionRepository.saveAndFlush(suggestion);
 
         //生成一条回复记录
@@ -503,7 +517,15 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         suggestion.setCloseDeadLine(false);//完结之后，不再通知到期
         suggestion.setUrge(false);//完结之后，不再催办
         suggestion.setUrgeLevel(0);//完结之后，清空催办等级
+        suggestion.setGovView(false);  //评价过后将govView字段改成false，便于政府未读查询
         suggestionRepository.saveAndFlush(suggestion);
+
+        //评价后要将unitSuggestion的unitView设置为false，便于办理单位未读查询
+        Set<UnitSuggestion> unitSuggestions = suggestion.getUnitSuggestions();
+        for (UnitSuggestion unitSuggestion : unitSuggestions) {
+            unitSuggestion.setUnitView(false);
+        }
+        unitSuggestionRepository.saveAll(unitSuggestions);
 
         Appraise appraise = new Appraise();
         appraise.setAttitude(sugAppraiseDto.getAttitude());
@@ -543,6 +565,14 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         suggestion.setDealTimes(suggestion.getDealTimes() + 1);
         suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());  //将建议状态设置成“办理中”
         suggestionRepository.saveAndFlush(suggestion);
+
+        //拒绝后要将unitSuggestion的unitView设置为false，便于办理单位未读查询
+        Set<UnitSuggestion> unitSuggestions = suggestion.getUnitSuggestions();
+        for (UnitSuggestion unitSuggestion : unitSuggestions) {
+            unitSuggestion.setUnitView(false);
+        }
+        unitSuggestionRepository.saveAll(unitSuggestions);
+
         return body;
     }
 
@@ -641,7 +671,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 if (unitSuggestion.getType().equals(type)) {
                     UnitSugDetailVo unitSugDetailVo = UnitSugDetailVo.convert(unitSuggestion);
                     List<HandleProcessVo> processes = unitSugDetailVo.getProcesses();  //该条办理记录的处理流程集合
-                    for (HandleProcessVo handleProcessVo : processes){
+                    for (HandleProcessVo handleProcessVo : processes) {
                         List<UnitImage> unitImages = unitImageRepository.findByTypeAndBelongToId(ImageTypeEnum.HANDLE_PROCESS.getValue(), handleProcessRepository.findByUid(handleProcessVo.getUid()).getId());
                         handleProcessVo.setImages(unitImages.stream().map(UnitImage::getUrl).collect(Collectors.toList()));
                     }
@@ -651,6 +681,67 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         }
         body.setData(unitSugDetailVos);
         return body;
+    }
+
+    @Override
+    public String detailDoc(HttpServletRequest req, HttpServletResponse res, String sugUid) {
+        String result = "成功";
+        Suggestion suggestion = suggestionRepository.findByUid(sugUid);
+        Map<String, Object> datas = new HashMap<String, Object>();
+        datas.put("name", suggestion.getRaiser().getName());
+        datas.put("gender", suggestion.getRaiser().getGender() == 1 ? "男" : "女");
+        datas.put("mobile", suggestion.getRaiser().getMobile());
+        datas.put("title", suggestion.getTitle());
+        datas.put("content", suggestion.getContent());
+        Set<SuggestionReply> replySet = suggestion.getReplies();
+        if (CollectionUtils.isEmpty(replySet)) {
+            datas.put("returnInfo", "暂无回复");
+        } else {
+            List<TextRenderData> renderDataList = Lists.newArrayList();
+            Style style = StyleBuilder.newBuilder().buildFontSize(16).build();
+            for (SuggestionReply suggestionReply : replySet) {
+                suggestionReply.setView(true);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String repInfo = simpleDateFormat.format(suggestionReply.getCreateTime()) + " : " + suggestionReply.getReply();
+                renderDataList.add(new TextRenderData(repInfo, style));
+            }
+            datas.put("returnInfo", new NumbericRenderData(NumbericRenderData.FMT_DECIMAL, style, renderDataList));
+            suggestionReplyRepository.saveAll(replySet);
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(suggestion.getRaiseTime());
+        datas.put("year", calendar.get(Calendar.YEAR));
+        datas.put("month", calendar.get(Calendar.MONTH) + 1);
+        datas.put("day", calendar.get(Calendar.DATE));
+        XWPFTemplate template = XWPFTemplate.compile("template/suggest_word_template.docx").render(datas);
+        FileOutputStream out = null;
+        String parentPath = String.format("static/public/suggest/%s", suggestion.getRaiser().getUid());
+        File beforeFile = new File("template/suggest_word_template.docx");
+        File bgFile = new File(parentPath, "suggestion.docx");
+        try {
+            if (!bgFile.exists()) {
+                FileUtils.copyFile(beforeFile, bgFile);
+            }
+            result = bgFile.getPath().replace("static", "");
+            out = new FileOutputStream(bgFile.getPath());
+            template.write(out);
+            out.flush();
+        } catch (FileNotFoundException e) {
+            result = "失败";
+            e.printStackTrace();
+        } catch (IOException e) {
+            result = "失败";
+            e.printStackTrace();
+        } finally {
+            try {
+                out.close();
+                template.close();
+            } catch (IOException e) {
+                result = "失败";
+                e.printStackTrace();
+            }
+            return result;
+        }
     }
 
     public void saveCover(MultipartFile cover, Suggestion suggestion) {

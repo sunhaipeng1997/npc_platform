@@ -4,6 +4,9 @@ import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public interface NpcSuggestionService {
 
     /**
@@ -141,4 +144,13 @@ public interface NpcSuggestionService {
     * @Author: LiYang
     */
     RespBody handleProcessDetail(String sugUid, Byte type);
+
+    /**
+     * @Description: 代表建议详情，生成doc文档
+     * @Param:
+     * @Return:
+     * @Date: 2020/6/16
+     * @Author: LiYang
+     */
+    String detailDoc(HttpServletRequest req, HttpServletResponse res, String sugUid);
 }

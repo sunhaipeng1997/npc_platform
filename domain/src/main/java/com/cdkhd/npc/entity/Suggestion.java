@@ -180,7 +180,7 @@ public class Suggestion extends BaseDomain {
 
     //办理单位办理记录
     @OneToMany(targetEntity = UnitSuggestion.class, mappedBy = "suggestion")
-    private Set<UnitSuggestion> unitSuggestions;
+    private Set<UnitSuggestion> unitSuggestions = new HashSet<>();
 
     //建议回复
     @OneToMany(targetEntity = SuggestionReply.class, mappedBy = "suggestion", orphanRemoval = true)
