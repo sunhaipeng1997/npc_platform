@@ -7,6 +7,7 @@ import com.cdkhd.npc.entity.Town;
 import com.cdkhd.npc.entity.vo.AreaVo;
 import com.cdkhd.npc.entity.vo.EdgeVo;
 import com.cdkhd.npc.entity.vo.NodeVo;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AreaRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
@@ -61,41 +62,65 @@ public class ThirdServiceImpl implements ThirdService {
         return areaVo;
     }
 
-    //统计各镇的建议数量
+    //统计各镇 / 小组的建议数量
     @Override
-    public RespBody countSuggestions4Town(UserDetailsImpl userDetails) {
+    public RespBody countSuggestions4Town(UserDetailsImpl userDetails, Byte level, String uid) {
         RespBody<List<CountVo>> body = new RespBody<>();
-        body.setData(suggestionRepository.count4Town(userDetails.getArea().getId()));
+
+        if (level.equals(LevelEnum.AREA.getValue())) {
+            body.setData(suggestionRepository.countByArea(userDetails.getArea().getId()));
+        } else {
+            body.setData(suggestionRepository.countByTown(userDetails.getArea().getId(), uid));
+        }
+
         return body;
     }
 
     //统计各镇的意见数量
     @Override
-    public RespBody countOpinions4Town(UserDetailsImpl userDetails) {
+    public RespBody countOpinions4Town(UserDetailsImpl userDetails, Byte level, String uid) {
         RespBody<List<CountVo>> body = new RespBody<>();
-        body.setData(opinionRepository.count4Town(userDetails.getArea().getId()));
+
+        if (level.equals(LevelEnum.AREA.getValue())) {
+            body.setData(opinionRepository.countByArea(userDetails.getArea().getId()));
+        } else {
+            body.setData(opinionRepository.countByTown(userDetails.getArea().getId(), uid));
+        }
+
         return body;
     }
 
     //统计各镇的履职数量
     @Override
-    public RespBody countPerformances4Town(UserDetailsImpl userDetails) {
+    public RespBody countPerformances4Town(UserDetailsImpl userDetails, Byte level, String uid) {
         RespBody<List<CountVo>> body = new RespBody<>();
-        body.setData(performanceRepository.count4Town(userDetails.getArea().getId()));
+
+        if (level.equals(LevelEnum.AREA.getValue())) {
+            body.setData(performanceRepository.countByArea(userDetails.getArea().getId()));
+        } else {
+            body.setData(performanceRepository.countByTown(userDetails.getArea().getId(), uid));
+        }
+
         return body;
     }
 
     //统计各类型的建议数量
     @Override
-    public RespBody countSuggestions4Type(UserDetailsImpl userDetails) {
+    public RespBody countSuggestions4Type(UserDetailsImpl userDetails, Byte level, String uid) {
         RespBody<List<CountVo>> body = new RespBody<>();
-        body.setData(suggestionRepository.count4Type(userDetails.getArea().getId()));
+
+        if (level.equals(LevelEnum.AREA.getValue())) {
+            body.setData(suggestionRepository.countByAreaType(userDetails.getArea().getId()));
+        } else  {
+            body.setData(suggestionRepository.countByTownType(userDetails.getArea().getId(), uid));
+        }
+
         return body;
     }
 
     //统计代表的学历
     @Override
-    public RespBody countEducation4NpcMember(UserDetailsImpl userDetails) {
+    public RespBody countEducation4NpcMember(UserDetailsImpl userDetails, Byte level, String uid) {
         RespBody<List<CountVo>> body = new RespBody<>();
         body.setData(npcMemberRepository.countEducation(userDetails.getArea().getId()));
         return body;
@@ -103,13 +128,20 @@ public class ThirdServiceImpl implements ThirdService {
 
     //统计各镇的建议数量之和，意见数量之和，履职数量之和
     @Override
-    public RespBody countAll(UserDetailsImpl userDetails) {
+    public RespBody countAll(UserDetailsImpl userDetails, Byte level, String uid) {
         RespBody<JSONObject> body = new RespBody<>();
 
         JSONObject object = new JSONObject();
-        object.put("suggestion", suggestionRepository.countAll(userDetails.getArea().getId()));
-        object.put("performance", performanceRepository.countAll(userDetails.getArea().getId()));
-        object.put("opinion", opinionRepository.countAll(userDetails.getArea().getId()));
+
+        if (level.equals(LevelEnum.AREA.getValue())) {
+            object.put("suggestion", suggestionRepository.countAll4Area(userDetails.getArea().getId()));
+            object.put("performance", performanceRepository.countAll4Area(userDetails.getArea().getId()));
+            object.put("opinion", opinionRepository.countAll4Area(userDetails.getArea().getId()));
+        } else {
+            object.put("suggestion", suggestionRepository.countAll4Town(userDetails.getArea().getId(), uid));
+            object.put("performance", performanceRepository.countAll4Town(userDetails.getArea().getId(), uid));
+            object.put("opinion", opinionRepository.countAll4Town(userDetails.getArea().getId(), uid));
+        }
 
         body.setData(object);
         return body;
