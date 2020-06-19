@@ -15,7 +15,7 @@ public class HandleProcessAddDto extends BaseDto {
     private String unitSugUid;
 
     //流程办理时间
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date handleTime;
 
     //过程描述
