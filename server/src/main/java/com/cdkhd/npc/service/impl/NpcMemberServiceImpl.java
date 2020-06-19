@@ -11,6 +11,7 @@ import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
+import com.cdkhd.npc.repository.suggestion_deal.UnitUserRepository;
 import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.service.SessionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
@@ -57,9 +58,10 @@ public class NpcMemberServiceImpl implements NpcMemberService {
     private AccountRepository accountRepository;
     private AccountRoleRepository accountRoleRepository;
     private GovernmentUserRepository governmentUserRepository;
+    private UnitUserRepository unitUserRepository;
 
     @Autowired
-    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, SessionService sessionService, NpcMemberGroupRepository npcMemberGroupRepository, NpcMemberRoleRepository npcMemberRoleRepository, TownRepository townRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, GovernmentUserRepository governmentUserRepository) {
+    public NpcMemberServiceImpl(NpcMemberRepository npcMemberRepository, SessionRepository sessionRepository, SessionService sessionService, NpcMemberGroupRepository npcMemberGroupRepository, NpcMemberRoleRepository npcMemberRoleRepository, TownRepository townRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, GovernmentUserRepository governmentUserRepository, UnitUserRepository unitUserRepository) {
         this.npcMemberRepository = npcMemberRepository;
         this.sessionRepository = sessionRepository;
         this.sessionService = sessionService;
@@ -69,6 +71,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         this.accountRepository = accountRepository;
         this.accountRoleRepository = accountRoleRepository;
         this.governmentUserRepository = governmentUserRepository;
+        this.unitUserRepository = unitUserRepository;
     }
 
     /**
@@ -172,6 +175,13 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("政府人员不能添加为代表。");
             LOGGER.warn("手机号为 {} 是政府人员，不能添加为代表信息", dto.getMobile());
+            return body;
+        }
+        UnitUser unitUser = unitUserRepository.findByMobileAndIsDelFalse(dto.getMobile());
+        if (unitUser != null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("单位人员不能添加为代表。");
+            LOGGER.warn("手机号为 {} 是单位人员，不能添加为代表信息", dto.getMobile());
             return body;
         }
         if (StringUtils.isNotEmpty(dto.getUid())) {

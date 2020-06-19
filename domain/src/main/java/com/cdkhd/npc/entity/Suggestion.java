@@ -48,10 +48,6 @@ public class Suggestion extends BaseDomain {
     @Column(name = "status")
     private Byte status;
 
-    //领衔人手机号
-    @Column(name = "mobile")
-    private String mobile;
-
     //提出时间
     @Column(name = "raise_time")
     @Temporal(TemporalType.TIMESTAMP)
@@ -207,11 +203,6 @@ public class Suggestion extends BaseDomain {
     @ManyToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "town", referencedColumnName = "id")
     private Town town;
-
-    //对应的小组
-    @ManyToOne(targetEntity = NpcMemberGroup.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "npcMemberGroup", referencedColumnName = "id")
-    private NpcMemberGroup npcMemberGroup;
 
     //实际的审核人员
     @ManyToOne(targetEntity = NpcMember.class, fetch = FetchType.LAZY)

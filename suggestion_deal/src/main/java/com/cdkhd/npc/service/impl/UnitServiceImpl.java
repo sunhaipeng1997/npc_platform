@@ -18,7 +18,7 @@ import com.cdkhd.npc.service.UnitService;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
-import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,9 +60,11 @@ public class UnitServiceImpl implements UnitService {
 
     private GovernmentUserRepository governmentUserRepository;
 
+    private NpcMemberRepository npcMemberRepository;
+
 
     @Autowired
-    public UnitServiceImpl(PasswordEncoder passwordEncoder, UnitRepository unitRepository, UnitUserRepository unitUserRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SuggestionBusinessRepository suggestionBusinessRepository, Environment env, LoginUPRepository loginUPRepository, GovernmentUserRepository governmentUserRepository) {
+    public UnitServiceImpl(PasswordEncoder passwordEncoder, UnitRepository unitRepository, UnitUserRepository unitUserRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SuggestionBusinessRepository suggestionBusinessRepository, Environment env, LoginUPRepository loginUPRepository, GovernmentUserRepository governmentUserRepository, NpcMemberRepository npcMemberRepository) {
         this.passwordEncoder = passwordEncoder;
         this.unitRepository = unitRepository;
         this.unitUserRepository = unitUserRepository;
@@ -72,6 +74,7 @@ public class UnitServiceImpl implements UnitService {
         this.governmentUserRepository = governmentUserRepository;
         this.env = env;
         this.loginUPRepository = loginUPRepository;
+        this.npcMemberRepository = npcMemberRepository;
     }
 
 
@@ -295,6 +298,12 @@ public class UnitServiceImpl implements UnitService {
         GovernmentUser governmentUser = governmentUserRepository.findByAccountMobile(unitUserAddOrUpdateDto.getMobile());//已进是政府的手机号，就不能设置为单位的
         if (governmentUser != null){
             body.setMessage("政府人员不能设置为办理单位人员！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+        List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(unitUserAddOrUpdateDto.getMobile());//代表也不能加为单位人员
+        if (CollectionUtils.isNotEmpty(npcMembers)){
+            body.setMessage("代表不能设置为办理单位人员！");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }

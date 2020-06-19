@@ -8,6 +8,7 @@ import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -79,6 +80,15 @@ public class GovSugDetailVo extends BaseVo {
     //图片路径
     private List<String> images;
 
+    //办理情况
+    private List<UnitSugDetailVo> unitSugDetailVo;
+
+    //建议结果
+    private ResultVo resultVo;
+
+    //评价
+    private AppraiseVo appraiseVo;
+
     public static GovSugDetailVo convert(Suggestion suggestion) {
         GovSugDetailVo vo = new GovSugDetailVo();
         BeanUtils.copyProperties(suggestion, vo);
@@ -97,6 +107,15 @@ public class GovSugDetailVo extends BaseVo {
                 }
             }
             vo.setCoUnit(stringJoiner.toString());
+        }
+        if (CollectionUtils.isNotEmpty(suggestion.getUnitSuggestions())){
+            vo.setUnitSugDetailVo(suggestion.getUnitSuggestions().stream().map(UnitSugDetailVo::convert).collect(Collectors.toList()));
+        }
+        if (suggestion.getResult() != null){
+            vo.setResultVo(ResultVo.convert(suggestion.getResult()));
+        }
+        if (suggestion.getAppraise() != null){
+            vo.setAppraiseVo(AppraiseVo.convert(suggestion.getAppraise()));
         }
         return vo;
     }
