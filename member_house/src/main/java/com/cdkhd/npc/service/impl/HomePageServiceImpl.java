@@ -5,6 +5,7 @@ import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.HomePageVo;
 import com.cdkhd.npc.enums.LevelEnum;
+import com.cdkhd.npc.enums.PerformanceStatusEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.member_house.OpinionRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
@@ -228,12 +229,17 @@ public class HomePageServiceImpl implements HomePageService {
         List<PerformanceType> performanceTypes = performanceTypeRepository.findAll((Specification<PerformanceType>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
             predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                if (userDetails.getTown().getType() == (byte)1) {
+                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));
+                }else if (userDetails.getTown().getType() == (byte)2) {
+                    predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
+                }
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
+                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         });
@@ -247,7 +253,7 @@ public class HomePageServiceImpl implements HomePageService {
             predicates.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startAt));
             predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endAt));
             predicates.add(cb.equal(root.get("level").as(Byte.class), userDetails.getLevel()));
-            predicates.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
+            predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue()));
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
