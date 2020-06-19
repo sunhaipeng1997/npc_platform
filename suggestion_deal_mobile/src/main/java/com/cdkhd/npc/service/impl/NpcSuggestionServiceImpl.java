@@ -697,11 +697,14 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             Unit unit = unitRepository.findByUid(conveySugDto.getUid());
             unitSuggestion.setUnit(unit);//办理单位
             unitSuggestion.setSuggestion(suggestion);//建议
-            unitSuggestion.setType((byte) 1);//主办单位
+            unitSuggestion.setType(UnitTypeEnum.MAIN_UNIT.getValue());//主办单位
             GovernmentUser governmentUser = governmentUserRepository.findByUid(userUid);
             unitSuggestion.setGovernmentUser(governmentUser);  //转交的政府人员
             unitSuggestion.setReceiveTime(new Date());
+            unitSuggestion.setAcceptTime(new Date());
             unitSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
+            unitSuggestion.setExpectDate(suggestion.getExpectDate());
+            unitSuggestion.setUnitView(false);
             unitSuggestion.setUnitUser(this.getUnitUser(suggestion, conveySugDto.getMainUnit()));
             unitSuggestionList.add(unitSuggestion);
         }
@@ -712,12 +715,15 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 Unit unit = unitRepository.findByUid(sponsorUnit);
                 sponsorSuggestion.setUnit(unit);//办理单位
                 sponsorSuggestion.setSuggestion(suggestion);//建议
-                sponsorSuggestion.setType((byte) 2);//协办单位
+                sponsorSuggestion.setType(UnitTypeEnum.CO_UNIT.getValue());//协办单位
                 GovernmentUser governmentUser = governmentUserRepository.findByUid(userUid);
                 sponsorSuggestion.setGovernmentUser(governmentUser);
                 sponsorSuggestion.setReceiveTime(new Date());//收到时间
+                sponsorSuggestion.setAcceptTime(new Date());//接受时间
                 sponsorSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
                 sponsorSuggestion.setUnitUser(this.getUnitUser(suggestion, sponsorUnit));
+                sponsorSuggestion.setExpectDate(suggestion.getExpectDate());
+                sponsorSuggestion.setUnitView(false);
                 unitSuggestionList.add(sponsorSuggestion);
             }
         }

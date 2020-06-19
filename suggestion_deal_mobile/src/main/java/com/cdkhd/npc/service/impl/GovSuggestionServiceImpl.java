@@ -168,6 +168,8 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             calendar.add(Calendar.DATE, suggestionSetting.getExpectDate());
             suggestion.setExpectDate(calendar.getTime());
         }
+        //政府处理人
+        suggestion.setGovernmentUser(governmentUserRepository.findByAccountUid(userDetails.getUid()));
         suggestionRepository.saveAndFlush(suggestion);
         //政府方面转办流程记录办理单位
         this.govConvey(suggestion, conveySuggestionDto, userDetails.getUid(), conveyTimes);
@@ -318,6 +320,8 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
                 spinsordId.add(adjustConveyDto.getUnit());
                 conveySuggestionDto.setCoUnits(spinsordId);
             }
+            //政府处理人
+            suggestion.setGovernmentUser(governmentUserRepository.findByAccountUid(userDetails.getUid()));
             suggestionRepository.saveAndFlush(suggestion);
             this.govConvey(suggestion, conveySuggestionDto, userDetails.getUid(), conveyTimes);
         }

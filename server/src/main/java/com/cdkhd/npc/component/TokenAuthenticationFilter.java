@@ -2,7 +2,6 @@ package com.cdkhd.npc.component;
 
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.enums.AccountRoleEnum;
-import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.util.JwtUtils;
@@ -12,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -76,10 +74,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 }
             } catch (ExpiredJwtException e) {
                 logger.warn("token已过期，请重新登录");
-                e.printStackTrace();
+//                e.printStackTrace();
             } catch (Exception e) {
                 logger.warn("token解析失败");
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
         //不管token验证通过与否，继续下一个过滤

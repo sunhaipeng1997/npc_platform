@@ -30,7 +30,7 @@ public class UploadController {
     /**
      * 上传头像
      * */
-    @PostMapping
+    @PostMapping("/uploadAvatar")
     public ResponseEntity upload(@CurrentUser UserDetailsImpl userDetails, MultipartFile file){
         RespBody body = uploadService.upload(userDetails, file);
         return ResponseEntity.ok(body);

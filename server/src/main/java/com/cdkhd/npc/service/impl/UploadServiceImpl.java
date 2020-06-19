@@ -52,7 +52,7 @@ public class UploadServiceImpl implements UploadService {
             return body;
         }
         //保存代表头像至文件系统
-        String url = ImageUploadUtil.saveImage("work_station_avatar", avatar,150, 200);
+        String url = ImageUploadUtil.saveImage("images", avatar,150, 200);
         if (url.equals("error")) {
             body.setMessage("图片上传失败！请稍后重试");
             body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -74,7 +74,7 @@ public class UploadServiceImpl implements UploadService {
             return body;
         }
         //保存代表头像至文件系统
-        String url = ImageUploadUtil.saveImage("work_station_avatar", avatar,400, 300);
+        String url = ImageUploadUtil.saveImage("images", avatar,400, 300);
         if (url.equals("error")) {
             body.setMessage("图片上传失败！请稍后重试");
             body.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
