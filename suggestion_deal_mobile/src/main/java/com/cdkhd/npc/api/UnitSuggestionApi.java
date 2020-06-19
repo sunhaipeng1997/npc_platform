@@ -91,8 +91,14 @@ public class UnitSuggestionApi {
         return ResponseEntity.ok(body);
     }
 
+    @GetMapping("/page_complete")
+    public ResponseEntity findPageOfComplete(@CurrentUser MobileUserDetailsImpl userDetails, PageDto pageDto) {
+        RespBody body = unitSuggestionService.findPageOfComplete(userDetails, pageDto);
+        return ResponseEntity.ok(body);
+    }
+
     @GetMapping("/page_done")
-    public ResponseEntity findPageOf(@CurrentUser MobileUserDetailsImpl userDetails, PageDto pageDto) {
+    public ResponseEntity findPageOfDone(@CurrentUser MobileUserDetailsImpl userDetails, PageDto pageDto) {
         RespBody body = unitSuggestionService.findPageOfDone(userDetails, pageDto);
         return ResponseEntity.ok(body);
     }

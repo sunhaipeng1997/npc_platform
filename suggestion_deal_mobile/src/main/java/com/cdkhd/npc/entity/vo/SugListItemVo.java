@@ -24,9 +24,9 @@ public class SugListItemVo extends BaseVo {
     //建议标题
     private String title;
 
-    //收到时间
+    //时间
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date receiveTime;
+    private Date date;
 
     //建议类型
     private String typeName;
@@ -37,13 +37,17 @@ public class SugListItemVo extends BaseVo {
     //建议封面图url
     private String coverUrl;
 
-    public SugListItemVo(String uid, String title, Date receiveTime, String typeName, boolean unread, String coverUrl) {
+    //政府名称
+    private String govName;
+
+    public SugListItemVo(String uid, String title, Date date, String typeName, boolean unread, String coverUrl, String govName) {
         this.setUid(uid);
         this.title = title;
-        this.receiveTime = receiveTime;
+        this.date = date;
         this.typeName = typeName;
         this.unread = unread;
         this.coverUrl = coverUrl;
+        this.govName = govName;
     }
 
     public static SugListItemVo convert(ConveyProcess process) {
@@ -53,7 +57,7 @@ public class SugListItemVo extends BaseVo {
         String coverUrl = getCoverUrl(suggestion);
 
         return new SugListItemVo(process.getUid(), suggestion.getTitle(), process.getConveyTime(),
-                suggestion.getSuggestionBusiness().getName(), unread, coverUrl);
+                suggestion.getSuggestionBusiness().getName(), unread, coverUrl, process.getGovernmentUser().getGovernment().getName());
     }
 
     public static SugListItemVo convert(UnitSuggestion unitSuggestion) {
@@ -63,7 +67,7 @@ public class SugListItemVo extends BaseVo {
         String coverUrl = getCoverUrl(suggestion);
 
         return new SugListItemVo(unitSuggestion.getUid(), suggestion.getTitle(), unitSuggestion.getAcceptTime(),
-                suggestion.getSuggestionBusiness().getName(), unread, coverUrl);
+                suggestion.getSuggestionBusiness().getName(), unread, coverUrl, unitSuggestion.getGovernmentUser().getGovernment().getName());
     }
 
     //获取建议封面图，当建议有图片时，选取第一张作为封面

@@ -726,8 +726,109 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
      * @return
      */
     @Override
+    public RespBody findPageOfComplete(MobileUserDetailsImpl userDetails, PageDto pageDto) {
+        RespBody<PageVo<SugListItemVo>> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限查询已办完建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法查询已办完建议");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+
+        //构造分页条件
+        List<Sort.Order> orders = new ArrayList<>();
+        //未读消息在前
+        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
+        //按办完时间降序排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
+        Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
+
+        //办理中建议查询条件
+        Specification<UnitSuggestion> spec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为已办完
+            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.HANDLED.getValue()));
+            //unitSug的finish为true已办完
+            predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+        Page<UnitSuggestion> page = unitSuggestionRepository.findAll(spec, pageable);
+        List<SugListItemVo> sugListItemVoList = page.stream()
+                .map(SugListItemVo::convert)
+                .collect(Collectors.toList());
+
+        PageVo<SugListItemVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(sugListItemVoList);
+
+        body.setData(pageVo);
+        return body;
+    }
+
+    /**
+     * 分页查询已办结建议
+     * @param userDetails
+     * @param pageDto
+     * @return
+     */
+    @Override
     public RespBody findPageOfDone(MobileUserDetailsImpl userDetails, PageDto pageDto) {
-        return null;
+        RespBody<PageVo<SugListItemVo>> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限查询已办结建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法查询已办结建议");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+
+        //构造分页条件
+        List<Sort.Order> orders = new ArrayList<>();
+        //未读消息在前
+        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
+        //按办完时间降序排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
+        Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
+
+        //办理中建议查询条件
+        Specification<UnitSuggestion> spec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为已办完
+            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.ACCOMPLISHED.getValue()));
+            //unitSug的finish为true已办完
+            predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+        Page<UnitSuggestion> page = unitSuggestionRepository.findAll(spec, pageable);
+        List<SugListItemVo> sugListItemVoList = page.stream()
+                .map(SugListItemVo::convert)
+                .collect(Collectors.toList());
+
+        PageVo<SugListItemVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(sugListItemVoList);
+
+        body.setData(pageVo);
+        return body;
     }
 
     /**
