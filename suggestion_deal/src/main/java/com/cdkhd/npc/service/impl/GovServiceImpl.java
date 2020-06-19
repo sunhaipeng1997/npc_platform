@@ -6,10 +6,7 @@ package com.cdkhd.npc.service.impl;
  */
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.Government;
-import com.cdkhd.npc.entity.GovernmentUser;
-import com.cdkhd.npc.entity.LoginUP;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.GovAddDto;
 import com.cdkhd.npc.entity.vo.GovDetailVo;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -17,6 +14,7 @@ import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.repository.suggestion_deal.GovernmentRepository;
+import com.cdkhd.npc.repository.suggestion_deal.UnitUserRepository;
 import com.cdkhd.npc.service.GovService;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Sets;
@@ -44,8 +42,12 @@ public class GovServiceImpl implements GovService {
 
     private PasswordEncoder passwordEncoder;
 
+    private NpcMemberRepository npcMemberRepository;
+
+    private UnitUserRepository unitUserRepository;
+
     @Autowired
-    public GovServiceImpl(GovernmentRepository governmentRepository, GovernmentUserRepository governmentUserRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SystemRepository systemRepository, LoginUPRepository loginUPRepository, PasswordEncoder passwordEncoder) {
+    public GovServiceImpl(GovernmentRepository governmentRepository, GovernmentUserRepository governmentUserRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SystemRepository systemRepository, LoginUPRepository loginUPRepository, PasswordEncoder passwordEncoder, NpcMemberRepository npcMemberRepository, UnitUserRepository unitUserRepository) {
         this.governmentRepository = governmentRepository;
         this.governmentUserRepository = governmentUserRepository;
         this.accountRepository = accountRepository;
@@ -53,6 +55,8 @@ public class GovServiceImpl implements GovService {
         this.systemRepository = systemRepository;
         this.loginUPRepository = loginUPRepository;
         this.passwordEncoder = passwordEncoder;
+        this.npcMemberRepository = npcMemberRepository;
+        this.unitUserRepository = unitUserRepository;
     }
 
     @Override
@@ -71,8 +75,15 @@ public class GovServiceImpl implements GovService {
             return body;
         }
 
-        List<Account> mobiles = accountRepository.findByMobile(govAddDto.getMobile());//手机号不能重复
-        if (!mobiles.isEmpty()) {
+        List<NpcMember> members = npcMemberRepository.findByMobileAndIsDelFalse(govAddDto.getMobile());//手机号不能重复
+        if (!members.isEmpty()) {
+            body.setMessage("该手机号已被使用，请重新输入");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        UnitUser unitUser = unitUserRepository.findByMobileAndIsDelFalse(govAddDto.getMobile());
+        if (unitUser != null) {
             body.setMessage("该手机号已被使用，请重新输入");
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
