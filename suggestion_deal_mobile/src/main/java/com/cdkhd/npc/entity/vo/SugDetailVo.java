@@ -3,21 +3,16 @@ package com.cdkhd.npc.entity.vo;
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionImage;
-import com.cdkhd.npc.entity.SuggestionReply;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -35,9 +30,8 @@ public class SugDetailVo extends BaseVo {
     //建议的内容
     private String content;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date raiseTime;
+    //附议人
+    private List<String> secondNames;
 
     //状态
     private Byte status;
@@ -75,15 +69,18 @@ public class SugDetailVo extends BaseVo {
     //提出代表信息
     private NpcMemberVo npcMemberVo;
 
-    private int my_suggestion_number;
-
-    private int timeout;
-
     //单位延期记录
-    private List<DelaySuggestionVo> delaySuggestionVos = new ArrayList<>();
+    private List<DelaySuggestionVo> delaySuggestionVos;
 
     //评价详情
     private AppraiseVo appraiseVo;
+
+    //办理结果详情
+    private ResultVo resultVo;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date raiseTime;
 
     public static SugDetailVo convert(Suggestion suggestion) {
         SugDetailVo vo = new SugDetailVo();
@@ -96,30 +93,9 @@ public class SugDetailVo extends BaseVo {
         if (npcMember != null) {
             vo.setNpcMemberVo(NpcMemberVo.convert(npcMember));
         }
-        Set<SuggestionReply> replies = suggestion.getReplies();
-        if (replies != null) {
-            AtomicInteger vieww = new AtomicInteger();
-            replies.stream().map(reply -> {
-                boolean view = reply.getView();
-                if (!view) {
-                    vieww.getAndIncrement();
-                    vo.setMyView(false);
-                }
-                return vieww;
-            }).collect(Collectors.toSet());
-            vo.setMy_suggestion_number(vieww.get());
-        }
         vo.setStatusName(SuggestionStatusEnum.getName(suggestion.getStatus()));
 
-        Integer timeout = 2;
-        Date expireAt = DateUtils.addMinutes(suggestion.getCreateTime(), timeout);
-        Boolean view = suggestion.getView();
-        vo.setView(view);
-        if (expireAt.before(new Date()) || view) {
-            vo.setTimeout(0);
-        } else {
-            vo.setTimeout(1);
-        }
+        vo.setSecondNames(suggestion.getSecondedSet().stream().map(second -> second.getNpcMember().getName()).collect(Collectors.toList()));
         return vo;
     }
 }

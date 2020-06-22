@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ResultVo {
+
     //办理结果
     private String result;
 

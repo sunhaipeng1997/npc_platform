@@ -3,10 +3,7 @@ package com.cdkhd.npc.service.impl;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.*;
-import com.cdkhd.npc.entity.vo.AppraiseVo;
-import com.cdkhd.npc.entity.vo.HandleProcessVo;
-import com.cdkhd.npc.entity.vo.SugDetailVo;
-import com.cdkhd.npc.entity.vo.UnitSugDetailVo;
+import com.cdkhd.npc.entity.vo.*;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.GovernmentUserRepository;
@@ -294,12 +291,17 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         suggestionRepository.saveAndFlush(suggestion);
 
         SugDetailVo sugDetailVo = SugDetailVo.convert(suggestion);
-        AppraiseVo appraiseVo = null;
+
+        //评价
         if (suggestion.getAppraise() != null) {
-            appraiseVo = AppraiseVo.convert(suggestion.getAppraise());
-            appraiseVo.setNpcMemberName(suggestion.getAppraise().getNpcMember().getName());
+            sugDetailVo.setAppraiseVo(AppraiseVo.convert(suggestion.getAppraise()));
         }
-        sugDetailVo.setAppraiseVo(appraiseVo);
+
+        //办理结果
+        if (suggestion.getResult() != null) {
+            sugDetailVo.setResultVo(ResultVo.convert(suggestion.getResult()));
+        }
+
         body.setData(sugDetailVo);
         return body;
     }
@@ -433,8 +435,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 query.orderBy(cb.desc(root.get("status")), cb.desc(root.get("raiseTime")));
                 return query.getRestriction();
             }, page);
-            List<Suggestion> suggestions = pageRes.getContent();
-            List<SugDetailVo> sugDetailVos = pageRes.stream().map(SugDetailVo::convert).sorted(Comparator.comparing(SugDetailVo::getMyView)).collect(Collectors.toList());
+            Set<Suggestion> suggestions = new HashSet<>(pageRes.getContent());
+            List<SugDetailVo> sugDetailVos = suggestions.stream().map(SugDetailVo::convert).sorted(Comparator.comparing(SugDetailVo::getMyView)).collect(Collectors.toList());
             for (SugDetailVo sugDetailVo : sugDetailVos) {
                 for (Suggestion suggestion : suggestions) {
                     if (sugDetailVo.getUid().equals(suggestion.getUid())) {
@@ -655,7 +657,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     }
 
     @Override
-    public RespBody handleProcessDetail(String sugUid, Byte type) {
+    public RespBody handleProcessDetail(String sugUid, Byte type) {  //查询办理单位的办理流程
+        //type = 1表示查询主办单位  type = 2表示查询协办单位
         RespBody body = new RespBody();
         Suggestion suggestion = suggestionRepository.findByUid(sugUid);
         if (suggestion == null) {
@@ -664,22 +667,45 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             return body;
         }
 
-        List<UnitSugDetailVo> unitSugDetailVos = new ArrayList<>();
+        //每个单位的办理记录
+        List<UnitProcessVo> unitProcessVos = new ArrayList<>();
+
+        //每个单位收到的该建议的办理记录
+        Map<Unit, List<UnitSuggestion>> map = new HashMap<>();
+
+        //该建议对应的所有办理记录（可能一个办理单位有多个办理记录）
         Set<UnitSuggestion> unitSuggestions = suggestion.getUnitSuggestions();
+
         if (unitSuggestions != null) {
             for (UnitSuggestion unitSuggestion : unitSuggestions) {
                 if (unitSuggestion.getType().equals(type)) {
-                    UnitSugDetailVo unitSugDetailVo = UnitSugDetailVo.convert(unitSuggestion);
-                    List<HandleProcessVo> processes = unitSugDetailVo.getProcesses();  //该条办理记录的处理流程集合
-                    for (HandleProcessVo handleProcessVo : processes) {
-                        List<UnitImage> unitImages = unitImageRepository.findByTypeAndBelongToId(ImageTypeEnum.HANDLE_PROCESS.getValue(), handleProcessRepository.findByUid(handleProcessVo.getUid()).getId());
-                        handleProcessVo.setImages(unitImages.stream().map(UnitImage::getUrl).collect(Collectors.toList()));
+                    Unit unit = unitSuggestion.getUnit();  //这条办理记录对应的办理单位
+                    List<UnitSuggestion> unitSuggestionList;  //该办理单位对应的该条建议的办理记录
+                    if (map.get(unit) == null) {
+                        unitSuggestionList = new ArrayList<>();
+                    } else {
+                        unitSuggestionList = map.get(unit);
                     }
-                    unitSugDetailVos.add(unitSugDetailVo);
+                    unitSuggestionList.add(unitSuggestion);
+                    map.put(unit, unitSuggestionList);
                 }
             }
         }
-        body.setData(unitSugDetailVos);
+
+        for (Unit unit : map.keySet()) {
+            UnitProcessVo unitProcessVo = new UnitProcessVo();
+            unitProcessVo.setUnitName(unit.getName());
+            List<UnitSuggestion> unitSuggestionList = map.get(unit);
+            List<UnitSugDetailVo> unitSugDetailVos = new ArrayList<>();
+            for (UnitSuggestion unitSuggestion : unitSuggestionList) {
+                UnitSugDetailVo unitSugDetailVo = UnitSugDetailVo.convert(unitSuggestion);
+                unitSugDetailVos.add(unitSugDetailVo);
+            }
+            unitProcessVo.setUnitSugDetailVos(unitSugDetailVos);
+            unitProcessVos.add(unitProcessVo);
+        }
+
+        body.setData(unitProcessVos);
         return body;
     }
 

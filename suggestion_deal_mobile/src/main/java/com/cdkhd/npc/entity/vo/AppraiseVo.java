@@ -30,6 +30,7 @@ public class AppraiseVo extends BaseVo {
     public static AppraiseVo convert(Appraise appraise) {
         AppraiseVo appraiseVo = new AppraiseVo();
         BeanUtils.copyProperties(appraise, appraiseVo);
+        appraiseVo.setNpcMemberName(appraise.getNpcMember().getName());
         return appraiseVo;
     }
 }
