@@ -40,7 +40,7 @@ public class UintSuggestionController {
 
     @GetMapping("/page_to_deal")
     ResponseEntity pageToDeal(@CurrentUser UserDetailsImpl userDetails, ToDealPageDto pageDto) {
-        RespBody body = suggestionService.findToDeal(userDetails, pageDto);
+        RespBody body = suggestionService.findPageOfToDeal(userDetails, pageDto);
         return ResponseEntity.ok(body);
     }
 
@@ -96,6 +96,18 @@ public class UintSuggestionController {
     @PostMapping("/finish")
     public ResponseEntity finishDeal(@CurrentUser UserDetailsImpl userDetails, ResultAddDto toAdd) {
         RespBody body = suggestionService.finishDeal(userDetails, toAdd);
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/page_done")
+    ResponseEntity pageDone(@CurrentUser UserDetailsImpl userDetails, DonePageDto pageDto) {
+        RespBody body = suggestionService.findPageOfDone(userDetails, pageDto);
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/page_complete")
+    ResponseEntity pageComplete(@CurrentUser UserDetailsImpl userDetails, CompletePageDto pageDto) {
+        RespBody body = suggestionService.findPageOfComplete(userDetails, pageDto);
         return ResponseEntity.ok(body);
     }
 }

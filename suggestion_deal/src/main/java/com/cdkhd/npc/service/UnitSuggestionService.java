@@ -1,10 +1,7 @@
 package com.cdkhd.npc.service;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.HandleProcessAddDto;
-import com.cdkhd.npc.entity.dto.InDealingPageDto;
-import com.cdkhd.npc.entity.dto.ResultAddDto;
-import com.cdkhd.npc.entity.dto.ToDealPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +10,7 @@ import java.util.List;
 
 public interface UnitSuggestionService {
 
-    RespBody findToDeal(UserDetailsImpl userDetails, ToDealPageDto pageDto);
+    RespBody findPageOfToDeal(UserDetailsImpl userDetails, ToDealPageDto pageDto);
 
     RespBody checkToDealDetail(UserDetailsImpl userDetails, String cpUid);
 
@@ -32,4 +29,8 @@ public interface UnitSuggestionService {
     RespBody finishDeal(UserDetailsImpl userDetails, ResultAddDto toAdd);
 
     RespBody uploadOneImage(UserDetailsImpl userDetails, MultipartFile image, Byte type);
+
+    RespBody findPageOfDone(UserDetailsImpl userDetails, DonePageDto pageDto);
+
+    RespBody findPageOfComplete(UserDetailsImpl userDetails, CompletePageDto pageDto);
 }
