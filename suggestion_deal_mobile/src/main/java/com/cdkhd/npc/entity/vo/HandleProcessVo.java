@@ -1,6 +1,8 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.HandleProcess;
+import com.cdkhd.npc.entity.UnitImage;
+import com.cdkhd.npc.enums.ImageTypeEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -9,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -23,6 +26,7 @@ public class HandleProcessVo extends BaseVo {
     public static HandleProcessVo convert(HandleProcess hp) {
         HandleProcessVo vo = new HandleProcessVo();
         BeanUtils.copyProperties(hp, vo);
+        vo.setImages(hp.getProcessImages().stream().filter(uImg -> uImg.getType().equals(ImageTypeEnum.HANDLE_PROCESS.getValue())).map(UnitImage::getUrl).collect(Collectors.toList()));
         return vo;
     }
 }

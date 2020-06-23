@@ -89,6 +89,9 @@ public class GovSugDetailVo extends BaseVo {
     //评价
     private AppraiseVo appraiseVo;
 
+    //附议人
+    private List<String> seconded;
+
     public static GovSugDetailVo convert(Suggestion suggestion) {
         GovSugDetailVo vo = new GovSugDetailVo();
         BeanUtils.copyProperties(suggestion, vo);
@@ -116,6 +119,9 @@ public class GovSugDetailVo extends BaseVo {
         }
         if (suggestion.getAppraise() != null){
             vo.setAppraiseVo(AppraiseVo.convert(suggestion.getAppraise()));
+        }
+        if (CollectionUtils.isNotEmpty(suggestion.getSecondedSet())){
+            vo.setSeconded(suggestion.getSecondedSet().stream().map(sec -> sec.getNpcMember().getName()).collect(Collectors.toList()));
         }
         return vo;
     }

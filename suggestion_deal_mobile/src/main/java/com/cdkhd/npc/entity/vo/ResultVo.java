@@ -1,11 +1,14 @@
 package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Result;
+import com.cdkhd.npc.entity.UnitImage;
+import com.cdkhd.npc.enums.ImageTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -30,6 +33,7 @@ public class ResultVo {
         ResultVo vo = new ResultVo();
 
         BeanUtils.copyProperties(result, vo);
+        vo.setImages(result.getResultImages().stream().filter(uImg -> uImg.getType().equals(ImageTypeEnum.HANDLE_RESULT.getValue())).map(UnitImage::getUrl).collect(Collectors.toList()));
 
         return vo;
     }
