@@ -436,7 +436,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 return query.getRestriction();
             }, page);
             Set<Suggestion> suggestions = new HashSet<>(pageRes.getContent());
-            List<SugDetailVo> sugDetailVos = suggestions.stream().map(SugDetailVo::convert).sorted(Comparator.comparing(SugDetailVo::getMyView)).collect(Collectors.toList());
+            List<SugDetailVo> sugDetailVos = suggestions.stream().map(SugDetailVo::convert).sorted((e1, e2) -> e2.getRaiseTime().compareTo(e1.getRaiseTime())).collect(Collectors.toList());
             for (SugDetailVo sugDetailVo : sugDetailVos) {
                 for (Suggestion suggestion : suggestions) {
                     if (sugDetailVo.getUid().equals(suggestion.getUid())) {
@@ -492,7 +492,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             query.orderBy(cb.asc(root.get("view")), cb.asc(root.get("status")), cb.desc(root.get("createTime")));
             return query.getRestriction();
         }, page);
-        List<SugDetailVo> sugDetailVos = pageRes.stream().map(SugDetailVo::convert).collect(Collectors.toList());
+        List<SugDetailVo> sugDetailVos = pageRes.stream().map(SugDetailVo::convert).sorted((e1, e2) -> e2.getRaiseTime().compareTo(e1.getRaiseTime())).collect(Collectors.toList());
         vo.setContent(sugDetailVos);
         vo.copy(pageRes);
         body.setData(vo);

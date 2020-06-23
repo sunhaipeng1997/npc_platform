@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class UnitSugDetailVo extends BaseVo {
         UnitSugDetailVo vo = new UnitSugDetailVo();
 
         String unitTypeName = UnitTypeEnum.getName(unitSug.getType());
-        List<HandleProcessVo> processVos = unitSug.getProcesses().stream().map(HandleProcessVo::convert).collect(Collectors.toList());
+        List<HandleProcessVo> processVos = unitSug.getProcesses().stream().map(HandleProcessVo::convert).sorted(Comparator.comparing(HandleProcessVo::getHandleTime)).collect(Collectors.toList());
 
         BeanUtils.copyProperties(unitSug, vo);
         vo.setUnitName(unitSug.getUnit().getName());
