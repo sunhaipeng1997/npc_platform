@@ -2,10 +2,7 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
-import com.cdkhd.npc.entity.dto.HandleProcessAddDto;
-import com.cdkhd.npc.entity.dto.InDealingPageDto;
-import com.cdkhd.npc.entity.dto.ResultAddDto;
-import com.cdkhd.npc.entity.dto.ToDealPageDto;
+import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.entity.vo.*;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
@@ -75,7 +72,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
      * @return
      */
     @Override
-    public RespBody findToDeal(UserDetailsImpl userDetails, ToDealPageDto pageDto) {
+    public RespBody findPageOfToDeal(UserDetailsImpl userDetails, ToDealPageDto pageDto) {
         RespBody<PageVo<ToDealListItemVo>> body = new RespBody<>();
 
         Account account = accountRepository.findByUid(userDetails.getUid());
@@ -781,6 +778,200 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         }
 
         body.setData(url);
+        return body;
+    }
+
+    /**
+     * 分页查询已办完建议
+     *
+     * @param userDetails
+     * @param pageDto
+     * @return
+     */
+    @Override
+    public RespBody findPageOfDone(UserDetailsImpl userDetails, DonePageDto pageDto) {
+        RespBody<PageVo<CompleteListItemVo>> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限查询已办完建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法查询已办完建议");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+
+        //构造分页条件
+        List<Sort.Order> orders = new ArrayList<>();
+        //未读消息在前
+//        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
+        //按办完时间降序排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
+        Pageable pageable = PageRequest
+                .of(pageDto.getPage() - 1, pageDto.getSize(), Sort.by(orders));
+
+        //已办完建议查询条件
+        Specification<UnitSuggestion> doneSpec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为已办完
+            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.HANDLED.getValue()));
+            //unitSuggestion的状态为已办完
+            predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+        //前端筛选条件
+        Specification<UnitSuggestion> filterSpec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //标题
+            if (StringUtils.isNotBlank(pageDto.getTitle())) {
+                predicateList.add(cb.like(root.get("suggestion").get("title").as(String.class), "%" + pageDto.getTitle() + "%"));
+            }
+            //类型
+            if (StringUtils.isNotBlank(pageDto.getBusinessUid())) {
+                predicateList.add(cb.equal(root.get("suggestion").get("suggestionBusiness").get("uid").as(String.class), pageDto.getBusinessUid()));
+            }
+
+            //提出代表
+            if (StringUtils.isNotBlank(pageDto.getMemberName())) {
+                predicateList.add(cb.like(root.get("suggestion").get("raiser").get("name").as(String.class), "%" + pageDto.getMemberName() + "%"));
+            }
+            if (StringUtils.isNotBlank(pageDto.getMemberMobile())) {
+                predicateList.add(cb.equal(root.get("suggestion").get("raiser").get("mobile").as(String.class), pageDto.getMemberMobile()));
+            }
+
+            //办完时间 开始
+            if (pageDto.getDateStart() != null) {
+                predicateList.add(cb.greaterThanOrEqualTo(root.get("finishTime").as(Date.class), pageDto.getDateStart()));
+            }
+            //办完时间 结束
+            if (pageDto.getDateEnd() != null) {
+                predicateList.add(cb.lessThanOrEqualTo(root.get("finishTime").as(Date.class), pageDto.getDateEnd()));
+            }
+
+            if (Objects.nonNull(pageDto.getUnitType()) && !pageDto.getUnitType().equals((byte)0)) {
+                predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getUnitType()));
+            }
+
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+
+        Page<UnitSuggestion> page = unitSuggestionRepository.findAll(doneSpec.and(filterSpec), pageable);
+
+        List<CompleteListItemVo> doneListItemVoList = page.stream()
+                .map(CompleteListItemVo::convert)
+                .collect(Collectors.toList());
+
+        PageVo<CompleteListItemVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(doneListItemVoList);
+
+        body.setData(pageVo);
+        return body;
+    }
+
+    /**
+     * 分页查询已办结建议
+     *
+     * @param userDetails
+     * @param pageDto
+     * @return
+     */
+    @Override
+    public RespBody findPageOfComplete(UserDetailsImpl userDetails, CompletePageDto pageDto) {
+        RespBody<PageVo<CompleteListItemVo>> body = new RespBody<>();
+
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        if (!checkIdentity(account)) {
+            LOGGER.error("用户无权限查询已办结建议，Account username: {}", account.getUsername());
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("当前用户不是办理单位，无法查询已办结建议");
+            return body;
+        }
+
+        UnitUser unitUser = account.getUnitUser();
+
+        //构造分页条件
+        List<Sort.Order> orders = new ArrayList<>();
+        //未读消息在前
+//        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
+        //按办完时间降序排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
+        Pageable pageable = PageRequest
+                .of(pageDto.getPage() - 1, pageDto.getSize(), Sort.by(orders));
+
+        //已办结建议查询条件
+        Specification<UnitSuggestion> completeSpec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为已办结
+            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.ACCOMPLISHED.getValue()));
+            //unitSuggestion的状态为已办完
+            predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+        //前端筛选条件
+        Specification<UnitSuggestion> filterSpec = (root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //标题
+            if (StringUtils.isNotBlank(pageDto.getTitle())) {
+                predicateList.add(cb.like(root.get("suggestion").get("title").as(String.class), "%" + pageDto.getTitle() + "%"));
+            }
+            //类型
+            if (StringUtils.isNotBlank(pageDto.getBusinessUid())) {
+                predicateList.add(cb.equal(root.get("suggestion").get("suggestionBusiness").get("uid").as(String.class), pageDto.getBusinessUid()));
+            }
+
+            //提出代表
+            if (StringUtils.isNotBlank(pageDto.getMemberName())) {
+                predicateList.add(cb.like(root.get("suggestion").get("raiser").get("name").as(String.class), "%" + pageDto.getMemberName() + "%"));
+            }
+            if (StringUtils.isNotBlank(pageDto.getMemberMobile())) {
+                predicateList.add(cb.equal(root.get("suggestion").get("raiser").get("mobile").as(String.class), pageDto.getMemberMobile()));
+            }
+
+            //办完时间 开始
+            if (pageDto.getDateStart() != null) {
+                predicateList.add(cb.greaterThanOrEqualTo(root.get("finishTime").as(Date.class), pageDto.getDateStart()));
+            }
+            //办完时间 结束
+            if (pageDto.getDateEnd() != null) {
+                predicateList.add(cb.lessThanOrEqualTo(root.get("finishTime").as(Date.class), pageDto.getDateEnd()));
+            }
+
+            if (Objects.nonNull(pageDto.getUnitType()) && !pageDto.getUnitType().equals((byte)0)) {
+                predicateList.add(cb.equal(root.get("type").as(Byte.class), pageDto.getUnitType()));
+            }
+
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        };
+
+
+        Page<UnitSuggestion> page = unitSuggestionRepository.findAll(completeSpec.and(filterSpec), pageable);
+
+        List<CompleteListItemVo> completeListItemVoList = page.stream()
+                .map(CompleteListItemVo::convert)
+                .collect(Collectors.toList());
+
+        PageVo<CompleteListItemVo> pageVo = new PageVo<>(page, pageDto);
+        pageVo.setContent(completeListItemVoList);
+
+        body.setData(pageVo);
         return body;
     }
 
