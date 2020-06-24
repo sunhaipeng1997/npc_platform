@@ -13,6 +13,7 @@ import com.cdkhd.npc.repository.base.DelaySuggestionRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.repository.suggestion_deal.SecondedRepository;
+import com.cdkhd.npc.repository.suggestion_deal.UnitSuggestionRepository;
 import com.cdkhd.npc.service.IndexService;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.RespBody;
@@ -41,9 +42,10 @@ public class IndexServiceImpl implements IndexService {
     private SuggestionReplyRepository suggestionReplyRepository;
     private DelaySuggestionRepository delaySuggestionRepository;
     private ConveyProcessRepository conveyProcessRepository;
+    private UnitSuggestionRepository unitSuggestionRepository;
 
     @Autowired
-    public IndexServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SuggestionRepository suggestionRepository, SecondedRepository secondedRepository, SuggestionReplyRepository suggestionReplyRepository, DelaySuggestionRepository delaySuggestionRepository, ConveyProcessRepository conveyProcessRepository) {
+    public IndexServiceImpl(AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SuggestionRepository suggestionRepository, SecondedRepository secondedRepository, SuggestionReplyRepository suggestionReplyRepository, DelaySuggestionRepository delaySuggestionRepository, ConveyProcessRepository conveyProcessRepository, UnitSuggestionRepository unitSuggestionRepository) {
         this.accountRepository = accountRepository;
         this.accountRoleRepository = accountRoleRepository;
         this.suggestionRepository = suggestionRepository;
@@ -51,6 +53,7 @@ public class IndexServiceImpl implements IndexService {
         this.suggestionReplyRepository = suggestionReplyRepository;
         this.delaySuggestionRepository = delaySuggestionRepository;
         this.conveyProcessRepository = conveyProcessRepository;
+        this.unitSuggestionRepository = unitSuggestionRepository;
     }
 
     /**
@@ -169,10 +172,11 @@ public class IndexServiceImpl implements IndexService {
      */
     @Override
     public RespBody countUnRead(MobileUserDetailsImpl userDetails, Byte level) {
-        RespBody body = new RespBody();
+        RespBody<JSONObject> body = new RespBody<>();
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(level, account.getNpcMembers());
         JSONObject jsonObject = new JSONObject();
+
         //代表
         if (npcMember != null){
             //已审核且代表未读的建议数量
@@ -246,6 +250,7 @@ public class IndexServiceImpl implements IndexService {
             });
             jsonObject.put(MenuEnum.WAIT_AUDIT_SUGGESTIONS.toString(), toBeAuditedSugList.size());
         }
+
         //政府
         GovernmentUser governmentUser = account.getGovernmentUser();
         if (governmentUser != null){
@@ -343,6 +348,13 @@ public class IndexServiceImpl implements IndexService {
             });
             jsonObject.put(MenuEnum.GOV_COMPLETED_SUGGESTIONS.toString(), completedSugList.size());
         }
+
+        //办理单位
+        UnitUser unitUser = account.getUnitUser();
+        if (Objects.nonNull(unitUser)) {
+            countUnread4Unit(unitUser, jsonObject);
+        }
+
         body.setData(jsonObject);
         return body;
     }
@@ -433,5 +445,97 @@ public class IndexServiceImpl implements IndexService {
             voList.add(pVo);
         }
         return voList;
+    }
+
+    /**
+     * 为办理单位统计菜单的未读数量
+     *
+     * @param unitUser 办理单位人员
+     * @param obj 保存未读数量的 JSONObject 对象
+     */
+    private void countUnread4Unit(UnitUser unitUser, JSONObject obj) {
+        //未读的待办建议
+        List<ConveyProcess> toDeal = conveyProcessRepository.findAll(((root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为已转交办理单位
+            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()));
+            //转办过程的状态为转办中
+            predicateList.add(cb.equal(root.get("status").as(Byte.class), ConveyStatusEnum.CONVEYING.getValue()));
+            //建议转交给当前单位
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            //单位未查看
+            predicateList.add(cb.isFalse(root.get("unitView").as(Boolean.class)));
+
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        }));
+        obj.put(MenuEnum.WAIT_DEAL_SUGGESTIONS.name(), toDeal.size());
+
+        //未读的办理中建议
+        List<UnitSuggestion> inDealing = unitSuggestionRepository.findAll(((root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为办理中（如果有另外的单位还未接受转办的话，suggestion的状态就不是办理中，故注释掉这一行）
+            /*predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.HANDLING.getValue()));*/
+            //unitSug的finish为false未办完
+            predicateList.add(cb.isFalse(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            //单位未查看
+            predicateList.add(cb.isFalse(root.get("unitView").as(Boolean.class)));
+
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        }));
+        obj.put(MenuEnum.DEALING_SUGGESTIONS.name(), inDealing.size());
+
+        //未读的已办完建议
+        List<UnitSuggestion> done = unitSuggestionRepository.findAll(((root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为已办完
+            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.HANDLED.getValue()));
+            //unitSug的finish为true已办完
+            predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            //单位未查看
+            predicateList.add(cb.isFalse(root.get("unitView").as(Boolean.class)));
+
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        }));
+        obj.put(MenuEnum.DEAL_DONE_SUGGESTIONS.name(), done.size());
+
+        //未读的已办结建议
+        List<UnitSuggestion> complete = unitSuggestionRepository.findAll(((root, query, cb) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //建议未删除
+            predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
+            //建议状态为已办结
+            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
+                    SuggestionStatusEnum.ACCOMPLISHED.getValue()));
+            //unitSug的finish为true
+            predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //当前单位的建议
+            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
+                    unitUser.getUnit().getUid()));
+            //单位未查看
+            predicateList.add(cb.isFalse(root.get("unitView").as(Boolean.class)));
+
+            return cb.and(predicateList.toArray(new Predicate[0]));
+        }));
+        obj.put(MenuEnum.DEAL_COMPLETED_SUGGESTIONS.name(), complete.size());
     }
 }
