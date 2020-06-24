@@ -41,7 +41,7 @@ public class UnitSugDetailVo extends BaseVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+08")
     private Date finishTime;
 
-    //办理结果 协办单位反馈给主办单位的结果说明
+    //办理结果
     private ResultVo result;
 
     //办理流程
