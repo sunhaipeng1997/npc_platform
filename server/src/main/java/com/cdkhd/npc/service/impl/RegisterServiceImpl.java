@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class RegisterServiceImpl implements RegisterService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegisterServiceImpl.class);
     private SystemRepository systemRepository;
