@@ -624,7 +624,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         //这两行代码是本方法的主要功能，保存用户在该服务号下的 openid
-        loginWeChat.setOpenId(openid);
+        loginWeChat.setWechatId(openid);
         loginWeChatRepository.saveAndFlush(loginWeChat);
 
         /*Account account = loginWeChat.getAccount();

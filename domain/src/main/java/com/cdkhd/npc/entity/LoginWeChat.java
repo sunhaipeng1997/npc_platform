@@ -23,13 +23,13 @@ public class LoginWeChat extends BaseDomain {
     private String nickname;
 
     /**
-     * 小程序的 openid
+     * 服务号的 openid
      */
     @Column(name = "wechat_id")
     private String wechatId;
 
     /**
-     * 服务号的 openid
+     * 小程序的 openid
      */
     @Column(name = "open_id")
     private String openId;
