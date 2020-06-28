@@ -726,7 +726,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
      * @return
      */
     @Override
-    public RespBody findPageOfComplete(MobileUserDetailsImpl userDetails, PageDto pageDto) {
+    public RespBody findPageOfDone(MobileUserDetailsImpl userDetails, PageDto pageDto) {
         RespBody<PageVo<SugListItemVo>> body = new RespBody<>();
 
         Account account = accountRepository.findByUid(userDetails.getUid());
@@ -747,7 +747,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
         Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
 
-        //办理中建议查询条件
+        //已办完建议查询条件
         Specification<UnitSuggestion> spec = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
             //建议未删除
@@ -782,7 +782,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
      * @return
      */
     @Override
-    public RespBody findPageOfDone(MobileUserDetailsImpl userDetails, PageDto pageDto) {
+    public RespBody findPageOfComplete(MobileUserDetailsImpl userDetails, PageDto pageDto) {
         RespBody<PageVo<SugListItemVo>> body = new RespBody<>();
 
         Account account = accountRepository.findByUid(userDetails.getUid());
@@ -803,15 +803,15 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
         Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
 
-        //办理中建议查询条件
+        //已办结建议查询条件
         Specification<UnitSuggestion> spec = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
             //建议未删除
             predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
-            //建议状态为已办完
+            //建议状态为已办结
             predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
                     SuggestionStatusEnum.ACCOMPLISHED.getValue()));
-            //unitSug的finish为true已办完
+            //unitSug的finish为true
             predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
             //当前单位的建议
             predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),

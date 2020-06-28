@@ -30,7 +30,7 @@ public interface UnitSuggestionService {
 
     RespBody uploadOneImage(MobileUserDetailsImpl userDetails, MultipartFile image, Byte type);
 
-    RespBody findPageOfComplete(MobileUserDetailsImpl userDetails, PageDto pageDto);
-
     RespBody findPageOfDone(MobileUserDetailsImpl userDetails, PageDto pageDto);
+
+    RespBody findPageOfComplete(MobileUserDetailsImpl userDetails, PageDto pageDto);
 }
