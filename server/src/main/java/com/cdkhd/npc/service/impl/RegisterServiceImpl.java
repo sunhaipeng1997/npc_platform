@@ -444,7 +444,7 @@ public class RegisterServiceImpl implements RegisterService {
             //再创建loginWeChat，并与账户关联起来
             LoginWeChat loginWeChat = account.getLoginWeChat();
             loginWeChat.setNickname(dto.getNickName());
-            loginWeChat.setOpenId(openid);
+            loginWeChat.setWechatId(openid);
             loginWeChat.setUnionId(unionid);
             loginWeChat.setAccount(accountRepository.findByUid(currentAccountUid));
             loginWeChatRepository.saveAndFlush(loginWeChat);

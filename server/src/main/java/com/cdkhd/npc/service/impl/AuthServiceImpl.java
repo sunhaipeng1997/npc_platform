@@ -564,6 +564,13 @@ public class AuthServiceImpl implements AuthService {
         return body;
     }
 
+    /**
+     * 目前，服务号登录的主要作用是获取用户在服务号下的 openid，以便推送模板消息
+     *
+     * @param code
+     * @param state
+     * @return
+     */
     @Override
     public String accessToken(String code, String state) {
         // 获取access_token
@@ -609,15 +616,18 @@ public class AuthServiceImpl implements AuthService {
         String nickname = obj.getString("nickname");
 
         LoginWeChat loginWeChat = loginWeChatRepository.findByUnionId(unionid);
+        //如果用户还未在小程序中注册，则登录授权失败
         if (loginWeChat == null) {
-            loginWeChat = new LoginWeChat();
-            loginWeChat.setOpenId(openid);
-            loginWeChat.setUnionId(unionid);
+            LOGGER.error("请用户先在小程序中注册，再登录公众号");
 
-            loginWeChatRepository.saveAndFlush(loginWeChat);
+            return "authFail";
         }
 
-        Account account = loginWeChat.getAccount();
+        //这两行代码是本方法的主要功能，保存用户在该服务号下的 openid
+        loginWeChat.setOpenId(openid);
+        loginWeChatRepository.saveAndFlush(loginWeChat);
+
+        /*Account account = loginWeChat.getAccount();
         if (account == null) {
             account = new Account();
             account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
@@ -631,7 +641,7 @@ public class AuthServiceImpl implements AuthService {
             loginWeChat.setAccount(account);
             loginWeChatRepository.saveAndFlush(loginWeChat);
 
-        }
+        }*/
 
         return "authSuccess";
     }
