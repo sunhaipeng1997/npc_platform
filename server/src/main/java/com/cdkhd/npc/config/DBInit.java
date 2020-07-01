@@ -343,6 +343,7 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_MANAGE.getKeyword()));//镇管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword()));//村管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));//代表权限管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NEWS_AUDITOR.getKeyword()));//新闻审核人设置
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SESSION_MANAGE.getKeyword()));//届期管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//系统设置
 
@@ -747,6 +748,11 @@ public class DBInit {
         //代表履职统计
         menu = menuRepository.findByKeyword(MenuEnum.PERFORMANCE_COUNT.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERFORMANCE_COUNT.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //代表权限管理
+        menu = menuRepository.findByKeyword(MenuEnum.NEWS_AUDITOR.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_AUDITOR.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //代表权限管理

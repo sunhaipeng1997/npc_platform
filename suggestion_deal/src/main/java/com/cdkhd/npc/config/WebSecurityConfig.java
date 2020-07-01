@@ -35,7 +35,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/manager/auth/login",
                         "/api/manager/auth/code",
                         "/api/member_house/work_stations/uploadWorkStationAvatar",
-                        "/public/**")
+                        "/public/**" ,
+                        "/api/suggestion_deal/unit_suggestion/image")
                 .permitAll()
                 .antMatchers(HttpMethod.OPTIONS)
                 .permitAll()

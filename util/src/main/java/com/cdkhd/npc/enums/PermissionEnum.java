@@ -56,6 +56,7 @@ public enum PermissionEnum {
     PERFORMANCE_COUNT("代表履职统计"),
     TOWN_PERFORMANCE_COUNT("各镇履职统计"),
     PERMISSION_MANAGE("代表权限管理"),
+    NEWS_AUDITOR("新闻审核人设置"),
     SESSION_MANAGE("届期管理"),
     SYSTEM_SETTING("系统设置"),
     TOWN_MANAGE("镇管理"),
