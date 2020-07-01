@@ -489,7 +489,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             }
             Predicate[] p = new Predicate[predicates.size()];
             query.where(cb.and(predicates.toArray(p)));
-            query.orderBy(cb.asc(root.get("view")), cb.asc(root.get("status")), cb.desc(root.get("createTime")));
+//            query.orderBy(cb.asc(root.get("view")), cb.asc(root.get("status")), cb.desc(root.get("createTime")));
             return query.getRestriction();
         }, page);
         List<SugDetailVo> sugDetailVos = pageRes.stream().map(SugDetailVo::convert).sorted((e1, e2) -> e2.getRaiseTime().compareTo(e1.getRaiseTime())).collect(Collectors.toList());
@@ -713,7 +713,10 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public String detailDoc(HttpServletRequest req, HttpServletResponse res, String sugUid) {
         String result = "成功";
         Suggestion suggestion = suggestionRepository.findByUid(sugUid);
-        Map<String, Object> datas = new HashMap<String, Object>();
+        if (suggestion == null) {
+            return "未找到该建议";
+        }
+        Map<String, Object> datas = new HashMap<>();
         datas.put("name", suggestion.getRaiser().getName());
         datas.put("gender", suggestion.getRaiser().getGender() == 1 ? "男" : "女");
         datas.put("mobile", suggestion.getRaiser().getMobile());
