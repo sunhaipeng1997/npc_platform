@@ -388,12 +388,12 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         }
 
         UnitSuggestion unitSuggestion = unitSuggestionRepository.findByUid(unitSuggestionUid);
-        if (unitSuggestion.getFinish()) {
+        /*if (unitSuggestion.getFinish()) {
             LOGGER.error("该建议状态不在办理中，UnitSuggestion uid: {}", unitSuggestion.getUid());
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该建议状态不在办理中，无法查看");
             return body;
-        }
+        }*/
 
         UnitUser unitUser = account.getUnitUser();
         if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid()) || !unitSuggestion.getUnitUser().getUid().equals(unitUser.getUid())) {

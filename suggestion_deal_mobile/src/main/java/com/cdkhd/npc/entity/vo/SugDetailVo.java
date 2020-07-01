@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -96,6 +97,17 @@ public class SugDetailVo extends BaseVo {
         vo.setStatusName(SuggestionStatusEnum.getName(suggestion.getStatus()));
 
         vo.setSecondNames(suggestion.getSecondedSet().stream().map(second -> second.getNpcMember().getName()).collect(Collectors.toList()));
+
+        //评价
+        if (Objects.nonNull(suggestion.getAppraise())) {
+            vo.setAppraiseVo(AppraiseVo.convert(suggestion.getAppraise()));
+        }
+
+        //结果
+        if (Objects.nonNull(suggestion.getResult())) {
+            vo.setResultVo(ResultVo.convert(suggestion.getResult()));
+        }
+
         return vo;
     }
 }
