@@ -52,11 +52,11 @@ public class SugDetailVo extends BaseVo {
     //审核人员是否查看待审核信息
     private Boolean view = false;
 
-    //代表是否查看审核结果
-    private Boolean myView = true;
-
     //代表是否查看办完的建议
     private Boolean doneView = false;
+
+    //审核过后代表是否查看
+    private Boolean npcView = true;
 
     //代表是否查看附议办结的建议
     private Boolean secondDoneView = false;

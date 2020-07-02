@@ -138,6 +138,10 @@ public class Suggestion extends BaseDomain {
     @Column(name = "govView")
     private Boolean govView = false;
 
+    //审核过后代表是否查看
+    @Column(name = "npcView")
+    private Boolean npcView = true;
+
     //是否删除
     @Column(name = "del")
     private Boolean isDel = false;

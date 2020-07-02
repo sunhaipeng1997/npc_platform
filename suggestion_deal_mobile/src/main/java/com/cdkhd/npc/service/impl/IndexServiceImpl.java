@@ -180,14 +180,14 @@ public class IndexServiceImpl implements IndexService {
         //代表
         if (npcMember != null){
             //已审核且代表未读的建议数量
-            List<SuggestionReply> suggestionReplies = suggestionReplyRepository.findAll((Specification<SuggestionReply>) (root, query, cb) -> {
+            List<Suggestion> suggestions = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
                 List<Predicate> predicateList = new ArrayList<>();
-                predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
-                predicateList.add(cb.isFalse(root.get("view").as(Boolean.class)));
-                predicateList.add(cb.equal(root.get("suggestion").get("raiser").get("uid").as(String.class), npcMember.getUid()));
+                predicateList.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
+                predicateList.add(cb.isFalse(root.get("npcView").as(Boolean.class)));
+                predicateList.add(cb.equal(root.get("raiser").get("uid").as(String.class), npcMember.getUid()));
                 return cb.and(predicateList.toArray(new Predicate[0]));
             });
-            jsonObject.put(MenuEnum.SUGGESTION_COMMITTED.toString(), suggestionReplies.size());
+            jsonObject.put(MenuEnum.SUGGESTION_COMMITTED.toString(), suggestions.size());
 
             //已办完且代表未读的建议数量
             List<Suggestion> notViewDoneSugList = suggestionRepository.findAll((Specification<Suggestion>)(root, query, cb) -> {

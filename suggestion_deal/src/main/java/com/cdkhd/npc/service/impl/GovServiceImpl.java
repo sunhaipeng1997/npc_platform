@@ -14,6 +14,7 @@ import com.cdkhd.npc.enums.LoginWayEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.*;
 import com.cdkhd.npc.repository.suggestion_deal.GovernmentRepository;
+import com.cdkhd.npc.repository.suggestion_deal.SuggestionSettingRepository;
 import com.cdkhd.npc.repository.suggestion_deal.UnitUserRepository;
 import com.cdkhd.npc.service.GovService;
 import com.cdkhd.npc.vo.RespBody;
@@ -46,8 +47,10 @@ public class GovServiceImpl implements GovService {
 
     private UnitUserRepository unitUserRepository;
 
+    private SuggestionSettingRepository suggestionSettingRepository;
+
     @Autowired
-    public GovServiceImpl(GovernmentRepository governmentRepository, GovernmentUserRepository governmentUserRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SystemRepository systemRepository, LoginUPRepository loginUPRepository, PasswordEncoder passwordEncoder, NpcMemberRepository npcMemberRepository, UnitUserRepository unitUserRepository) {
+    public GovServiceImpl(GovernmentRepository governmentRepository, GovernmentUserRepository governmentUserRepository, AccountRepository accountRepository, AccountRoleRepository accountRoleRepository, SystemRepository systemRepository, LoginUPRepository loginUPRepository, PasswordEncoder passwordEncoder, NpcMemberRepository npcMemberRepository, UnitUserRepository unitUserRepository, SuggestionSettingRepository suggestionSettingRepository) {
         this.governmentRepository = governmentRepository;
         this.governmentUserRepository = governmentUserRepository;
         this.accountRepository = accountRepository;
@@ -57,6 +60,7 @@ public class GovServiceImpl implements GovService {
         this.passwordEncoder = passwordEncoder;
         this.npcMemberRepository = npcMemberRepository;
         this.unitUserRepository = unitUserRepository;
+        this.suggestionSettingRepository = suggestionSettingRepository;
     }
 
     @Override
@@ -130,6 +134,14 @@ public class GovServiceImpl implements GovService {
         governmentUser.setGovernment(government);
         governmentUser.setAccount(account);
         governmentUserRepository.saveAndFlush(governmentUser);
+
+        //设置一个SuggestionSetting
+        SuggestionSetting suggestionSetting = new SuggestionSetting();
+        suggestionSetting.setLevel(userDetails.getLevel());
+        suggestionSetting.setTown(userDetails.getTown());
+        suggestionSetting.setArea(userDetails.getArea());
+        suggestionSettingRepository.saveAndFlush(suggestionSetting);
+
         return body;
     }
 

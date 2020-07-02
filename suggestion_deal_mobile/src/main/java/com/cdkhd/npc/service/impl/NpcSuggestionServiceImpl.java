@@ -265,18 +265,20 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(viewDto.getLevel(), account.getNpcMembers());
 
-        //代表查看
+        //如果是代表查看，查看审核人回复时候消除未读
         if (StatusEnum.ENABLED.getValue().equals(viewDto.getType())) {
             for (SuggestionReply reply : suggestion.getReplies()) {
                 reply.setView(true);
             }
-        } else if (StatusEnum.DISABLED.getValue().equals(viewDto.getType())) {
+            suggestion.setNpcView(true);
+        } else if (StatusEnum.DISABLED.getValue().equals(viewDto.getType())) {  //如果是审核人查看，查看新提交的数据的时候消除未读
             suggestion.setView(true);
         }
         //代表消去办理完成的未读
         if (viewDto.getChangeDoneView()) {
             suggestion.setDoneView(true);
         }
+
         //代表消去附议办结的未读
         if (viewDto.getChangeSecondView()) {
             Set<Seconded> secondedSet = suggestion.getSecondedSet();
@@ -348,6 +350,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         suggestion.setAuditTime(new Date());
         suggestion.setReason(sugAuditDto.getReason());
         suggestion.setGovView(false);  //审核过后将govView字段改成false，便于政府未读查询
+        suggestion.setNpcView(false);  //审核过后将npcView字段改成false，便于代表审核通过的未读查询
         suggestionRepository.saveAndFlush(suggestion);
 
         //生成一条回复记录
@@ -437,6 +440,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             }, page);
             Set<Suggestion> suggestions = new HashSet<>(pageRes.getContent());
             List<SugDetailVo> sugDetailVos = suggestions.stream().map(SugDetailVo::convert).sorted((e1, e2) -> e2.getRaiseTime().compareTo(e1.getRaiseTime())).collect(Collectors.toList());
+
             for (SugDetailVo sugDetailVo : sugDetailVos) {
                 for (Suggestion suggestion : suggestions) {
                     if (sugDetailVo.getUid().equals(suggestion.getUid())) {
