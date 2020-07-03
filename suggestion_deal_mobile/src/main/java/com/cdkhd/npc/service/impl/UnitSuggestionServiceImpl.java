@@ -5,7 +5,6 @@ import com.cdkhd.npc.dto.PageDto;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.HandleProcessAddDto;
 import com.cdkhd.npc.entity.dto.ResultAddDto;
-import com.cdkhd.npc.entity.vo.HandleProcessVo;
 import com.cdkhd.npc.entity.vo.SugListItemVo;
 import com.cdkhd.npc.entity.vo.ToDealDetailVo;
 import com.cdkhd.npc.entity.vo.UnitSugDetailVo;
@@ -15,6 +14,7 @@ import com.cdkhd.npc.repository.base.ConveyProcessRepository;
 import com.cdkhd.npc.repository.base.DelaySuggestionRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.repository.suggestion_deal.*;
+import com.cdkhd.npc.service.GeneralService;
 import com.cdkhd.npc.service.UnitSuggestionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.vo.PageVo;
@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,8 +58,10 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
     private ResultRepository resultRepository;
     private SuggestionRepository suggestionRepository;
 
+    private GeneralService generalService;
+
     @Autowired
-    public UnitSuggestionServiceImpl(AccountRepository accountRepository, ConveyProcessRepository conveyProcessRepository, UnitSuggestionRepository unitSuggestionRepository, SuggestionSettingRepository suggestionSettingRepository, UnitImageRepository unitImageRepository, DelaySuggestionRepository delaySuggestionRepository, HandleProcessRepository handleProcessRepository, ResultRepository resultRepository, SuggestionRepository suggestionRepository) {
+    public UnitSuggestionServiceImpl(AccountRepository accountRepository, ConveyProcessRepository conveyProcessRepository, UnitSuggestionRepository unitSuggestionRepository, SuggestionSettingRepository suggestionSettingRepository, UnitImageRepository unitImageRepository, DelaySuggestionRepository delaySuggestionRepository, HandleProcessRepository handleProcessRepository, ResultRepository resultRepository, SuggestionRepository suggestionRepository, GeneralService generalService) {
         this.accountRepository = accountRepository;
         this.conveyProcessRepository = conveyProcessRepository;
         this.unitSuggestionRepository = unitSuggestionRepository;
@@ -68,6 +71,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         this.handleProcessRepository = handleProcessRepository;
         this.resultRepository = resultRepository;
         this.suggestionRepository = suggestionRepository;
+        this.generalService = generalService;
     }
 
     /**
@@ -320,7 +324,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
      * @return
      */
     @Override
-    public RespBody findPageOfInDealing(MobileUserDetailsImpl userDetails, PageDto pageDto) {
+    public RespBody findPageOfInDealing(MobileUserDetailsImpl userDetails, PageDto pageDto, Byte level) {
         RespBody<PageVo<SugListItemVo>> body = new RespBody<>();
 
         Account account = accountRepository.findByUid(userDetails.getUid());
@@ -333,13 +337,10 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         UnitUser unitUser = account.getUnitUser();
 
-        //构造分页条件
-        List<Sort.Order> orders = new ArrayList<>();
-        //未读消息在前
-        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
-        //按接受时间降序排序
-        orders.add(new Sort.Order(Sort.Direction.DESC, "acceptTime"));
-        Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
+        //扫描建议，更新临期和逾期标志
+        generalService.scanSuggestions(userDetails, level);
+
+        Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize());
 
         //办理中建议查询条件
         Specification<UnitSuggestion> spec = (root, query, cb) -> {
@@ -354,7 +355,33 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             //当前单位的建议
             predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
                     unitUser.getUnit().getUid()));
-            return cb.and(predicateList.toArray(new Predicate[0]));
+
+            //排序条件
+            List<Order> orderList = new ArrayList<>();
+            //催办的建议排在最前面
+            orderList.add(cb.desc(
+                    root.get("suggestion").get("urgeLevel").as(Integer.class)
+            ));
+            //逾期的建议
+            orderList.add(cb.desc(
+                    root.get("suggestion").get("exceedLimit").as(Boolean.class)
+            ));
+            //临期的建议
+            orderList.add(cb.desc(
+                    root.get("suggestion").get("closeDeadLine").as(Boolean.class)
+            ));
+            //未读的建议
+            orderList.add(cb.asc(
+                    root.get("unitView").as(Boolean.class)
+            ));
+            //最后按开始办理时间排序
+            orderList.add(cb.desc(
+                    root.get("acceptTime").as(Date.class)
+            ));
+
+            query.orderBy(orderList);
+            query.where(predicateList.toArray(new Predicate[0]));
+            return query.getRestriction();
         };
 
         Page<UnitSuggestion> page = unitSuggestionRepository.findAll(spec, pageable);

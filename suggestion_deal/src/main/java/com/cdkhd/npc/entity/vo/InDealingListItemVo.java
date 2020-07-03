@@ -33,6 +33,14 @@ public class InDealingListItemVo extends BaseVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date expectDate;
 
+    //是否催办
+    private boolean urge = false;
+
+    //是否快到期
+    private boolean closeDeadLine = false;
+
+    //是否超期
+    private boolean exceedLimit = false;
 
     public static InDealingListItemVo convert(UnitSuggestion unitSuggestion) {
         InDealingListItemVo vo = new InDealingListItemVo();
@@ -46,6 +54,10 @@ public class InDealingListItemVo extends BaseVo {
         vo.setMemberMobile(suggestion.getRaiser().getMobile());
         vo.setUnitTypeName(unitSuggestion.getType()
                 .equals(UnitTypeEnum.MAIN_UNIT.getValue()) ? "主办" : "协办");
+
+        vo.setUrge(suggestion.getUrge());
+        vo.setCloseDeadLine(suggestion.getCloseDeadLine());
+        vo.setExceedLimit(suggestion.getExceedLimit());
 
         return vo;
     }

@@ -18,7 +18,7 @@ public interface UnitSuggestionService {
 
     RespBody startDealing(MobileUserDetailsImpl userDetails, String conveyProcessUid);
 
-    RespBody findPageOfInDealing(MobileUserDetailsImpl userDetails, PageDto pageDto);
+    RespBody findPageOfInDealing(MobileUserDetailsImpl userDetails, PageDto pageDto, Byte level);
 
     RespBody checkDealingDetail(MobileUserDetailsImpl userDetails, String unitSuggestionUid);
 

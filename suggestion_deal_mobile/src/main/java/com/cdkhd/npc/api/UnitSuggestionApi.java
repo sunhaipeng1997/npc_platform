@@ -56,8 +56,8 @@ public class UnitSuggestionApi {
     }
 
     @GetMapping("/page_in_dealing")
-    public ResponseEntity findPageOfInDealing(@CurrentUser MobileUserDetailsImpl userDetails, PageDto pageDto) {
-        RespBody body = unitSuggestionService.findPageOfInDealing(userDetails, pageDto);
+    public ResponseEntity findPageOfInDealing(@CurrentUser MobileUserDetailsImpl userDetails, PageDto pageDto, Byte level) {
+        RespBody body = unitSuggestionService.findPageOfInDealing(userDetails, pageDto, level);
         return ResponseEntity.ok(body);
     }
 

@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -362,16 +363,14 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         UnitUser unitUser = account.getUnitUser();
 
-        //构造分页条件
-        List<Sort.Order> orders = new ArrayList<>();
-        //未读消息在前
-//        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
-        //按受理时间降序排序
-        orders.add(new Sort.Order(Sort.Direction.DESC, "acceptTime"));
-        Pageable pageable = PageRequest
-                .of(pageDto.getPage() - 1, pageDto.getSize(), Sort.by(orders));
+        //扫描建议，更新临期和逾期标志
+        generalService.scanSuggestions(userDetails);
 
-        //待办建议查询条件
+        //分页条件
+        Pageable pageable = PageRequest
+                .of(pageDto.getPage() - 1, pageDto.getSize());
+
+        //办理中建议查询条件
         Specification<UnitSuggestion> inDealingSpec = (root, query, cb) -> {
             List<Predicate> predicateList = new ArrayList<>();
             //建议未删除
@@ -384,7 +383,34 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             //当前单位的建议
             predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
                     unitUser.getUnit().getUid()));
-            return cb.and(predicateList.toArray(new Predicate[0]));
+
+            //排序条件
+            List<Order> orderList = new ArrayList<>();
+            //催办的建议排在最前面
+            orderList.add(cb.desc(
+                    root.get("suggestion").get("urgeLevel").as(Integer.class)
+            ));
+            //逾期的建议
+            orderList.add(cb.desc(
+                    root.get("suggestion").get("exceedLimit").as(Boolean.class)
+            ));
+            //临期的建议
+            orderList.add(cb.desc(
+                    root.get("suggestion").get("closeDeadLine").as(Boolean.class)
+            ));
+            //未读的建议
+            orderList.add(cb.asc(
+                    root.get("unitView").as(Boolean.class)
+            ));
+            //最后按开始办理时间排序
+            orderList.add(cb.desc(
+                    root.get("acceptTime").as(Date.class)
+            ));
+
+            query.orderBy(orderList);
+            query.where(predicateList.toArray(new Predicate[0]));
+
+            return query.getRestriction();
         };
 
         //前端筛选条件

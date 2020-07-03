@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,15 +41,14 @@ public class SugListItemVo extends BaseVo {
     //政府名称
     private String govName;
 
-    public SugListItemVo(String uid, String title, Date date, String typeName, boolean unread, String coverUrl, String govName) {
-        this.setUid(uid);
-        this.title = title;
-        this.date = date;
-        this.typeName = typeName;
-        this.unread = unread;
-        this.coverUrl = coverUrl;
-        this.govName = govName;
-    }
+    //是否催办
+    private boolean urge = false;
+
+    //是否快到期
+    private boolean closeDeadLine = false;
+
+    //是否超期
+    private boolean exceedLimit = false;
 
     public static SugListItemVo convert(ConveyProcess process) {
         boolean unread = !process.getUnitView();
@@ -56,8 +56,17 @@ public class SugListItemVo extends BaseVo {
         Suggestion suggestion = process.getSuggestion();
         String coverUrl = getCoverUrl(suggestion);
 
-        return new SugListItemVo(process.getUid(), suggestion.getTitle(), process.getConveyTime(),
-                suggestion.getSuggestionBusiness().getName(), unread, coverUrl, process.getGovernmentUser().getGovernment().getName());
+        SugListItemVo vo = new SugListItemVo();
+
+        vo.setUid(process.getUid());
+        vo.setTitle(suggestion.getTitle());
+        vo.setDate(process.getConveyTime());
+        vo.setTypeName(suggestion.getSuggestionBusiness().getName());
+        vo.setUnread(unread);
+        vo.setCoverUrl(coverUrl);
+        vo.setGovName(process.getGovernmentUser().getGovernment().getName());
+
+        return vo;
     }
 
     public static SugListItemVo convert(UnitSuggestion unitSuggestion) {
@@ -66,8 +75,20 @@ public class SugListItemVo extends BaseVo {
         Suggestion suggestion = unitSuggestion.getSuggestion();
         String coverUrl = getCoverUrl(suggestion);
 
-        return new SugListItemVo(unitSuggestion.getUid(), suggestion.getTitle(), unitSuggestion.getAcceptTime(),
-                suggestion.getSuggestionBusiness().getName(), unread, coverUrl, unitSuggestion.getGovernmentUser().getGovernment().getName());
+        SugListItemVo vo = new SugListItemVo();
+
+        vo.setUid(unitSuggestion.getUid());
+        vo.setTitle(suggestion.getTitle());
+        vo.setDate(unitSuggestion.getAcceptTime());
+        vo.setTypeName(suggestion.getSuggestionBusiness().getName());
+        vo.setUnread(unread);
+        vo.setCoverUrl(coverUrl);
+        vo.setGovName(unitSuggestion.getGovernmentUser().getGovernment().getName());
+        vo.setUrge(suggestion.getUrge());
+        vo.setCloseDeadLine(suggestion.getCloseDeadLine());
+        vo.setExceedLimit(suggestion.getExceedLimit());
+
+        return vo;
     }
 
     //获取建议封面图，当建议有图片时，选取第一张作为封面
