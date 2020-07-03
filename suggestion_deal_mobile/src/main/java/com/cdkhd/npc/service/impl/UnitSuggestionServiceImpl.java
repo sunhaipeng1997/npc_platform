@@ -631,7 +631,13 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         Result result = new Result();
         result.setResult(toAdd.getResult());
         result.setUnitSuggestion(unitSuggestion);
-        result.setSuggestion(unitSuggestion.getSuggestion());
+        /*
+        * 协办单位完成办理时，不能设置 Suggestion 字段。
+        * 设置以后会导致一个 Suggestion 关联多个 Result，查询报错
+        */
+        if (unitSuggestion.getType().equals(UnitTypeEnum.MAIN_UNIT.getValue())) {
+            result.setSuggestion(unitSuggestion.getSuggestion());
+        }
         resultRepository.saveAndFlush(result);
 
         //保存结果图片

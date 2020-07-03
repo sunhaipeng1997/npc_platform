@@ -88,32 +88,6 @@ public class GeneralServiceImpl implements GeneralService {
         return body;
     }
 
-    /**
-     * 通用建议查询条件
-     * @param userDetails 当前用户
-     * @param status 建议状态枚举
-     * @return 查询条件
-     */
-    @Override
-    public Specification<Suggestion> basePredicates(UserDetailsImpl userDetails, SuggestionStatusEnum status) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("status").as(Byte.class), status.getValue()));
-
-            if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));//如果是镇上的，就只能查询镇上的
-                predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
-            } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {//区上查询
-                predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
-                predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.AREA.getValue()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
     @Override
     public void scanSuggestions(UserDetailsImpl userDetails) {
         SuggestionSetting suggestionSetting = null;

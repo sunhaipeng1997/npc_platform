@@ -14,7 +14,5 @@ public interface GeneralService {
 
     RespBody findSugBusinessByTown(String townUid);
 
-    Specification<Suggestion> basePredicates(UserDetailsImpl userDetails, SuggestionStatusEnum status);
-
     void scanSuggestions(UserDetailsImpl userDetails);
 }
