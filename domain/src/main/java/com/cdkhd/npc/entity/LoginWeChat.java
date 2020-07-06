@@ -22,20 +22,24 @@ public class LoginWeChat extends BaseDomain {
     @Column(name = "nickname")
     private String nickname;
 
+    /**
+     * 服务号的 openid
+     */
+    @Column(name = "wechat_id")
+    private String wechatId;
+
+    /**
+     * 小程序的 openid
+     */
     @Column(name = "open_id")
     private String openId;
 
     /**
-     * 开放平台下的unionId
+     * 开放平台下的unionId，因为同一个用户在服务号和小程序中有不同的 openid，所以需要绑定同一个 unionId
+     * 更多关于 openid 和 unionid 的介绍，参见微信官方文档 https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Overview.html
      */
     @Column(name = "union_id")
     private String unionId;
-
-    /**
-     * 微信号
-     */
-    @Column(name = "wechat_id")
-    private String wechatId;
 
     /**
      * 账号表id

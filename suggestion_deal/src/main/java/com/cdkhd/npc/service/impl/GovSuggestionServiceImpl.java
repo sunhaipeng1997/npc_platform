@@ -290,7 +290,8 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
                     predicates.add(cb.isNull(join.get("accept")));//政府还未处理这个延期
                     predicates.add(cb.equal(join.get("delayTimes").as(Integer.class), root.get("delayTimes").as(Integer.class)));//申请延期的办理次数是当前办理次数
                 }else if (govSuggestionPageDto.getSearchType().equals(GovSugTypeEnum.DEALING_SUG.getValue())) {//办理中的建议
-                    predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue()));//状态为办理中的建议
+                    Predicate or = cb.or(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.TRANSFERRED_UNIT.getValue()),cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue()));
+                    predicates.add(or);//状态为办理中的建议
                 }else if (govSuggestionPageDto.getSearchType().equals(GovSugTypeEnum.FINISH_SUG.getValue())) {//已办完的建议
                     predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue()));//状态为办理完成的建议
                     //办理完成时间 开始

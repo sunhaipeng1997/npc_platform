@@ -307,8 +307,14 @@ public class UnitServiceImpl implements UnitService {
             body.setStatus(HttpStatus.BAD_REQUEST);
             return body;
         }
-        UnitUser unitUser = null;
+        UnitUser unitUser;
         if (StringUtils.isNotEmpty(unitUserAddOrUpdateDto.getUid())){//单位人员只允许在一个部门任职
+            Account account = accountRepository.findByUsernameAndUidIsNot(unitUserAddOrUpdateDto.getUsername(),unitUserAddOrUpdateDto.getUid());
+            if (account != null){
+                body.setMessage("登录账号已存在！");
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                return body;
+            }
             unitUser = unitUserRepository.findByMobileAndUidIsNotAndIsDelFalse(unitUserAddOrUpdateDto.getMobile(), unitUserAddOrUpdateDto.getUid());
             if (unitUser != null){
                 body.setMessage("单位人员信息已经存在！");
@@ -325,7 +331,6 @@ public class UnitServiceImpl implements UnitService {
             //如果修改了手机号，那么，清除原来的手机号绑定的信息
             if (!unitUser.getMobile().equals(unitUserAddOrUpdateDto.getMobile())){
                 List<Account> accounts = accountRepository.findByMobile(unitUserAddOrUpdateDto.getMobile());//新手机号能查询出来的所有账号
-                Account account = null;//单位人员对应的账号信息
                 for (Account account1 : accounts) {//判断账号的身份
                     List<String> keywords = account1.getAccountRoles().stream().map(AccountRole::getKeyword).collect(Collectors.toList());
                     if (keywords.contains(AccountRoleEnum.VOTER.getKeyword()) || keywords.contains(AccountRoleEnum.NPC_MEMBER.getKeyword())) {//这个账号是选民或者是代表
@@ -353,6 +358,12 @@ public class UnitServiceImpl implements UnitService {
                 accountRepository.saveAll(oldAccounts);
             }
         }else{
+            Account account = accountRepository.findByUsername(unitUserAddOrUpdateDto.getUsername());
+            if (account != null){
+                body.setMessage("登录账号已存在！");
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                return body;
+            }
             //添加,一个人员只允许在一个单位
             unitUser = unitUserRepository.findByMobileAndIsDelFalse(unitUserAddOrUpdateDto.getMobile());
             if (unitUser != null){
@@ -370,10 +381,9 @@ public class UnitServiceImpl implements UnitService {
 
             //添加信息的时候，先查询手机号有没有注册过小程序
             List<Account> accounts = accountRepository.findByMobile(unitUserAddOrUpdateDto.getMobile());//手机号能查询出来的所有账号
-            Account account = null;//单位人员对应的账号信息
             for (Account account1 : accounts) {//判断账号的身份
                 List<String> keywords = account1.getAccountRoles().stream().map(AccountRole::getKeyword).collect(Collectors.toList());
-                if (keywords.contains(AccountRoleEnum.VOTER.getKeyword()) || keywords.contains(AccountRoleEnum.NPC_MEMBER.getKeyword())) {//这个账号是选民的
+                if (keywords.contains(AccountRoleEnum.VOTER.getKeyword())) {//这个账号是选民的
                     account = account1;//把这个账号跟代表身份关联起来
                 }
             }
