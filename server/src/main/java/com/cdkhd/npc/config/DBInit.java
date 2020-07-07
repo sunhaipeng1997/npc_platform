@@ -275,6 +275,7 @@ public class DBInit {
                 systems.setKeyword(systemEnum.toString());
                 systems.setImgUrl(systemEnum.getImgUrl());
                 systems.setPagePath(systemEnum.getPagePath());
+                systems.setMiniShow(systemEnum.getMiniShow());
                 systemRepository.save(systems);
             }
         }
@@ -1584,12 +1585,8 @@ public class DBInit {
         Set<Systems> voterSystems = voter.getSystems();
         Set<Permission> voterPermissions = voter.getPermissions();
 
-        voterSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
-        voterSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
-        voterSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
-        voterSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
-        voterSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
-        voterSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+        voterSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));//代表之家
+        voterSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));//投票系统
         voter.setPermissions(voterPermissions);
         accountRoleRepository.save(voter);
 
@@ -1598,12 +1595,10 @@ public class DBInit {
 
         Set<Systems> bgAdminSystems = bgAdmin.getSystems();
 
-        bgAdminSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
-        bgAdminSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
-        bgAdminSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
-        bgAdminSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
-        bgAdminSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
-        bgAdminSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));//代表之家
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));//基本信息管理
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));//投票系统
 
         bgAdmin.setSystems(bgAdminSystems);
         accountRoleRepository.save(bgAdmin);
@@ -1612,12 +1607,9 @@ public class DBInit {
         AccountRole member = accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword());
         Set<Systems> memberSystems  = member.getSystems();
 
-        memberSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
-        memberSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
-        memberSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
-        memberSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
-        memberSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
-        memberSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+        memberSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));//代表之家
+        memberSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
+        memberSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));//投票系统
 
         member.setSystems(memberSystems);
         accountRoleRepository.save(member);
@@ -1627,12 +1619,7 @@ public class DBInit {
         AccountRole  government = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.getKeyword());
         Set<Systems> govermentSystems  = government.getSystems();
 
-        govermentSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
-        govermentSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
-        govermentSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
-        govermentSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
-        govermentSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
-        govermentSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+        govermentSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
 
         member.setSystems(govermentSystems);
         accountRoleRepository.save(government);
@@ -1641,12 +1628,7 @@ public class DBInit {
         AccountRole  unit = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.getKeyword());
         Set<Systems> unitSystems  = unit.getSystems();
 
-        unitSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
-        unitSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
-        unitSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
-        unitSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
-        unitSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
-        unitSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+        unitSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
 
         unit.setSystems(unitSystems);
         accountRoleRepository.save(unit);

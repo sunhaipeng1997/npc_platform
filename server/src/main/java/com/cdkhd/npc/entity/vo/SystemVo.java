@@ -33,6 +33,8 @@ public class SystemVo extends BaseVo {
     //该角色是否可以进入
     private Boolean canUse = false;
 
+    private Boolean miniShow;
+
 
     public static SystemVo convert(Systems systems) {
         SystemVo vo = new SystemVo();
