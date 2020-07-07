@@ -5,7 +5,7 @@ import com.cdkhd.npc.vo.RespBody;
 
 public interface SystemService {
 
-    RespBody getSystemList(UserDetailsImpl userDetails);
+    RespBody getSystemList();
 
     RespBody cacheSystem(String uid, String systemId);
 

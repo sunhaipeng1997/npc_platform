@@ -30,9 +30,6 @@ public class SystemVo extends BaseVo {
     //小程序跳转路径
     private String pagePath;
 
-    //该角色是否可以进入
-    private Boolean enable = false;
-
 
     public static SystemVo convert(Systems systems) {
         SystemVo vo = new SystemVo();

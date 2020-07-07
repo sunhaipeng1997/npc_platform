@@ -24,8 +24,8 @@ public class SystemController {
 
     //获取能够进入的系统列表
     @GetMapping("/getSystemList")
-    public ResponseEntity getSystemList(@CurrentUser UserDetailsImpl userDetails) {
-        RespBody body = systemService.getSystemList(userDetails);
+    public ResponseEntity getSystemList() {
+        RespBody body = systemService.getSystemList();
         return ResponseEntity.ok(body);
     }
 
