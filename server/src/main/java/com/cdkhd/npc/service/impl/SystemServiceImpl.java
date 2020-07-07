@@ -50,7 +50,7 @@ public class SystemServiceImpl implements SystemService {
         for (SystemVo systemVo : systemVos) {
             for (Systems roleSystem : roleSystems) {
                 if (systemVo.getUid().equals(roleSystem.getUid())){
-                    systemVo.setEnable(true);
+                    systemVo.setCanUse(true);
                     break;
                 }
             }

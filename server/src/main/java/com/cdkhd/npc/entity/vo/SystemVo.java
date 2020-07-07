@@ -31,7 +31,7 @@ public class SystemVo extends BaseVo {
     private String pagePath;
 
     //该角色是否可以进入
-    private Boolean enable = false;
+    private Boolean canUse = false;
 
 
     public static SystemVo convert(Systems systems) {
