@@ -31,7 +31,7 @@ public class UnitSugDetailVo extends BaseVo {
     private String govName;
 
     //办理单位接受时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+08")
     private Date acceptTime;
 
     //预计办理完成时间
