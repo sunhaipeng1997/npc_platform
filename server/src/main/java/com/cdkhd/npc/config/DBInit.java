@@ -66,6 +66,7 @@ public class DBInit {
         initCommonDict();
         mapRoleAndPermission();
         mapPermissionMenu();
+        mapRoleAndSystems();
 //      mapMenuSystem();
         initArea();
         initAccount();
@@ -1574,4 +1575,85 @@ public class DBInit {
             loginUPRepository.saveAndFlush(loginUP);
         }
     }*/
+
+
+    //为角色关联系统
+    private void mapRoleAndSystems() {
+        //选民
+        AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());
+        Set<Systems> voterSystems = voter.getSystems();
+        Set<Permission> voterPermissions = voter.getPermissions();
+
+        voterSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
+        voterSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
+        voterSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
+        voterSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
+        voterSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
+        voterSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+        voter.setPermissions(voterPermissions);
+        accountRoleRepository.save(voter);
+
+        //后台管理员
+        AccountRole bgAdmin = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword());
+
+        Set<Systems> bgAdminSystems = bgAdmin.getSystems();
+
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+
+        bgAdmin.setSystems(bgAdminSystems);
+        accountRoleRepository.save(bgAdmin);
+
+        //代表
+        AccountRole member = accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword());
+        Set<Systems> memberSystems  = member.getSystems();
+
+        memberSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
+        memberSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
+        memberSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
+        memberSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
+        memberSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
+        memberSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+
+        member.setSystems(memberSystems);
+        accountRoleRepository.save(member);
+
+
+        //政府
+        AccountRole  government = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.getKeyword());
+        Set<Systems> govermentSystems  = government.getSystems();
+
+        govermentSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
+        govermentSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
+        govermentSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
+        govermentSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
+        govermentSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
+        govermentSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+
+        member.setSystems(govermentSystems);
+        accountRoleRepository.save(government);
+
+        //办理单位
+        AccountRole  unit = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.getKeyword());
+        Set<Systems> unitSystems  = unit.getSystems();
+
+        unitSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));
+        unitSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));
+        unitSystems.add(systemRepository.findByName(SystemEnum.MEETING.getName()));
+        unitSystems.add(systemRepository.findByName(SystemEnum.PERFORMANCE.getName()));
+        unitSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));
+        unitSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));
+
+        unit.setSystems(unitSystems);
+        accountRoleRepository.save(unit);
+
+
+
+
+
+    }
 }
