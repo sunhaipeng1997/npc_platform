@@ -3,6 +3,7 @@ package com.cdkhd.npc.api;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
+import com.cdkhd.npc.dto.BaseDto;
 import com.cdkhd.npc.service.SystemService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,8 @@ public class SystemApi {
 
     //缓存本次选择的系统
     @PostMapping("/cacheSystem")
-    public ResponseEntity cacheSystem(@CurrentUser UserDetailsImpl userDetails, String systemId) {
-        RespBody body = systemService.cacheSystem(userDetails.getUid(),systemId);
+    public ResponseEntity cacheSystem(@CurrentUser UserDetailsImpl userDetails, BaseDto baseDto) {
+        RespBody body = systemService.cacheSystem(userDetails.getUid(),baseDto.getUid());
         return ResponseEntity.ok(body);
     }
 }
