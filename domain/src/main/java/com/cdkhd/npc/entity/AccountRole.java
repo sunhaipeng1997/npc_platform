@@ -54,6 +54,4 @@ public class AccountRole extends BaseDomain {
             }
     )
     private Set<Systems> systems;
-
-
 }
