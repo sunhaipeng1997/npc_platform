@@ -42,4 +42,18 @@ public class AccountRole extends BaseDomain {
             }
     )
     private Set<Permission> permissions;
+
+    @ManyToMany
+    @JoinTable(
+            name = "account_role_systems_mid",
+            joinColumns = {
+                    @JoinColumn(name = "account_role_id", referencedColumnName = "id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "systems_id", referencedColumnName = "id")
+            }
+    )
+    private Set<Systems> systems;
+
+
 }

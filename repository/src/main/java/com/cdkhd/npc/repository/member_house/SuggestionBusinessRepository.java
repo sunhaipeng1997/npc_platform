@@ -36,5 +36,9 @@ public interface SuggestionBusinessRepository extends BaseRepository<SuggestionB
 
     Set<SuggestionBusiness> findByTownUid(String townUid);
 
+    Set<SuggestionBusiness> findByName(String name);
+
+    Set<SuggestionBusiness> findByStatus(Byte status);
+
     Set<SuggestionBusiness> findByAreaUidAndLevel(String areaUid, Byte level);
 }
