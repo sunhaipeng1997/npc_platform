@@ -352,9 +352,9 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
                     SuggestionStatusEnum.HANDLING.getValue()));*/
             //unitSug的finish为false未办完
             predicateList.add(cb.isFalse(root.get("finish").as(Boolean.class)));
-            //当前单位的建议
-            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
-                    unitUser.getUnit().getUid()));
+            //当前单位人员的建议
+            predicateList.add(cb.equal(root.get("unitUser").get("uid").as(String.class),
+                    unitUser.getUid()));
 
             //排序条件
             List<Order> orderList = new ArrayList<>();
@@ -785,14 +785,16 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             List<Predicate> predicateList = new ArrayList<>();
             //建议未删除
             predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
-            //建议状态为已办完
-            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
-                    SuggestionStatusEnum.HANDLED.getValue()));
+            //建议状态为已办完或办理中
+            Predicate handled = cb.equal(root.get("suggestion").get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue());
+            Predicate dealing = cb.equal(root.get("suggestion").get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue());
+            Predicate or = cb.or(dealing, handled);
+            predicateList.add(or);
             //unitSug的finish为true已办完
             predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
-            //当前单位的建议
-            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
-                    unitUser.getUnit().getUid()));
+            //当前单位人员的建议
+            predicateList.add(cb.equal(root.get("unitUser").get("uid").as(String.class),
+                    unitUser.getUid()));
             return cb.and(predicateList.toArray(new Predicate[0]));
         };
 
