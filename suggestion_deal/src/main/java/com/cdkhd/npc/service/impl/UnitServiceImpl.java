@@ -18,6 +18,7 @@ import com.cdkhd.npc.service.UnitService;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -333,7 +334,7 @@ public class UnitServiceImpl implements UnitService {
                 List<Account> accounts = accountRepository.findByMobile(unitUserAddOrUpdateDto.getMobile());//新手机号能查询出来的所有账号
                 for (Account account1 : accounts) {//判断账号的身份
                     List<String> keywords = account1.getAccountRoles().stream().map(AccountRole::getKeyword).collect(Collectors.toList());
-                    if (keywords.contains(AccountRoleEnum.VOTER.getKeyword()) || keywords.contains(AccountRoleEnum.NPC_MEMBER.getKeyword())) {//这个账号是选民或者是代表
+                    if (keywords.contains(AccountRoleEnum.VOTER.getKeyword())) {//这个账号是选民或者是代表
                         account = account1;//把这个账号跟单位人员身份关联起来
                     }
                 }
@@ -387,14 +388,16 @@ public class UnitServiceImpl implements UnitService {
                     account = account1;//把这个账号跟代表身份关联起来
                 }
             }
-
+            Set<AccountRole> accountRoles = Sets.newHashSet();
             //创建账号
             if (account == null) {
                 account = new Account();
                 account.setMobile(unitUserAddOrUpdateDto.getMobile());//电话号码
                 account.setLoginTimes(0);
+                accountRoles.add(accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword()));
+            }else {
+                accountRoles = account.getAccountRoles();
             }
-            Set<AccountRole> accountRoles = account.getAccountRoles();
             accountRoles.add(accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.getKeyword()));
             account.setAccountRoles(accountRoles);//办理单位
             account.setStatus(StatusEnum.ENABLED.getValue());

@@ -55,8 +55,4 @@ public class SuggestionBusiness extends BaseDomain {
     @Column(name = "status" )
     private Byte status = 1;
 
-    @ManyToOne(targetEntity = Unit.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "suggestionBusiness", referencedColumnName = "id")
-    private Unit unit;
-
 }
