@@ -425,7 +425,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         }*/
 
         UnitUser unitUser = account.getUnitUser();
-        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid()) || !unitSuggestion.getUnitUser().getUid().equals(unitUser.getUid())) {
+        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid())) {
             LOGGER.error("该建议未转办给当前单位/办理人员 \n " +
                             "UnitSuggestion uid: {} \n " +
                             "Current User's uid: {}",
