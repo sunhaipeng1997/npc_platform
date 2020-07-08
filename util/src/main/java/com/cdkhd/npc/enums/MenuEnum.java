@@ -85,6 +85,7 @@ public enum MenuEnum {
     SESSION_MANAGE("sessions", "届期管理",(byte)2, "menu-worktime", "/basic_info/sessions",null, "BASIC_INFO"),
     TOWN_MANAGE("towns", "镇/街道管理",(byte)2, "menu-town", "/basic_info/towns",null, "BASIC_INFO"),
     VILLAGE_MANAGE("villages", "村管理",(byte)2, "menu-village", "/basic_info/villages",null, "BASIC_INFO"),
+    NPC_MEMBER_GROUP("groups", "代表小组管理",(byte)2, "menu-group", "/basic_info/groups",null, "BASIC_INFO"),
 
 
     //代表之家,
@@ -104,7 +105,7 @@ public enum MenuEnum {
     PERFORMANCE_TYPE_MANAGE("performanceType", "履职类型管理",(byte)2, "menu-performanceType", "/member_house/performanceType","TYPE_MANAGE", "MEMBER_HOUSE"),
 
     BASIC_MANAGE("basicInfo", "基本信息管理",(byte)2, null, null,null, "MEMBER_HOUSE"),
-    NPC_MEMBER_GROUP("groups", "代表小组管理",(byte)2, "menu-group", "/member_house/groups","BASIC_MANAGE", "MEMBER_HOUSE"),
+
     WORKSTATION_MANAGE("workStation", "工作站管理",(byte)2, "menu-workstation", "/member_house/workStation","BASIC_MANAGE", "MEMBER_HOUSE"),
 
     STATISTICS_MANAGE("statisticsManage", "统计",(byte)2, null, null,null, "MEMBER_HOUSE"),
