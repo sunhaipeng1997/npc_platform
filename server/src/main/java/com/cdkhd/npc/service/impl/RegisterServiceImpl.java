@@ -212,6 +212,7 @@ public class RegisterServiceImpl implements RegisterService {
                     return body;
                 }
             }
+            this.saveVoter(dto,currentAccount);
         }
         body.setMessage("验证通过");
         body.setStatus(HttpStatus.OK);
@@ -234,17 +235,42 @@ public class RegisterServiceImpl implements RegisterService {
         account.setUnitUser(null);
         account.setLoginWeChat(new LoginWeChat());
         account.setLoginUP(null);//暂时不用管后台管理员，即便是同一人也不关联
-        account.setVoter(new Voter());
         accountRepository.save(account);
 
+        this.saveVoter(dto,account);
+
+        //用户偏好功能，已废弃
+//        MobileUserPreferences mobileUserPreferences = account.getMobileUserPreferences();
+//        mobileUserPreferences.setShortcutAction(ShortcutActionEnum.GIVE_ADVICE.getName());
+
+        //如果是代表身份
+        if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
+            List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
+            for (NpcMember npcMember:npcMembers){
+                npcMember.setAccount(account);
+                npcMemberRepository.save(npcMember);
+                account.getNpcMembers().add(npcMember);
+            }
+            account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword()));
+//            mobileUserPreferences.setShortcutAction(ShortcutActionEnum.MAKE_SUGGESTION.getName());
+        }
+//        mobileUserPreferences.setAccount(accountRepository.findByUid(account.getUid()));
+//        mobileUserPreferencesRepository.save(mobileUserPreferences);
+
+        accountRepository.save(account);
+
+        return account;
+    }
+
+    private void saveVoter(UserInfoDto dto, Account account){
         //任何人都有选民身份
-        Voter voter = account.getVoter();
+        Voter voter = new Voter();
         voter.setMobile(dto.getMobile());
         voter.setRealname(dto.getName());
         voter.setGender(dto.getGender());
         voter.setAge(dto.getAge());
         voter.setBirthday(dto.getBirthday());//增加出生年月
-
+        voter.setAccount(account);
         //不管选民和代表，这里的区镇村都直接存voter里去，代表npcmember表中地区信息可以和voter表中的地区信息不一样
 //        if(keyword.equals(AccountRoleEnum.VOTER.getName())){
         if(StringUtils.isNotEmpty(dto.getAreaUid())){
@@ -260,28 +286,7 @@ public class RegisterServiceImpl implements RegisterService {
         }
 
         voter.setAccount(accountRepository.findByUid(account.getUid()));
-        voterRepository.save(voter);
-
-        MobileUserPreferences mobileUserPreferences = account.getMobileUserPreferences();
-        mobileUserPreferences.setShortcutAction(ShortcutActionEnum.GIVE_ADVICE.getName());
-
-        //如果是代表身份
-        if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
-            List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
-            for (NpcMember npcMember:npcMembers){
-                npcMember.setAccount(account);
-                npcMemberRepository.save(npcMember);
-                account.getNpcMembers().add(npcMember);
-            }
-            account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword()));
-            mobileUserPreferences.setShortcutAction(ShortcutActionEnum.MAKE_SUGGESTION.getName());
-        }
-        mobileUserPreferences.setAccount(accountRepository.findByUid(account.getUid()));
-        mobileUserPreferencesRepository.save(mobileUserPreferences);
-
-        accountRepository.save(account);
-
-        return account;
+        voterRepository.saveAndFlush(voter);
     }
 
     /**
@@ -421,6 +426,9 @@ public class RegisterServiceImpl implements RegisterService {
 
             //再创建loginWeChat，并与账户关联起来
             LoginWeChat loginWeChat = account.getLoginWeChat();
+            if (loginWeChat == null){
+                loginWeChat = new LoginWeChat();
+            }
             loginWeChat.setNickname(dto.getNickName());
             loginWeChat.setOpenId(openid);
             loginWeChat.setUnionId(unionid);

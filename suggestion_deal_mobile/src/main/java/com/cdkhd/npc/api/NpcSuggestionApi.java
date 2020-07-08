@@ -202,8 +202,8 @@ public class NpcSuggestionApi {
     * @Author: LiYang
     */
     @PostMapping("/urgeSuggestion")
-    public ResponseEntity urgeSuggestion(@CurrentUser MobileUserDetailsImpl userDetails, String sugUid){
-        RespBody body = suggestionService.urgeSuggestion(userDetails, sugUid);
+    public ResponseEntity urgeSuggestion(@CurrentUser MobileUserDetailsImpl userDetails, Byte level, String sugUid){
+        RespBody body = suggestionService.urgeSuggestion(userDetails, level, sugUid);
         return ResponseEntity.ok(body);
     }
 

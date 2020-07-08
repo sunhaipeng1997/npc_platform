@@ -466,8 +466,8 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             }
             //政府处理人
             suggestion.setGovernmentUser(governmentUserRepository.findByAccountUid(userDetails.getUid()));
-            suggestionRepository.saveAndFlush(suggestion);
             this.govConvey(suggestion, conveySuggestionDto, userDetails.getUid(), conveyTimes);
+            suggestionRepository.saveAndFlush(suggestion);
         }
         return body;
     }
