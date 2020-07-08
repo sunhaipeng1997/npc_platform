@@ -92,6 +92,7 @@ public enum MenuEnum {
     NOTICE_MANAGE("notification", "通知管理",(byte)2, "menu-notify", "/member_house/notification",null, "MEMBER_HOUSE"),
     OPINION_MANAGE("opinions", "选民意见管理",(byte)2, "menu-opinion", "/member_house/opinions",null, "MEMBER_HOUSE"),
     SUGGESTION_MANAGE("suggestion", "代表建议管理",(byte)2, "menu-suggestion", "/member_house/suggestion",null, "MEMBER_HOUSE"),
+
     TOWN_SUGGESTION_MANAGE("townSuggestion", "各镇代表建议管理",(byte)2, "menu-suggestion", "/member_house/townSuggestion",null, "MEMBER_HOUSE"),
     PERFORMANCE_MANAGE("performance", "代表履职管理",(byte)2, "menu-performanceDuty", "/member_house/performance",null, "MEMBER_HOUSE"),
     TOWN_PERFORMANCE_MANAGE("townPerformance", "各镇代表履职管理",(byte)2, "menu-performanceDuty", "/member_house/townPerformance",null, "MEMBER_HOUSE"),
@@ -117,6 +118,7 @@ public enum MenuEnum {
     GOVERNMENT_MANAGE("govManage", "政府管理",(byte)2, "sug-govManage", "/suggestion_deal/npc/govManage",null, "SUGGESTION"),
     SUGGESTION_TYPE_DEAL("suggestionBusinessDeal", "建议类型管理",(byte)2, "sug-suggestionBusiness", "/suggestion_deal/npc/suggestionBusiness",null, "SUGGESTION"),
     SUGGESTION_DEAL("suggestionManage", "代表建议管理",(byte)2, "sug-suggestionManage", "/suggestion_deal/npc/suggestion",null, "SUGGESTION"),
+    SUGGESTION_RECEIVER_MANAGE("sugReceiver", "建议接收人设置",(byte)2, "menu-opinion", "/suggestion_deal/npc/sugReceiver",null, "SUGGESTION"),
 
     //政府
     GOV_HOMEPAGE_DEAL("govDealIndex", "首页",(byte)2, "sug-dealIndex", "/suggestion_deal/govDealIndex",null, "SUGGESTION"),

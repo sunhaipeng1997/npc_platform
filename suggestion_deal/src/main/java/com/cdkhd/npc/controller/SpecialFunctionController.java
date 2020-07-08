@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/member_house/special_function")
+@RequestMapping("/api/suggestion_deal/special_function")
 public class SpecialFunctionController {
 
     private SpecialFunctionService specialFunctionService;
@@ -34,14 +34,18 @@ public class SpecialFunctionController {
         return ResponseEntity.ok(body);
     }
 
+
+
     /**
-     * 新闻审核人
+     * 建议接受人
      * @return
      */
-    @PostMapping("/newsAuditor")
-    public ResponseEntity newsAuditor(@CurrentUser UserDetailsImpl userDetails, ListUidDto baseDto) {
-        RespBody body = specialFunctionService.newsAuditor(userDetails,baseDto.getUids());
+    @PostMapping("/adviceReceiver")
+    public ResponseEntity adviceReceiver(@CurrentUser UserDetailsImpl userDetails, ListUidDto baseDto) {
+        RespBody body = specialFunctionService.adviceReceiver(userDetails,baseDto.getUids());
         return ResponseEntity.ok(body);
     }
+
+
 
 }

@@ -61,11 +61,13 @@ public enum PermissionEnum {
     SYSTEM_SETTING("系统设置"),
     TOWN_MANAGE("镇管理"),
     VILLAGE_MANAGE("村管理"),
+
     //建议办理
     NPC_HOMEPAGE_DEAL("人大管理员建议办理首页"),
     GOVERNMENT_MANAGE("政府管理"),
     SUGGESTION_TYPE_DEAL("建议类型管理"),
     SUGGESTION_DEAL("代表建议管理"),
+    SUGGESTION_RECEIVER("建议接收人设置"),
 
 
     //政府

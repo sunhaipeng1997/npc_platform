@@ -317,11 +317,14 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SESSION_MANAGE.getKeyword()));//届期管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//系统设置
 
+
+
         //建议办理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NPC_HOMEPAGE_DEAL.getKeyword()));//建议办理首页
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOVERNMENT_MANAGE.getKeyword()));//政府管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));//建议类型管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));//代表建议管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_RECEIVER.getKeyword()));//建议接收人设置
 
         bgAdmin.setPermissions(bgAdminPermissions);
         accountRoleRepository.save(bgAdmin);
@@ -770,6 +773,11 @@ public class DBInit {
         //代表建议管理
         menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_DEAL.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //建议接收人设置
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_RECEIVER_MANAGE.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_RECEIVER.getKeyword()));
         menuRepository.saveAndFlush(menu);
 
         //政府

@@ -11,16 +11,5 @@ public interface SpecialFunctionService {
 
     RespBody newsAuditor(UserDetailsImpl userDetails, List<String> uids);
 
-    RespBody notificationAuditor(UserDetailsImpl userDetails, List<String> uids);
-
-    RespBody adviceReceiver(UserDetailsImpl userDetails, List<String> uids);
-
-    RespBody performanceAuditorManager(UserDetailsImpl userDetails, List<String> uids);
-
-    RespBody performanceGroupAuditor(String group, String uid);
-
-    RespBody performanceTownAuditor(String town, String uid);
-
-    RespBody auditorSwitch(UserDetailsImpl userDetails, Boolean switches);
 
 }
