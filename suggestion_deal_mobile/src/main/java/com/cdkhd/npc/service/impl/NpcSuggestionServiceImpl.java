@@ -560,6 +560,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         Result result = suggestion.getResult();
         result.setReason(sugAppraiseDto.getReason());
         result.setAccepted(false);
+        result.setSuggestion(null);
         resultRepository.saveAndFlush(result);
 
         ConveySugDto conveySugDto = new ConveySugDto();
@@ -824,7 +825,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         if (conveySugDto.getMainUnit() != null) {
             //主办单位
             UnitSuggestion unitSuggestion = new UnitSuggestion();
-            Unit unit = unitRepository.findByUid(conveySugDto.getUid());
+            Unit unit = unitRepository.findByUid(conveySugDto.getMainUnit());
             unitSuggestion.setUnit(unit);//办理单位
             unitSuggestion.setSuggestion(suggestion);//建议
             unitSuggestion.setType(UnitTypeEnum.MAIN_UNIT.getValue());//主办单位
