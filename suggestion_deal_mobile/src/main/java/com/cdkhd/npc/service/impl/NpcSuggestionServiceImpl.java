@@ -566,11 +566,17 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         conveySugDto.setUid(suggestion.getUid());
 
         conveySugDto.setMainUnit(suggestion.getUnit().getUid());
-        //办理单位方面转办流程记录
-        this.unitDeal(suggestion, conveySugDto, suggestion.getGovernmentUser().getUid());
+
+        conveySugDto.setSponsorUnits(suggestion.getUnitSuggestions().stream()
+                .filter(unitSuggestion -> unitSuggestion.getType().equals(UnitTypeEnum.CO_UNIT.getValue())
+                        && unitSuggestion.getDealTimes().equals(suggestion.getDealTimes()))
+                .map(unitSuggestion -> unitSuggestion.getUnit().getUid()).collect(Collectors.toList()));
+
         suggestion.setDealTimes(suggestion.getDealTimes() + 1);
         suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());  //将建议状态设置成“办理中”
         suggestionRepository.saveAndFlush(suggestion);
+        //办理单位方面转办流程记录
+        this.unitDeal(suggestion, conveySugDto, suggestion.getGovernmentUser().getUid());
 
         //拒绝后要将unitSuggestion的unitView设置为false，便于办理单位未读查询
         Set<UnitSuggestion> unitSuggestions = suggestion.getUnitSuggestions();
@@ -826,7 +832,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             unitSuggestion.setGovernmentUser(governmentUser);  //转交的政府人员
             unitSuggestion.setReceiveTime(new Date());
             unitSuggestion.setAcceptTime(new Date());
-            unitSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
+            unitSuggestion.setDealTimes(suggestion.getDealTimes());
             unitSuggestion.setExpectDate(suggestion.getExpectDate());
             unitSuggestion.setUnitView(false);
             unitSuggestion.setUnitUser(this.getUnitUser(suggestion, conveySugDto.getMainUnit()));
@@ -844,7 +850,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 sponsorSuggestion.setGovernmentUser(governmentUser);
                 sponsorSuggestion.setReceiveTime(new Date());//收到时间
                 sponsorSuggestion.setAcceptTime(new Date());//接受时间
-                sponsorSuggestion.setDealTimes(suggestion.getDealTimes() + 1);
+                sponsorSuggestion.setDealTimes(suggestion.getDealTimes());
                 sponsorSuggestion.setUnitUser(this.getUnitUser(suggestion, sponsorUnit));
                 sponsorSuggestion.setExpectDate(suggestion.getExpectDate());
                 sponsorSuggestion.setUnitView(false);

@@ -115,7 +115,7 @@ public enum MenuEnum {
     //人大后台管理员
     NPC_HOMEPAGE_DEAL("npcDealIndex", "首页",(byte)2, "sug-dealIndex", "/suggestion_deal/npc/npcDealIndex",null, "SUGGESTION"),
     GOVERNMENT_MANAGE("govManage", "政府管理",(byte)2, "sug-govManage", "/suggestion_deal/npc/govManage",null, "SUGGESTION"),
-    SUGGESTION_TYPE_DEAL("suggestionBusiness", "建议类型管理",(byte)2, "sug-suggestionBusiness", "/suggestion_deal/npc/suggestionBusiness",null, "SUGGESTION"),
+    SUGGESTION_TYPE_DEAL("suggestionBusinessDeal", "建议类型管理",(byte)2, "sug-suggestionBusiness", "/suggestion_deal/npc/suggestionBusiness",null, "SUGGESTION"),
     SUGGESTION_DEAL("suggestionManage", "代表建议管理",(byte)2, "sug-suggestionManage", "/suggestion_deal/npc/suggestion",null, "SUGGESTION"),
 
     //政府

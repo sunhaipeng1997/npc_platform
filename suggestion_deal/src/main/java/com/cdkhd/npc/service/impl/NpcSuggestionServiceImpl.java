@@ -278,7 +278,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         //暴露Content-Disposition响应头，以便前端可以获取文件名
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
 
-        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "提出时间", "提出代表", "建议内容", "所属地区", "联系方式", "审核人", "建议状态", "审核意见", "审核日期", "建议地点"};
+        String[] tableHeaders = new String[]{"编号", "建议类型", "建议标题", "提出时间", "提出代表", "联系方式", "建议内容", "所属地区",  "建议状态", "审核人",  "审核意见", "审核日期", "建议办理单位"};
 
         Sheet sheet = hssWb.createSheet("代表建议");
 
@@ -316,39 +316,39 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             NpcMember member = suggestion.getRaiser();
             if (member != null) {
                 // 联系方式
-                Cell cell7 = row.createCell(7);
+                Cell cell5 = row.createCell(5);
                 cell4.setCellValue(member.getName());
                 String mobile = member.getMobile();
                 if (StringUtils.isNotBlank(mobile)) {
-                    cell7.setCellValue(mobile);
+                    cell5.setCellValue(mobile);
                 } else {
-                    cell7.setCellValue("");
+                    cell5.setCellValue("");
                 }
             } else {
                 cell2.setCellValue("");
             }
 
             //建议内容
-            Cell cell5 = row.createCell(5);
-            cell5.setCellValue(suggestion.getContent());
+            Cell cell6 = row.createCell(6);
+            cell6.setCellValue(suggestion.getContent());
 
             //所属地区
-            Cell cell6 = row.createCell(6);
+            Cell cell7 = row.createCell(7);
             String place = "";
             if (suggestion.getLevel().equals(LevelEnum.AREA.getValue())) {
                 place = suggestion.getArea().getName() + suggestion.getTown().getName();
             } else if (suggestion.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 place = suggestion.getTown().getName();  // + suggestion.getNpcMemberGroup().getName();
             }
-            cell6.setCellValue(place);
-
-            //审核人姓名
-            Cell cell8 = row.createCell(8);
-            cell8.setCellValue(suggestion.getAuditor() != null ? suggestion.getAuditor().getName() : "");
+            cell7.setCellValue(place);
 
             //状态
+            Cell cell8 = row.createCell(8);
+            cell8.setCellValue(SuggestionStatusEnum.getName(suggestion.getStatus()));
+
+            //审核人姓名
             Cell cell9 = row.createCell(9);
-            cell9.setCellValue(SuggestionStatusEnum.getName(suggestion.getStatus()));
+            cell9.setCellValue(suggestion.getAuditor() != null ? suggestion.getAuditor().getName() : "");
 
             //审核意见
             Cell cell10 = row.createCell(10);
@@ -358,9 +358,9 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             Cell cell11 = row.createCell(11);
             cell11.setCellValue(simpleDateFormat.format(suggestion.getAuditTime()));
 
-            //建议级别
+            //建议办理单位
             Cell cell12 = row.createCell(12);
-            cell12.setCellValue(LevelEnum.getName(suggestion.getLevel()));
+            cell12.setCellValue(suggestion.getUnit() == null ? "" : suggestion.getUnit().getName());
 
         }
         try {
@@ -387,7 +387,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
 
-            Predicate predicate = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.SELF_HANDLE.getValue());
+            Predicate predicate = cb.greaterThan(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue());
             predicates.add(predicate);
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 predicates.add(cb.equal(root.get("level").as(Byte.class), LevelEnum.TOWN.getValue()));//如果是镇上的，就只能查询镇上的
