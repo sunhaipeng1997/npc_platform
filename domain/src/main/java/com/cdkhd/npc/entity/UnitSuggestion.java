@@ -39,7 +39,7 @@ public class UnitSuggestion extends BaseDomain {
 
     //办理单位办理次数
     @Column(name = "deal_times")
-    private Integer dealTimes = 0;
+    private Integer dealTimes = 1;
 
     //办理单位办完时间
     @Temporal(TemporalType.TIMESTAMP)
