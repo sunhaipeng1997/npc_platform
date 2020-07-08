@@ -92,7 +92,7 @@ public class IndexServiceImpl implements IndexService {
                         govUser.getTown().getName() :
                         govUser.getArea().getName();
                 //生成一个LevelVo
-                LevelVo vo = LevelVo.convert(govUser.getUid(), areaTownName + role.getName(),
+                LevelVo vo = LevelVo.convert(govUser.getUid(), areaTownName + govUser.getGovernment().getName(),
                         govUser.getLevel(), AccountRoleEnum.GOVERNMENT.getValue(), areaTownName);
                 levelVos.add(vo);
             //是办理单位
@@ -103,7 +103,7 @@ public class IndexServiceImpl implements IndexService {
                         unitUser.getUnit().getTown().getName() :
                         unitUser.getUnit().getArea().getName();
                 //生成一个LevelVo
-                LevelVo vo = LevelVo.convert(unitUser.getUid(), areaTownName + role.getName(),
+                LevelVo vo = LevelVo.convert(unitUser.getUid(), areaTownName + unitUser.getUnit().getName(),
                         unitUser.getUnit().getLevel(), AccountRoleEnum.UNIT.getValue(), areaTownName);
                 levelVos.add(vo);
             }
