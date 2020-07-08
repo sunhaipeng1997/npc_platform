@@ -311,6 +311,8 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         if (allDone) {
             suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());
             suggestion.setAcceptTime(now);
+            //设置办理次数
+//            suggestion.setDealTimes(suggestion.getDelayTimes() + 1);
             suggestionRepository.saveAndFlush(suggestion);
         }
 
