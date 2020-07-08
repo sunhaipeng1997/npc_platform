@@ -453,16 +453,19 @@ public class MenuServiceImpl implements MenuService {
         Set<AccountRole> accountRoles = account.getAccountRoles();
         List<LevelVo> levelVos = Lists.newArrayList();
         List<AccountRole> memberRoles = accountRoles.stream().filter(role -> role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword())).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(memberRoles)){//如果代表身份不为空
+        if (CollectionUtils.isNotEmpty(memberRoles)) {//如果代表身份不为空
             for (NpcMember npcMember : account.getNpcMembers()) {
-                String name = npcMember.getLevel().equals(LevelEnum.TOWN.getValue())?npcMember.getTown().getName():npcMember.getArea().getName();//获取代表所在区镇的名称
-                List<LevelVo> memberLevelVos = npcMember.getNpcMemberRoles().stream().filter(role -> role.getIsMust()).map(role -> LevelVo.convert(role.getUid(),name+role.getName(),npcMember.getLevel(),(byte)1,name)).collect(Collectors.toList());
+                String name = npcMember.getLevel().equals(LevelEnum.TOWN.getValue()) ? npcMember.getTown().getName() : npcMember.getArea().getName();//获取代表所在区镇的名称
+                List<LevelVo> memberLevelVos = npcMember.getNpcMemberRoles().stream().filter(role -> role.getIsMust()).map(role -> LevelVo.convert(role.getUid(), name + role.getName(), npcMember.getLevel(), (byte) 1, name)).collect(Collectors.toList());
                 levelVos.addAll(memberLevelVos);
             }
         }
-        if (CollectionUtils.isEmpty(levelVos)){//代表排除后，将后台管理员也排除掉
+        //如果不是代表，则只能是选民（在小程序端）
+        if (CollectionUtils.isEmpty(levelVos)) {
             String name = account.getVoter().getTown().getName();//获取选民所在镇的名称
-            levelVos = accountRoles.stream().filter(role -> (!role.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()))|| (!role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()))).map(role -> LevelVo.convert(role.getUid(),role.getName(),LevelEnum.TOWN.getValue(),(byte)2,name)).collect(Collectors.toList());
+            levelVos = accountRoles.stream()
+                    .filter(role -> role.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword()))
+                    .map(role -> LevelVo.convert(role.getUid(), role.getName(), LevelEnum.TOWN.getValue(), (byte) 2, name)).collect(Collectors.toList());
         }
         body.setData(levelVos);
         return body;
