@@ -302,7 +302,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
                 }
             }
             if (acceptAll) {
-                if (isDealing){
+                if (isDealing && adjustConveyDto.getDealStatus().equals(ConveyStatusEnum.CONVEY_FAILED.getValue())){//并且本次选择的无需分配
                     suggestion.setStatus(SuggestionStatusEnum.HANDLING.getValue());//所有的建议开始办理了，需要把建议状态改为办理中
                 }else {
                     suggestion.setStatus(SuggestionStatusEnum.TRANSFERRED_UNIT.getValue());//还有些建议没有办理，那么就将建议改为待接收

@@ -425,7 +425,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         }*/
 
         UnitUser unitUser = account.getUnitUser();
-        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid()) || !unitSuggestion.getUnitUser().getUid().equals(unitUser.getUid())) {
+        if (!unitSuggestion.getUnit().getUid().equals(unitUser.getUnit().getUid())) {
             LOGGER.error("该建议未转办给当前单位/办理人员 \n " +
                             "UnitSuggestion uid: {} \n " +
                             "Current User's uid: {}",
@@ -794,6 +794,9 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
             predicateList.add(or);
             //unitSug的finish为true已办完
             predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //unitSug的办理次数要与Suggestion的次数相同，只查出当前批次的办理
+            predicateList.add(cb.equal(root.get("dealTimes").as(Integer.class),
+                    root.get("suggestion").get("dealTimes").as(Integer.class)));
             //当前单位人员的建议
             predicateList.add(cb.equal(root.get("unitUser").get("uid").as(String.class),
                     unitUser.getUid()));
@@ -850,6 +853,9 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
                     SuggestionStatusEnum.ACCOMPLISHED.getValue()));
             //unitSug的finish为true
             predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //unitSug的办理次数要与Suggestion的次数相同，只查出当前批次的办理
+            predicateList.add(cb.equal(root.get("dealTimes").as(Integer.class),
+                    root.get("suggestion").get("dealTimes").as(Integer.class)));
             //当前单位的建议
             predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
                     unitUser.getUnit().getUid()));

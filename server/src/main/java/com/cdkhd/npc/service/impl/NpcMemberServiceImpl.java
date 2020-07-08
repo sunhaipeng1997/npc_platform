@@ -251,6 +251,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
         NpcMemberRole npcMemberRole = npcMemberRoleRepository.findByUid(dto.getType());
         member.setType(npcMemberRole.getUid());
         member.setTypeName(npcMemberRole.getName());
+        member.setSpecial(npcMemberRole.getSpecial());
         member.setCode(dto.getCode());
         member.setIdcard(dto.getIdcard());
         member.setAvatar(dto.getAvatar());

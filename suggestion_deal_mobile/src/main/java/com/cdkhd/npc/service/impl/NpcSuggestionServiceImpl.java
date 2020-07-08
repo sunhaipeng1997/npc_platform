@@ -611,58 +611,55 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     }
 
     @Override
-    public RespBody urgeSuggestion(MobileUserDetailsImpl userDetails, String sugUid) {
+    public RespBody urgeSuggestion(MobileUserDetailsImpl userDetails, Byte level, String sugUid) {
         RespBody body = new RespBody();
-
         Account account = accountRepository.findByUid(userDetails.getUid());
         Suggestion suggestion = suggestionRepository.findByUid(sugUid);
-
         if (suggestion == null) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该建议不存在");
             return body;
         }
-
         if (suggestion.getStatus() != 4 && suggestion.getStatus() != 5) {
             body.setStatus(HttpStatus.BAD_REQUEST);
             body.setMessage("该状态下建议不能催办");
             return body;
         }
-
-//        int urgeFre = suggestionSettingRepository.findUrgeFre();//催办周期
-        int urgeFre = 7;  //暂时写死为7天
-
+        SuggestionSetting suggestionSetting = null;//催办周期
+        if (level.equals(LevelEnum.TOWN.getValue())) {
+            suggestionSetting = suggestionSettingRepository.findByLevelAndTownUid(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
+        }else if (level.equals(LevelEnum.AREA.getValue())){
+            suggestionSetting = suggestionSettingRepository.findByLevelAndAreaUid(LevelEnum.AREA.getValue(),userDetails.getArea().getUid());
+        }
+        if (suggestionSetting == null){
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            body.setMessage("系统错误，请联系管理员");
+            return body;
+        }
+        int urgeFre = suggestionSetting.getUrgeFre();
         Calendar beforeTime = Calendar.getInstance();
         beforeTime.add(Calendar.DATE, -urgeFre);
         Date urgeDate = beforeTime.getTime();  //当前时间的 催办周期天数之前
-
-        Boolean canUrge = false;
-        int urgeScore = 0;
-        if (suggestion.getUrge()) {//如果该建议已经催办过
-            for (Urge urge : suggestion.getUrges()) {
-                urgeScore += urge.getScore();
-                if (urge.getAccount().getUid().equals(account.getUid()) && urge.getCreateTime().before(urgeDate)) {//距离上一次催办已经过去了设置的时间了，那么才可以进行下一次催办
-                    canUrge = true;
+        List<Urge> urges = urgeRepository.findBySuggestionUidAndType(sugUid,UrgeScoreEnum.NPC_MEMBER.getType());
+        if (CollectionUtils.isEmpty(urges)) {//如果该建议已经催办过
+            for (Urge urge : urges) {
+                if (urge.getCreateTime().after(urgeDate)){
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该建议已经催办！ " +urgeFre+"天之内，不能再次催办！");
+                    return body;
                 }
             }
-        } else {
-            canUrge = true;
         }
-        if (canUrge) {
-            Urge urge = new Urge();
-            urge.setType((byte) 1);  //1 代表催办
-            urge.setCreateTime(new Date());
-            urge.setAccount(account);
-            urge.setScore(1);         //代表催办一次1分，联工委催办一次4分，政府催办一次16分
-            suggestion.setUrge(true);
-            suggestion.setUrgeLevel(urgeScore + urge.getScore());//重新计算催办等级
-            urge.setSuggestion(suggestion);
-            urgeRepository.saveAndFlush(urge);
-        } else {
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage(urgeFre + "天内请勿重复催办");
-            return body;
-        }
+        Urge urge = new Urge();
+        urge.setType((byte) 1);  //1 代表催办
+        urge.setCreateTime(new Date());
+        urge.setAccount(account);
+        urge.setScore(1);         //代表催办一次1分，联工委催办一次2分，政府催办一次4分
+        suggestion.setUrge(true);
+        suggestion.setUrgeLevel(1 + urge.getScore());//重新计算催办等级
+        urge.setSuggestion(suggestion);
+        urgeRepository.saveAndFlush(urge);
+        suggestionRepository.saveAndFlush(suggestion);
         body.setMessage("催办成功");
         return body;
     }

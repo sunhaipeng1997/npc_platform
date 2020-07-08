@@ -162,7 +162,23 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         return auditorSetting(userDetails, uids, NpcMemberRoleEnum.NEWS_AUDITOR.getKeyword());
     }
 
+    //通知审核
+    @Override
+    public RespBody notificationAuditor(UserDetailsImpl userDetails, List<String> uids) {
+        return auditorSetting(userDetails, uids, NpcMemberRoleEnum.NOTICE_AUDITOR.getKeyword());
+    }
 
+    //建议接受人员
+    @Override
+    public RespBody adviceReceiver(UserDetailsImpl userDetails, List<String> uids) {
+        return auditorSetting(userDetails, uids, NpcMemberRoleEnum.SUGGESTION_RECEIVER.getKeyword());
+    }
+
+    //履职登记总审核
+    @Override
+    public RespBody performanceAuditorManager(UserDetailsImpl userDetails, List<String> uids) {
+        return auditorSetting(userDetails, uids, NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());
+    }
 
     private RespBody auditorSetting(UserDetailsImpl userDetails, List<String> uids, String roleName) {
         RespBody body = new RespBody();
@@ -249,6 +265,119 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         return memberName;
     }
 
+    @Override
+    public RespBody performanceGroupAuditor(String group, String uid) {
+        RespBody body = new RespBody();
+        NpcMember npcMember = npcMemberRepository.findByUid(uid);
+        if (npcMember == null) {
+            body.setMessage("找不到指定的代表！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        NpcMemberRole role = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());
+        if (role == null) {
+            body.setMessage("找不到指定的角色！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        NpcMemberGroup npcGroup = npcMemberGroupRepository.findByUid(group);
+        if (npcGroup == null) {
+            body.setMessage("找不到指定的小组！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        NpcMemberGroup npcMemberGroup = npcMember.getNpcMemberGroup();
+        if (!npcGroup.getUid().equals(npcMemberGroup.getUid())) {
+            body.setMessage("该代表不属于该小组！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        Boolean isGeneralAuditor = validateGeneralAuditor(npcMember.getUid());
+        if (isGeneralAuditor) {
+            body.setMessage("该代表已经是总审核人员，不能设置为小组审核人！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        // 清除之前的人
+        Set<NpcMember> members = npcGroup.getMembers();
+        for (NpcMember member : members) {
+            Set<NpcMemberRole> roles = member.getNpcMemberRoles();
+            if (roles.stream().map(NpcMemberRole::getKeyword).collect(Collectors.toSet()).contains(role.getKeyword())) {
+                member.getNpcMemberRoles().remove(role);
+                npcMemberRepository.saveAndFlush(member);
+                break;
+            }
+        }
+
+        // 添加新的人
+        Set<NpcMemberRole> roles = npcMember.getNpcMemberRoles();
+        roles.add(role);
+        npcMember.setNpcMemberRoles(roles);
+        npcMemberRepository.saveAndFlush(npcMember);
+        return body;
+    }
+
+    @Override
+    public RespBody performanceTownAuditor(String town, String uid) {
+        RespBody body = new RespBody();
+        NpcMember npcMember = npcMemberRepository.findByUid(uid);
+        if (npcMember == null) {
+            body.setMessage("找不到指定的代表！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        NpcMemberRole role = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());
+        if (role == null) {
+            body.setMessage("找不到指定的角色！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        Town npcTown = townRepository.findByUid(town);
+        if (npcTown == null) {
+            body.setMessage("找不到指定的镇！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        Town memberTown = npcMember.getTown();
+        if (!npcTown.getUid().equals(memberTown.getUid())) {
+            body.setMessage("该代表不属于该镇！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        Boolean isGeneralAuditor = validateGeneralAuditor(npcMember.getUid());
+        if (isGeneralAuditor) {
+            body.setMessage("该代表已经是总审核人员，不能设置为小组审核人！");
+            body.setStatus(HttpStatus.BAD_REQUEST);
+            return body;
+        }
+
+        // 清除之前的人
+        Set<NpcMember> members = npcTown.getNpcMembers();
+        for (NpcMember member : members) {
+            Set<NpcMemberRole> roles = member.getNpcMemberRoles();
+            if (roles.stream().map(NpcMemberRole::getKeyword).collect(Collectors.toSet()).contains(role.getKeyword())) {
+                member.getNpcMemberRoles().remove(role);
+                npcMemberRepository.saveAndFlush(member);
+                break;
+            }
+        }
+
+        // 添加新的人
+        Set<NpcMemberRole> roles = npcMember.getNpcMemberRoles();
+        roles.add(role);
+        npcMember.setNpcMemberRoles(roles);
+        npcMemberRepository.saveAndFlush(npcMember);
+        return body;
+    }
 
     private Boolean validateGeneralAuditor(String uid){
         Boolean isGeneralAuditor = false;
@@ -309,4 +438,41 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         }
     }
 
+    /**
+     * 开启小组审核人的开关
+     * @param userDetails
+     * @param switches
+     * @return
+     */
+    @Override
+    public RespBody auditorSwitch(UserDetailsImpl userDetails, Boolean switches) {
+        RespBody body = new RespBody();
+        SystemSetting systemSetting;
+        if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())){
+            systemSetting = systemSettingRepository.findByLevelAndTownUid(userDetails.getLevel(),userDetails.getTown().getUid());
+        }else{
+            systemSetting = systemSettingRepository.findByLevelAndAreaUid(userDetails.getLevel(), userDetails.getArea().getUid());
+        }
+        systemSetting.setPerformanceGroupAudit(switches);
+        if (switches){//如果开关是打开的，那么根据当前登录角色（县、镇管理员）找出相应的履职总审核人员，并且筛选下面的履职审核人员，将不合法的履职审核人员剔除
+            Set<NpcMember> auditorManagers;
+            Set<NpcMember> auditors;
+            NpcMemberRole auditorManager = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_GENERAL_AUDITOR.getKeyword());//履职总审核
+            auditorManagers = auditorManager.getNpcMembers().stream().filter(member -> member.getLevel().equals(userDetails.getLevel()) && ((userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && member.getTown().getUid().equals(userDetails.getTown().getUid())) || (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && member.getArea().getUid().equals(userDetails.getArea().getUid())))).collect(Collectors.toSet());//履职总审核权限的人
+            NpcMemberRole auditor = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword());//镇履职审核人员
+            auditors = auditor.getNpcMembers().stream().filter(member -> member.getLevel().equals(userDetails.getLevel()) && ((userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && member.getTown().getUid().equals(userDetails.getTown().getUid())) || (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) && member.getArea().getUid().equals(userDetails.getArea().getUid())))).collect(Collectors.toSet());//镇履职审核权限的人
+            for (NpcMember manager : auditorManagers) {
+                for (NpcMember npcMember : auditors) {
+                    if (npcMember.getUid().equals(manager.getUid())) {//如果这个人在开关开启前，既设置了总审核，又设置了小组审核，那么把小组审核人的权限清理掉
+                        Set<NpcMemberRole> roles = npcMember.getNpcMemberRoles();
+                        roles.removeIf(r -> r.getKeyword().equals(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()));
+                        npcMember.setNpcMemberRoles(roles);
+                    }
+                }
+            }
+            npcMemberRepository.saveAll(auditors);
+        }
+        systemSettingRepository.saveAndFlush(systemSetting);
+        return body;
+    }
 }

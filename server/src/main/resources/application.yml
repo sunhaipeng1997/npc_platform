@@ -24,6 +24,14 @@ spring:
     multipart:
       max-file-size: 150MB
       max-request-size: 150MB
+  thymeleaf:
+    enabled: true
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    suffix: .html
+    # 服务器渲染的时候
+    prefix: classpath:/templates/
 
 # 微信服务号相关配置，科宏达测试号
 service_app:

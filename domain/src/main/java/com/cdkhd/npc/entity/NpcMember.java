@@ -163,7 +163,7 @@ public class NpcMember extends BaseDomain {
 	private String political;
 
 	//是否只能作为特殊职能 1，是  0，不是
-	private Byte special = 0;
+	private Boolean special = false;
 
 	/**
 	 *   等级

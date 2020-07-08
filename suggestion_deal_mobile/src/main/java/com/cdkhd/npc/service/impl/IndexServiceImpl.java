@@ -92,7 +92,7 @@ public class IndexServiceImpl implements IndexService {
                         govUser.getTown().getName() :
                         govUser.getArea().getName();
                 //生成一个LevelVo
-                LevelVo vo = LevelVo.convert(govUser.getUid(), areaTownName + role.getName(),
+                LevelVo vo = LevelVo.convert(govUser.getUid(), areaTownName + govUser.getGovernment().getName(),
                         govUser.getLevel(), AccountRoleEnum.GOVERNMENT.getValue(), areaTownName);
                 levelVos.add(vo);
             //是办理单位
@@ -103,7 +103,7 @@ public class IndexServiceImpl implements IndexService {
                         unitUser.getUnit().getTown().getName() :
                         unitUser.getUnit().getArea().getName();
                 //生成一个LevelVo
-                LevelVo vo = LevelVo.convert(unitUser.getUid(), areaTownName + role.getName(),
+                LevelVo vo = LevelVo.convert(unitUser.getUid(), areaTownName + unitUser.getUnit().getName(),
                         unitUser.getUnit().getLevel(), AccountRoleEnum.UNIT.getValue(), areaTownName);
                 levelVos.add(vo);
             }
@@ -487,8 +487,8 @@ public class IndexServiceImpl implements IndexService {
             //unitSug的finish为false未办完
             predicateList.add(cb.isFalse(root.get("finish").as(Boolean.class)));
             //当前单位的建议
-            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
-                    unitUser.getUnit().getUid()));
+            predicateList.add(cb.equal(root.get("unitUser").get("uid").as(String.class),
+                    unitUser.getUid()));
             //单位未查看
             predicateList.add(cb.isFalse(root.get("unitView").as(Boolean.class)));
 
@@ -502,14 +502,19 @@ public class IndexServiceImpl implements IndexService {
 
             //建议未删除
             predicateList.add(cb.isFalse(root.get("suggestion").get("isDel").as(Boolean.class)));
-            //建议状态为已办完
-            predicateList.add(cb.equal(root.get("suggestion").get("status").as(Byte.class),
-                    SuggestionStatusEnum.HANDLED.getValue()));
+            //建议状态为已办完或办理中
+            Predicate handled = cb.equal(root.get("suggestion").get("status").as(Byte.class), SuggestionStatusEnum.HANDLED.getValue());
+            Predicate dealing = cb.equal(root.get("suggestion").get("status").as(Byte.class), SuggestionStatusEnum.HANDLING.getValue());
+            Predicate or = cb.or(dealing, handled);
+            predicateList.add(or);
             //unitSug的finish为true已办完
             predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
-            //当前单位的建议
-            predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
-                    unitUser.getUnit().getUid()));
+            //unitSug的办理次数要与Suggestion的次数相同，只查出当前批次的办理
+            predicateList.add(cb.equal(root.get("dealTimes").as(Integer.class),
+                    root.get("suggestion").get("dealTimes").as(Integer.class)));
+            //当前单位人员的建议
+            predicateList.add(cb.equal(root.get("unitUser").get("uid").as(String.class),
+                    unitUser.getUid()));
             //单位未查看
             predicateList.add(cb.isFalse(root.get("unitView").as(Boolean.class)));
 
@@ -528,6 +533,9 @@ public class IndexServiceImpl implements IndexService {
                     SuggestionStatusEnum.ACCOMPLISHED.getValue()));
             //unitSug的finish为true
             predicateList.add(cb.isTrue(root.get("finish").as(Boolean.class)));
+            //unitSug的办理次数要与Suggestion的次数相同，只查出当前批次的办理
+            predicateList.add(cb.equal(root.get("dealTimes").as(Integer.class),
+                    root.get("suggestion").get("dealTimes").as(Integer.class)));
             //当前单位的建议
             predicateList.add(cb.equal(root.get("unit").get("uid").as(String.class),
                     unitUser.getUnit().getUid()));

@@ -35,6 +35,9 @@ public class NpcMemberRole extends BaseDomain {
    	//是否是必须的角色
    	private Boolean isMust;
 
+   	//是否特殊身份
+   	private Boolean special;
+
 	@ManyToMany
 	@JoinTable(
 			name = "npc_member_role_permission_mid",
