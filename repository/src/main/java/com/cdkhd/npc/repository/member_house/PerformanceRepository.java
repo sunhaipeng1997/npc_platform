@@ -20,7 +20,9 @@ public interface PerformanceRepository extends BaseRepository<Performance> {
     @Query(value = "select count(per.uid) from Performance as per where per.createTime >= ?1 and per.level = ?2 and per.area.uid = ?3")
     Integer countAreaTodayNumber(Date today, Byte level, String uid);
 
-    List<Performance> findByPerformanceTypeUid(String uid);
+    List<Performance> findByPerformanceTypeUidAndLevelAndAreaUidAndIsDelFalse(String uid,Byte level,String areaUid);
+
+    List<Performance> findByPerformanceTypeUidAndLevelAndTownUidAndIsDelFalse(String uid,Byte level,String townUid);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(pfm.town.name, count(pfm.uid)) from Performance pfm " +
             "where pfm.area.id=?1 and pfm.isDel=false and pfm.level=2 and pfm.status>=3 " +

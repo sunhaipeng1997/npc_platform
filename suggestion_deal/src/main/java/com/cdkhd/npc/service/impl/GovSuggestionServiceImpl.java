@@ -457,7 +457,7 @@ public class GovSuggestionServiceImpl implements GovSuggestionService {
             suggestion.setConveyTimes(conveyTimes);
             ConveySuggestionDto conveySuggestionDto = new ConveySuggestionDto();
             if (adjustConveyDto.getUnitType().equals(UnitTypeEnum.MAIN_UNIT.getValue())) {
-                suggestion.setUnit(unitRepository.findByUid(adjustConveyDto.getUid()));
+                suggestion.setUnit(unitRepository.findByUid(adjustConveyDto.getUnit()));
                 conveySuggestionDto.setMainUnit(adjustConveyDto.getUnit());
             } else if (adjustConveyDto.getUnitType().equals(UnitTypeEnum.CO_UNIT.getValue())) {
                 List<String> spinsordId = Lists.newArrayList();

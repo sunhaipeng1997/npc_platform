@@ -664,13 +664,11 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         beforeTime.add(Calendar.DATE, -urgeFre);
         Date urgeDate = beforeTime.getTime();  //当前时间的 催办周期天数之前
         List<Urge> urges = urgeRepository.findBySuggestionUidAndType(sugUid,UrgeScoreEnum.NPC_MEMBER.getType());
-        if (CollectionUtils.isEmpty(urges)) {//如果该建议已经催办过
-            for (Urge urge : urges) {
-                if (urge.getCreateTime().after(urgeDate)){
-                    body.setStatus(HttpStatus.BAD_REQUEST);
-                    body.setMessage("该建议已经催办！ " +urgeFre+"天之内，不能再次催办！");
-                    return body;
-                }
+        for (Urge urge : urges) {
+            if (urge.getCreateTime().after(urgeDate)){
+                body.setStatus(HttpStatus.BAD_REQUEST);
+                body.setMessage("该建议已经催办！ " +urgeFre+"天之内，不能再次催办！");
+                return body;
             }
         }
         Urge urge = new Urge();
