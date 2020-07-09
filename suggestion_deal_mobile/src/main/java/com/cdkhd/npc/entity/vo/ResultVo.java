@@ -33,7 +33,12 @@ public class ResultVo {
         ResultVo vo = new ResultVo();
 
         BeanUtils.copyProperties(result, vo);
-        vo.setImages(result.getResultImages().stream().filter(uImg -> uImg.getType().equals(ImageTypeEnum.HANDLE_RESULT.getValue())).map(UnitImage::getUrl).collect(Collectors.toList()));
+
+        vo.setImages(result.getResultImages()
+                .stream()
+                .filter(uImg -> uImg.getType().equals(ImageTypeEnum.HANDLE_RESULT.getValue()))
+                .map(UnitImage::getUrl)
+                .collect(Collectors.toList()));
 
         return vo;
     }

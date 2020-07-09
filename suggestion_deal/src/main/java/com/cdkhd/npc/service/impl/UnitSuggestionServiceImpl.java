@@ -499,14 +499,14 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         UnitSugVo vo = UnitSugVo.convert(unitSuggestion);
         //返回办理流程图片
-        for (HandleProcessVo processVo : vo.getProcesses()) {
+        /*for (HandleProcessVo processVo : vo.getProcesses()) {
             HandleProcess process = handleProcessRepository.findByUid(processVo.getUid());
             List<UnitImage> unitImages = unitImageRepository.findByTypeAndBelongToId(ImageTypeEnum.HANDLE_PROCESS.getValue(), process.getId());
             List<String> images = unitImages.stream()
                     .map(UnitImage::getUrl)
                     .collect(Collectors.toList());
             processVo.setImages(images);
-        }
+        }*/
 
         body.setData(vo);
         return body;
