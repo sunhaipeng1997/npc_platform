@@ -3,6 +3,7 @@ package com.cdkhd.npc.entity.vo;
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.Suggestion;
 import com.cdkhd.npc.entity.SuggestionImage;
+import com.cdkhd.npc.entity.UnitImage;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -11,9 +12,7 @@ import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -90,7 +89,11 @@ public class SugDetailVo extends BaseVo {
         vo.setSugBusVo(SugBusVo.convert(suggestion.getSuggestionBusiness()));
         //提出人
         NpcMember npcMember = suggestion.getRaiser();
-        vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
+
+        List<SuggestionImage> imageList = new ArrayList<>(suggestion.getSuggestionImages());
+        imageList.sort(Comparator.comparing(SuggestionImage::getCreateTime));
+        vo.setImages(imageList.stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
+
         if (npcMember != null) {
             vo.setNpcMemberVo(NpcMemberVo.convert(npcMember));
         }

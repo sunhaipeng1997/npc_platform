@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,8 +36,10 @@ public class ResultVo {
 
         BeanUtils.copyProperties(result, vo);
 
-        vo.setImages(result.getResultImages()
-                .stream()
+        List<UnitImage> imageList = new ArrayList<>(result.getResultImages());
+        imageList.sort(Comparator.comparing(UnitImage::getCreateTime));
+
+        vo.setImages(imageList.stream()
                 .filter(uImg -> uImg.getType().equals(ImageTypeEnum.HANDLE_RESULT.getValue()))
                 .map(UnitImage::getUrl)
                 .collect(Collectors.toList()));

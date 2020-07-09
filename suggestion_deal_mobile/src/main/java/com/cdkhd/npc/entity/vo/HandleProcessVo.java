@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,8 +31,10 @@ public class HandleProcessVo extends BaseVo {
 
         BeanUtils.copyProperties(hp, vo);
 
-        vo.setImages(hp.getProcessImages()
-                .stream()
+        List<UnitImage> imageList = new ArrayList<>(hp.getProcessImages());
+        imageList.sort(Comparator.comparing(UnitImage::getCreateTime));
+
+        vo.setImages(imageList.stream()
                 .filter(unitImage -> unitImage.getType().equals(ImageTypeEnum.HANDLE_PROCESS.getValue()))
                 .map(UnitImage::getUrl)
                 .collect(Collectors.toList()));
