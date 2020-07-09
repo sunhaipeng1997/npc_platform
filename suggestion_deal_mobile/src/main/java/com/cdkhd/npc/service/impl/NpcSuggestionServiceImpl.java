@@ -464,6 +464,8 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     @Override
     public RespBody auditorSug(MobileUserDetailsImpl userDetails, SugPageDto sugPageDto) {
         RespBody body = new RespBody();
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(sugPageDto.getLevel(), account.getNpcMembers());
         int begin = sugPageDto.getPage() - 1;
 
         Pageable page = PageRequest.of(begin, sugPageDto.getSize());
@@ -486,9 +488,12 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                     Predicate predicate = cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.NOT_SUBMITTED.getValue());  // 不等于 1 未提交
                     predicate = cb.and(predicate, cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.SUBMITTED_AUDIT.getValue()));  // 不等于 2 待审核
                     predicate = cb.and(predicate, cb.notEqual(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));  // 不等于 -1 审核失败
+                    predicate = cb.and(predicate, cb.equal(root.get("auditor").get("uid").as(String.class), npcMember.getUid()));  // 我自己审核的
                     predicates.add(predicate);
                 } else {  // 3 审核失败
-                    predicates.add(cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue()));  // -1 审核失败
+                    Predicate predicate = cb.equal(root.get("status").as(Byte.class), SuggestionStatusEnum.AUDIT_FAILURE.getValue());  // -1 审核失败
+                    predicate = cb.and(predicate, cb.equal(root.get("auditor").get("uid").as(String.class), npcMember.getUid()));  // 我自己审核的
+                    predicates.add(predicate);
                 }
             }
             Predicate[] p = new Predicate[predicates.size()];
@@ -833,7 +838,9 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
             unitSuggestion.setDealTimes(suggestion.getDealTimes());
             unitSuggestion.setExpectDate(suggestion.getExpectDate());
             unitSuggestion.setUnitView(false);
+
             unitSuggestion.setUnitUser(this.getUnitUser(suggestion, conveySugDto.getMainUnit()));
+
             unitSuggestionList.add(unitSuggestion);
         }
         //协办单位
@@ -849,7 +856,9 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                 sponsorSuggestion.setReceiveTime(new Date());//收到时间
                 sponsorSuggestion.setAcceptTime(new Date());//接受时间
                 sponsorSuggestion.setDealTimes(suggestion.getDealTimes());
+
                 sponsorSuggestion.setUnitUser(this.getUnitUser(suggestion, sponsorUnit));
+
                 sponsorSuggestion.setExpectDate(suggestion.getExpectDate());
                 sponsorSuggestion.setUnitView(false);
                 unitSuggestionList.add(sponsorSuggestion);
@@ -860,14 +869,18 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         }
     }
 
-    private UnitUser getUnitUser(Suggestion suggestion, String unitUid) {
+    private UnitUser getUnitUser(Suggestion suggestion, String unitUid) {  //unitUid：办理单位的
         UnitUser unitUser = null;
-        for (UnitSuggestion unitSuggestion : suggestion.getUnitSuggestions()) {
-            if (suggestion.getDealTimes().equals(unitSuggestion.getDealTimes()) && unitSuggestion.getUnit().getUid().equals(unitUid)) {
-                unitUser = unitSuggestion.getUnitUser();
-                break;
+        Set<UnitSuggestion> unitSuggestions = suggestion.getUnitSuggestions();
+        if (unitSuggestions != null) {
+            for (UnitSuggestion unitSuggestion : unitSuggestions) {
+                if (suggestion.getDealTimes().equals(unitSuggestion.getDealTimes() + 1) && unitSuggestion.getUnit().getUid().equals(unitUid)) {
+                    unitUser = unitSuggestion.getUnitUser();
+                    break;
+                }
             }
         }
+
         return unitUser;
     }
 }
