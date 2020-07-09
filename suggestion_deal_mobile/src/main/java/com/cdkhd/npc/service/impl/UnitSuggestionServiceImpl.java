@@ -684,6 +684,7 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         Date now = new Date();
         unitSuggestion.setFinishTime(now);
         unitSuggestion.setFinish(true);
+        unitSuggestion.setUnitView(false);
         unitSuggestionRepository.saveAndFlush(unitSuggestion);
 
         //只有主办单位完成办理的时候，才能修改 Suggestion 的状态
