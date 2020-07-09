@@ -7,10 +7,8 @@ import com.cdkhd.npc.entity.vo.*;
 import com.cdkhd.npc.enums.*;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.GovernmentUserRepository;
-import com.cdkhd.npc.repository.member_house.SuggestionBusinessRepository;
-import com.cdkhd.npc.repository.member_house.SuggestionImageRepository;
-import com.cdkhd.npc.repository.member_house.SuggestionReplyRepository;
-import com.cdkhd.npc.repository.member_house.SuggestionRepository;
+import com.cdkhd.npc.repository.base.NpcMemberRepository;
+import com.cdkhd.npc.repository.member_house.*;
 import com.cdkhd.npc.repository.suggestion_deal.*;
 import com.cdkhd.npc.service.NpcSuggestionService;
 import com.cdkhd.npc.util.ImageUploadUtil;
@@ -83,11 +81,15 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
 
     private final UrgeRepository urgeRepository;
 
-    private final UnitImageRepository unitImageRepository;
+    private final PerformanceTypeRepository performanceTypeRepository;
 
-    private final HandleProcessRepository handleProcessRepository;
+    private final PerformanceImageRepository performanceImageRepository;
 
-    private final SuggestionSettingRepository suggestionSettingRepository;
+    private final PerformanceRepository performanceRepository;
+
+    private final SuggestionSettingRepository suggestionSettingRepository
+            ;
+    private final NpcMemberRepository npcMemberRepository;
 
     @Autowired
     public NpcSuggestionServiceImpl(AccountRepository accountRepository,
@@ -99,7 +101,7 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                                     ResultRepository resultRepository,
                                     UnitSuggestionRepository unitSuggestionRepository,
                                     UnitRepository unitRepository,
-                                    GovernmentUserRepository governmentUserRepository, SecondedRepository secondedRepository, UrgeRepository urgeRepository, UnitImageRepository unitImageRepository, HandleProcessRepository handleProcessRepository, SuggestionSettingRepository suggestionSettingRepository) {
+                                    GovernmentUserRepository governmentUserRepository, SecondedRepository secondedRepository, UrgeRepository urgeRepository, PerformanceTypeRepository performanceTypeRepository, PerformanceImageRepository performanceImageRepository, PerformanceRepository performanceRepository, SuggestionSettingRepository suggestionSettingRepository, NpcMemberRepository npcMemberRepository) {
         this.accountRepository = accountRepository;
         this.suggestionRepository = suggestionRepository;
         this.suggestionBusinessRepository = suggestionBusinessRepository;
@@ -112,9 +114,11 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         this.governmentUserRepository = governmentUserRepository;
         this.secondedRepository = secondedRepository;
         this.urgeRepository = urgeRepository;
-        this.unitImageRepository = unitImageRepository;
-        this.handleProcessRepository = handleProcessRepository;
+        this.performanceTypeRepository = performanceTypeRepository;
+        this.performanceImageRepository = performanceImageRepository;
+        this.performanceRepository = performanceRepository;
         this.suggestionSettingRepository = suggestionSettingRepository;
+        this.npcMemberRepository = npcMemberRepository;
     }
 
     @Override
@@ -352,6 +356,20 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         suggestion.setGovView(false);  //审核过后将govView字段改成false，便于政府未读查询
         suggestion.setNpcView(false);  //审核过后将npcView字段改成false，便于代表审核通过的未读查询
         suggestionRepository.saveAndFlush(suggestion);
+
+        if (sugAuditDto.getStatus().equals(StatusEnum.ENABLED)){  //审核通过
+            //生成一条履职
+            AddPerformanceDto addPerformanceDto = new AddPerformanceDto();
+            addPerformanceDto.setContent(suggestion.getContent());
+            addPerformanceDto.setLevel(sugAuditDto.getLevel());
+            addPerformanceDto.setPerformanceType(PerformanceTypeEnum.SUGGESTION.getValue());
+            addPerformanceDto.setTitle(suggestion.getTitle());
+            addPerformanceDto.setWorkAt(suggestion.getRaiseTime());
+            addPerformanceDto.setUid(suggestion.getRaiser().getUid());
+            addPerformanceDto.setReason(sugAuditDto.getReason());
+            Set<SuggestionImage> suggestionImages = suggestion.getSuggestionImages();
+            this.addPerformanceFormSug(userDetails, addPerformanceDto, suggestionImages);
+        }
 
         //生成一条回复记录
         SuggestionReply suggestionReply = new SuggestionReply();
@@ -882,5 +900,42 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
         }
 
         return unitUser;
+    }
+
+
+    public RespBody addPerformanceFormSug(MobileUserDetailsImpl userDetails, AddPerformanceDto addPerformanceDto, Set<SuggestionImage> suggestionImages) {
+        RespBody body = new RespBody();
+        Account account = accountRepository.findByUid(userDetails.getUid());
+        NpcMember npcMember = NpcMemberUtil.getCurrentIden(addPerformanceDto.getLevel(), account.getNpcMembers());
+        Performance performance = new Performance();
+        performance.setArea(npcMember.getArea());
+        performance.setLevel(addPerformanceDto.getLevel());
+        performance.setTown(npcMember.getTown());
+        performance.setNpcMember(npcMemberRepository.findByUid(addPerformanceDto.getUid()));//提出人，就存在uid里面
+        performance.setAuditor(npcMember);//审核人
+        performance.setView(true);
+        performance.setStatus(PerformanceStatusEnum.AUDIT_SUCCESS.getValue());//默认已通过
+        if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue()) || (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getArea().getUid()));
+        }else if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getTown().getUid()));
+        }
+        performance.setTitle(addPerformanceDto.getTitle());
+        performance.setWorkAt(addPerformanceDto.getWorkAt());
+        performance.setContent(addPerformanceDto.getContent());
+        performance.setAuditAt(new Date());
+        performance.setReason(addPerformanceDto.getReason());
+        Set<PerformanceImage> performanceImages = new HashSet<>();
+        for (SuggestionImage suggestionImage : suggestionImages){
+            PerformanceImage performanceImage = new PerformanceImage();
+            performanceImage.setUrl(suggestionImage.getUrl());
+            performanceImage.setPerformance(performance);
+            performanceImages.add(performanceImage);
+        }
+        performanceImageRepository.saveAll(performanceImages);
+        performance.setPerformanceImages(performanceImages);
+        performanceRepository.saveAndFlush(performance);
+
+        return body;
     }
 }
