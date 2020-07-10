@@ -117,6 +117,19 @@ public class IndexServiceImpl implements IndexService {
             return  body;
         }
 
+        //排序
+        levelVos.sort((level1, level2) -> {
+            if (level1.getLevel() > level2.getLevel()) {
+                return -1;
+            }
+
+            if (level1.getLevel() < level2.getLevel()) {
+                return 1;
+            }
+
+            return 0;
+        });
+
         body.setData(levelVos);
         return body;
     }
