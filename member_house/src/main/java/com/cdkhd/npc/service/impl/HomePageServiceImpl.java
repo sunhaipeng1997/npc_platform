@@ -177,7 +177,12 @@ public class HomePageServiceImpl implements HomePageService {
         ArrayList<String> xaxis = new ArrayList<>();
         ArrayList<Integer> yaxis = new ArrayList<>();
         for (PerformanceType performanceType : performanceTypes) {
-            List<Performance> allPers = performanceRepository.findByPerformanceTypeUid(performanceType.getUid());
+            List<Performance> allPers;
+            if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
+                allPers = performanceRepository.findByPerformanceTypeUidAndLevelAndAreaUidAndIsDelFalse(performanceType.getUid(), LevelEnum.AREA.getValue(), userDetails.getArea().getUid());
+            } else{
+                allPers = performanceRepository.findByPerformanceTypeUidAndLevelAndTownUidAndIsDelFalse(performanceType.getUid(), LevelEnum.TOWN.getValue(), userDetails.getTown().getUid());
+            }
             xaxis.add(performanceType.getName());
             yaxis.add(allPers.size());
         }

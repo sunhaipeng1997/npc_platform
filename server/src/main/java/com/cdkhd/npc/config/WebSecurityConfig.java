@@ -47,7 +47,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/mobile/news/**",
                         "/api/mobile/study/**",
                         "/api/manager/auth/bigDataLogin",
-                        "/api/mobile/system/getSystemList",
                         "/public/**"
                         )
                 .permitAll()
