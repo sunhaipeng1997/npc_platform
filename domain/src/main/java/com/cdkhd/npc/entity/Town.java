@@ -38,9 +38,8 @@ public class Town extends BaseDomain {
     @Column(name = "type")
     private Byte type;
 
-	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "area", referencedColumnName = "id")
-    private Area area;
+    @OneToOne(mappedBy = "town", targetEntity = Government.class, fetch = FetchType.LAZY)
+    private Government government;
 
     @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)
 	private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
@@ -62,5 +61,9 @@ public class Town extends BaseDomain {
 
     @OneToMany(targetEntity = Voter.class, mappedBy = "town", orphanRemoval = true)
     private Set<Voter> voters = new HashSet<>();
+
+    @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "area", referencedColumnName = "id")
+    private Area area;
 
 }

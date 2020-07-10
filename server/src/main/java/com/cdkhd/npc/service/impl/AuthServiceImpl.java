@@ -94,13 +94,36 @@ public class AuthServiceImpl implements AuthService {
             body.setMessage("用户名不存在，拒绝发送验证码");
             return body;
         }
-        BackgroundAdmin bg = account.getBackgroundAdmin();
-        if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
-            //改镇已经被删除 不能发验证码
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("改镇已经被删除，拒绝发送验证码");
-            return body;
+        //注 目前我们系统中一个account对应的身份虽然允许多个，但业务上都只有一个，所以暂时根据accountRole来判断取信息的地方，后面出现一对多再看情况进行修改
+        Set<AccountRole> accountRoles = account.getAccountRoles();
+        for (AccountRole accountRole : accountRoles) {
+            if (accountRole.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())){
+                BackgroundAdmin bg = account.getBackgroundAdmin();
+                if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
+                    //改镇已经被删除 不能发验证码
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该镇已经被删除，拒绝发送验证码");
+                    return body;
+                }
+            }else if (accountRole.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword())){
+                GovernmentUser govUser = account.getGovernmentUser();
+                if (govUser.getLevel().equals(LevelEnum.TOWN.getValue()) && govUser.getTown().getIsDel()){
+                    //改镇已经被删除 不能发验证码
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该镇已经被删除，拒绝发送验证码");
+                    return body;
+                }
+            }else if (accountRole.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())){
+                UnitUser unitUser = account.getUnitUser();
+                if (unitUser.getUnit().getLevel().equals(LevelEnum.TOWN.getValue()) && unitUser.getUnit().getTown().getIsDel()){
+                    //改镇已经被删除 不能发验证码
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该镇已经被删除，拒绝发送验证码");
+                    return body;
+                }
+            }
         }
+
         //生成验证码，获取发送短信的配置参数
         int verifycode = new Random().nextInt(899999) + 100000; //每次调用生成一次六位数的随机数
         final String accessKeyId = env.getProperty("code.accessKeyId");
@@ -125,7 +148,6 @@ public class AuthServiceImpl implements AuthService {
         code.setCreateTime(new Date());
         code.setValid(true);
         codeRepository.saveAndFlush(code);
-
         body.setStatus(HttpStatus.OK);
         return body;
     }
@@ -145,11 +167,37 @@ public class AuthServiceImpl implements AuthService {
             return body;
         }
 
-        BackgroundAdmin bg = account.getBackgroundAdmin();
-        if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
-            body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("该镇已经被删除，无法登录");
-            return body;
+        Set<AccountRole> accountRoles = account.getAccountRoles();
+        String unitName = "";
+        for (AccountRole accountRole : accountRoles) {
+            if (accountRole.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())){
+                BackgroundAdmin bg = account.getBackgroundAdmin();
+                if (bg.getLevel().equals(LevelEnum.TOWN.getValue()) && bg.getTown().getIsDel()){
+                    //改镇已经被删除 不能发验证码
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该镇已经被删除，拒绝发送验证码");
+                    return body;
+                }
+                unitName = bg.getLevel().equals(LevelEnum.AREA.getValue())?bg.getArea().getName():bg.getTown().getName();
+            }else if (accountRole.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword())){
+                GovernmentUser govUser = account.getGovernmentUser();
+                if (govUser.getLevel().equals(LevelEnum.TOWN.getValue()) && govUser.getTown().getIsDel()){
+                    //改镇已经被删除 不能发验证码
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该镇已经被删除，拒绝发送验证码");
+                    return body;
+                }
+                unitName = govUser.getLevel().equals(LevelEnum.AREA.getValue())?govUser.getArea().getName():govUser.getTown().getName();
+            }else if (accountRole.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())){
+                UnitUser unitUser = account.getUnitUser();
+                if (unitUser.getUnit().getLevel().equals(LevelEnum.TOWN.getValue()) && unitUser.getUnit().getTown().getIsDel()){
+                    //改镇已经被删除 不能发验证码
+                    body.setStatus(HttpStatus.BAD_REQUEST);
+                    body.setMessage("该镇已经被删除，拒绝发送验证码");
+                    return body;
+                }
+                unitName = unitUser.getUnit().getLevel().equals(LevelEnum.AREA.getValue())?unitUser.getUnit().getArea().getName():unitUser.getUnit().getTown().getName();
+            }
         }
 
         //设置登录次数
@@ -165,7 +213,6 @@ public class AuthServiceImpl implements AuthService {
 
         //生成token字符串
         TokenVo tokenVo = generateToken(account);
-        String unitName = account.getBackgroundAdmin().getLevel().equals(LevelEnum.AREA.getValue())?account.getBackgroundAdmin().getArea().getName():account.getBackgroundAdmin().getTown().getName();
         tokenVo.setUnitName(unitName);
         body.setData(tokenVo);
         return body;
@@ -224,9 +271,9 @@ public class AuthServiceImpl implements AuthService {
                                     continue;//镇后台管理员没有镇管理、各镇代表建议管理、各镇代表履职管理/也沒有系统设置
                                 }
                                 if (userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()) && (
-                                    menu.getName().equals(MenuEnum.SUGGESTION_TYPE_MANAGE.getName()) ||
-                                    menu.getName().equals(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName()) ||
-                                    menu.getName().equals(MenuEnum.SESSION_MANAGE.getName())
+                                        menu.getName().equals(MenuEnum.SUGGESTION_TYPE_MANAGE.getName()) ||
+                                                menu.getName().equals(MenuEnum.PERFORMANCE_TYPE_MANAGE.getName()) ||
+                                                menu.getName().equals(MenuEnum.SESSION_MANAGE.getName())
                                 )){
                                     continue;//街道后台管理员没有履职类型管理、建议类型管理、届期管理
                                 }
@@ -626,22 +673,6 @@ public class AuthServiceImpl implements AuthService {
         //这两行代码是本方法的主要功能，保存用户在该服务号下的 openid
         loginWeChat.setWechatId(openid);
         loginWeChatRepository.saveAndFlush(loginWeChat);
-
-        /*Account account = loginWeChat.getAccount();
-        if (account == null) {
-            account = new Account();
-            account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
-            account.setLoginWeChat(loginWeChat);
-            account.setStatus(StatusEnum.ENABLED.getValue());
-
-            //初始时只有选民权限
-            account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword()));
-            accountRepository.saveAndFlush(account);
-
-            loginWeChat.setAccount(account);
-            loginWeChatRepository.saveAndFlush(loginWeChat);
-
-        }*/
 
         return "authSuccess";
     }

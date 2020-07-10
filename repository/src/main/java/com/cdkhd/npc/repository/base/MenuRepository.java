@@ -12,5 +12,7 @@ public interface MenuRepository extends BaseRepository<Menu> {
 
     List<Menu> findBySystemsUidAndEnabled(String system, byte value);
 
+    Set<Menu> findBySystemsNameAndEnabled(String sysName, Byte status);
+
     Menu findByKeyword(String parentId);
 }

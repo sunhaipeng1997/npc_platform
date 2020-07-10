@@ -39,6 +39,7 @@ public class DBInit {
     private Environment env;
     private AreaRepository areaRepository;
     private AccountRepository accountRepository;
+    private GovernmentUserRepository governmentUserRepository;
     private LoginUPRepository loginUPRepository;
     private BackgroundAdminRepository backgroundAdminRepository;
     private SystemSettingRepository systemSettingRepository;
@@ -66,6 +67,7 @@ public class DBInit {
         this.env = env;
         this.areaRepository = areaRepository;
         this.accountRepository = accountRepository;
+        this.governmentUserRepository = governmentUserRepository;
         this.loginUPRepository = loginUPRepository;
         this.backgroundAdminRepository = backgroundAdminRepository;
         this.systemSettingRepository = systemSettingRepository;
@@ -89,6 +91,7 @@ public class DBInit {
         initCommonDict();
         mapRoleAndPermission();
         mapPermissionMenu();
+        mapRoleAndSystems();
 //      mapMenuSystem();
         initArea();
         initAccount();
@@ -167,8 +170,8 @@ public class DBInit {
         String areaName = env.getProperty("npc_base_info.area");
         Area area = areaRepository.findByName(areaName);
         String username = env.getProperty("npc_base_info.user.name");
-        String mobile = env.getProperty("npc_base_info.user.mobile");
         Account account = accountRepository.findByUsername(username);
+        //初始化后台管理员账号
         BackgroundAdmin backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
@@ -179,8 +182,8 @@ public class DBInit {
         }
 
         username = env.getProperty("npc_base_info.cdkhd.name");
-        mobile = env.getProperty("npc_base_info.cdkhd.mobile");
         account = accountRepository.findByUsername(username);
+        //初始化后台管理员账号
         backgroundAdmin = backgroundAdminRepository.findByAccountUsername(username);
         if (backgroundAdmin == null) {
             backgroundAdmin = new BackgroundAdmin();
@@ -189,7 +192,6 @@ public class DBInit {
             backgroundAdmin.setArea(area);
             backgroundAdminRepository.saveAndFlush(backgroundAdmin);
         }
-
         account = accountRepository.findByUsername("bigData");
         backgroundAdmin = backgroundAdminRepository.findByAccountUsername("bigData");
         if (backgroundAdmin == null) {
@@ -233,6 +235,7 @@ public class DBInit {
                 npcMemberRole.setKeyword(npcMemberRoleEnum.getKeyword());
                 npcMemberRole.setName(npcMemberRoleEnum.getName());
                 npcMemberRole.setIsMust(npcMemberRoleEnum.getIsMust());
+                npcMemberRole.setSpecial(npcMemberRoleEnum.getSpecial());
                 npcMemberRoleRepository.saveAndFlush(npcMemberRole);
             }
         }
@@ -266,6 +269,7 @@ public class DBInit {
                 systems.setKeyword(systemEnum.toString());
                 systems.setImgUrl(systemEnum.getImgUrl());
                 systems.setPagePath(systemEnum.getPagePath());
+                systems.setMiniShow(systemEnum.getMiniShow());
                 systemRepository.save(systems);
             }
         }
@@ -298,6 +302,7 @@ public class DBInit {
         //选民
         AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());
         Set<Permission> voterPermissions = voter.getPermissions();
+        //代表之家
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_INFO.getKeyword()));   //代表风采
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VIEW_WORKSTATION.getKeyword()));   //查看联络点
         voterPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));   //我的意见
@@ -310,6 +315,7 @@ public class DBInit {
         //后台管理员
         AccountRole bgAdmin = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword());
         Set<Permission> bgAdminPermissions = bgAdmin.getPermissions();
+        //代表之家
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.HOMEPAGE.getKeyword()));//首页
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.ACCOUNT_MANAGE.getKeyword()));//账号管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NEWS_TYPE_MANAGE.getKeyword()));//新闻类型管理
@@ -333,14 +339,26 @@ public class DBInit {
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_MANAGE.getKeyword()));//镇管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VILLAGE_MANAGE.getKeyword()));//村管理
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));//代表权限管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NEWS_AUDITOR.getKeyword()));//新闻审核人设置
         bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SESSION_MANAGE.getKeyword()));//届期管理
-        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//届期管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));//系统设置
+
+
+
+        //建议办理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.NPC_HOMEPAGE_DEAL.getKeyword()));//建议办理首页
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOVERNMENT_MANAGE.getKeyword()));//政府管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));//建议类型管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));//代表建议管理
+        bgAdminPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_RECEIVER.getKeyword()));//建议接收人设置
+
         bgAdmin.setPermissions(bgAdminPermissions);
         accountRoleRepository.save(bgAdmin);
 
         //普通代表
         NpcMemberRole member = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.MEMBER.getKeyword());
         Set<Permission> memberPermissions = member.getPermissions();
+        //代表之家
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_INFO.getKeyword()));//代表风采
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VIEW_WORKSTATION.getKeyword()));   //查看联络点
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));//我的意见
@@ -351,12 +369,17 @@ public class DBInit {
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
         memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));   //街道排名
+        //建议办理
+        memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_MY_SUGGESTION.getKeyword()));   //我的建议
+        memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_OTHERS_SUGGESTION.getKeyword()));   //他人建议
+        memberPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_SECONDED_SUGGESTION.getKeyword()));   //附议建议
         member.setPermissions(memberPermissions);
         npcMemberRoleRepository.save(member);
 
         //人大主席（暂时与普通代表权限相同）
         NpcMemberRole chairman = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.CHAIRMAN.getKeyword());
         Set<Permission> chairmanPermissions = chairman.getPermissions();
+        //代表之家
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_INFO.getKeyword()));//代表风采
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.VIEW_WORKSTATION.getKeyword()));   //查看联络点
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MY_OPINION.getKeyword()));//我的意见
@@ -367,6 +390,10 @@ public class DBInit {
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.MEMBER_RANK.getKeyword()));//代表排名
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.TOWN_RANK.getKeyword()));//各镇排名
         chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.STREET_RANK.getKeyword()));   //街道排名
+        //建议办理
+        chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_MY_SUGGESTION.getKeyword()));   //我的建议
+        chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_OTHERS_SUGGESTION.getKeyword()));   //他人建议
+        chairmanPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_SECONDED_SUGGESTION.getKeyword()));   //附议建议
         chairman.setPermissions(chairmanPermissions);
         npcMemberRoleRepository.save(chairman);
 
@@ -408,7 +435,10 @@ public class DBInit {
         //建议接受人
         NpcMemberRole suggestionAuditor = npcMemberRoleRepository.findByKeyword(NpcMemberRoleEnum.SUGGESTION_RECEIVER.getKeyword());
         Set<Permission> suggestionAuditorPermissions = suggestionAuditor.getPermissions();
+        //代表之家
         suggestionAuditorPermissions.add(permissionRepository.findByKeyword(PermissionEnum.AUDIT_SUGGESTION.getKeyword()));//建议审核
+        //建议办理
+        suggestionAuditorPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_AUDIT_SUGGESTION.getKeyword()));//建议审核
         suggestionAuditor.setPermissions(suggestionAuditorPermissions);
         npcMemberRoleRepository.save(suggestionAuditor);
 
@@ -418,6 +448,43 @@ public class DBInit {
         noticeAuditorPermissions.add(permissionRepository.findByKeyword(PermissionEnum.AUDIT_NOTICE.getKeyword()));//通知审核
         noticeAuditor.setPermissions(noticeAuditorPermissions);
         npcMemberRoleRepository.save(noticeAuditor);
+
+        //政府人员
+        AccountRole govUser = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.getKeyword());
+        Set<Permission> govPermissions = govUser.getPermissions();
+        //小程序
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.DEAL_CONVEY_SUGGESTIONS.getKeyword()));   //转办建议
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_DELAY_SUGGESTION.getKeyword()));   //延期建议
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_SUGGESTION.getKeyword()));   //调整单位
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_URGE_SUGGESTION.getKeyword()));   //查看建议情况
+        //后台
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_HOMEPAGE_DEAL.getKeyword()));   //首页
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_WAIT_CONVEY.getKeyword()));   //待转办
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_CONVEY.getKeyword()));   //调整单位
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_DELAY.getKeyword()));   //申请延期
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_DEALING.getKeyword()));   //办理中
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_FINISHED.getKeyword()));   //办完的建议
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_COMPLETED.getKeyword()));   //办结的建议
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_MANAGE.getKeyword()));   //办理单位管理
+        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_SETTING.getKeyword()));   //建议设置
+//        govPermissions.add(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));   //统计
+        govUser.setPermissions(govPermissions);
+        accountRoleRepository.save(govUser);
+
+        //办理单位
+        AccountRole unitUser = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.getKeyword());
+        Set<Permission> unitPermissions = unitUser.getPermissions();
+        //小程序
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL_SUGGESTION.getKeyword()));   //单位待办理
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_SUGGESTION.getKeyword()));   //单位办理建议
+        //后台
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_HOMEPAGE_DEAL.getKeyword()));   //首页
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL.getKeyword()));   //办理单待办理列表
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEALING.getKeyword()));   //办理单位办理中列表
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_DONE.getKeyword()));   //办理单位办理完成列表
+        unitPermissions.add(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_COMPLETED.getKeyword()));   //办理单位办结列表
+        unitUser.setPermissions(unitPermissions);
+        accountRoleRepository.save(unitUser);
 
     }
 
@@ -492,6 +559,97 @@ public class DBInit {
         //审核通知
         menu = menuRepository.findByKeyword(MenuEnum.AUDIT_NOTICE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.AUDIT_NOTICE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //建议办理
+        Permission permission = permissionRepository.findByKeyword(PermissionEnum.DEAL_MY_SUGGESTION.getKeyword());//我的建议权限
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_DRAFT.toString());//草稿
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_COMMITTED.toString());//已提交
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_DONE.toString());//已办完
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_COMPLETED.toString());//已办结
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+
+        //他人建议
+        //我能附议的
+        menu = menuRepository.findByKeyword(MenuEnum.OTHERS_SUGGESTIONS.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.DEAL_OTHERS_SUGGESTION.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //附议建议
+        permission = permissionRepository.findByKeyword(PermissionEnum.DEAL_SECONDED_SUGGESTION.getKeyword());//附议建议
+        menu = menuRepository.findByKeyword(MenuEnum.SECONDED_SUGGESTIONS.toString());//我附议的
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.SECONDED_SUGGESTIONS_COMPLETED.toString());//附议办结的
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+
+        //审核建议
+        permission = permissionRepository.findByKeyword(PermissionEnum.DEAL_AUDIT_SUGGESTION.getKeyword());//审核建议
+        menu = menuRepository.findByKeyword(MenuEnum.WAIT_AUDIT_SUGGESTIONS.toString());//待审核建议
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.AUDIT_PASS_SUGGESTIONS.toString());//审核通过的建议
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.AUDIT_FAILED_SUGGESTIONS.toString());//审核失败的建议
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+
+        //转办建议
+        permission = permissionRepository.findByKeyword(PermissionEnum.DEAL_CONVEY_SUGGESTIONS.getKeyword());//转办建议
+        menu = menuRepository.findByKeyword(MenuEnum.WAIT_CONVEY_SUGGESTIONS.toString());//待转办
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+//        menu = menuRepository.findByKeyword(MenuEnum.CONVEYED_SUGGESTIONS.toString());//已转办
+//        menu.setPermission(permission);
+//        menuRepository.saveAndFlush(menu);
+
+        //延期申请
+        menu = menuRepository.findByKeyword(MenuEnum.APPLY_DELAY_SUGGESTIONS.toString());//延期申请
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_DELAY_SUGGESTION.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //调整单位
+        menu = menuRepository.findByKeyword(MenuEnum.APPLY_ADJUST_SUGGESTIONS.toString());//调整单位
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_SUGGESTION.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //查看建议情况
+        permission = permissionRepository.findByKeyword(PermissionEnum.GOV_URGE_SUGGESTION.getKeyword());//查看建议办理情况
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_DEALING_SUGGESTIONS.toString());//办理中
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_FINISHED_SUGGESTIONS.toString());//已办完
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_COMPLETED_SUGGESTIONS.toString());//已办结
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+
+        //单位待办理
+        permission = permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL_SUGGESTION.getKeyword());//单位待办理
+        menu = menuRepository.findByKeyword(MenuEnum.WAIT_DEAL_SUGGESTIONS.toString());//单位待办理
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+
+        //转办建议
+        permission = permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_SUGGESTION.getKeyword());//转办建议
+        menu = menuRepository.findByKeyword(MenuEnum.DEALING_SUGGESTIONS.toString());//办理中
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.DEAL_DONE_SUGGESTIONS.toString());//已办完
+        menu.setPermission(permission);
+        menuRepository.saveAndFlush(menu);
+        menu = menuRepository.findByKeyword(MenuEnum.DEAL_COMPLETED_SUGGESTIONS.toString());//已办结
+        menu.setPermission(permission);
         menuRepository.saveAndFlush(menu);
 
         //****************后台菜单
@@ -592,6 +750,11 @@ public class DBInit {
         menuRepository.saveAndFlush(menu);
 
         //代表权限管理
+        menu = menuRepository.findByKeyword(MenuEnum.NEWS_AUDITOR.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NEWS_AUDITOR.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //代表权限管理
         menu = menuRepository.findByKeyword(MenuEnum.PERMISSION_MANAGE.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.PERMISSION_MANAGE.getKeyword()));
         menuRepository.saveAndFlush(menu);
@@ -615,6 +778,109 @@ public class DBInit {
         menu = menuRepository.findByKeyword(MenuEnum.SYSTEM_SETTING.toString());
         menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SYSTEM_SETTING.getKeyword()));
         menuRepository.saveAndFlush(menu);
+
+        //建议办理
+        //后台管理员
+        //首页
+        menu = menuRepository.findByKeyword(MenuEnum.NPC_HOMEPAGE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.NPC_HOMEPAGE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //政府管理
+        menu = menuRepository.findByKeyword(MenuEnum.GOVERNMENT_MANAGE.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOVERNMENT_MANAGE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //建议类型管理
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_TYPE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_TYPE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //代表建议管理
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //建议接收人设置
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_RECEIVER_MANAGE.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_RECEIVER.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //政府
+        //首页
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_HOMEPAGE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_HOMEPAGE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //待转办
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_WAIT_CONVEY.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_WAIT_CONVEY.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //调整单位
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_ADJUST_CONVEY.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_CONVEY.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //申请延期
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_ADJUST_DELAY.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_ADJUST_DELAY.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //办理中
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_DEALING.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_DEALING.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+        //已完成
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_FINISHED.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_FINISHED.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+        //已办结
+        menu = menuRepository.findByKeyword(MenuEnum.GOV_COMPLETED.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_COMPLETED.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //办理单位管理
+        menu = menuRepository.findByKeyword(MenuEnum.UNIT_MANAGE.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_MANAGE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //建议设置
+        menu = menuRepository.findByKeyword(MenuEnum.SUGGESTION_SETTING.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.SUGGESTION_SETTING.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //统计
+//        menu = menuRepository.findByKeyword(MenuEnum.GOV_COUNT.toString());
+//        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.GOV_COUNT.getKeyword()));
+//        menuRepository.saveAndFlush(menu);
+
+        //首页
+        menu = menuRepository.findByKeyword(MenuEnum.UNIT_HOMEPAGE_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_HOMEPAGE_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+
+        //办理单待办理列表
+        menu = menuRepository.findByKeyword(MenuEnum.UNIT_WAIT_DEAL.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_WAIT_DEAL.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //办理单位办理中列表
+        menu = menuRepository.findByKeyword(MenuEnum.UNIT_DEALING.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEALING.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //办理单位办理完成列表
+        menu = menuRepository.findByKeyword(MenuEnum.UNIT_DEAL_DONE.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_DONE.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
+        //办理单位办结列表
+        menu = menuRepository.findByKeyword(MenuEnum.UNIT_DEAL_COMPLETED.toString());
+        menu.setPermission(permissionRepository.findByKeyword(PermissionEnum.UNIT_DEAL_COMPLETED.getKeyword()));
+        menuRepository.saveAndFlush(menu);
+
     }
 
     //为菜单关联系统
@@ -1256,7 +1522,6 @@ public class DBInit {
         LoginUP loginUP = loginUPRepository.findByUsername(username);
         if (loginUP == null) {
             loginUP = new LoginUP();
-//            loginUP.setMobile(mobile);
             loginUP.setUsername(username);
             loginUP.setPassword(passwordEncoder.encode(rawPwd)); //保存hash后的密码
             loginUP.setAccount(account);
@@ -1413,5 +1678,67 @@ public class DBInit {
             }
         }
         return false;
+    }
+
+
+    //为角色关联系统
+    private void mapRoleAndSystems() {
+        //选民
+        AccountRole voter = accountRoleRepository.findByKeyword(AccountRoleEnum.VOTER.getKeyword());
+        Set<Systems> voterSystems = voter.getSystems();
+        Set<Permission> voterPermissions = voter.getPermissions();
+
+        voterSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));//代表之家
+        voterSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));//投票系统
+        voter.setPermissions(voterPermissions);
+        accountRoleRepository.save(voter);
+
+        //后台管理员
+        AccountRole bgAdmin = accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword());
+
+        Set<Systems> bgAdminSystems = bgAdmin.getSystems();
+
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));//代表之家
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.BASIC_INFO.getName()));//基本信息管理
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
+        bgAdminSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));//投票系统
+
+        bgAdmin.setSystems(bgAdminSystems);
+        accountRoleRepository.save(bgAdmin);
+
+        //代表
+        AccountRole member = accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword());
+        Set<Systems> memberSystems  = member.getSystems();
+
+        memberSystems.add(systemRepository.findByName(SystemEnum.MEMBER_HOUSE.getName()));//代表之家
+        memberSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
+        memberSystems.add(systemRepository.findByName(SystemEnum.VOTE.getName()));//投票系统
+
+        member.setSystems(memberSystems);
+        accountRoleRepository.save(member);
+
+
+        //政府
+        AccountRole  government = accountRoleRepository.findByKeyword(AccountRoleEnum.GOVERNMENT.getKeyword());
+        Set<Systems> govermentSystems  = government.getSystems();
+
+        govermentSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
+
+        member.setSystems(govermentSystems);
+        accountRoleRepository.save(government);
+
+        //办理单位
+        AccountRole  unit = accountRoleRepository.findByKeyword(AccountRoleEnum.UNIT.getKeyword());
+        Set<Systems> unitSystems  = unit.getSystems();
+
+        unitSystems.add(systemRepository.findByName(SystemEnum.SUGGESTION.getName()));//建议办理
+
+        unit.setSystems(unitSystems);
+        accountRoleRepository.save(unit);
+
+
+
+
+
     }
 }

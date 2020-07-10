@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class SuggestionServiceImpl implements SuggestionService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SuggestionServiceImpl.class);
 
     private SuggestionBusinessRepository suggestionBusinessRepository;
 

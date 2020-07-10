@@ -161,7 +161,7 @@ public class WeChatServiceAccountConfig {
         LOGGER.warn("create menu failed.");
     }
 
-    @Scheduled(cron = "0 0/20 * * * ?")
+    @Scheduled(cron = "* * 3 * * ?")
     private void refreshToken() {
         getToken();
     }

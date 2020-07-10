@@ -4,13 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Date;
+import java.util.Set;
 
 /**
  * @Description
- * @Author  rfx
+ * @Author rfx
  * @Date 2019-12-03
  */
 
@@ -18,14 +18,23 @@ import javax.persistence.Table;
 @Getter
 @ToString
 @Entity
-@Table ( name ="handle_process" )
+@Table(name = "handle_process")
 public class HandleProcess extends BaseDomain {
 
+    //办理时间
+    @Column
+    private Date handleTime;
 
-   	@Column(name = "description" )
-	private String description;
+    //流程描述
+    @Column(name = "description")
+    private String description;
 
-   	@Column(name = "attachment_mid_id" )
-	private String attachmentMidId;
+    //建议图片
+    @OneToMany(targetEntity = UnitImage.class, mappedBy = "belongToId")
+    private Set<UnitImage> processImages;
 
+    //办理单位办理记录
+    @ManyToOne(targetEntity = UnitSuggestion.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "unitSuggestion", referencedColumnName = "id")
+    private UnitSuggestion unitSuggestion;
 }

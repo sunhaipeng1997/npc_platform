@@ -30,6 +30,6 @@ public class TokenVo {
     //用户角色
     private Set<String> roles;
 
-    //当前登录机构
+    //当前机构名称
     private String unitName;
 }

@@ -33,7 +33,6 @@ public class TokenParseServiceImpl implements TokenParseService {
         RespBody body = new RespBody();
         if (StringUtils.isNotBlank(token)) {
             token = token.split("/?token=")[0];
-            System.out.println("token     :      " +token);
             try {
                 //验证token并解析用户信息
                 Map<String, Object> userInfo = JwtUtils.parseJwt(token);

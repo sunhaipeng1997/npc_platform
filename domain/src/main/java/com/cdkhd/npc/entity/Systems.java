@@ -68,4 +68,11 @@ public class Systems extends BaseDomain {
 	@Column(name = "page_path")
 	private String pagePath;
 
+	/**
+	 * 小程序是否展示
+	 */
+	@Column(name = "mini_show")
+	private Boolean miniShow;
+
+
 }

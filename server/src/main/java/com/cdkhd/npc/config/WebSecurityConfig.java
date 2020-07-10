@@ -36,6 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/manager/auth/code",
                         "/api/manager/token/parseToken",
                         "/api/manager/member/avatar",
+                        "/api/manager/upload/**",
                         "/api/mobile/auth/**",
                         "/api/mobile/push",
                         "/api/mobile/system/getSystemList",

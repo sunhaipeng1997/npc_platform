@@ -163,7 +163,7 @@ public class NpcMember extends BaseDomain {
 	private String political;
 
 	//是否只能作为特殊职能 1，是  0，不是
-	private Byte special = 0;
+	private Boolean special = false;
 
 	/**
 	 *   等级
@@ -193,5 +193,8 @@ public class NpcMember extends BaseDomain {
 
 	@OneToMany(targetEntity = NotificationViewDetail.class, mappedBy = "receiver", orphanRemoval = true)
 	private Set<NotificationViewDetail> receivedNotificationsView = new HashSet<>();
+
+	@OneToMany(targetEntity = Seconded.class, fetch = FetchType.LAZY, mappedBy = "npcMember")
+	private Set<Seconded> secondedSet;
 
 }

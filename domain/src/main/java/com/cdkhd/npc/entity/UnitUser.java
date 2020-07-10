@@ -2,6 +2,8 @@ package com.cdkhd.npc.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+
+import com.cdkhd.npc.enums.StatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,62 +22,41 @@ import java.util.Date;
 @Table ( name ="unit_user" )
 public class UnitUser extends BaseDomain {
 
-	/**
-	 * 唯一标识id
-	 */
-   	@Column(name = "unit_mid_id" )
-	private String unitMidId;
-
-	/**
-	 * 1、正常
-            2、锁定
-
-	 */
-   	@Column(name = "status" )
-	private Integer status;
-
-	/**
-	 * 姓名
-	 */
-   	@Column(name = "name" )
+	//工作人员姓名
+	@Column(nullable = false,name = "name")
 	private String name;
 
-	/**
-	 * 电话号码
-	 */
-   	@Column(name = "mobile" )
+	//工作人员性别
+	@Column(name = "gender")
+	private Byte gender;
+
+	//联系电话
+	@Column(name = "mobile")
 	private String mobile;
 
-	/**
-	 * 代表证号
-	 */
-   	@Column(name = "code" )
-	private String code;
+	//状态  1、正常 2、锁定
+	@Column(name = "status")
+	private Byte status = StatusEnum.ENABLED.getValue();
+
+	// 备注情况
+	@Column(name = "comment")
+	private String comment;
+
+	@Column(nullable = false, name = "avatar")
+	private String avatar;
+
+	//办理单位基本信息
+	@ManyToOne(targetEntity = Unit.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "unit", referencedColumnName = "id")
+	private Unit unit;
 
 	/**
-	 * yyyy-MM-dd HH:mm:ss
+	 * 账号表
 	 */
-   	@Column(name = "update_time" )
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updateTime;
-
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "create_user" )
-	private String createUser;
-
-	/**
-	 * 基本信息id
-	 */
-   	@Column(name = "update_user" )
-	private String updateUser;
-
-	/**
-	 * 账号表id
-	 */
-	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY)
+	@OneToOne(targetEntity=Account.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "account", referencedColumnName = "id")
 	private Account account;
 
-
+	@Column(name = "is_del" )
+	private Boolean isDel = false;
 }

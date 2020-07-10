@@ -1,13 +1,10 @@
 package com.cdkhd.npc.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.Date;
+
+import javax.persistence.*;
 
 /**
  * @Description
@@ -24,23 +21,55 @@ public class Government extends BaseDomain {
 
 	/**
 	 * 1、正常
-            2、锁定
-
+	   2、锁定
 	 */
    	@Column(name = "status" )
-	private Integer status;
+	private Byte status = 1;
 
 	/**
-	 * 姓名
+	 * 名称
 	 */
-   	@Column(name = "name" )
+	@Column(name = "name" )
 	private String name;
 
 	/**
-	 * 电话号码
+	 * 描述
 	 */
-   	@Column(name = "mobile" )
-	private String mobile;
+	@Column(name = "description" )
+	private String description;
+
+	//区政府还是镇政府  1镇 2区
+	@Column(name = "level")
+	private Byte level;
+
+	//政府地址
+	@Column(name = "address" )
+	private String address;
+
+	//经度
+	@Column(name = "longitude" )
+	private String longitude;
+
+	//纬度
+	@Column(name = "latitude" )
+	private String latitude;
+
+	//政府人员关联
+	@OneToOne(mappedBy = "government", targetEntity = GovernmentUser.class, fetch = FetchType.LAZY)
+	private GovernmentUser governmentUser;
+
+	/**
+	 * 所属区
+	 */
+	@ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "area", referencedColumnName = "id")
+	private Area area;
+
+	/**
+	 * 所属镇
+	 */
+	@OneToOne(targetEntity = Town.class, fetch = FetchType.LAZY)
+	private Town town;
 
 	/**
 	 * 基本信息id

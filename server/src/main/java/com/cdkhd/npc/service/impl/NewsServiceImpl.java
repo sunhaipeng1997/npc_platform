@@ -616,13 +616,11 @@ public class NewsServiceImpl implements NewsService {
 
                     predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                     predicateList.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
-
                     if(userDetails.getTown() != null){
                         if(dto.getLevel().equals(LevelEnum.TOWN.getValue())){
                             predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),npcMember.getTown().getUid()));
                         }
                     }
-
                     //按新闻状态查询
                     if (dto.getStatus() != -1) {
                         predicateList.add(cb.equal(root.get("status").as(Integer.class), dto.getStatus()));
