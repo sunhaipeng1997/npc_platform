@@ -118,7 +118,6 @@ public class LocalCache {
         public void run() {
             while (true) {
                 try {
-//                    System.out.println("Cache monitor");
                     TimeUnit.SECONDS.sleep(MONITOR_DURATION);
                     checkTime();
                 } catch (Exception e) {
@@ -142,7 +141,6 @@ public class LocalCache {
                 if (tce.getExpire() > timoutTime) {
                     continue;
                 }
-                System.out.println(" 清除过期缓存 ： " + key);
                 // 清除过期缓存和删除对应的缓存队列
                 cache.remove(key);
             }

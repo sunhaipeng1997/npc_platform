@@ -42,7 +42,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         //从请求中获取token
         String accessToken = getToken(request);
         String url = environment.getProperty("serverUrl") + "/api/manager/token/parseToken?token={token}";
-        System.out.println("url  :        "+url);
         if (StringUtils.isNotBlank(accessToken)) {
             try {
                 //验证token并解析用户信息
@@ -58,10 +57,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 Map<String, String> map = Maps.newHashMap();
                 map.put("token",accessToken);
                 //调用server接口，获取解析token后的用户信息
-                System.out.println("accessToken      :    " + accessToken);
                 ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET , httpEntity, JSONObject.class,map);
                 JSONObject jsonObj = responseEntity.getBody();
-                System.out.println("status     :       "+jsonObj.get("status").toString());
 
                 if (jsonObj != null && jsonObj.get("status").toString().equals(HttpStatus.OK.name())){
                     userInfo = (Map<String, Object>) jsonObj.get("data");
