@@ -78,11 +78,11 @@ code:
   #百度云安全认证secret
   AccessKeySecret: 0a74dae125f84ed592f1143731b21e22
   #百度云消息服务中心
-  endPoint: http://sms.bj.baidubce.com
+  endPoint: http://smsv3.bj.baidubce.com
   #短信签名id
-  invokeId: 0FaecrUS-V0hG-RqZG
+  invokeId: sms-sign-wMDJVk41728
   #短信模板id
-  templateCode: smsTpl:35dbca99-ae04-47ac-8e79-51f567820bbb
+  templateCode: sms-tmpl-BCxAeQ37697
   #验证码有效时间 单位：分钟
   timeout: 5 #分钟
 

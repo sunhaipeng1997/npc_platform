@@ -41,25 +41,25 @@ public class Town extends BaseDomain {
     @OneToOne(mappedBy = "town", targetEntity = Government.class, fetch = FetchType.LAZY)
     private Government government;
 
-    @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true)
+    @OneToMany(targetEntity = NpcMemberGroup.class, mappedBy = "town", orphanRemoval = true,fetch = FetchType.LAZY)
 	private Set<NpcMemberGroup> npcMemberGroups = new HashSet<>();
 
-    @OneToMany(targetEntity = BackgroundAdmin.class, mappedBy = "town", orphanRemoval = true)
+    @OneToMany(targetEntity = BackgroundAdmin.class, mappedBy = "town", orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<BackgroundAdmin> backgroundAdmins = new HashSet<>();
 
-    @OneToMany(targetEntity = Village.class, mappedBy = "town", orphanRemoval = true)
+    @OneToMany(targetEntity = Village.class, mappedBy = "town", orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<Village> villages = new HashSet<>();
 
-    @OneToMany(targetEntity = WorkStation.class, mappedBy = "town", orphanRemoval = true)
+    @OneToMany(targetEntity = WorkStation.class, mappedBy = "town", orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<WorkStation> workStations = new HashSet<>();
 
     @OneToMany(targetEntity = Session.class, fetch = FetchType.LAZY)
     private Set<Session> sessions = new HashSet<>();
 
-    @OneToMany(targetEntity = NpcMember.class, mappedBy = "town", orphanRemoval = true)
+    @OneToMany(targetEntity = NpcMember.class, mappedBy = "town", orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<NpcMember> npcMembers = new HashSet<>();
 
-    @OneToMany(targetEntity = Voter.class, mappedBy = "town", orphanRemoval = true)
+    @OneToMany(targetEntity = Voter.class, mappedBy = "town", orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<Voter> voters = new HashSet<>();
 
     @ManyToOne(targetEntity = Area.class, fetch = FetchType.LAZY)

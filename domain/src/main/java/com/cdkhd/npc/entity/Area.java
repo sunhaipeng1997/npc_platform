@@ -31,22 +31,22 @@ public class Area extends BaseDomain {
    	@Column(name = "status" )
 	private Byte status = StatusEnum.ENABLED.getValue();
 
-    @OneToMany(targetEntity = Town.class, mappedBy = "area", orphanRemoval = true)
+    @OneToMany(targetEntity = Town.class, mappedBy = "area", orphanRemoval = true,fetch = FetchType.LAZY)
 	private Set<Town> towns = new HashSet<>();
 
-    @OneToMany(targetEntity = Session.class, mappedBy = "area", orphanRemoval = true)
+    @OneToMany(targetEntity = Session.class, mappedBy = "area", orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<Session> sessions = new HashSet<>();
 
-    @OneToMany(targetEntity = WorkStation.class, mappedBy = "area", orphanRemoval = true)
+    @OneToMany(targetEntity = WorkStation.class, mappedBy = "area", orphanRemoval = true,fetch = FetchType.LAZY)
     private Set<WorkStation> workStations = new HashSet<>();
 
-	@OneToMany(targetEntity = Voter.class, mappedBy = "area", orphanRemoval = true)
+	@OneToMany(targetEntity = Voter.class, mappedBy = "area", orphanRemoval = true,fetch = FetchType.LAZY)
 	private Set<Voter> voters = new HashSet<>();
 
-	@OneToMany(targetEntity = NpcMember.class, mappedBy = "area", orphanRemoval = true)
+	@OneToMany(targetEntity = NpcMember.class, mappedBy = "area", orphanRemoval = true,fetch = FetchType.LAZY)
 	private Set<NpcMember> npcMembers = new HashSet<>();
 
-	@OneToMany(targetEntity = Government.class, mappedBy = "area", orphanRemoval = true)
+	@OneToMany(targetEntity = Government.class, mappedBy = "area", orphanRemoval = true,fetch = FetchType.LAZY)
 	private Set<Government> governments = new HashSet<>();
 
 }

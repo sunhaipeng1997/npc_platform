@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.baidubce</groupId>
             <artifactId>bce-java-sdk</artifactId>
-            <version>0.10.75</version>
+            <version>0.10.117</version>
             <exclusions>
                 <!-- 排除slf4j-log4j12日志包，不然会和logback包冲突 -->
                 <exclusion>
