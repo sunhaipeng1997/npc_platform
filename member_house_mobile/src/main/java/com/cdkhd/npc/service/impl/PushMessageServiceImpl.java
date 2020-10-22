@@ -36,7 +36,7 @@ public class PushMessageServiceImpl implements PushMessageService {
      * @param msgType 0 待审核提醒  1 审核结果通知 2 意见建议提醒  3 意见建议处理提醒  4 会议通知
      */
     @Override
-    public void pushMsg(Account receiverAccount, int msgType,JSONObject content ) {
+    public void pushMsg(Account receiverAccount, int msgType, JSONObject content ) {
         //获取access_token
         WeChatAccessToken token = weChatServiceAccountConfig.getToken();
 

@@ -87,9 +87,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         List<SuggestionBusiness> sb = Lists.newArrayList();
         //区上和街道，都查询区上的类型
         if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
-            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            sb = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(), userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(), userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            sb = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(), userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<CommonVo> commonVos = sb.stream().map(sugBus -> CommonVo.convert(sugBus.getUid(), sugBus.getName())).collect(Collectors.toList());
         body.setData(commonVos);
@@ -461,9 +461,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         List<MemberCountVo> vos = Lists.newArrayList();
         List<SuggestionBusiness> suggestionBusinesses = Lists.newArrayList();//获取所有可用的建议类型
         if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue())){
-            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<Suggestion> suggestionList = this.getSuggestionList(dto,userDetails);//获取所有履职信息
         Map<String, Map<String,Integer>> memberSuggestionMap = this.dealSuggestion(suggestionList);//处理所有履职信息
@@ -514,9 +514,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
         List<SuggestionBusiness> suggestionBusinesses = Lists.newArrayList();//获取所有可用的建议类型
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            suggestionBusinesses = suggestionBusinessRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }
 
         String[] tableHeaders = new String[suggestionBusinesses.size()+2];
@@ -624,7 +624,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             //查询与bgAdmin同级的代表
             predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
             predicateList.add(cb.isFalse(root.get("isDel")));
-            predicateList.add(cb.equal(root.get("status").as(Byte.class),StatusEnum.ENABLED.getValue()));
+            predicateList.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicateList.add(cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
             //同镇的代表 or 同区的代表
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
@@ -685,7 +685,7 @@ public class SuggestionServiceImpl implements SuggestionService {
                     SystemSetting systemSetting = this.getSystemSetting(userDetails);//判断开关是否打开
                     if (systemSetting.getShowSubPerformance()) {//下级履职开关打开
                         //先把所有区代表查询出来
-                        List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),LevelEnum.AREA.getValue());
+                        List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());
                         List<NpcMember> allMembers = Lists.newArrayList();//区代表所有的身份，包括区代表身份和区代表在镇上的代表身份
                         for (NpcMember areaMember : areaMembers) {
                             if (areaMember.getAccount()!=null) {//注冊了的代表

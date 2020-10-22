@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         PageVo<AccountVo> vo = new PageVo<>(accountPage, accountPageDto);
-        List<AccountVo> accountVos = accountPage.getContent().stream().map(AccountVo :: convert).collect(Collectors.toList());
+        List<AccountVo> accountVos = accountPage.getContent().stream().map(AccountVo:: convert).collect(Collectors.toList());
         vo.setContent(accountVos);
         body.setData(vo);
         return body;

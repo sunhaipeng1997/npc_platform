@@ -105,7 +105,7 @@ public interface PerformanceService {
     /**
      * 导出履职统计
      * @param userDetails
-     * @param performanceDto
+     * @param dto
      * @return
      */
     void exportPerformanceCount(MemberCountDto dto, UserDetailsImpl userDetails, HttpServletRequest req, HttpServletResponse res);

@@ -2,7 +2,6 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.entity.NpcMember;
 import com.cdkhd.npc.entity.NpcMemberRole;
-import com.cdkhd.npc.entity.Permission;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.base.NpcMemberRoleRepository;
@@ -10,7 +9,6 @@ import com.cdkhd.npc.service.NpcMemberRoleService;
 import com.cdkhd.npc.vo.CommonVo;
 import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +69,7 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
     }
 
     @Override
-    public List<NpcMember> findByKeyWordAndUid(String keyword,Byte level , String uid) {
+    public List<NpcMember> findByKeyWordAndUid(String keyword, Byte level , String uid) {
         List<NpcMember> npcMemberList = this.findByKeyWordAndLevel(keyword,level);
         List<NpcMember> npcMembers = Lists.newArrayList();
         for (NpcMember npcMember : npcMemberList) {

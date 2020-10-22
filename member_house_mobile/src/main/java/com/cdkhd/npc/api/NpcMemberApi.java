@@ -3,7 +3,7 @@ package com.cdkhd.npc.api;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.dto.BaseDto;
-import com.cdkhd.npc.entity.dto.*;
+import com.cdkhd.npc.entity.dto.LevelDto;
 import com.cdkhd.npc.service.NpcMemberService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;

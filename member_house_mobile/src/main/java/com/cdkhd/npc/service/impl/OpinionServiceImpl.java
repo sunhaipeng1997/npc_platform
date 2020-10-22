@@ -238,7 +238,7 @@ public class OpinionServiceImpl implements OpinionService {
         return body;
     }
 
-    public OpinionVo opinionInfo(String uid,RespBody body,Boolean member) {
+    public OpinionVo opinionInfo(String uid, RespBody body, Boolean member) {
         Opinion opinion = opinionRepository.findByUid(uid);
         OpinionVo opinionVo = new OpinionVo();
         if (opinion == null){
@@ -286,6 +286,7 @@ public class OpinionServiceImpl implements OpinionService {
         Page<Opinion> opinions = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("receiver").get("uid").as(String.class), npcMember.getUid()));
+            predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
             if (opinionDto.getLevel().equals(LevelEnum.TOWN.getValue())){
                 predicates.add(cb.equal(root.get("town").get("uid").as(String.class), npcMember.getTown().getUid()));

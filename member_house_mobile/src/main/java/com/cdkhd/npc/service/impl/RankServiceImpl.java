@@ -81,7 +81,7 @@ public class RankServiceImpl implements RankService {
     public RespBody townSuggestionRank(MobileUserDetailsImpl userDetails, TypeDto typeDto) {
         RespBody body = new RespBody();
         List<Town> towns = Lists.newArrayList(userDetails.getArea().getTowns());
-        List<Suggestion> suggestions = this.getSuggestions(userDetails,LevelEnum.TOWN.getValue(),false);
+        List<Suggestion> suggestions = this.getSuggestions(userDetails, LevelEnum.TOWN.getValue(),false);
         Map<String,String> townMap = this.dealTowns(towns,typeDto.getType());
         Map<String,Integer> suggestionMap = this.dealSuggestions(suggestions,false);
         List<RankVo> rankVos = Lists.newArrayList();
@@ -205,10 +205,10 @@ public class RankServiceImpl implements RankService {
     private List<NpcMember> getMembers(MobileUserDetailsImpl userDetails, Byte level) {
         List<NpcMember> npcMemberList = Lists.newArrayList();
         if (level.equals(LevelEnum.TOWN.getValue())) {//等级为镇上，获取所有镇代表
-            npcMemberList = npcMemberRepository.findByTownUidAndLevelAndStatusAndIsDelFalse(userDetails.getTown().getUid(), level,StatusEnum.ENABLED.getValue());
+            npcMemberList = npcMemberRepository.findByTownUidAndLevelAndStatusAndIsDelFalse(userDetails.getTown().getUid(), level, StatusEnum.ENABLED.getValue());
         }
         if (level.equals(LevelEnum.AREA.getValue())) {
-            npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndStatusAndIsDelFalse(userDetails.getArea().getUid(), level,StatusEnum.ENABLED.getValue());
+            npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndStatusAndIsDelFalse(userDetails.getArea().getUid(), level, StatusEnum.ENABLED.getValue());
         }
         return npcMemberList;
     }
@@ -235,7 +235,7 @@ public class RankServiceImpl implements RankService {
         return suggestionList;
     }
 
-    private List<Opinion> getOpinions(MobileUserDetailsImpl userDetails, Byte level,Boolean isPerson){
+    private List<Opinion> getOpinions(MobileUserDetailsImpl userDetails, Byte level, Boolean isPerson){
         List<Opinion> opinionList = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
@@ -273,7 +273,7 @@ public class RankServiceImpl implements RankService {
      * @param towns
      * @return
      */
-    private Map<String, String> dealTowns(List<Town> towns,Byte type){
+    private Map<String, String> dealTowns(List<Town> towns, Byte type){
         Map<String,String> townMap = Maps.newHashMap();
         for (Town town: towns) {
             if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel() && town.getType().equals(type))
@@ -288,7 +288,7 @@ public class RankServiceImpl implements RankService {
      * @param isPerson 是否按人统计 true key：memberUid false key townUid
      * @return
      */
-    private Map<String,Integer> dealSuggestions(List<Suggestion> suggestions,Boolean isPerson){
+    private Map<String,Integer> dealSuggestions(List<Suggestion> suggestions, Boolean isPerson){
         Map<String,Integer> suggestionMaps = Maps.newHashMap();
         for (Suggestion suggestion : suggestions) {
             String uid;

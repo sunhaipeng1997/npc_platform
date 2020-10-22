@@ -116,17 +116,17 @@ public class PerformanceServiceImpl implements PerformanceService {
             //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
                 if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核(前端定义的查询状态  1未审核  2 已审核)
-                    predicates.add(cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
+                    predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
                 } else {//已审核
-                    Predicate success = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_SUCCESS.getValue());
-                    Predicate failed = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_FAILURE.getValue());
+                    Predicate success = cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue());
+                    Predicate failed = cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_FAILURE.getValue());
                     Predicate or = cb.or(success,failed);
                     predicates.add(or);
                 }
             }
             Predicate[] p = new Predicate[predicates.size()];
             query.where(cb.and(predicates.toArray(p)));
-            query.orderBy(cb.asc(root.get("myView")),cb.asc(root.get("status")),cb.desc(root.get("createTime")));
+            query.orderBy(cb.asc(root.get("myView")),cb.asc(root.get("status")),cb.desc(root.get("workAt")));
             return query.getRestriction();
         }, page);
         List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
@@ -378,7 +378,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("level").as(Byte.class),performancePageDto.getLevel()));
             //撤回状态不展示
-            predicates.add(cb.notEqual(root.get("status").as(Byte.class),PerformanceStatusEnum.REVOKE.getValue()));
+            predicates.add(cb.notEqual(root.get("status").as(Byte.class), PerformanceStatusEnum.REVOKE.getValue()));
             if (performancePageDto.getLevel().equals(LevelEnum.TOWN.getValue())) {
                 List<NpcMember> npcMemberList = Lists.newArrayList();
                 if (roleKeywords.contains(NpcMemberRoleEnum.PERFORMANCE_AUDITOR.getKeyword()) && systemSetting.getPerformanceGroupAudit()) {
@@ -429,10 +429,10 @@ public class PerformanceServiceImpl implements PerformanceService {
             //状态 1未审核  2已审核
             if (performancePageDto.getStatus() != null) {
                 if (performancePageDto.getStatus().equals(StatusEnum.ENABLED.getValue())) {//未审核（前端定义的状态）
-                    predicates.add(cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
+                    predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.SUBMITTED_AUDIT.getValue()));
                 } else {//已审核
-                    Predicate success = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_SUCCESS.getValue());
-                    Predicate failed = cb.equal(root.get("status").as(Byte.class),PerformanceStatusEnum.AUDIT_FAILURE.getValue());
+                    Predicate success = cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue());
+                    Predicate failed = cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_FAILURE.getValue());
                     Predicate or = cb.or(success,failed);
                     predicates.add(or);
                 }
@@ -481,7 +481,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             JSONObject performanceMsg = new JSONObject();
             performanceMsg.put("subtitle","您的履职有了审核结果，请前往小程序查看。");
             performanceMsg.put("auditItem",performance.getTitle());
-            performanceMsg.put("result",PerformanceStatusEnum.getName(auditPerformanceDto.getStatus()));
+            performanceMsg.put("result", PerformanceStatusEnum.getName(auditPerformanceDto.getStatus()));
             performanceMsg.put("remarkInfo","审核人："+ performance.getAuditor().getName()+" <点击查看详情>");
             pushMessageService.pushMsg(account, MsgTypeEnum.AUDIT_RESULT.ordinal(),performanceMsg);
         }
@@ -492,16 +492,19 @@ public class PerformanceServiceImpl implements PerformanceService {
     public RespBody performanceList(UidDto uidDto) {
         RespBody body = new RespBody();
         int begin = uidDto.getPage() - 1;
+        NpcMember npcMember = npcMemberRepository.findByUid(uidDto.getUid());
         Pageable page = PageRequest.of(begin, uidDto.getSize(), Sort.Direction.fromString(uidDto.getDirection()), uidDto.getProperty());
         Page<Performance> performancePage = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("npcMember").get("uid").as(String.class), uidDto.getUid()));
+            predicates.add(cb.equal(root.get("npcMember").get("mobile").as(String.class), npcMember.getMobile()));
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
             predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue()));
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         List<PerformanceListVo> performanceVos = performancePage.getContent().stream().map(PerformanceListVo::convert).collect(Collectors.toList());
-        body.setData(performanceVos);
+        PageVo<PerformanceListVo> vo = new PageVo<>(performancePage, uidDto);
+        vo.setContent(performanceVos);
+        body.setData(vo);
         return body;
     }
 

@@ -90,11 +90,11 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                     MemberUnitVos.add(memberUnitVo);
                 }
             }
-            MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"区代表",LevelEnum.AREA.getValue(),new Date());
-            List<NpcMember> npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(townUid,LevelEnum.AREA.getValue());
+            MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"区代表", LevelEnum.AREA.getValue(),new Date());
+            List<NpcMember> npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(townUid, LevelEnum.AREA.getValue());
             memberUnitVo.setChildren(npcMembers.stream()
                     .filter(member -> member.getStatus().equals(StatusEnum.ENABLED.getValue()) && !member.getIsDel() && !member.getType().equals(specialMan.getUid()))
-                    .map(member -> MemberUnitVo.convert(member.getUid(),member.getName(),LevelEnum.AREA.getValue(),member.getCreateTime()))
+                    .map(member -> MemberUnitVo.convert(member.getUid(),member.getName(), LevelEnum.AREA.getValue(),member.getCreateTime()))
                     .sorted(Comparator.comparing(MemberUnitVo::getCreateTime)).collect(Collectors.toList()));
             MemberUnitVos.add(0,memberUnitVo);
         }else{
@@ -180,6 +180,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             predicateList.add(cb.isFalse(root.get("isDel")));
             predicateList.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicateList.add(cb.notEqual(root.get("type").as(String.class), specialMan.getUid()));
+            predicateList.add(cb.equal(root.get("special").as(Byte.class), (byte)0));
             //同镇的代表 or 同区的代表
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicateList.add(cb.equal(root.get("npcMemberGroup").get("uid"), uid));

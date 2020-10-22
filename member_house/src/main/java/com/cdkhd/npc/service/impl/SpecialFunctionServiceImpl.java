@@ -96,7 +96,7 @@ public class SpecialFunctionServiceImpl implements SpecialFunctionService {
         //小组审核人
         List<JSONObject> glist = new ArrayList<>();
         if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
-            List<Town> townList = townRepository.findByAreaUidAndStatusAndIsDelFalseOrderByNameAsc(userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            List<Town> townList = townRepository.findByAreaUidAndStatusAndIsDelFalseOrderByNameAsc(userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
             for (Town town : townList) {
                 JSONObject gobj = new JSONObject();
                 gobj.put("UID", town.getUid());

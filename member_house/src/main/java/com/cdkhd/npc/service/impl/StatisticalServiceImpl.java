@@ -138,7 +138,7 @@ public class StatisticalServiceImpl implements StatisticalService {
      * @param page
      * @return
      */
-    private Page<NpcMember> getNpcMemberPage(UserDetailsImpl userDetails, StatisticalPageDto statisticalPageDto,Pageable page) {
+    private Page<NpcMember> getNpcMemberPage(UserDetailsImpl userDetails, StatisticalPageDto statisticalPageDto, Pageable page) {
         Page<NpcMember> npcMemberPage = npcMemberRepository.findAll((Specification<NpcMember>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));

@@ -17,8 +17,8 @@ public interface PerformanceRepository extends BaseRepository<Performance> {
     @Query(value = "select count(per.uid) from Performance as per where per.createTime >= ?1 and per.level = ?2 and per.town.uid = ?3")
     Integer countTownTodayNumber(Date today, Byte level, String uid);
 
-    @Query(value = "select count(per.uid) from Performance as per where per.createTime >= ?1 and per.level = ?2 and per.area.uid = ?3")
-    Integer countAreaTodayNumber(Date today, Byte level, String uid);
+    @Query(value = "select count(per.uid) from Performance as per where per.createTime >= ?1 and per.npcMember.mobile in(?2) and per.area.uid = ?3")
+    Integer countAreaTodayNumber(Date today, List<String> mobile, String uid);
 
     List<Performance> findByPerformanceTypeUidAndLevelAndAreaUidAndIsDelFalse(String uid,Byte level,String areaUid);
 

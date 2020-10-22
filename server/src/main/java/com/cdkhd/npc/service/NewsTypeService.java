@@ -8,13 +8,13 @@ import com.cdkhd.npc.vo.RespBody;
 import javax.validation.constraints.NotBlank;
 
 public interface NewsTypeService {
-    RespBody pageOfNewsType(UserDetailsImpl userDetails,NewsTypePageDto pageDto);
+    RespBody pageOfNewsType(UserDetailsImpl userDetails, NewsTypePageDto pageDto);
 
     RespBody pageOfNewsTypeForMobile(NewsTypePageDto pageDto);
 
-    RespBody addNewsType(UserDetailsImpl userDetails,NewsTypeAddDto addDto);
+    RespBody addNewsType(UserDetailsImpl userDetails, NewsTypeAddDto addDto);
 
-    RespBody updateNewsType(UserDetailsImpl userDetails,NewsTypeAddDto dto);
+    RespBody updateNewsType(UserDetailsImpl userDetails, NewsTypeAddDto dto);
 
     RespBody deleteNewsType(@NotBlank String uid);
 

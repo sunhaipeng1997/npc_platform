@@ -539,9 +539,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         List<NpcMember> content = pageRes.getContent();//代表列表
         List<PerformanceType> performanceTypes = Lists.newArrayList();//获取所有可用的履职类型
         if (userDetails.getLevel().equals(LevelEnum.AREA.getValue()) || (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue())){
-            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.AREA.getValue(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }
         List<Performance> performanceList = this.getPerformanceList(dto,userDetails);//获取所有履职信息
         Map<String, Map<String,Integer>> memberPerformanceMap = this.dealPerformance(performanceList);//处理所有履职信息
@@ -586,9 +586,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         res.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
         List<PerformanceType> performanceTypes = Lists.newArrayList();//获取所有可用的履职类型
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            performanceTypes = performanceTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            performanceTypes = performanceTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalseOrderBySequenceAsc(userDetails.getLevel(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }
         String[] tableHeaders = new String[performanceTypes.size()+2];
         tableHeaders[0] = "序号";
@@ -695,7 +695,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             //查询与bgAdmin同级的代表
             predicateList.add(cb.equal(root.get("level"), userDetails.getLevel()));
             predicateList.add(cb.isFalse(root.get("isDel")));
-            predicateList.add(cb.equal(root.get("status").as(Byte.class),StatusEnum.ENABLED.getValue()));
+            predicateList.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicateList.add(cb.equal(root.get("area").get("uid"), userDetails.getArea().getUid()));
             //同镇的代表 or 同区的代表
             if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {

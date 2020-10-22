@@ -1,7 +1,6 @@
 package com.cdkhd.npc.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Study;
 import com.cdkhd.npc.entity.StudyType;
@@ -169,7 +168,7 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    public RespBody changeTypeSequence(UserDetailsImpl userDetails,String uid, Byte type) {
+    public RespBody changeTypeSequence(UserDetailsImpl userDetails, String uid, Byte type) {
         RespBody body = new RespBody();
         StudyType studyType = studyTypeRepository.findByUid(uid);
         if (studyType == null) {
@@ -220,9 +219,9 @@ public class StudyServiceImpl implements StudyService {
         RespBody body = new RespBody();
         List<StudyType> studyTypeList = Lists.newArrayList();
         if (userDetails.getLevel().equals(LevelEnum.TOWN.getValue())) {
-            studyTypeList = studyTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid(),StatusEnum.ENABLED.getValue());
+            studyTypeList = studyTypeRepository.findByLevelAndTownUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getTown().getUid(), StatusEnum.ENABLED.getValue());
         }else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
-            studyTypeList = studyTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid(),StatusEnum.ENABLED.getValue());
+            studyTypeList = studyTypeRepository.findByLevelAndAreaUidAndStatusAndIsDelFalse(userDetails.getLevel(),userDetails.getArea().getUid(), StatusEnum.ENABLED.getValue());
         }
         studyTypeList.sort(Comparator.comparing(StudyType::getSequence));
         List<CommonVo> commonVos = studyTypeList.stream().map(type -> CommonVo.convert(type.getUid(),type.getName())).collect(Collectors.toList());

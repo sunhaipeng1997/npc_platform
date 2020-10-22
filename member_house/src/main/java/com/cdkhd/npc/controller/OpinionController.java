@@ -3,18 +3,13 @@ package com.cdkhd.npc.controller;
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.OpinionPageDto;
-import com.cdkhd.npc.entity.dto.PerformanceDto;
-import com.cdkhd.npc.entity.dto.PerformanceTypeAddDto;
-import com.cdkhd.npc.entity.dto.PerformanceTypeDto;
 import com.cdkhd.npc.service.OpinionService;
-import com.cdkhd.npc.service.PerformanceService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;

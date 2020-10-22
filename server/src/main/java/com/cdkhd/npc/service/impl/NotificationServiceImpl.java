@@ -1,6 +1,5 @@
 package com.cdkhd.npc.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.*;
@@ -254,7 +253,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public RespBody update(UserDetailsImpl userDetails,NotificationAddDto dto){
+    public RespBody update(UserDetailsImpl userDetails, NotificationAddDto dto){
         RespBody body = new RespBody();
 
         if(dto.getUid().isEmpty()){
@@ -385,7 +384,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      */
     @Override
-    public RespBody toReview(UserDetailsImpl userDetails,String uid){
+    public RespBody toReview(UserDetailsImpl userDetails, String uid){
         RespBody body = new RespBody();
         Notification notification = notificationRepository.findByUid(uid);
         if(notification == null){
@@ -448,7 +447,7 @@ public class NotificationServiceImpl implements NotificationService {
             for(NpcMember reviewer :reviewers){
                 if(reviewer.getAccount() != null){
                     if(reviewer.getAccount().getLoginWeChat() != null){
-                        pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.TO_AUDIT.ordinal(),notificationMsg);
+                        pushMessageService.pushMsg(reviewer.getAccount(), MsgTypeEnum.TO_AUDIT.ordinal(),notificationMsg);
                     }
                 }
             }
@@ -470,7 +469,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      */
     @Override
-    public RespBody publish(UserDetailsImpl userDetails,String uid){
+    public RespBody publish(UserDetailsImpl userDetails, String uid){
         RespBody body = new RespBody();
         Notification notification = notificationRepository.findByUid(uid);
 
@@ -530,7 +529,7 @@ public class NotificationServiceImpl implements NotificationService {
                 NpcMember receiver = viewDetail.getReceiver();
                 if(receiver.getAccount() != null){//只发送给已经注册的人，否则要报空指针异常
                     if(receiver.getAccount().getLoginWeChat() != null){
-                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
+                        pushMessageService.pushMsg(receiver.getAccount(), MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
                     }
                 }
             }
@@ -635,7 +634,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public RespBody publishForMobile(UserDetailsImpl userDetails,NotificationPublishDto dto){
+    public RespBody publishForMobile(UserDetailsImpl userDetails, NotificationPublishDto dto){
         RespBody body = new RespBody();
         Notification notification = notificationRepository.findByUid(dto.getUid());
 
@@ -695,7 +694,7 @@ public class NotificationServiceImpl implements NotificationService {
                 NpcMember receiver = viewDetail.getReceiver();
                 if(receiver.getAccount() != null){//只发送给已经注册的人，否则要报空指针异常
                     if(receiver.getAccount().getLoginWeChat() != null){
-                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
+                        pushMessageService.pushMsg(receiver.getAccount(), MsgTypeEnum.CONFERENCE.ordinal(),notificationMsg);
                     }
                 }
             }
@@ -708,7 +707,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     //接收人获取通知详情
     @Override
-    public RespBody detailsForMobileReceiver(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody detailsForMobileReceiver(UserDetailsImpl userDetails, String uid, Byte level){
         RespBody<NotificationMobileReceivedDetailsVo> body = new RespBody<>();
         if(uid.isEmpty()){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -755,7 +754,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     //审核人获取通知详情
     @Override
-    public RespBody detailsForMobileReviewer(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody detailsForMobileReviewer(UserDetailsImpl userDetails, String uid, Byte level){
         RespBody<NotificationDetailsForMobileVo> body = new RespBody<>();
         if(uid.isEmpty()){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -798,7 +797,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return
      */
     @Override
-    public RespBody review(UserDetailsImpl userDetails,NotificationReviewDto dto){
+    public RespBody review(UserDetailsImpl userDetails, NotificationReviewDto dto){
         RespBody body = new RespBody();
         Notification notification = notificationRepository.findByUid(dto.getUid());
         if (notification == null) {
@@ -876,7 +875,7 @@ public class NotificationServiceImpl implements NotificationService {
             if(reviewer.getAccount() != null){
                 if(reviewer.getAccount().getLoginWeChat() != null){
                     if(!reviewer.getAccount().getUid().equals(userDetails.getUid())){
-                        pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.AUDIT_RESULT.ordinal(),notificationMsg);
+                        pushMessageService.pushMsg(reviewer.getAccount(), MsgTypeEnum.AUDIT_RESULT.ordinal(),notificationMsg);
                     }
                 }
             }
@@ -911,7 +910,7 @@ public class NotificationServiceImpl implements NotificationService {
                 List<Predicate> predicateList = new ArrayList<>();
                 predicateList.add(cb.equal(root.get("receiver").get("uid"), npcMember.getUid()));
                 predicateList.add(cb.isTrue(root.get("notification").get("published")));
-                predicateList.add(cb.equal(root.get("notification").get("status").as(Integer.class),NotificationStatusEnum.RELEASED.ordinal()));
+                predicateList.add(cb.equal(root.get("notification").get("status").as(Integer.class), NotificationStatusEnum.RELEASED.ordinal()));
 
                 predicateList.add(cb.equal(root.get("notification").get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 predicateList.add(cb.equal(root.get("notification").get("level").as(Byte.class), dto.getLevel()));
@@ -942,7 +941,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public RespBody mobileReviewPage(UserDetailsImpl userDetails,NotificationPageDto dto) {
+    public RespBody mobileReviewPage(UserDetailsImpl userDetails, NotificationPageDto dto) {
 
         RespBody<PageVo<NotificationPageVo>> body = new RespBody<>();
 

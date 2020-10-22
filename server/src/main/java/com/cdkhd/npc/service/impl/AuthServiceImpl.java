@@ -123,7 +123,6 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
         }
-
         //生成验证码，获取发送短信的配置参数
         int verifycode = new Random().nextInt(899999) + 100000; //每次调用生成一次六位数的随机数
         final String accessKeyId = env.getProperty("code.accessKeyId");
@@ -148,6 +147,7 @@ public class AuthServiceImpl implements AuthService {
         code.setCreateTime(new Date());
         code.setValid(true);
         codeRepository.saveAndFlush(code);
+
         body.setStatus(HttpStatus.OK);
         return body;
     }

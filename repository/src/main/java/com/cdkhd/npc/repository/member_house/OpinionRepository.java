@@ -18,8 +18,8 @@ public interface OpinionRepository extends BaseRepository<Opinion> {
     @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime >= ?1 and opinion.level = ?2 and opinion.town.uid = ?3")
     Integer countTownTodayNumber(Date today, Byte level, String uid);
 
-    @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime >= ?1 and opinion.level = ?2 and opinion.area.uid = ?3")
-    Integer countAreaTodayNumber(Date today, Byte level, String uid);
+    @Query(value = "select count(opinion.uid) from Opinion as opinion where opinion.createTime >= ?1 and opinion.receiver.mobile in(?2) and opinion.area.uid = ?3")
+    Integer countAreaTodayNumber(Date today, List<String> mobile, String uid);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(op.town.name, count(op.uid)) from Opinion op " +
             "where op.area.id=?1 and op.isDel=false and op.level=2 " +

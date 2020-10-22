@@ -153,14 +153,16 @@ public class TownServiceImpl implements TownService {
         LoginUP loginUP = new LoginUP();
         loginUP.setUsername(townAddDto.getAccount());
         loginUP.setPassword(passwordEncoder.encode(townAddDto.getPassword()));
+//        loginUP.setMobile(townAddDto.getMobile());
 
         //镇管理员公司默认账号
         LoginUP khd_loginUP = new LoginUP();
         khd_loginUP.setUsername(townAddDto.getAccount() + accountSuffix);
         khd_loginUP.setPassword(passwordEncoder.encode(accountPassword));
+//        khd_loginUP.setMobile(accountMobile);
 
         account = new Account();
-        account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())));
+        account.setAccountRoles(Sets.newHashSet(accountRoleRepository.findByKeyword("BACKGROUND_ADMIN")));
         account.setStatus(StatusEnum.ENABLED.getValue());
         account.setLoginWay(LoginWayEnum.LOGIN_UP.getValue());
         account.setMobile(townAddDto.getMobile());
@@ -214,7 +216,7 @@ public class TownServiceImpl implements TownService {
         //给该镇初始化两个默认的履职类型 类型是镇就初始化两个履职类型
         if (townAddDto.getType().equals(LevelEnum.TOWN.getValue())){
             for (PerformanceTypeEnum performanceTypeEnum : PerformanceTypeEnum.values()) {
-                PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(),LevelEnum.TOWN.getValue(),town.getUid(),StatusEnum.ENABLED.getValue());
+                PerformanceType performanceType = performanceTypeRepository.findByNameAndLevelAndTownUidAndStatusAndIsDelFalse(performanceTypeEnum.getValue(), LevelEnum.TOWN.getValue(),town.getUid(), StatusEnum.ENABLED.getValue());
                 if (performanceType == null) {
 //                Integer maxSequence = performanceTypeRepository.findMaxSequenceByLevelAndAreaUid(LevelEnum.AREA.getValue(), area.getUid());
                     performanceType = new PerformanceType();

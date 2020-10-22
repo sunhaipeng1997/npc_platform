@@ -98,7 +98,7 @@ public class OpinionServiceImpl implements OpinionService {
                 }
                 SystemSetting systemSetting = this.getSystemSetting(userDetails);
                 if (systemSetting.getShowSubPerformance()) {//下级意见开关打开
-                    List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),LevelEnum.AREA.getValue());//所有区代表
+                    List<NpcMember> areaMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(), LevelEnum.AREA.getValue());//所有区代表
                     List<NpcMember> allMembers = Lists.newArrayList();//本次要查询的所有代表
                     for (NpcMember areaMember : areaMembers) {
                         if (areaMember.getAccount()!=null) {//注冊了小程序的代表
@@ -136,7 +136,7 @@ public class OpinionServiceImpl implements OpinionService {
             if (opinionPageDto.getDateEnd() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), opinionPageDto.getDateEnd()));
             }
-            return query.where(predicates.toArray(new javax.persistence.criteria.Predicate[0])).getRestriction();
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         }, page);
         return opinionPage;
     }

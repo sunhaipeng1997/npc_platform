@@ -43,4 +43,5 @@ public class AuthApi {
     public String accessToken(String code, String state) {
         return authService.accessToken(code, state);
     }
+
 }

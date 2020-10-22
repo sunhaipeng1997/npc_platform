@@ -1,6 +1,5 @@
 package com.cdkhd.npc.service;
 
-import com.cdkhd.npc.component.MobileUserDetailsImpl;
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.dto.*;
 import com.cdkhd.npc.vo.RespBody;
@@ -39,7 +38,7 @@ public interface StudyService {
      * @param type
      * @return
      */
-    RespBody changeTypeSequence(UserDetailsImpl userDetails,String uid, Byte type);
+    RespBody changeTypeSequence(UserDetailsImpl userDetails, String uid, Byte type);
 
     /**
      * 修改类型状态

@@ -36,7 +36,14 @@ public interface NpcMemberRepository extends BaseRepository<NpcMember> {
 
 
     @Query("select new com.cdkhd.npc.vo.CountVo(npc.education, count(npc.uid)) from NpcMember npc " +
-            "where npc.area=?1 and npc.isDel=false and npc.status=1 " +
+            "where npc.area.uid=?1 and npc.level = ?2 and npc.isDel=false and npc.status=1 " +
             "group by npc.education")
-    List<CountVo> countEducation(Long areaId);
+    List<CountVo> countEducation(String areaUid,Byte level);
+
+    @Query("select new com.cdkhd.npc.vo.CountVo(npc.education, count(npc.uid)) from NpcMember npc " +
+            "where npc.area.uid=?1 and npc.town.uid = ?2 and npc.level = ?3 and npc.isDel=false and npc.status=1 " +
+            "group by npc.education")
+    List<CountVo> countEducation(String areaUid,String townUid,Byte level);
+
+    List<NpcMember> findByMobileAndUidIsNotAndIsDelFalse(String mobile, String uid);
 }

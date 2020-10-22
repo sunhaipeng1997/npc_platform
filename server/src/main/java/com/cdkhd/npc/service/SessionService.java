@@ -34,7 +34,7 @@ public interface SessionService {
      * @param userDetails
      * @return
      */
-    RespBody deleteSessions(UserDetailsImpl userDetails,String uid);
+    RespBody deleteSessions(UserDetailsImpl userDetails, String uid);
 
     /**
      * 换届

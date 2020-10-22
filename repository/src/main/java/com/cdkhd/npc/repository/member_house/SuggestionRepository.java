@@ -39,8 +39,8 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.createTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")
     Integer countTownTodayNumber(Date today, Byte level, String uid);
 
-    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.createTime >= ?1 and sug.level = ?2 and sug.area.uid = ?3")
-    Integer countAreaTodayNumber(Date today, Byte level, String uid);
+    @Query(value = "select count(sug.uid) from Suggestion as sug where sug.createTime >= ?1 and sug.raiser.mobile in ?2 and sug.area.uid = ?3")
+    Integer countAreaTodayNumber(Date today, List<String> mobile, String uid);
 
     //由于JPA查询结果只能映射实体类，故需要在sql中使用 new 语法
     @Query("select new com.cdkhd.npc.vo.CountVo(sug.town.name, count(sug.uid)) from Suggestion sug " +

@@ -36,6 +36,7 @@ public class SystemServiceImpl implements SystemService {
         this.accountRepository = accountRepository;
     }
 
+
     @Override
     public RespBody getSystemList(UserDetailsImpl userDetails) {
         RespBody body = new RespBody();

@@ -33,7 +33,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/received_page")
-    public ResponseEntity mobileReceivedPage(@CurrentUser UserDetailsImpl userDetails,NotificationPageDto pageDto){
+    public ResponseEntity mobileReceivedPage(@CurrentUser UserDetailsImpl userDetails, NotificationPageDto pageDto){
         RespBody body = notificationService.mobileReceivedPage(userDetails,pageDto);
         return ResponseEntity.ok(body);
     }
@@ -45,7 +45,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/review_page")
-    public ResponseEntity mobileReviewPage(@CurrentUser UserDetailsImpl userDetails,NotificationPageDto pageDto){
+    public ResponseEntity mobileReviewPage(@CurrentUser UserDetailsImpl userDetails, NotificationPageDto pageDto){
         RespBody body = notificationService.mobileReviewPage(userDetails,pageDto);
         return ResponseEntity.ok(body);
     }
@@ -57,7 +57,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/details_for_receiver/{uid}")
-    public ResponseEntity detailsForMobileReceiver(@CurrentUser UserDetailsImpl userDetails,@PathVariable String uid,Byte level){
+    public ResponseEntity detailsForMobileReceiver(@CurrentUser UserDetailsImpl userDetails, @PathVariable String uid, Byte level){
         RespBody body = notificationService.detailsForMobileReceiver(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
@@ -70,7 +70,7 @@ public class NotificationApi {
      * @return
      */
     @GetMapping("/details_for_reviewer/{uid}")
-    public ResponseEntity detailsForMobileReviewer(@CurrentUser UserDetailsImpl userDetails,@PathVariable String uid,Byte level){
+    public ResponseEntity detailsForMobileReviewer(@CurrentUser UserDetailsImpl userDetails, @PathVariable String uid, Byte level){
         RespBody body = notificationService.detailsForMobileReviewer(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }

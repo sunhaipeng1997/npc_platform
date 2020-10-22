@@ -200,7 +200,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 return body;
             }
             //姓名一致性判断
-            List<NpcMember> members = npcMemberRepository.findByMobileAndAndUidIsNotAndIsDelFalse(dto.getMobile(),dto.getUid());//通过手机号查询这个代表在其他地方的任职
+            List<NpcMember> members = npcMemberRepository.findByMobileAndUidIsNotAndIsDelFalse(dto.getMobile(),dto.getUid());//通过手机号查询这个代表在其他地方的任职
             Boolean canAdd = true;
             for (NpcMember npcMember : members) {
                 if (!npcMember.getName().equals(dto.getName())){
@@ -213,6 +213,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 LOGGER.warn("手机号为 {} 代表已经存在，与本次添加的代表 {} 姓名不符", dto.getMobile(), dto.getName());
                 return body;
             }
+
             body.setMessage("修改代表成功");
         } else {
             member = npcMemberRepository.findByLevelAndMobileAndIsDelFalse(userDetails.getLevel(), dto.getMobile());//这里只是过滤等级，没有过滤镇，意思是一个代表只能在一个镇任职，不能使多个镇的镇代表

@@ -17,7 +17,7 @@ import com.cdkhd.npc.utils.WXAppletUserInfo;
 import com.cdkhd.npc.vo.RespBody;
 import com.cdkhd.npc.vo.TokenVo;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -81,12 +81,12 @@ public class RegisterServiceImpl implements RegisterService {
         List<Area> areas = areaRepository.findByStatus(StatusEnum.ENABLED.getValue());
         List<RelationVo> areaVos = Lists.newArrayList();
         for (Area area : areas) {
-            RelationVo areaVo = RelationVo.convert(area.getUid(),area.getName(),LevelEnum.AREA.getValue(),area.getCreateTime());
+            RelationVo areaVo = RelationVo.convert(area.getUid(),area.getName(), LevelEnum.AREA.getValue(),area.getCreateTime());
             List<RelationVo> townVos = Lists.newArrayList();
             for (Town town : area.getTowns()) {
                 if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()) {
-                    RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(),LevelEnum.TOWN.getValue(),town.getCreateTime());
-                    townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(),LevelEnum.TOWN.getValue(), village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
+                    RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(), LevelEnum.TOWN.getValue(),town.getCreateTime());
+                    townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(), LevelEnum.TOWN.getValue(), village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
                     townVos.add(townVo);
                 }
             }
@@ -220,7 +220,7 @@ public class RegisterServiceImpl implements RegisterService {
     }
 
     //根据账户角色创建账户
-    private Account createAccount(UserInfoDto dto,String keyword){
+    private Account createAccount(UserInfoDto dto, String keyword){
         Account account = new Account();
         account.setStatus(StatusEnum.ENABLED.getValue());
         account.setLoginWay(LoginWayEnum.LOGIN_WECHAT.getValue());
@@ -239,10 +239,6 @@ public class RegisterServiceImpl implements RegisterService {
 
         this.saveVoter(dto,account);
 
-        //用户偏好功能，已废弃
-//        MobileUserPreferences mobileUserPreferences = account.getMobileUserPreferences();
-//        mobileUserPreferences.setShortcutAction(ShortcutActionEnum.GIVE_ADVICE.getName());
-
         //如果是代表身份
         if(keyword.equals(AccountRoleEnum.NPC_MEMBER.getName())){
             List<NpcMember> npcMembers = npcMemberRepository.findByMobileAndIsDelFalse(dto.getMobile());
@@ -252,10 +248,7 @@ public class RegisterServiceImpl implements RegisterService {
                 account.getNpcMembers().add(npcMember);
             }
             account.getAccountRoles().add(accountRoleRepository.findByKeyword(AccountRoleEnum.NPC_MEMBER.getKeyword()));
-//            mobileUserPreferences.setShortcutAction(ShortcutActionEnum.MAKE_SUGGESTION.getName());
         }
-//        mobileUserPreferences.setAccount(accountRepository.findByUid(account.getUid()));
-//        mobileUserPreferencesRepository.save(mobileUserPreferences);
 
         accountRepository.save(account);
 
@@ -272,19 +265,15 @@ public class RegisterServiceImpl implements RegisterService {
         voter.setBirthday(dto.getBirthday());//增加出生年月
         voter.setAccount(account);
         //不管选民和代表，这里的区镇村都直接存voter里去，代表npcmember表中地区信息可以和voter表中的地区信息不一样
-//        if(keyword.equals(AccountRoleEnum.VOTER.getName())){
         if(StringUtils.isNotEmpty(dto.getAreaUid())){
             voter.setArea(areaRepository.findByUid(dto.getAreaUid()));
         }
-
         if(StringUtils.isNotEmpty(dto.getTownUid())){
             voter.setTown(townRepository.findByUid(dto.getTownUid()));
         }
-
         if(StringUtils.isNotEmpty(dto.getVillageUid())){
             voter.setVillage(villageRepository.findByUid(dto.getVillageUid()));
         }
-
         voter.setAccount(accountRepository.findByUid(account.getUid()));
         voterRepository.saveAndFlush(voter);
     }

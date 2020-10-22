@@ -18,7 +18,6 @@ import com.cdkhd.npc.util.ImageUploadUtil;
 import com.cdkhd.npc.utils.NpcMemberUtil;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -290,7 +287,7 @@ public class NewsServiceImpl implements NewsService {
             for(NpcMember receiver:receivers){
                 if(receiver.getAccount() != null){
                     if(receiver.getAccount().getLoginWeChat() != null){
-                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+                        pushMessageService.pushMsg(receiver.getAccount(), MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
                     }
                 }
             }
@@ -405,7 +402,7 @@ public class NewsServiceImpl implements NewsService {
      * @return
      */
     @Override
-    public RespBody toReview(UserDetailsImpl userDetails,String uid){
+    public RespBody toReview(UserDetailsImpl userDetails, String uid){
         RespBody body = new RespBody();
         News news = newsRepository.findByUid(uid);
         if(news == null){
@@ -518,7 +515,7 @@ public class NewsServiceImpl implements NewsService {
         int begin = pageDto.getPage() - 1;
         Pageable pageable = PageRequest.of(begin, pageDto.getSize(),
                 Sort.Direction.fromString(pageDto.getDirection()),
-                pageDto.getProperty());
+                "publishAt");
 
         //用户查询条件
         Specification<News> specification = (root, query, cb)->{
@@ -616,11 +613,13 @@ public class NewsServiceImpl implements NewsService {
 
                     predicateList.add(cb.equal(root.get("area").get("uid").as(String.class), npcMember.getArea().getUid()));
                     predicateList.add(cb.equal(root.get("level").as(Byte.class), dto.getLevel()));
+
                     if(userDetails.getTown() != null){
                         if(dto.getLevel().equals(LevelEnum.TOWN.getValue())){
                             predicateList.add(cb.equal(root.get("town").get("uid").as(String.class),npcMember.getTown().getUid()));
                         }
                     }
+
                     //按新闻状态查询
                     if (dto.getStatus() != -1) {
                         predicateList.add(cb.equal(root.get("status").as(Integer.class), dto.getStatus()));
@@ -658,7 +657,7 @@ public class NewsServiceImpl implements NewsService {
      * @return
      */
     @Override
-    public RespBody detailsForMobileReviewer(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody detailsForMobileReviewer(UserDetailsImpl userDetails, String uid, Byte level){
         RespBody<NewsDetailsForMobileVo> body = new RespBody<>();
         if(uid.isEmpty()){
             body.setStatus(HttpStatus.BAD_REQUEST);
@@ -779,7 +778,7 @@ public class NewsServiceImpl implements NewsService {
             if(reviewer.getAccount() != null){
                 if(reviewer.getAccount().getLoginWeChat() != null){
                     if(!reviewer.getAccount().getUid().equals(userDetails.getUid())){
-                        pushMessageService.pushMsg(reviewer.getAccount(),MsgTypeEnum.AUDIT_RESULT.ordinal(),newsMsg);
+                        pushMessageService.pushMsg(reviewer.getAccount(), MsgTypeEnum.AUDIT_RESULT.ordinal(),newsMsg);
                     }
                 }
             }
@@ -797,7 +796,7 @@ public class NewsServiceImpl implements NewsService {
      * @return
      */
     @Override
-    public RespBody publishForMobile(UserDetailsImpl userDetails,String uid,Byte level){
+    public RespBody publishForMobile(UserDetailsImpl userDetails, String uid, Byte level){
         RespBody body = new RespBody();
         News news = newsRepository.findByUid(uid);
 
@@ -863,7 +862,7 @@ public class NewsServiceImpl implements NewsService {
             for(NpcMember receiver:receivers){
                 if(receiver.getAccount() != null){
                     if(receiver.getAccount().getLoginWeChat() != null){
-                        pushMessageService.pushMsg(receiver.getAccount(),MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
+                        pushMessageService.pushMsg(receiver.getAccount(), MsgTypeEnum.CONFERENCE.ordinal(),newsMsg);
                     }
                 }
 

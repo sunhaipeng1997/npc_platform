@@ -14,4 +14,6 @@ public interface TownRepository extends BaseRepository<Town> {
 
     List<Town> findByAreaUidAndStatusAndIsDelFalse(String areaUid, Byte status);
 
+    Town findByName(String townName);
+
 }

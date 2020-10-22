@@ -71,7 +71,7 @@ public class NpcMemberRoleServiceImpl implements NpcMemberRoleService {
     }
 
     @Override
-    public List<NpcMember> findByKeyWordAndUid(String keyword,Byte level , String uid) {
+    public List<NpcMember> findByKeyWordAndUid(String keyword, Byte level , String uid) {
         List<NpcMember> npcMemberList = this.findByKeyWordAndLevel(keyword,level);
         List<NpcMember> npcMembers = Lists.newArrayList();
         for (NpcMember npcMember : npcMemberList) {

@@ -2,9 +2,7 @@ package com.cdkhd.npc.controller;
 
 import com.cdkhd.npc.annotation.CurrentUser;
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.dto.OpinionPageDto;
 import com.cdkhd.npc.entity.dto.StatisticalPageDto;
-import com.cdkhd.npc.service.OpinionService;
 import com.cdkhd.npc.service.StatisticalService;
 import com.cdkhd.npc.vo.RespBody;
 import org.springframework.beans.factory.annotation.Autowired;

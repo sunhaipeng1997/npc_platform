@@ -2,8 +2,6 @@ package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
 import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.LoginUP;
-import com.cdkhd.npc.entity.LoginWeChat;
 import com.cdkhd.npc.entity.MobileUserPreferences;
 import com.cdkhd.npc.entity.dto.MobileUserPreferencesDto;
 import com.cdkhd.npc.entity.vo.MobileUserPreferencesVo;
@@ -17,7 +15,6 @@ import com.cdkhd.npc.service.MobileUserPreferencesService;
 import com.cdkhd.npc.vo.RespBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -68,7 +65,7 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
 
         //根据角色，分配其相应的可选快捷操作列表
         List<String> actionList = new ArrayList<>();
-        for(ShortcutActionEnum UserPref :ShortcutActionEnum.values()){
+        for(ShortcutActionEnum UserPref : ShortcutActionEnum.values()){
             switch (UserPref){
                 case CLOSE:
                     actionList.add(UserPref.getName());
@@ -98,7 +95,7 @@ public class MobileUserPreferencesServiceImpl implements MobileUserPreferencesSe
 
         //可选的新闻风格列表
         List<String> newsStyleList = new ArrayList<>();
-        for(NewsStyleEnum newsStyle :NewsStyleEnum.values()){
+        for(NewsStyleEnum newsStyle : NewsStyleEnum.values()){
             newsStyleList.add(newsStyle.getName());
         }
         vo.setNewsStyleList(newsStyleList);

@@ -48,7 +48,7 @@ public class NewsApi {
      * @return
      */
     @GetMapping("/review_page")
-    public ResponseEntity mobileReviewPage(@CurrentUser UserDetailsImpl userDetails,NewsPageDto pageDto){
+    public ResponseEntity mobileReviewPage(@CurrentUser UserDetailsImpl userDetails, NewsPageDto pageDto){
         RespBody body = newsService.mobileReviewPage(userDetails,pageDto);
         return ResponseEntity.ok(body);
     }
@@ -72,7 +72,7 @@ public class NewsApi {
      * @return
      */
     @GetMapping("/details_for_reviewer/{uid}")
-    public ResponseEntity detailsForMobileReviewer(@CurrentUser UserDetailsImpl userDetails,@PathVariable String uid,Byte level){
+    public ResponseEntity detailsForMobileReviewer(@CurrentUser UserDetailsImpl userDetails, @PathVariable String uid, Byte level){
         RespBody body = newsService.detailsForMobileReviewer(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
@@ -97,7 +97,7 @@ public class NewsApi {
      * @return
      */
     @PostMapping("/publish")
-    public ResponseEntity publish(@CurrentUser UserDetailsImpl userDetails,String uid,Byte level){
+    public ResponseEntity publish(@CurrentUser UserDetailsImpl userDetails, String uid, Byte level){
         RespBody body = newsService.publishForMobile(userDetails,uid,level);
         return ResponseEntity.ok(body);
     }
