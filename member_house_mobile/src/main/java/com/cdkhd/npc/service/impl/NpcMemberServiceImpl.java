@@ -90,7 +90,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                     MemberUnitVos.add(memberUnitVo);
                 }
             }
-            MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"区代表", LevelEnum.AREA.getValue(),new Date());
+            MemberUnitVo memberUnitVo = MemberUnitVo.convert(townUid,"县代表", LevelEnum.AREA.getValue(),new Date());
             List<NpcMember> npcMembers = npcMemberRepository.findByTownUidAndLevelAndIsDelFalse(townUid, LevelEnum.AREA.getValue());
             memberUnitVo.setChildren(npcMembers.stream()
                     .filter(member -> member.getStatus().equals(StatusEnum.ENABLED.getValue()) && !member.getIsDel() && !member.getType().equals(specialMan.getUid()))
@@ -180,7 +180,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
             predicateList.add(cb.isFalse(root.get("isDel")));
             predicateList.add(cb.equal(root.get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicateList.add(cb.notEqual(root.get("type").as(String.class), specialMan.getUid()));
-            predicateList.add(cb.equal(root.get("special").as(Byte.class), (byte)0));
+            predicateList.add(cb.isFalse(root.get("special").as(Boolean.class)));
             //同镇的代表 or 同区的代表
             if (level.equals(LevelEnum.TOWN.getValue())) {
                 predicateList.add(cb.equal(root.get("npcMemberGroup").get("uid"), uid));
@@ -218,7 +218,7 @@ public class NpcMemberServiceImpl implements NpcMemberService {
                 MemberUnitVo memberUnitVo = new MemberUnitVo();
                 memberUnitVo.setLevel(LevelEnum.AREA.getValue());
                 memberUnitVo.setIsCurrent(true);//区代表不受限制
-                memberUnitVo.setName(town.getType().equals(LevelEnum.TOWN.getValue())?"区代表":"代表区上履职");
+                memberUnitVo.setName(town.getType().equals(LevelEnum.TOWN.getValue())?"县代表":"代表县上履职");
                 memberUnitVo.setUid(townUid);
                 memberUnitVos.add(0,memberUnitVo);
             }

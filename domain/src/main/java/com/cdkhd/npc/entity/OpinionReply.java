@@ -14,7 +14,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="opinion_reply" )
 public class OpinionReply extends BaseDomain {

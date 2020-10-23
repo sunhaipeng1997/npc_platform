@@ -16,7 +16,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="village" )
 public class Village extends BaseDomain {

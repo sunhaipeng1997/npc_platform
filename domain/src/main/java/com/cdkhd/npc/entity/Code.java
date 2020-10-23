@@ -16,7 +16,6 @@ import javax.persistence.Table;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="code" )
 public class Code extends BaseDomain {

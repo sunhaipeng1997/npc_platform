@@ -17,7 +17,6 @@ import java.util.Date;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="unit_user" )
 public class UnitUser extends BaseDomain {

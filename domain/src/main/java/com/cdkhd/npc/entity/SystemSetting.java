@@ -14,7 +14,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="system_setting" )
 public class SystemSetting extends BaseDomain {

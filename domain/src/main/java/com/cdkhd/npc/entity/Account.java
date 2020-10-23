@@ -18,7 +18,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table(name = "account")
 public class Account extends BaseDomain {

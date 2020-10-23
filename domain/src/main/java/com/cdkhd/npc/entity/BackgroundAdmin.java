@@ -8,7 +8,6 @@ import javax.persistence.*;
 
 @Getter
 @Setter
-@ToString
 @Entity
 @Table( name ="background_admin" )
 public class BackgroundAdmin extends BaseDomain {

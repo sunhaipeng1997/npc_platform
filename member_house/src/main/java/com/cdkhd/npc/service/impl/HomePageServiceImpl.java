@@ -14,6 +14,7 @@ import com.cdkhd.npc.repository.member_house.PerformanceTypeRepository;
 import com.cdkhd.npc.repository.member_house.SuggestionRepository;
 import com.cdkhd.npc.service.HomePageService;
 import com.cdkhd.npc.vo.RespBody;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -74,9 +75,11 @@ public class HomePageServiceImpl implements HomePageService {
         }else{
             List<NpcMember> npcMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
             List<String> mobiles = npcMembers.stream().map(NpcMember::getMobile).collect(Collectors.toList());
-            suggestion = suggestionRepository.countAreaTodayNumber(today,mobiles, userDetails.getArea().getUid());
-            opinion = opinionRepository.countAreaTodayNumber(today,mobiles, userDetails.getArea().getUid());
-            performance = performanceRepository.countAreaTodayNumber(today,mobiles, userDetails.getArea().getUid());
+            if (CollectionUtils.isNotEmpty(mobiles)) {
+                suggestion = suggestionRepository.countAreaTodayNumber(today, mobiles, userDetails.getArea().getUid());
+                opinion = opinionRepository.countAreaTodayNumber(today, mobiles, userDetails.getArea().getUid());
+                performance = performanceRepository.countAreaTodayNumber(today, mobiles, userDetails.getArea().getUid());
+            }
         }
         HomePageVo homePageVo = new HomePageVo();
         homePageVo.setOpinion(opinion);
@@ -209,10 +212,12 @@ public class HomePageServiceImpl implements HomePageService {
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 //如果是区上的。那么查询所有区代表提的建议，不管是不是提在区上的
                 List<NpcMember> npcMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
-                List<String> mobiles = npcMembers.stream().map(NpcMember::getMobile).collect(Collectors.toList());
-                //所有区代表的手机号
-                Expression<String> exp = root.get("raiser").get("mobile").as(String.class);
-                predicates.add(exp.in(mobiles));//所有提出代表的手机号查询
+                if (CollectionUtils.isNotEmpty(npcMembers)) {
+                    List<String> mobiles = npcMembers.stream().map(NpcMember::getMobile).collect(Collectors.toList());
+                    //所有区代表的手机号
+                    Expression<String> exp = root.get("raiser").get("mobile").as(String.class);
+                    predicates.add(exp.in(mobiles));//所有提出代表的手机号查询
+                }
             }
             predicates.add(cb.greaterThanOrEqualTo(root.get("status").as(Byte.class), (byte) 3));//todo 建议状态在提交到政府以后
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
@@ -233,10 +238,12 @@ public class HomePageServiceImpl implements HomePageService {
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 //如果是区上的。那么查询所有区代表提的意见，不管是不是提在区上的
                 List<NpcMember> npcMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
-                List<String> mobiles = npcMembers.stream().map(NpcMember::getMobile).collect(Collectors.toList());
-                //所有区代表的手机号
-                Expression<String> exp = root.get("receiver").get("mobile").as(String.class);
-                predicates.add(exp.in(mobiles));//所有接收代表的手机号查询
+                if (CollectionUtils.isNotEmpty(npcMembers)) {
+                    List<String> mobiles = npcMembers.stream().map(NpcMember::getMobile).collect(Collectors.toList());
+                    //所有区代表的手机号
+                    Expression<String> exp = root.get("receiver").get("mobile").as(String.class);
+                    predicates.add(exp.in(mobiles));//所有接收代表的手机号查询
+                }
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         });
@@ -278,10 +285,12 @@ public class HomePageServiceImpl implements HomePageService {
             } else if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())) {
                 //如果是区上的。那么查询所有区代表提的意见，不管是不是提在区上的
                 List<NpcMember> npcMembers = npcMemberRepository.findByAreaUidAndLevelAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getLevel());
-                List<String> mobiles = npcMembers.stream().map(NpcMember::getMobile).collect(Collectors.toList());
-                //所有区代表的手机号
-                Expression<String> exp = root.get("npcMember").get("mobile").as(String.class);
-                predicates.add(exp.in(mobiles));//所有接收代表的手机号查询
+                if (CollectionUtils.isNotEmpty(npcMembers)) {
+                    List<String> mobiles = npcMembers.stream().map(NpcMember::getMobile).collect(Collectors.toList());
+                    //所有区代表的手机号
+                    Expression<String> exp = root.get("npcMember").get("mobile").as(String.class);
+                    predicates.add(exp.in(mobiles));//所有接收代表的手机号查询
+                }
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         });

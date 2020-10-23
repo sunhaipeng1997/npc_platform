@@ -15,7 +15,6 @@ import java.util.Date;
  */
 @Setter
 @Getter
-@ToString
 @Entity
 @Table( name ="subscribe_activity" )
 public class SubscribeActivity extends BaseDomain {

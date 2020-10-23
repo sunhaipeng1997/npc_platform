@@ -15,7 +15,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="study_type" )
 public class StudyType extends BaseDomain {

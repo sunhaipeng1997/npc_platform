@@ -10,7 +10,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table( name ="mobile_user_preferences" )
 public class MobileUserPreferences extends BaseDomain {

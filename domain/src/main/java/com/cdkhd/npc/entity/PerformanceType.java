@@ -15,7 +15,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="performance_type" )
 public class PerformanceType extends BaseDomain {

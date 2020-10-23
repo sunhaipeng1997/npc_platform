@@ -15,7 +15,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table(name = "government_user")
 public class GovernmentUser extends BaseDomain {

@@ -17,7 +17,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table (name ="permission")
 public class Permission extends BaseDomain {

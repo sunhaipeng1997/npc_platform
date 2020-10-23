@@ -14,7 +14,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="appraise" )
 public class Appraise extends BaseDomain {

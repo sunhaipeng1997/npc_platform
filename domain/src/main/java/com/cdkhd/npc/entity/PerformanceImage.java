@@ -14,7 +14,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="performance_image" )
 public class PerformanceImage extends BaseDomain {

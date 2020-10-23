@@ -16,7 +16,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table(name = "handle_process")
 public class HandleProcess extends BaseDomain {

@@ -17,7 +17,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="npc_member" )
 public class NpcMember extends BaseDomain {

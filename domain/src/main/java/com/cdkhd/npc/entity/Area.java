@@ -17,7 +17,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="area" )
 public class Area extends BaseDomain {

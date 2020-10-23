@@ -9,7 +9,6 @@ import java.util.Date;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table( name ="voter" )
 public class Voter extends BaseDomain {

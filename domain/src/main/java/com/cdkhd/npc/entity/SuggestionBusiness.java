@@ -16,7 +16,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="suggestion_business" )
 public class SuggestionBusiness extends BaseDomain {

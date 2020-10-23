@@ -15,7 +15,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="menu" )
 public class Menu extends BaseDomain {

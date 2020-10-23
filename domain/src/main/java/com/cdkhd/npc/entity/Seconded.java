@@ -15,7 +15,6 @@ import java.util.Date;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="seconded" )
 public class Seconded extends BaseDomain {

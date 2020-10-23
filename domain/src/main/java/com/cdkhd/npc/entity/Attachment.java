@@ -14,7 +14,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table(name = "attachment")
 public class Attachment extends BaseDomain {

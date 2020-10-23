@@ -16,7 +16,6 @@ import java.util.Set;
  */
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="session" )
 public class Session extends BaseDomain {

@@ -15,7 +15,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table(name = "account_role")
 public class AccountRole extends BaseDomain {

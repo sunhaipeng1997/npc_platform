@@ -17,7 +17,6 @@ import java.util.Set;
  */
 @Setter
 @Getter
-@ToString
 @Entity
 @Table( name ="vote_activity" )
 public class VoteActivity extends BaseDomain {

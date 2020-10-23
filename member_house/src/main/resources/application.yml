@@ -25,10 +25,10 @@ account:
   password: 123456 #默认密码
   mobile: 13551371473 #默认手机号
 npc_base_info:
-  area: 双流区
+  area: 民权县
   user:
     name: admin
-    mobile: 18940918501
+    mobile: 18428078565
   cdkhd:
     name: cdkhd
     mobile: 13551371473
@@ -39,9 +39,9 @@ service_app:
   #服务号 token
   token: fedf056b58c94c34acd2dcd9741b3038
   #服务号 appid
-  appid: wx6f4bd0fb61bf0232
+  appid: wx6e8e88c9d386bb9e
   #服务号secret
-  appsecret: 7e828db5f6ff0e8dca6ba44198ada7c4
+  appsecret: a88ed604f201eea0300bead4c7e3410a
   #待审核提醒
   templetedId1: rtj7Pi26B75d1gMUnVwQFX-j4Iy8CJ5td9R18v2L0kc
   #审核通过通知
@@ -55,21 +55,21 @@ service_app:
   #跳转到小程序的页面
   pagepath: pages/index/index
   #登录公众号授权路径
-  redirect_url: https://www.khdpro1.top/api/mobile/auth/access_token
+  redirect_url: https://www.khdpro2.top/api/mobile/auth/access_token
   #小程序 appid  推送消息时需要
-  miniapp_appid: wx6f6052b68ee8e7f0
+  miniapp_appid: wx10197c5d2f60df03
 
 code:
   #百度云安全认证key
-  accessKeyId: a8d78d24102445d9a29557ad3f1fdd31
+  accessKeyId: 36360a91e6f74df68e748768d1237e98
   #百度云安全认证secret
-  AccessKeySecret: 0a74dae125f84ed592f1143731b21e22
+  AccessKeySecret: c204ecd345e947afab7a52d6cc9c0ec0
   #百度云消息服务中心
-  endPoint: http://sms.bj.baidubce.com
+  endPoint: http://smsv3.bj.baidubce.com
   #短信签名id
-  invokeId: 0FaecrUS-V0hG-RqZG
+  invokeId: sms-sign-gdnSpi95770
   #短信模板id
-  templateCode: smsTpl:35dbca99-ae04-47ac-8e79-51f567820bbb
+  templateCode: sms-tmpl-nQaeYW32805
   #验证码有效时间 单位：分钟
   timeout: 5 #分钟
 

@@ -10,7 +10,6 @@ import java.util.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="news" )
 public class News extends BaseDomain {

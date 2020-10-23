@@ -14,7 +14,6 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table(name = "login_wechat")
 public class LoginWeChat extends BaseDomain {

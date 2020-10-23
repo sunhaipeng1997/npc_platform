@@ -15,7 +15,6 @@ import java.util.Date;
  */
 @Setter
 @Getter
-@ToString
 @Entity
 @Table( name ="participant" )
 public class Participant extends BaseDomain {

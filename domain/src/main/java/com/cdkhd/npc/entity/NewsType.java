@@ -17,7 +17,6 @@ import java.util.Date;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table ( name ="news_type" )
 public class NewsType extends BaseDomain {
