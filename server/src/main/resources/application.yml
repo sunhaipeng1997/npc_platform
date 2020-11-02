@@ -42,15 +42,15 @@ service_app:
   #服务号secret
   appsecret: a88ed604f201eea0300bead4c7e3410a
   #待审核提醒
-  templetedId1: rtj7Pi26B75d1gMUnVwQFX-j4Iy8CJ5td9R18v2L0kc
+  templetedId1: i12CH8Mn2pK9JkZ1of3yXCURjzFeXkBpSfAuv_7zoPY
   #审核结果通知
-  templetedId2: HQunZ6pei-EbQY597Qr0qlb9qs54Fs0q9MEBzN6seJ0
+  templetedId2: HT2HtY50IPI-3Z8VO8q2LpikNLqCsEBjiF9fo6HJW3E
   #意见建议提醒
-  templetedId3: S27PWGRD-Ze_OgLcyaqIgB4l57VBmX-p58s0MAAkWZ0
+  templetedId3: OCGy0P8fDiiqxIyu_-W-Z4TqWSCOHYkqfbLkkYfvMNY
   #意见建议处理提醒
-  templetedId4: MpARgtznaTiKs5kqHL6d4QXnB44uc8zfE_WVWNCoOyw
+  templetedId4: 2iuOhocN6Mo876j0NLjykhBPGGEbb0YZN6yeqqXT8YQ
   #会议通知
-  templetedId5: sjHook3xqJ8rc0ScQzQLDa0KY1C0r7DtXQ766EYUreI
+  templetedId5: eXDsqcoz2SpRe4foA34JCh9NzBW2xx603Bz3Y1ZFxGQ
   #跳转到小程序的页面
   indexPagePath: pages/index/index
   #跳转到小程序的页面

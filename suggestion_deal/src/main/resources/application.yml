@@ -43,15 +43,15 @@ service_app:
   #服务号secret
   appsecret: a88ed604f201eea0300bead4c7e3410a
   #待审核提醒
-  templetedId1: rtj7Pi26B75d1gMUnVwQFX-j4Iy8CJ5td9R18v2L0kc
-  #审核通过通知
-  templetedId2: vYFPBbNrds0bH2Wu3ZUA3Bf_AqkJlTdpghViVwatiT8
-  #投诉建议通知
-  templetedId3: S27PWGRD-Ze_OgLcyaqIgB4l57VBmX-p58s0MAAkWZ0
+  templetedId1: i12CH8Mn2pK9JkZ1of3yXCURjzFeXkBpSfAuv_7zoPY
+  #审核结果通知
+  templetedId2: HT2HtY50IPI-3Z8VO8q2LpikNLqCsEBjiF9fo6HJW3E
+  #意见建议提醒
+  templetedId3: OCGy0P8fDiiqxIyu_-W-Z4TqWSCOHYkqfbLkkYfvMNY
+  #意见建议处理提醒
+  templetedId4: 2iuOhocN6Mo876j0NLjykhBPGGEbb0YZN6yeqqXT8YQ
   #会议通知
-  templetedId4: sjHook3xqJ8rc0ScQzQLDa0KY1C0r7DtXQ766EYUreI
-  #意见建议回复提醒
-  templetedId5: MpARgtznaTiKs5kqHL6d4QXnB44uc8zfE_WVWNCoOyw
+  templetedId5: eXDsqcoz2SpRe4foA34JCh9NzBW2xx603Bz3Y1ZFxGQ
   #跳转到小程序的页面
   pagepath: pages/index/index
   #登录公众号授权路径

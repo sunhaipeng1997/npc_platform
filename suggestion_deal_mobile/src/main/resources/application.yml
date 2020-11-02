@@ -30,18 +30,17 @@ service_app:
   #服务号secret
   appsecret: a88ed604f201eea0300bead4c7e3410a
   #待转办、待办理消息模板
-  templetedId1: pWT8mGpwTVDhzQXZ9QtuNJtV-utao1b06KeAfofyPww
+  templetedId1: Hgyo96R8pwRL4Q2JiRmsXLbuOdDJU587RinoY76Pw2I
   #催办通知
-  templetedId2: Wipr7FVwtdEfZ24QpSe0uVtOKZO_xTp6tcC0wXBqvcw
+  templetedId2: 1Ik1yTC7yvPpLw6EZLA26k_NWrPuVrS4GrEFFYVzx-w
   #临期、超期通知
-  templetedId3: BdHUUIyWFu543C2cz9fIA7UxY2cBpnHHV0Okjx175-A
+  templetedId3: bMYvnUNZ_9B2SXFsySO0uG63rRMRKgrzLN9gx4WdGUs
   #办理完成通知代表
-  templetedId4: QeMlbH90d70qBOAEoA3G8E7pkz6MY7nieQLJiFYV1zU
+  templetedId4: 7UIN8xJKzytGY7T9vT6HmSsrB-8PnQZaOEQ-zZoQzqI
   #办结通知单位
-  templetedId5: tc2gloKmzxOrUCa7QiKUVj6hyM_syxkZvEqLn0jbatc
+  templetedId5: kEdNJk9ARSRQb4F7VsviE74TcAcg2NR4tRokR7EsYDo
   #意见建议回复提醒
-  templetedId6: MpARgtznaTiKs5kqHL6d4QXnB44uc8zfE_WVWNCoOyw
-
+  templetedId6: 2iuOhocN6Mo876j0NLjykhBPGGEbb0YZN6yeqqXT8YQ
   #跳转到小程序的页面
   pagepath: pages/index/index
   #登录公众号授权路径

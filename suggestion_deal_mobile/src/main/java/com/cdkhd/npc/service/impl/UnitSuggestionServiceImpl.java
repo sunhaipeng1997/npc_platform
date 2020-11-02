@@ -96,10 +96,12 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         //构造分页条件
         List<Sort.Order> orders = new ArrayList<>();
-        //未读消息在前
-        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
-        //按转办时间降序排序
-        orders.add(new Sort.Order(Sort.Direction.DESC, "conveyTime"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urge"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urgeLevel"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.exceedLimit"));//超期
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.closeDeadLine"));//临期
+        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));//先按查看状态排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "conveyTime"));//再按时间排序
         Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
 
         //待办建议查询条件
@@ -342,7 +344,16 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
         //扫描建议，更新临期和逾期标志
         generalService.scanSuggestions(userDetails, level);
 
-        Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize());
+        //构造分页条件
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urge"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urgeLevel"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.exceedLimit"));//超期
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.closeDeadLine"));//临期
+        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));//先按查看状态排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "acceptTime"));//再按时间排序
+
+        Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(),Sort.by(orders));
 
         //办理中建议查询条件
         Specification<UnitSuggestion> spec = (root, query, cb) -> {
@@ -777,10 +788,12 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         //构造分页条件
         List<Sort.Order> orders = new ArrayList<>();
-        //未读消息在前
-        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
-        //按办完时间降序排序
-        orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urge"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urgeLevel"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.exceedLimit"));//超期
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.closeDeadLine"));//临期
+        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));//先按查看状态排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "acceptTime"));//再按时间排序
         Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
 
         //已办完建议查询条件
@@ -838,10 +851,12 @@ public class UnitSuggestionServiceImpl implements UnitSuggestionService {
 
         //构造分页条件
         List<Sort.Order> orders = new ArrayList<>();
-        //未读消息在前
-        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));
-        //按办完时间降序排序
-        orders.add(new Sort.Order(Sort.Direction.DESC, "finishTime"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urge"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.urgeLevel"));//催办
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.exceedLimit"));//超期
+        orders.add(new Sort.Order(Sort.Direction.DESC, "suggestion.closeDeadLine"));//临期
+        orders.add(new Sort.Order(Sort.Direction.ASC, "unitView"));//先按查看状态排序
+        orders.add(new Sort.Order(Sort.Direction.DESC, "acceptTime"));//再按时间排序
         Pageable pageable = PageRequest.of(pageDto.getPage()-1, pageDto.getSize(), Sort.by(orders));
 
         //已办结建议查询条件

@@ -1,10 +1,8 @@
 package com.cdkhd.npc.entity.vo;
 
-import com.cdkhd.npc.entity.NpcMember;
-import com.cdkhd.npc.entity.Suggestion;
-import com.cdkhd.npc.entity.SuggestionImage;
-import com.cdkhd.npc.entity.UnitImage;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.enums.SuggestionStatusEnum;
+import com.cdkhd.npc.enums.UnitTypeEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -78,6 +76,29 @@ public class SugDetailVo extends BaseVo {
     //办理结果详情
     private ResultVo resultVo;
 
+    //完成时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date finishTime;
+
+    //主办单位
+    private String mainUnit;
+
+    //协办单位
+    private String coUnit;
+
+    //是否催办
+    private Boolean urge;
+
+    //催办等级
+    private Integer urgeLevel;
+
+    //是否快到期了
+    private Boolean closeDeadLine;
+
+    //是否超期了
+    private Boolean exceedLimit;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date raiseTime;
@@ -98,7 +119,6 @@ public class SugDetailVo extends BaseVo {
             vo.setNpcMemberVo(NpcMemberVo.convert(npcMember));
         }
         vo.setStatusName(SuggestionStatusEnum.getName(suggestion.getStatus()));
-
         vo.setSecondNames(suggestion.getSecondedSet().stream().map(second -> second.getNpcMember().getName()).collect(Collectors.toList()));
 
         //评价
@@ -109,6 +129,19 @@ public class SugDetailVo extends BaseVo {
         //结果
         if (Objects.nonNull(suggestion.getResult())) {
             vo.setResultVo(ResultVo.convert(suggestion.getResult()));
+        }
+
+        if (suggestion.getUnit() != null) {
+            vo.setMainUnit(suggestion.getUnit().getName());
+        }
+        if (suggestion.getUnitSuggestions() != null) {
+            StringJoiner stringJoiner = new StringJoiner("、");
+            for (UnitSuggestion unitSuggestion : suggestion.getUnitSuggestions()) {
+                if (unitSuggestion.getType().equals(UnitTypeEnum.CO_UNIT.getValue())){
+                    stringJoiner.add(unitSuggestion.getUnit().getName());
+                }
+            }
+            vo.setCoUnit(stringJoiner.toString());
         }
 
         return vo;

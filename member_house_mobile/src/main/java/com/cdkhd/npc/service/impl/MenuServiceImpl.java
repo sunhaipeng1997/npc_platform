@@ -466,7 +466,7 @@ public class MenuServiceImpl implements MenuService {
         }
         if (CollectionUtils.isEmpty(levelVos)){//代表排除后，将后台管理员也排除掉
             String name = account.getVoter().getTown().getName();//获取选民所在镇的名称
-            levelVos = accountRoles.stream().filter(role -> (!role.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword()))|| (!role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword()))).map(role -> LevelVo.convert(role.getUid(),role.getName(), LevelEnum.TOWN.getValue(),(byte)2,name)).collect(Collectors.toList());
+            levelVos = accountRoles.stream().filter(role -> !(role.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())|| role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword())) || role.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword()) || role.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())).map(role -> LevelVo.convert(role.getUid(),role.getName(), LevelEnum.TOWN.getValue(),(byte)2,name)).collect(Collectors.toList());
         }
         body.setData(levelVos);
         return body;

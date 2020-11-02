@@ -50,6 +50,9 @@ public class SugListItemVo extends BaseVo {
     //是否超期
     private boolean exceedLimit = false;
 
+    //主办单位
+    private String mainUnitName;
+
     public static SugListItemVo convert(ConveyProcess process) {
         boolean unread = !process.getUnitView();
 
@@ -65,7 +68,10 @@ public class SugListItemVo extends BaseVo {
         vo.setUnread(unread);
         vo.setCoverUrl(coverUrl);
         vo.setGovName(process.getGovernmentUser().getGovernment().getName());
-
+        vo.setUrge(process.getSuggestion().getUrge());
+        vo.setCloseDeadLine(process.getSuggestion().getCloseDeadLine());
+        vo.setExceedLimit(process.getSuggestion().getExceedLimit());
+        vo.setMainUnitName(process.getSuggestion().getUnit().getName());
         return vo;
     }
 
@@ -87,6 +93,7 @@ public class SugListItemVo extends BaseVo {
         vo.setUrge(suggestion.getUrge());
         vo.setCloseDeadLine(suggestion.getCloseDeadLine());
         vo.setExceedLimit(suggestion.getExceedLimit());
+        vo.setMainUnitName(suggestion.getUnit().getName());
 
         return vo;
     }

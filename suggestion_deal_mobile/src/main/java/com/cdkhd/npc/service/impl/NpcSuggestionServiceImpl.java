@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -385,7 +386,23 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
     public RespBody npcMemberSug(MobileUserDetailsImpl userDetails, SugPageDto sugPageDto) {
         RespBody body = new RespBody<>();
         int begin = sugPageDto.getPage() - 1;
-        Pageable page = PageRequest.of(begin, sugPageDto.getSize());
+        Sort.Order urge = new Sort.Order(Sort.Direction.DESC, "urge");//催办
+        Sort.Order urgeLevel = new Sort.Order(Sort.Direction.DESC, "urgeLevel");//催办
+        Sort.Order exceedLimit = new Sort.Order(Sort.Direction.DESC, "exceedLimit");//超期
+        Sort.Order closeDeadLine = new Sort.Order(Sort.Direction.DESC, "closeDeadLine");//临期
+        Sort.Order viewSort = new Sort.Order(Sort.Direction.ASC, "govView");//先按查看状态排序
+        Sort.Order statusSort = new Sort.Order(Sort.Direction.ASC, "status");//先按状态排序
+        Sort.Order createAt = new Sort.Order(Sort.Direction.DESC, "createTime");//再按创建时间排序
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(urge);
+        orders.add(urgeLevel);
+        orders.add(exceedLimit);
+        orders.add(closeDeadLine);
+        orders.add(viewSort);
+        orders.add(statusSort);
+        orders.add(createAt);
+        Sort sort = Sort.by(orders);
+        Pageable page = PageRequest.of(begin, sugPageDto.getSize(),sort);
         Account account = accountRepository.findByUid(userDetails.getUid());
         NpcMember npcMember = NpcMemberUtil.getCurrentIden(sugPageDto.getLevel(), account.getNpcMembers());
         scanSuggestion(npcMember);  //扫描建议

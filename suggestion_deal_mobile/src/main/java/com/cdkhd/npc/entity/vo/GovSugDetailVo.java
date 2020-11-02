@@ -35,6 +35,8 @@ public class GovSugDetailVo extends BaseVo {
     //提出人
     private String raiser;
 
+    private String raiserMobile;
+
     // 提出时间
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -77,6 +79,9 @@ public class GovSugDetailVo extends BaseVo {
     //协办单位
     private String coUnit;
 
+    //状态
+    private Byte status;
+
     //图片路径
     private List<String> images;
 
@@ -97,6 +102,8 @@ public class GovSugDetailVo extends BaseVo {
         BeanUtils.copyProperties(suggestion, vo);
         vo.setBusiness(suggestion.getSuggestionBusiness().getName());
         vo.setRaiser(suggestion.getRaiser().getName());
+        vo.setRaiserMobile(suggestion.getRaiser().getMobile());
+
         vo.setAuditor(suggestion.getAuditor().getName());
         vo.setImages(suggestion.getSuggestionImages().stream().map(SuggestionImage::getUrl).collect(Collectors.toList()));
         if (suggestion.getUnit() != null) {
