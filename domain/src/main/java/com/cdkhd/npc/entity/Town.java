@@ -37,6 +37,10 @@ public class Town extends BaseDomain {
     @Column(name = "type")
     private Byte type;
 
+    //是否 展示
+    @Column(name = "is_show")
+    private Boolean isShow = true;
+
     @OneToOne(mappedBy = "town", targetEntity = Government.class, fetch = FetchType.LAZY)
     private Government government;
 

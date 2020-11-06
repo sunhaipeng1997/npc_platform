@@ -1,6 +1,7 @@
 package com.cdkhd.npc.api;
 
 import com.cdkhd.npc.entity.dto.PhoneNumberDto;
+import com.cdkhd.npc.entity.dto.TypeDto;
 import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.service.RegisterService;
 import com.cdkhd.npc.vo.RespBody;
@@ -26,8 +27,8 @@ public class RegisterApi {
      * @return
      */
     @GetMapping("/getRelations")
-    public ResponseEntity getRelations() {
-        RespBody body = registerService.getRelations();
+    public ResponseEntity getRelations(TypeDto typeDto) {
+        RespBody body = registerService.getRelations(typeDto);
         return ResponseEntity.ok(body);
     }
 

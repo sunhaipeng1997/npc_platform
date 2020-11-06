@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.dto.PhoneNumberDto;
+import com.cdkhd.npc.entity.dto.TypeDto;
 import com.cdkhd.npc.entity.dto.UserInfoDto;
 import com.cdkhd.npc.entity.vo.RelationVo;
 import com.cdkhd.npc.enums.*;
@@ -76,7 +77,7 @@ public class RegisterServiceImpl implements RegisterService {
 
 
     @Override
-    public RespBody getRelations() {
+    public RespBody getRelations(TypeDto typeDto) {
         RespBody body = new RespBody();
         List<Area> areas = areaRepository.findByStatus(StatusEnum.ENABLED.getValue());
         List<RelationVo> areaVos = Lists.newArrayList();
@@ -84,8 +85,13 @@ public class RegisterServiceImpl implements RegisterService {
             RelationVo areaVo = RelationVo.convert(area.getUid(),area.getName(), LevelEnum.AREA.getValue(),area.getCreateTime());
             List<RelationVo> townVos = Lists.newArrayList();
             for (Town town : area.getTowns()) {
-                if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()) {
-                    RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(), LevelEnum.TOWN.getValue(),town.getCreateTime());
+                if (typeDto.getType() != null && town.getIsShow() && typeDto.getType().equals(StatusEnum.ENABLED.getValue())){
+                    RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(), LevelEnum.TOWN.getValue(), town.getCreateTime());
+                    townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(), LevelEnum.TOWN.getValue(), village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
+                    townVos.add(townVo);
+                }
+                if (typeDto.getType() == null || typeDto.getType().equals(StatusEnum.DISABLED.getValue())) {
+                    RelationVo townVo = RelationVo.convert(town.getUid(), town.getName(), LevelEnum.TOWN.getValue(), town.getCreateTime());
                     townVo.setChildren(town.getVillages().stream().map(village -> RelationVo.convert(village.getUid(), village.getName(), LevelEnum.TOWN.getValue(), village.getCreateTime())).sorted(Comparator.comparing(RelationVo::getCreateTime)).collect(Collectors.toList()));
                     townVos.add(townVo);
                 }

@@ -2,6 +2,7 @@ package com.cdkhd.npc.entity.vo;
 
 import com.cdkhd.npc.entity.Performance;
 import com.cdkhd.npc.entity.PerformanceImage;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.PerformanceStatusEnum;
 import com.cdkhd.npc.vo.BaseVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -48,6 +49,8 @@ public class PerformanceVo extends BaseVo {
 
     //代表信息
     private String memberName;
+    //提出代表所在镇
+    private String town;
 
     //代表手机号
     private String memberMobile;
@@ -79,6 +82,11 @@ public class PerformanceVo extends BaseVo {
         vo.setImages(performance.getPerformanceImages().stream().map(PerformanceImage::getUrl).collect(Collectors.toList()));
         vo.setPerformanceType(performance.getPerformanceType().getUid());
         vo.setTypeName(performance.getPerformanceType().getName());
+        if (performance.getLevel().equals(LevelEnum.AREA.getValue())) {
+            vo.setTown(performance.getTown().getName());
+        }else {
+            vo.setTown(performance.getNpcMember().getNpcMemberGroup().getName());
+        }
         return vo;
     }
 }
