@@ -5,6 +5,8 @@ import com.cdkhd.npc.entity.Account;
 import com.cdkhd.npc.entity.AccountRole;
 import com.cdkhd.npc.entity.Systems;
 import com.cdkhd.npc.entity.vo.SystemVo;
+import com.cdkhd.npc.enums.AccountRoleEnum;
+import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.StatusEnum;
 import com.cdkhd.npc.repository.base.AccountRepository;
 import com.cdkhd.npc.repository.base.SystemRepository;
@@ -44,7 +46,9 @@ public class SystemServiceImpl implements SystemService {
         Set<AccountRole> accountRoleSet = account.getAccountRoles();
         Set<Systems> roleSystems = Sets.newHashSet();
         for (AccountRole accountRole : accountRoleSet) {
-            roleSystems.addAll(accountRole.getSystems());
+            if (accountRoleSet.size() > 1 && !accountRole.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword())) {
+                roleSystems.addAll(accountRole.getSystems());
+            }
         }
         List<Systems> systems = systemRepository.findByEnabledTrue();
         List<SystemVo> systemVos = systems.stream().map(SystemVo::convert).collect(Collectors.toList());
