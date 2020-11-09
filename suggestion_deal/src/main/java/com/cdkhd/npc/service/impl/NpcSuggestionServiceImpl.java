@@ -432,6 +432,9 @@ public class NpcSuggestionServiceImpl implements NpcSuggestionService {
                     predicates.add(cb.equal(root.get("town").get("uid").as(String.class), suggestionDto.getTownUid()));
                 }
             }
+            if (suggestionDto.getStatus() != null){
+                predicates.add(cb.equal(root.get("status").as(Byte.class), suggestionDto.getStatus()));
+            }
             //类型
             if (StringUtils.isNotEmpty(suggestionDto.getSuggestionBusiness())) {
                 predicates.add(cb.equal(root.get("suggestionBusiness").get("uid").as(String.class), suggestionDto.getSuggestionBusiness()));

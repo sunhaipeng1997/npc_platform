@@ -49,7 +49,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     List<CountVo> countByArea(Long areaId);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(sug.raiser.npcMemberGroup.name, count(sug.uid)) from Suggestion sug " +
-            "where sug.isDel=false and sug.level=1 and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 " +
+            "where sug.isDel=false and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 " +
             "group by sug.raiser.npcMemberGroup.id")
     List<CountVo> countByTown(Long areaId, String townUid);
 
@@ -59,7 +59,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     List<CountVo> countByAreaType(Long areaId);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(sug.suggestionBusiness.name, count(sug.uid)) from Suggestion sug " +
-            "where sug.isDel=false and sug.level=1 and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 " +
+            "where sug.isDel=false and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 " +
             "group by sug.suggestionBusiness.id")
     List<CountVo> countByTownType(Long areaId, String townUid);
 
@@ -68,7 +68,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     Integer countAll4Area(Long areaId);
 
     @Query("select count(sug.uid) from Suggestion sug " +
-            "where sug.isDel=false and sug.level=1 and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 ")
+            "where sug.isDel=false and sug.area.id=?1 and sug.town.uid=?2 and sug.status>=3 ")
     Integer countAll4Town(Long areaId, String townUid);
 
     @Query(value = "select count(sug.uid) from Suggestion as sug where sug.auditTime >= ?1 and sug.level = ?2 and sug.town.uid = ?3")

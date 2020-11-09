@@ -46,4 +46,7 @@ public class SuggestionDto extends PageDto {
     //标志位 当为true表示查询与当前用户级别相同的建议，为false表示查询区下属镇的建议
     private boolean flag;
 
+    //状态
+    private Byte status;
+
 }

@@ -48,6 +48,8 @@ public class SystemServiceImpl implements SystemService {
         for (AccountRole accountRole : accountRoleSet) {
             if (accountRoleSet.size() > 1 && !accountRole.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword())) {
                 roleSystems.addAll(accountRole.getSystems());
+            }else if (accountRoleSet.size() == 1){
+                roleSystems.addAll(accountRole.getSystems());
             }
         }
         List<Systems> systems = systemRepository.findByEnabledTrue();

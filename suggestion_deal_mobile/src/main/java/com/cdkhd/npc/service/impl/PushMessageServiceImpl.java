@@ -92,14 +92,14 @@ public class PushMessageServiceImpl implements PushMessageService {
 
             //模板id
             templetedId = env.getProperty("service_app.templetedId1");
-            pagepath = env.getProperty("service_app.npcHomePagePath");
-            if(content.get("auditItem").equals("新闻")){
-                pagepath = env.getProperty("service_app.newsAuditPath");
-            }
-
-            if(content.get("auditItem").equals("通知")){
-                pagepath = env.getProperty("service_app.notificationAuditPath");
-            }
+//            pagepath = env.getProperty("service_app.npcHomePagePath");
+//            if(content.get("auditItem").equals("新闻")){
+//                pagepath = env.getProperty("service_app.newsAuditPath");
+//            }
+//
+//            if(content.get("auditItem").equals("通知")){
+//                pagepath = env.getProperty("service_app.notificationAuditPath");
+//            }
 
             //first
             first.put("value",content.get("subtitle"));
@@ -129,7 +129,7 @@ public class PushMessageServiceImpl implements PushMessageService {
 
             //模板id
             templetedId = env.getProperty("service_app.templetedId2");
-            pagepath = env.getProperty("service_app.npcHomePagePath");
+//            pagepath = env.getProperty("service_app.npcHomePagePath");
 
             //first
             first.put("value",content.get("subtitle"));
@@ -160,7 +160,7 @@ public class PushMessageServiceImpl implements PushMessageService {
 
             //模板id
             templetedId = env.getProperty("service_app.templetedId3");
-            pagepath = env.getProperty("service_app.npcHomePagePath");
+//            pagepath = env.getProperty("service_app.npcHomePagePath");
 
             //first
             first.put("value",content.get("subtitle"));
@@ -184,7 +184,7 @@ public class PushMessageServiceImpl implements PushMessageService {
 
             //模板id
             templetedId = env.getProperty("service_app.templetedId4");
-            pagepath = env.getProperty("service_app.npcHomePagePath");
+//            pagepath = env.getProperty("service_app.npcHomePagePath");
             //first
             first.put("value",content.get("subtitle"));
 
@@ -205,7 +205,7 @@ public class PushMessageServiceImpl implements PushMessageService {
 
             //模板id
             templetedId = env.getProperty("service_app.templetedId5");
-            pagepath = env.getProperty("service_app.npcHomePagePath");
+//            pagepath = env.getProperty("service_app.npcHomePagePath");
             //first
             first.put("value",content.get("subtitle"));
 
