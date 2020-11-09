@@ -14,6 +14,7 @@ import com.cdkhd.npc.repository.member_house.VillageRepository;
 import com.cdkhd.npc.service.GroupService;
 import com.cdkhd.npc.vo.PageVo;
 import com.cdkhd.npc.vo.RespBody;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -153,11 +155,20 @@ public class GroupServiceImpl implements GroupService {
             body.setMessage("找不到该小组");
             return body;
         }
-        if (group.getVillages().size() > 0 || group.getMembers().size() > 0){
+        if (group.getMembers().size() > 0){
             body.setStatus(HttpStatus.BAD_REQUEST);
-            body.setMessage("当前小组还包含村/社区/代表的信息不能删除");
+            body.setMessage("当前小组还包含代表的信息不能删除");
             return body;
         }
+        //把小组下面的村置空
+        if (group.getVillages().size() > 0){
+            Set<Village> villageList = group.getVillages();
+            for (Village village : villageList) {
+                village.setNpcMemberGroup(null);
+            }
+            villageRepository.saveAll(villageList);
+        }
+
         npcMemberGroupRepository.delete(group);
         return body;
     }
