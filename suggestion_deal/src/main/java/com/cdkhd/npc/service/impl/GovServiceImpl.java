@@ -136,7 +136,15 @@ public class GovServiceImpl implements GovService {
         governmentUserRepository.saveAndFlush(governmentUser);
 
         //设置一个SuggestionSetting
-        SuggestionSetting suggestionSetting = new SuggestionSetting();
+        SuggestionSetting suggestionSetting;
+        if (userDetails.getLevel().equals(LevelEnum.AREA.getValue())){
+            suggestionSetting = suggestionSettingRepository.findByLevelAndAreaUid(LevelEnum.AREA.getValue(),userDetails.getArea().getUid());
+        }else {
+            suggestionSetting = suggestionSettingRepository.findByLevelAndTownUid(LevelEnum.TOWN.getValue(),userDetails.getTown().getUid());
+        }
+        if(suggestionSetting == null){
+            suggestionSetting = new SuggestionSetting();
+        }
         suggestionSetting.setLevel(userDetails.getLevel());
         suggestionSetting.setTown(userDetails.getTown());
         suggestionSetting.setArea(userDetails.getArea());
