@@ -122,7 +122,7 @@ public class NewsServiceImpl implements NewsService {
         news.setArea(userDetails.getArea());
         news.setTown(userDetails.getTown());
         news.setLevel(userDetails.getLevel());
-
+        news.setContent(news.getContent()+"<figure class=\"image\"><img></figure>");
         NewsType newsType = newsTypeRepository.findByUid(dto.getNewsTypeUid());
         if(newsType == null){
             body.setMessage("该新闻栏目不存在");
@@ -216,6 +216,7 @@ public class NewsServiceImpl implements NewsService {
         news.setStatus(NewsStatusEnum.DRAFT.ordinal());
         news.setPublished(false);
         news.setView(false);
+        news.setContent(news.getContent()+"<figure class=\"image\"><img></figure>");
         newsRepository.saveAndFlush(news);
         body.setMessage("修改新闻成功");
         return body;

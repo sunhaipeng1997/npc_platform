@@ -56,7 +56,7 @@ service_app:
   #跳转到小程序的页面
   npcHomePagePath: /pages/sub-systems/npc-home/npc-home
   #跳转到小程序的页面
-  newsAuditPath: /pages/sub-systems/npc-home/news/news-review-list
+  newsAuditPath: pages/index/index
   #跳转到小程序的页面
   notificationAuditPath: /pages/sub-systems/npc-home/notification/notification-review-list
   #登录公众号授权路径
