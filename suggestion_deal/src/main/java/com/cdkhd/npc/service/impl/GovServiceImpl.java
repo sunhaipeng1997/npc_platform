@@ -144,12 +144,11 @@ public class GovServiceImpl implements GovService {
         }
         if(suggestionSetting == null){
             suggestionSetting = new SuggestionSetting();
+            suggestionSetting.setLevel(userDetails.getLevel());
+            suggestionSetting.setTown(userDetails.getTown());
+            suggestionSetting.setArea(userDetails.getArea());
+            suggestionSettingRepository.saveAndFlush(suggestionSetting);
         }
-        suggestionSetting.setLevel(userDetails.getLevel());
-        suggestionSetting.setTown(userDetails.getTown());
-        suggestionSetting.setArea(userDetails.getArea());
-        suggestionSettingRepository.saveAndFlush(suggestionSetting);
-
         return body;
     }
 
