@@ -48,4 +48,15 @@ public class Area extends BaseDomain {
 	@OneToMany(targetEntity = Government.class, mappedBy = "area", orphanRemoval = true,fetch = FetchType.LAZY)
 	private Set<Government> governments = new HashSet<>();
 
+	@ManyToMany
+	@JoinTable(
+			name = "area_systems_mid",
+			joinColumns = {
+					@JoinColumn(name = "area_id", referencedColumnName = "id")
+			},
+			inverseJoinColumns = {
+					@JoinColumn(name = "systems_id", referencedColumnName = "id")
+			}
+	)
+	private Set<Systems> systems;
 }

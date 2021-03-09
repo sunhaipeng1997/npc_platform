@@ -69,4 +69,16 @@ public class Town extends BaseDomain {
     @JoinColumn(name = "area", referencedColumnName = "id")
     private Area area;
 
+    @ManyToMany
+    @JoinTable(
+            name = "town_systems_mid",
+            joinColumns = {
+                    @JoinColumn(name = "town_id", referencedColumnName = "id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "systems_id", referencedColumnName = "id")
+            }
+    )
+    private Set<Systems> systems;
+
 }

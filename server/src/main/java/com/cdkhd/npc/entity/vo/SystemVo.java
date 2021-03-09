@@ -35,6 +35,8 @@ public class SystemVo extends BaseVo {
 
     private Boolean miniShow;
 
+    private Integer sequence;
+
 
     public static SystemVo convert(Systems systems) {
         SystemVo vo = new SystemVo();

@@ -270,6 +270,7 @@ public class DBInit {
                 systems.setImgUrl(systemEnum.getImgUrl());
                 systems.setPagePath(systemEnum.getPagePath());
                 systems.setMiniShow(systemEnum.getMiniShow());
+                systems.setSequence(systemEnum.ordinal());
                 systemRepository.save(systems);
             }
         }

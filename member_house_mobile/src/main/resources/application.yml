@@ -2,7 +2,7 @@ server:
   port: 8082
 spring:
   application:
-    name: npc-member-house
+    name: npc-member-house-mobile
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://192.168.1.100:3306/npc_platform_new?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
@@ -31,25 +31,31 @@ service_app:
   #服务号 token
   token: fedf056b58c94c34acd2dcd9741b3038
   #服务号 appid
-  appid: wx6e8e88c9d386bb9e
+  appid: wxc8d72e25bb9fa491
   #服务号secret
-  appsecret: a88ed604f201eea0300bead4c7e3410a
+  appsecret: 620e04e28ac0e65f6e4acbf6e7ccdac5
   #待审核提醒
-  templetedId1: i12CH8Mn2pK9JkZ1of3yXCURjzFeXkBpSfAuv_7zoPY
+  templetedId1: rtj7Pi26B75d1gMUnVwQFX-j4Iy8CJ5td9R18v2L0kc
   #审核结果通知
-  templetedId2: HT2HtY50IPI-3Z8VO8q2LpikNLqCsEBjiF9fo6HJW3E
+  templetedId2: HQunZ6pei-EbQY597Qr0qlb9qs54Fs0q9MEBzN6seJ0
   #意见建议提醒
-  templetedId3: OCGy0P8fDiiqxIyu_-W-Z4TqWSCOHYkqfbLkkYfvMNY
+  templetedId3: S27PWGRD-Ze_OgLcyaqIgB4l57VBmX-p58s0MAAkWZ0
   #意见建议处理提醒
-  templetedId4: 2iuOhocN6Mo876j0NLjykhBPGGEbb0YZN6yeqqXT8YQ
+  templetedId4: MpARgtznaTiKs5kqHL6d4QXnB44uc8zfE_WVWNCoOyw
   #会议通知
-  templetedId5: eXDsqcoz2SpRe4foA34JCh9NzBW2xx603Bz3Y1ZFxGQ
+  templetedId5: sjHook3xqJ8rc0ScQzQLDa0KY1C0r7DtXQ766EYUreI
   #跳转到小程序的页面
-  pagepath: pages/index/index
+  indexPagePath: pages/index/index
+  #跳转到小程序的页面
+  npcHomePagePath: pages/index/index
+  #跳转到小程序的页面
+  newsAuditPath: pages/index/index
+  #跳转到小程序的页面
+  notificationAuditPath: pages/index/index
   #登录公众号授权路径
-  redirect_url: https://www.khdpro2.top/api/mobile/auth/access_token
+  redirect_url: https://www.yarenda.cn/api/mobile/auth/access_token
   #小程序 appid  推送消息时需要
-  miniapp_appid: wx10197c5d2f60df03
+  miniapp_appid: wxd7414bf872d04da3
 
 serverUrl:
   http://localhost:8080
@@ -57,12 +63,18 @@ serverUrl:
 account:
   suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
   password: 123456 #默认密码
-  mobile: 13551371473 #默认手机号
+  mobile: 13551371472 #默认手机号
 npc_base_info:
-  area: 民权县
+  area: 双流区
   user:
     name: admin
     mobile: 18428078565
   cdkhd:
     name: cdkhd
     mobile: 13551371473
+  govuser:
+    name: admingov
+    mobile: 18428078565
+  govcdkhd:
+    name: cdkhdgov
+    mobile: 13551371471

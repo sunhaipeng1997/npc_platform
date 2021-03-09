@@ -1,9 +1,7 @@
 package com.cdkhd.npc.service.impl;
 
 import com.cdkhd.npc.component.UserDetailsImpl;
-import com.cdkhd.npc.entity.Account;
-import com.cdkhd.npc.entity.AccountRole;
-import com.cdkhd.npc.entity.Systems;
+import com.cdkhd.npc.entity.*;
 import com.cdkhd.npc.entity.vo.SystemVo;
 import com.cdkhd.npc.enums.AccountRoleEnum;
 import com.cdkhd.npc.enums.LevelEnum;
@@ -15,9 +13,11 @@ import com.cdkhd.npc.vo.RespBody;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,15 +45,61 @@ public class SystemServiceImpl implements SystemService {
         Account account = accountRepository.findByUid(userDetails.getUid());
         Set<AccountRole> accountRoleSet = account.getAccountRoles();
         Set<Systems> roleSystems = Sets.newHashSet();
+        //获取当前镇、区下可用系统
+        Set<Systems> areaSystems = Sets.newHashSet();
+        Boolean isResident = false;
         for (AccountRole accountRole : accountRoleSet) {
-            if (accountRoleSet.size() > 1 && !accountRole.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword())) {
-                roleSystems.addAll(accountRole.getSystems());
-            }else if (accountRoleSet.size() == 1){
-                roleSystems.addAll(accountRole.getSystems());
+            if (accountRole.getKeyword().equals(AccountRoleEnum.VOTER.getKeyword()) && accountRoleSet.size() == 1){
+                roleSystems.addAll(accountRole.getSystems());//如果仅仅是选民，那么就获取选民应该展示的系统列表
+                areaSystems.addAll(userDetails.getTown().getSystems());
+                isResident = true;
             }
         }
-        List<Systems> systems = systemRepository.findByEnabledTrue();
-        List<SystemVo> systemVos = systems.stream().map(SystemVo::convert).collect(Collectors.toList());
+        if (!isResident){//不是居民的话
+            for (AccountRole accountRole : accountRoleSet) {
+                roleSystems.addAll(accountRole.getSystems());
+                if (accountRole.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())) {
+                    BackgroundAdmin backgroundAdmin = account.getBackgroundAdmin();
+                    if (backgroundAdmin.getLevel().equals(LevelEnum.AREA.getValue())){
+                        areaSystems.addAll(backgroundAdmin.getArea().getSystems());
+                    }else{
+                        areaSystems.addAll(backgroundAdmin.getTown().getSystems());
+                    }
+                }else if (accountRole.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword())) {
+                    Set<NpcMember> npcMembers = account.getNpcMembers();
+                    for (NpcMember npcMember : npcMembers) {
+                        if (!npcMember.getIsDel() && npcMember.getStatus().equals(StatusEnum.ENABLED.getValue())) {
+                            if (npcMember.getLevel().equals(LevelEnum.AREA.getValue())) {
+                                areaSystems.addAll(npcMember.getArea().getSystems());
+                            } else {
+                                areaSystems.addAll(npcMember.getTown().getSystems());
+                            }
+                        }
+                    }
+                }else if (accountRole.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword())) {
+                    GovernmentUser governmentUser = account.getGovernmentUser();
+                    if (governmentUser.getStatus().equals(StatusEnum.ENABLED.getValue())) {
+                        if (governmentUser.getLevel().equals(LevelEnum.AREA.getValue())) {
+                            areaSystems.addAll(governmentUser.getArea().getSystems());
+                        } else {
+                            areaSystems.addAll(governmentUser.getTown().getSystems());
+                        }
+                    }
+                }else if (accountRole.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())) {
+                    UnitUser unitUser = account.getUnitUser();
+                    if (!unitUser.getIsDel() && unitUser.getStatus().equals(StatusEnum.ENABLED.getValue()) && !unitUser.getUnit().getIsDel() && !unitUser.getUnit().getStatus().equals(StatusEnum.ENABLED.getValue())) {
+                        if (unitUser.getUnit().getLevel().equals(LevelEnum.AREA.getValue())) {
+                            areaSystems.addAll(unitUser.getUnit().getArea().getSystems());
+                        } else {
+                            areaSystems.addAll(unitUser.getUnit().getTown().getSystems());
+                        }
+                    }
+                }
+            }
+        }
+        //获取所有可用系统
+        List<SystemVo> systemVos = areaSystems.stream().filter(Systems::getEnabled).map(SystemVo::convert).collect(Collectors.toList());
+        systemVos.sort(Comparator.comparing(SystemVo::getSequence));
         for (SystemVo systemVo : systemVos) {
             for (Systems roleSystem : roleSystems) {
                 if (systemVo.getUid().equals(roleSystem.getUid())){

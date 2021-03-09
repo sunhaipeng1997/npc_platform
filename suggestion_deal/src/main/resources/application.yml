@@ -24,15 +24,22 @@ spring:
 account:
   suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
   password: 123456 #默认密码
-  mobile: 13551371473 #默认手机号
+  mobile: 13551371472 #默认手机号
 npc_base_info:
-  area: 民权县
+  area: 双流区
   user:
     name: admin
     mobile: 18428078565
   cdkhd:
     name: cdkhd
     mobile: 13551371473
+  govuser:
+    name: admingov
+    mobile: 18428078565
+  govcdkhd:
+    name: cdkhdgov
+    mobile: 13551371471
+
 
 # 微信服务号相关配置，科宏达测试号
 service_app:
@@ -59,17 +66,18 @@ service_app:
   #小程序 appid  推送消息时需要
   miniapp_appid: wx10197c5d2f60df03
 
+#百度云相关配置
 code:
   #百度云安全认证key
-  accessKeyId: 36360a91e6f74df68e748768d1237e98
+  accessKeyId: 2544b1173b974a30bd21ab48aa8b564e
   #百度云安全认证secret
-  AccessKeySecret: c204ecd345e947afab7a52d6cc9c0ec0
+  AccessKeySecret: d90193ff50194e299e8c9e903e071e23
   #百度云消息服务中心
   endPoint: http://smsv3.bj.baidubce.com
   #短信签名id
-  invokeId: sms-sign-gdnSpi95770
+  invokeId: sms-sign-Apvjah72371
   #短信模板id
-  templateCode: sms-tmpl-nQaeYW32805
+  templateCode: sms-tmpl-EXsbes28153
   #验证码有效时间 单位：分钟
   timeout: 5 #分钟
 

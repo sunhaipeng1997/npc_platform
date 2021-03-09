@@ -73,5 +73,12 @@ public class Systems extends BaseDomain {
 	@Column(name = "mini_show")
 	private Boolean miniShow;
 
+	/**
+	 * 排序号
+	 */
+	@Column(name = "sequence")
+	private Integer sequence;
+
+
 
 }
