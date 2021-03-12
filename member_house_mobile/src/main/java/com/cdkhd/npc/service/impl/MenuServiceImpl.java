@@ -451,7 +451,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public RespBody getLevels(MobileUserDetailsImpl userDetails) {
+    public RespBody getLevels(MobileUserDetailsImpl userDetails,Byte level) {
         RespBody body = new RespBody();
         Account account = accountRepository.findByUid(userDetails.getUid());//查询账号信息
         Set<AccountRole> accountRoles = account.getAccountRoles();
@@ -467,6 +467,15 @@ public class MenuServiceImpl implements MenuService {
         if (CollectionUtils.isEmpty(levelVos)){//代表排除后，将后台管理员也排除掉
             String name = account.getVoter().getTown().getName();//获取选民所在镇的名称
             levelVos = accountRoles.stream().filter(role -> !(role.getKeyword().equals(AccountRoleEnum.BACKGROUND_ADMIN.getKeyword())|| role.getKeyword().equals(AccountRoleEnum.NPC_MEMBER.getKeyword())) || role.getKeyword().equals(AccountRoleEnum.GOVERNMENT.getKeyword()) || role.getKeyword().equals(AccountRoleEnum.UNIT.getKeyword())).map(role -> LevelVo.convert(role.getUid(),role.getName(), LevelEnum.TOWN.getValue(),(byte)2,name)).collect(Collectors.toList());
+        }
+        //如果有多重身份，固定顺序
+        if (levelVos.size()>1){
+            if (!levelVos.get(0).getLevel().equals(level)) {
+                LevelVo levelVo = new LevelVo();
+                levelVo = levelVos.get(0);
+                levelVos.set(0,levelVos.get(1));
+                levelVos.set(1,levelVo);
+            }
         }
         body.setData(levelVos);
         return body;

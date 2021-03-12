@@ -14,9 +14,8 @@ public class RankVo extends BaseVo {
     //数量
     private Integer number;
 
-    public static RankVo convert(String uid, String name,int count) {
+    public static RankVo convert(String name,int count) {
         RankVo vo = new RankVo();
-        vo.setUid(uid);
         vo.setName(name);
         vo.setNumber(count);
         return vo;

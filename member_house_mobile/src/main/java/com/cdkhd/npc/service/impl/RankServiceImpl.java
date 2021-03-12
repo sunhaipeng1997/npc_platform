@@ -7,6 +7,7 @@ import com.cdkhd.npc.entity.vo.RankVo;
 import com.cdkhd.npc.enums.LevelEnum;
 import com.cdkhd.npc.enums.PerformanceStatusEnum;
 import com.cdkhd.npc.enums.StatusEnum;
+import com.cdkhd.npc.enums.TownTypeEnum;
 import com.cdkhd.npc.repository.base.NpcMemberRepository;
 import com.cdkhd.npc.repository.member_house.OpinionRepository;
 import com.cdkhd.npc.repository.member_house.PerformanceRepository;
@@ -64,7 +65,7 @@ public class RankServiceImpl implements RankService {
         Map<String,Integer> suggestionMap = this.dealSuggestions(suggestions,true);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : memberMap.keySet()) {
-            rankVos.add(RankVo.convert(key, memberMap.get(key), suggestionMap.getOrDefault(key,0)));
+            rankVos.add(RankVo.convert(memberMap.get(key), suggestionMap.getOrDefault(key,0)));
         }
         rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
         body.setData(rankVos);
@@ -86,7 +87,7 @@ public class RankServiceImpl implements RankService {
         Map<String,Integer> suggestionMap = this.dealSuggestions(suggestions,false);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : townMap.keySet()) {
-            rankVos.add(RankVo.convert(key, townMap.get(key), suggestionMap.getOrDefault(key,0)));
+            rankVos.add(RankVo.convert(townMap.get(key), suggestionMap.getOrDefault(key,0)));
         }
         rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
         body.setData(rankVos);
@@ -108,7 +109,7 @@ public class RankServiceImpl implements RankService {
         Map<String,Integer> opinionsMap = this.dealOpinions(opinions,true);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : memberMap.keySet()) {
-            rankVos.add(RankVo.convert(key, memberMap.get(key), opinionsMap.getOrDefault(key,0)));
+            rankVos.add(RankVo.convert(memberMap.get(key), opinionsMap.getOrDefault(key,0)));
         }
         rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
         body.setData(rankVos);
@@ -130,7 +131,7 @@ public class RankServiceImpl implements RankService {
         Map<String,Integer> opinionsMap = this.dealOpinions(opinions,false);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : townMap.keySet()) {
-            rankVos.add(RankVo.convert(key, townMap.get(key), opinionsMap.getOrDefault(key,0)));
+            rankVos.add(RankVo.convert(townMap.get(key), opinionsMap.getOrDefault(key,0)));
         }
         rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
         body.setData(rankVos);
@@ -152,7 +153,7 @@ public class RankServiceImpl implements RankService {
         Map<String,Integer> performanceMap = this.dealPerformance(performances,true);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : npcMemberMap.keySet()) {
-            rankVos.add(RankVo.convert(key, npcMemberMap.get(key), performanceMap.getOrDefault(key,0)));
+            rankVos.add(RankVo.convert(npcMemberMap.get(key), performanceMap.getOrDefault(key,0)));
         }
         rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
         body.setData(rankVos);
@@ -189,7 +190,7 @@ public class RankServiceImpl implements RankService {
         Map<String,Integer> performanceMap = this.dealPerformance(performances,false);
         List<RankVo> rankVos = Lists.newArrayList();
         for (String key : townMap.keySet()) {
-            rankVos.add(RankVo.convert(key, townMap.get(key), performanceMap.getOrDefault(key,0)));
+            rankVos.add(RankVo.convert(townMap.get(key), performanceMap.getOrDefault(key,0)));
         }
         rankVos.sort(Comparator.comparing(RankVo::getNumber).reversed());
         body.setData(rankVos);
@@ -205,7 +206,17 @@ public class RankServiceImpl implements RankService {
     private List<NpcMember> getMembers(MobileUserDetailsImpl userDetails, Byte level) {
         List<NpcMember> npcMemberList = Lists.newArrayList();
         if (level.equals(LevelEnum.TOWN.getValue())) {//等级为镇上，获取所有镇代表
-            npcMemberList = npcMemberRepository.findByTownUidAndLevelAndStatusAndIsDelFalse(userDetails.getTown().getUid(), level, StatusEnum.ENABLED.getValue());
+            //如果为镇，查询该镇的代表
+            if (userDetails.getTown().getType().equals(TownTypeEnum.TOWN.getValue())){
+                npcMemberList = npcMemberRepository.findByTownUidAndLevelAndStatusAndIsDelFalse(userDetails.getTown().getUid(), level, StatusEnum.ENABLED.getValue());
+            } else {
+                //如果为街道，查出街道和区代表的并集
+                npcMemberList = npcMemberRepository.findByTownUidAndLevelAndStatusAndIsDelFalse(userDetails.getTown().getUid(), level, StatusEnum.ENABLED.getValue());
+                List<NpcMember> npcMemberListArea = Lists.newArrayList();
+                npcMemberListArea = npcMemberRepository.findByAreaUidAndTownUidAndLevelAndStatusAndIsDelFalse(userDetails.getArea().getUid(),userDetails.getTown().getUid(), LevelEnum.AREA.getValue(), StatusEnum.ENABLED.getValue());
+                npcMemberList.removeAll(npcMemberListArea);
+                npcMemberList.addAll(npcMemberListArea);
+            }
         }
         if (level.equals(LevelEnum.AREA.getValue())) {
             npcMemberList = npcMemberRepository.findByAreaUidAndLevelAndStatusAndIsDelFalse(userDetails.getArea().getUid(), level, StatusEnum.ENABLED.getValue());
@@ -222,7 +233,10 @@ public class RankServiceImpl implements RankService {
             predicates.add(cb.isFalse(root.get("raiser").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    if (userDetails.getTown().getType().equals(TownTypeEnum.TOWN.getValue())){
+                        predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    } else {
+                    }
                 } else if (level.equals(LevelEnum.AREA.getValue())) {
                     predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 }
@@ -244,7 +258,9 @@ public class RankServiceImpl implements RankService {
             predicates.add(cb.isFalse(root.get("receiver").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    if (userDetails.getTown().getType().equals(TownTypeEnum.TOWN.getValue())){
+                        predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    }
                 } else if (level.equals(LevelEnum.AREA.getValue())) {
                     predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 }
@@ -277,7 +293,7 @@ public class RankServiceImpl implements RankService {
         Map<String,String> townMap = Maps.newHashMap();
         for (Town town: towns) {
             if (town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel() && town.getType().equals(type))
-            townMap.put(town.getUid(), town.getName());
+                townMap.put(town.getUid(), town.getName());
         }
         return townMap;
     }
@@ -328,7 +344,9 @@ public class RankServiceImpl implements RankService {
             predicates.add(cb.isFalse(root.get("npcMember").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
-                    predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    if (userDetails.getTown().getType().equals(TownTypeEnum.TOWN.getValue())){
+                        predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    }
                 } else if (level.equals(LevelEnum.AREA.getValue())) {
                     predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                 }

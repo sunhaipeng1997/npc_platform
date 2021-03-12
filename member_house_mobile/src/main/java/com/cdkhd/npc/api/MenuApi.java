@@ -24,6 +24,7 @@ public class MenuApi {
 
     /**
      * 获取当前用户的菜单
+     *
      * @param userDetails
      * @return
      */
@@ -35,23 +36,25 @@ public class MenuApi {
 
     /**
      * 获取菜单未读数量
+     *
      * @param userDetails
      * @return
      */
     @GetMapping("/countUnRead")
     public ResponseEntity countUnRead(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
-        RespBody body = menuService.countUnRead(userDetails,level);
+        RespBody body = menuService.countUnRead(userDetails, level);
         return ResponseEntity.ok(body);
     }
 
     /**
      * 获取当前身份
+     *
      * @param userDetails
      * @return
      */
     @GetMapping("/getLevels")
-    public ResponseEntity getLevels(@CurrentUser MobileUserDetailsImpl userDetails) {
-        RespBody body = menuService.getLevels(userDetails);
+    public ResponseEntity getLevels(@CurrentUser MobileUserDetailsImpl userDetails, Byte level) {
+        RespBody body = menuService.getLevels(userDetails, level);
         return ResponseEntity.ok(body);
     }
 

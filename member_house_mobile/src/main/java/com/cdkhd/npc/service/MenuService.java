@@ -9,5 +9,5 @@ public interface MenuService {
 
     RespBody countUnRead(MobileUserDetailsImpl userDetails, Byte level);
 
-    RespBody getLevels(MobileUserDetailsImpl userDetails);
+    RespBody getLevels(MobileUserDetailsImpl userDetails, Byte level);
 }
