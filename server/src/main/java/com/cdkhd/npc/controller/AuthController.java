@@ -50,7 +50,7 @@ public class AuthController {
     }
 
     //大数据平台登录接口
-    @PostMapping("/bigDataLogin")
+    @PostMapping("/thirdLogin")
     public ResponseEntity bigDataLogin(@RequestBody UsernamePasswordDto upDto) {
         RespBody body = authService.bigDataLogin(upDto);
         return ResponseEntity.ok(body);
