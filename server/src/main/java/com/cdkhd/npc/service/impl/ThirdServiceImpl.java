@@ -65,13 +65,15 @@ public class ThirdServiceImpl implements ThirdService {
     public AreaVo getRelation(UserDetailsImpl userDetails) {
         AreaVo areaVo = new AreaVo();
         Area area = userDetails.getArea();
-        List<NodeVo> nodeVos = area.getTowns().stream().filter(town -> town.getStatus().equals(StatusEnum.ENABLED.getValue()) && !town.getIsDel()).map(town -> NodeVo.convert(town.getUid(),town.getName())).collect(Collectors.toList());//将各镇信息加入节点
+        List<NodeVo> nodeVos = area.getTowns().stream().filter(town -> town.getStatus().equals(StatusEnum.ENABLED.getValue()) && town.getId()<10 && !town.getIsDel()).map(town -> NodeVo.convert(town.getUid(),town.getName())).collect(Collectors.toList());//将各镇信息加入节点
         nodeVos.add(0,new NodeVo(area.getUid(),area.getName()));//将区信息加入节点
         //设置节点之间的关系
         List<EdgeVo> edgeVos = Lists.newArrayList();
         for (Town town : area.getTowns()) {
-            EdgeVo edgeVo = EdgeVo.convert(area.getUid(),town.getUid());
-            edgeVos.add(edgeVo);
+            if (town.getId()<10) {
+                EdgeVo edgeVo = EdgeVo.convert(area.getUid(), town.getUid());
+                edgeVos.add(edgeVo);
+            }
         }
         areaVo.setNodes(nodeVos);
         areaVo.setEdges(edgeVos);

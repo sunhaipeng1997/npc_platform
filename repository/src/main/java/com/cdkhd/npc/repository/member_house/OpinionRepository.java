@@ -27,7 +27,7 @@ public interface OpinionRepository extends BaseRepository<Opinion> {
     List<CountVo> countByArea(Long areaId);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(op.receiver.npcMemberGroup.name, count(op.uid)) from Opinion op " +
-            "where op.isDel=false and op.town.uid=?2 " +
+            "where op.isDel=false and op.level=1 and op.area.id=?1 and op.town.uid=?2 " +
             "group by op.receiver.npcMemberGroup.id")
     List<CountVo> countByTown(Long areaId, String townUid);
 
