@@ -44,7 +44,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
 
     //由于JPA查询结果只能映射实体类，故需要在sql中使用 new 语法
     @Query("select new com.cdkhd.npc.vo.CountVo(sug.town.name, count(sug.uid)) from Suggestion sug " +
-            "where sug.area.id=?1 and sug.isDel=false and sug.level=2 and sug.status>=3 " +
+            "where sug.area.id=?1 and sug.isDel=false and sug.status>=3 " +
             "group by sug.town.id")
     List<CountVo> countByArea(Long areaId);
 
@@ -54,8 +54,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     List<CountVo> countByTown(Long areaId, String townUid);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(sug.suggestionBusiness.name, count(sug.uid)) from Suggestion sug " +
-            "where sug.area.id=?1 and sug.isDel=false and sug.level=2 and sug.status>=3 " +
-            "group by sug.suggestionBusiness.id")
+            "where sug.area.id=?1 and sug.isDel=false and sug.status>=3 group by sug.suggestionBusiness.id")
     List<CountVo> countByAreaType(Long areaId);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(sug.suggestionBusiness.name, count(sug.uid)) from Suggestion sug " +
@@ -64,7 +63,7 @@ public interface SuggestionRepository extends BaseRepository<Suggestion> {
     List<CountVo> countByTownType(Long areaId, String townUid);
 
     @Query("select count(sug.uid) from Suggestion sug " +
-            "where sug.isDel=false and sug.level=2 and sug.area.id=?1 and sug.status>=3 ")
+            "where sug.isDel=false and sug.area.id=?1 and sug.status>=3 ")
     Integer countAll4Area(Long areaId);
 
     @Query("select count(sug.uid) from Suggestion sug " +
