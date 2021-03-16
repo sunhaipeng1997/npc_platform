@@ -22,8 +22,7 @@ public interface OpinionRepository extends BaseRepository<Opinion> {
     Integer countAreaTodayNumber(Date today, List<String> mobile, String uid);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(op.town.name, count(op.uid)) from Opinion op " +
-            "where op.area.id=?1 and op.isDel=false and op.level=2 " +
-            "group by op.town.id")
+            "where op.area.id=?1 and op.isDel=false group by op.town.id")
     List<CountVo> countByArea(Long areaId);
 
     @Query("select new com.cdkhd.npc.vo.CountVo(op.receiver.npcMemberGroup.name, count(op.uid)) from Opinion op " +
@@ -32,7 +31,7 @@ public interface OpinionRepository extends BaseRepository<Opinion> {
     List<CountVo> countByTown(Long areaId, String townUid);
 
     @Query("select count(op.uid) from Opinion op " +
-            "where op.level=2 and op.area.id=?1 and op.isDel=false")
+            "where op.area.id=?1 and op.isDel=false")
     Integer countAll4Area(Long areaId);
 
     @Query("select count(op.uid) from Opinion op " +
