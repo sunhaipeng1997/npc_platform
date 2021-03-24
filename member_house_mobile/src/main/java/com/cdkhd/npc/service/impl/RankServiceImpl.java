@@ -228,14 +228,15 @@ public class RankServiceImpl implements RankService {
         List<Suggestion> suggestionList = suggestionRepository.findAll((Specification<Suggestion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), level));
             predicates.add(cb.equal(root.get("raiser").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicates.add(cb.isFalse(root.get("raiser").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     if (userDetails.getTown().getType().equals(TownTypeEnum.TOWN.getValue())){
+                        predicates.add(cb.equal(root.get("level").as(Byte.class), level));
                         predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
                     } else {
+                        predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                     }
                 } else if (level.equals(LevelEnum.AREA.getValue())) {
                     predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
@@ -253,13 +254,15 @@ public class RankServiceImpl implements RankService {
         List<Opinion> opinionList = opinionRepository.findAll((Specification<Opinion>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), level));
             predicates.add(cb.equal(root.get("receiver").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicates.add(cb.isFalse(root.get("receiver").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     if (userDetails.getTown().getType().equals(TownTypeEnum.TOWN.getValue())){
+                        predicates.add(cb.equal(root.get("level").as(Byte.class), level));
                         predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    }else{
+                        predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                     }
                 } else if (level.equals(LevelEnum.AREA.getValue())) {
                     predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
@@ -338,14 +341,16 @@ public class RankServiceImpl implements RankService {
         List<Performance> performances = performanceRepository.findAll((Specification<Performance>) (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("isDel").as(Boolean.class)));
-            predicates.add(cb.equal(root.get("level").as(Byte.class), level));
             predicates.add(cb.equal(root.get("status").as(Byte.class), PerformanceStatusEnum.AUDIT_SUCCESS.getValue()));
             predicates.add(cb.equal(root.get("npcMember").get("status").as(Byte.class), StatusEnum.ENABLED.getValue()));
             predicates.add(cb.isFalse(root.get("npcMember").get("isDel").as(Boolean.class)));
             if (isPerson) {
                 if (level.equals(LevelEnum.TOWN.getValue())) {
                     if (userDetails.getTown().getType().equals(TownTypeEnum.TOWN.getValue())){
+                        predicates.add(cb.equal(root.get("level").as(Byte.class), level));
                         predicates.add(cb.equal(root.get("town").get("uid").as(String.class), userDetails.getTown().getUid()));
+                    }else{
+                        predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
                     }
                 } else if (level.equals(LevelEnum.AREA.getValue())) {
                     predicates.add(cb.equal(root.get("area").get("uid").as(String.class), userDetails.getArea().getUid()));
