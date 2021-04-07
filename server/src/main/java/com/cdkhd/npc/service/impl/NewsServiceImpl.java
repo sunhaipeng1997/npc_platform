@@ -328,8 +328,8 @@ public class NewsServiceImpl implements NewsService {
             }
 
             //按栏目查询
-            if (StringUtils.isNotEmpty(pageDto.getNewsType())) {
-                predicateList.add(cb.equal(root.get("newsTypeUid").as(String.class),  pageDto.getNewsType()));
+            if (StringUtils.isNotEmpty(pageDto.getNewsTypeUid())) {
+                predicateList.add(cb.equal(root.get("newsType").get("uid").as(String.class),  pageDto.getNewsTypeUid()));
             }
 
             //按新闻标题模糊查询
