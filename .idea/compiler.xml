@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="member_house_mobile" />
+        <module name="suggestion_deal" />
+        <module name="member_house" />
+        <module name="suggestion_deal_mobile" />
+        <module name="util" />
+        <module name="repository" />
+        <module name="server" />
+        <module name="domain" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="domain" target="1.8" />
+      <module name="member_house" target="1.8" />
+      <module name="member_house_mobile" target="1.8" />
+      <module name="npc_platform" target="1.8" />
+      <module name="repository" target="1.8" />
+      <module name="server" target="1.8" />
+      <module name="suggestion_deal" target="1.8" />
+      <module name="suggestion_deal_mobile" target="1.8" />
+      <module name="util" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="domain" options="-parameters" />
+      <module name="member_house" options="-parameters" />
+      <module name="member_house_mobile" options="-parameters" />
+      <module name="repository" options="-parameters" />
+      <module name="server" options="-parameters" />
+      <module name="suggestion_deal" options="-parameters" />
+      <module name="suggestion_deal_mobile" options="-parameters" />
+      <module name="util" options="-parameters" />
+    </option>
+  </component>
+</project>

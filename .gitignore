@@ -1,0 +1,9 @@
+# Project exclude paths
+/domain/target/
+/member_house/target/
+/member_house_mobile/target/
+/repository/target/
+/server/target/
+/suggestion_deal/target/
+/suggestion_deal_mobile/target/
+/util/target/

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:origin/new" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0f771169-82cf-4c5e-8f8d-64d7a495c49f" name="Default Changelist" comment="多重身份顺序固定，街道代表排名中把县代表加入">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/member_house/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/member_house/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/member_house_mobile/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/member_house_mobile/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/resources/application.yml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="jdkForImporter" value="1.8" />
+        <option name="vmOptionsForImporter" value="-Xmx1024m" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="skipTests" value="true" />
+  </component>
+  <component name="ProjectId" id="1pXqjMdMTZsFNW5JLwY2yJLr0jZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="Git.Branch.Popup.ShowAllRemotes" value="true" />
+    <property name="RequestMappingsPanelOrder0" value="0" />
+    <property name="RequestMappingsPanelOrder1" value="1" />
+    <property name="RequestMappingsPanelWidth0" value="75" />
+    <property name="RequestMappingsPanelWidth1" value="75" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="reference.settings.project.maven.importing" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.cdkhd.npc.enums" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.MemberHouseMobileApplication">
+    <configuration name="MemberHouseApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="member_house" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.cdkhd.npc.MemberHouseApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MemberHouseMobileApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="member_house_mobile" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.cdkhd.npc.MemberHouseMobileApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="server" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.cdkhd.npc.ServerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SuggestionDealApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="suggestion_deal" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.cdkhd.npc.SuggestionDealApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SuggestionDealMobileApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="suggestion_deal_mobile" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.cdkhd.npc.SuggestionDealMobileApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0f771169-82cf-4c5e-8f8d-64d7a495c49f" name="Default Changelist" comment="" />
+      <created>1615339916288</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1615339916288</updated>
+      <workItem from="1615339918062" duration="18642000" />
+      <workItem from="1615881550488" duration="5182000" />
+      <workItem from="1616574454834" duration="2084000" />
+      <workItem from="1616979945661" duration="5571000" />
+      <workItem from="1617761150169" duration="3949000" />
+      <workItem from="1617766407227" duration="4809000" />
+      <workItem from="1617844822515" duration="164000" />
+    </task>
+    <task id="LOCAL-00001" summary="多重身份顺序固定，街道代表排名中把县代表加入">
+      <created>1615526933627</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1615526933627</updated>
+    </task>
+    <task id="LOCAL-00002" summary="大数据平台接口修改">
+      <created>1615887513639</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1615887513640</updated>
+    </task>
+    <task id="LOCAL-00003" summary="大数据展示平台相关接口">
+      <created>1615888752379</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1615888752379</updated>
+    </task>
+    <task id="LOCAL-00004" summary="修改新闻按类型查询的bug">
+      <created>1617788931247</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1617788931248</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/new" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="多重身份顺序固定，街道代表排名中把县代表加入" />
+    <MESSAGE value="大数据平台接口修改" />
+    <MESSAGE value="大数据展示平台相关接口" />
+    <MESSAGE value="修改新闻按类型查询的bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改新闻按类型查询的bug" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="543" y="122" key="CommitChangelistDialog2" timestamp="1617788930293">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="543" y="122" key="CommitChangelistDialog2/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528219824" />
+    <state x="543" y="122" key="CommitChangelistDialog2/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617788930293" />
+    <state width="492" height="466" key="DebuggerActiveHint" timestamp="1615445739448">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="492" height="466" key="DebuggerActiveHint/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615445739448" />
+    <state x="198" y="94" width="1638" height="917" key="DiffContextDialog" timestamp="1617766826981">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="198" y="94" key="DiffContextDialog/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615526800844" />
+    <state x="198" y="94" width="1638" height="917" key="DiffContextDialog/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617766826981" />
+    <state x="805" y="311" key="FileChooserDialogImpl" timestamp="1617844794133">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="805" y="311" key="FileChooserDialogImpl/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615447793008" />
+    <state x="805" y="311" key="FileChooserDialogImpl/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617844794133" />
+    <state x="884" y="454" key="Github.ShareDialog" timestamp="1617844322630">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="884" y="454" key="Github.ShareDialog/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617844322630" />
+    <state width="2004" height="305" key="GridCell.Tab.0.bottom" timestamp="1617844799088">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.0.bottom/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="305" key="GridCell.Tab.0.bottom/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617844799088" />
+    <state width="2004" height="305" key="GridCell.Tab.0.center" timestamp="1617844799088">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.0.center/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="305" key="GridCell.Tab.0.center/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617844799088" />
+    <state width="2004" height="305" key="GridCell.Tab.0.left" timestamp="1617844799088">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.0.left/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="305" key="GridCell.Tab.0.left/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617844799088" />
+    <state width="2004" height="305" key="GridCell.Tab.0.right" timestamp="1617844799088">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.0.right/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="305" key="GridCell.Tab.0.right/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617844799088" />
+    <state width="2004" height="314" key="GridCell.Tab.1.bottom" timestamp="1615528175636">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.1.bottom/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="314" key="GridCell.Tab.1.center" timestamp="1615528175636">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.1.center/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="314" key="GridCell.Tab.1.left" timestamp="1615528175636">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.1.left/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="314" key="GridCell.Tab.1.right" timestamp="1615528175636">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.1.right/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175636" />
+    <state width="2004" height="314" key="GridCell.Tab.2.bottom" timestamp="1615528175637">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.2.bottom/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175637" />
+    <state width="2004" height="314" key="GridCell.Tab.2.center" timestamp="1615528175637">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.2.center/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175637" />
+    <state width="2004" height="314" key="GridCell.Tab.2.left" timestamp="1615528175637">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.2.left/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175637" />
+    <state width="2004" height="314" key="GridCell.Tab.2.right" timestamp="1615528175637">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state width="2004" height="314" key="GridCell.Tab.2.right/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528175637" />
+    <state x="617" y="289" key="Vcs.Push.Dialog.v2" timestamp="1617788934291">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="617" y="289" key="Vcs.Push.Dialog.v2/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615528206965" />
+    <state x="617" y="289" key="Vcs.Push.Dialog.v2/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617788934291" />
+    <state x="93" y="93" width="1862" height="926" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1617766856080">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="93" y="93" width="1862" height="926" key="com.intellij.history.integration.ui.views.FileHistoryDialog/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617766856080" />
+    <state x="585" y="158" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1617764847335">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="585" y="158" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617764847335" />
+    <state x="819" y="469" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1616574672383">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="819" y="469" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/2560.0.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615539009988" />
+    <state x="819" y="469" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615526682699" />
+    <state x="819" y="469" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1616574672383" />
+    <state x="724" y="288" width="621" height="536" key="find.popup" timestamp="1617761519630">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="724" y="288" width="606" height="536" key="find.popup/2560.350.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615446890733" />
+    <state x="724" y="288" width="621" height="536" key="find.popup/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1617761519630" />
+    <state x="657" y="70" width="717" height="731" key="run.anything.popup" timestamp="1615888644282">
+      <screen x="0" y="0" width="2048" height="1112" />
+    </state>
+    <state x="3176" y="415" width="672" height="677" key="run.anything.popup/2560.350.1920.1030/0.0.2048.1112@2560.350.1920.1030" timestamp="1615366065618" />
+    <state x="657" y="70" width="717" height="731" key="run.anything.popup/2560.358.1920.1030/0.0.2048.1112@0.0.2048.1112" timestamp="1615888644282" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/member_house_mobile/src/main/java/com/cdkhd/npc/service/impl/RankServiceImpl.java</url>
+          <line>66</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

@@ -1,0 +1,107 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: npc-platform
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.1.100:3306/npc_platform_shp?autoReconnect=true&useUnicode=true&createDatabaseIfNotExist=true&characterEncoding=utf8&serverTimezone=CTT&useSSL=false
+    username: root
+    password: cd@khd2018
+  jpa:
+    database: mysql
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+  resources:
+    static-locations: ["classpath:/static/", "./static"]
+
+  servlet:
+    multipart:
+      max-file-size: 150MB
+      max-request-size: 150MB
+  thymeleaf:
+    enabled: true
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    suffix: .html
+    # 服务器渲染的时候
+    prefix: classpath:/templates/
+
+# 微信服务号相关配置，科宏达测试号
+service_app:
+  #服务号 token
+  token: fedf056b58c94c34acd2dcd9741b3038
+  #服务号 appid
+  appid: wxc8d72e25bb9fa491
+  #服务号secret
+  appsecret: 620e04e28ac0e65f6e4acbf6e7ccdac5
+  #待审核提醒
+  templetedId1: rtj7Pi26B75d1gMUnVwQFX-j4Iy8CJ5td9R18v2L0kc
+  #审核结果通知
+  templetedId2: HQunZ6pei-EbQY597Qr0qlb9qs54Fs0q9MEBzN6seJ0
+  #意见建议提醒
+  templetedId3: S27PWGRD-Ze_OgLcyaqIgB4l57VBmX-p58s0MAAkWZ0
+  #意见建议处理提醒
+  templetedId4: MpARgtznaTiKs5kqHL6d4QXnB44uc8zfE_WVWNCoOyw
+  #会议通知
+  templetedId5: sjHook3xqJ8rc0ScQzQLDa0KY1C0r7DtXQ766EYUreI
+  #跳转到小程序的页面
+  indexPagePath: pages/index/index
+  #跳转到小程序的页面
+  npcHomePagePath: pages/index/index
+  #跳转到小程序的页面
+  newsAuditPath: pages/index/index
+  #跳转到小程序的页面
+  notificationAuditPath: pages/index/index
+  #登录公众号授权路径
+  redirect_url: https://www.yarenda.cn/api/mobile/auth/access_token
+  #小程序 appid  推送消息时需要
+  miniapp_appid: wxd7414bf872d04da3
+
+# 微信小程序相关配置
+miniapp:
+  authurl: https://api.weixin.qq.com/sns/jscode2session
+  appid: wxd7414bf872d04da3
+  appsecret: a57f354ca5e5e07c46950d1d524fa4db
+  updatetimes: 3 #小程序允许修改所属村的次数
+
+#百度云相关配置
+code:
+  #百度云安全认证key
+  accessKeyId: 2544b1173b974a30bd21ab48aa8b564e
+  #百度云安全认证secret
+  AccessKeySecret: d90193ff50194e299e8c9e903e071e23
+  #百度云消息服务中心
+  endPoint: http://smsv3.bj.baidubce.com
+  #短信签名id
+  invokeId: sms-sign-Apvjah72371
+  #短信模板id
+  templateCode: sms-tmpl-EXsbes28153
+  #验证码有效时间 单位：分钟
+  timeout: 5 #分钟
+
+
+account:
+  suffix: cdkhd  #添加镇管理员生成的默认账号的后缀
+  password: 123456 #默认密码
+  mobile: 13551371472 #默认手机号
+npc_base_info:
+  area: 双流区
+  user:
+    name: admin
+    mobile: 18428078565
+  cdkhd:
+    name: cdkhd
+    mobile: 13551371473
+  govuser:
+    name: admingov
+    mobile: 18428078565
+  govcdkhd:
+    name: cdkhdgov
+    mobile: 13551371471

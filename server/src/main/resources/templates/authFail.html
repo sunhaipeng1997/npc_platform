@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>授权成功</title>
+    <!-- 引入 WeUI -->
+    <link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css"/>
+</head>
+
+<body>
+<!-- 使用 -->
+<div class="page">
+    <div class="weui-msg">
+        <div class="weui-msg__icon-area"><i class="weui-icon-warn weui-icon_msg"></i></div>
+        <div class="weui-msg__text-area">
+            <h2 class="weui-msg__title">授权失败，请稍后再试</h2>
+            <p class="weui-msg__desc" id="show">倒计时5秒后关闭当前窗口，返回微信公众号窗口</p>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
+
+<script>
+    var time = 5;
+
+    function closeWindow() {
+        window.setTimeout('closeWindow()', 1000);
+        if (time > 0) {
+            document.getElementById("show").innerHTML = " 倒计时<font color=red>" + time + "</font>秒后关闭当前窗口,返回微信公众号窗口";
+            time--;
+        } else {
+
+            if (typeof (WeixinJSBridge) != "undefined") {
+                WeixinJSBridge.call('closeWindow');
+            } else {
+                if (navigator.userAgent.indexOf("MSIE") > 0) {
+                    if (navigator.userAgent.indexOf("MSIE 6.0") > 0) {
+                        window.opener = null;
+                        window.close();
+                    } else {
+                        window.open('', '_top');
+                        window.top.close();
+                    }
+                } else if (navigator.userAgent.indexOf("Firefox") > 0) {
+                    window.location.href = 'about:blank ';
+                    //window.history.go(-2);  
+                } else {
+                    window.opener = null;
+                    window.open('', '_self', '');
+                    window.close();
+                }
+            }
+        }
+    }
+
+    window.onload = function () {
+        closeWindow();
+    }
+</script>

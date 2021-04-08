@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/domain/domain.iml" filepath="$PROJECT_DIR$/domain/domain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/member_house/member_house.iml" filepath="$PROJECT_DIR$/member_house/member_house.iml" />
+      <module fileurl="file://$PROJECT_DIR$/member_house_mobile/member_house_mobile.iml" filepath="$PROJECT_DIR$/member_house_mobile/member_house_mobile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/npc_platform.iml" filepath="$PROJECT_DIR$/npc_platform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/repository/repository.iml" filepath="$PROJECT_DIR$/repository/repository.iml" />
+      <module fileurl="file://$PROJECT_DIR$/server/server.iml" filepath="$PROJECT_DIR$/server/server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/suggestion_deal/suggestion_deal.iml" filepath="$PROJECT_DIR$/suggestion_deal/suggestion_deal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/suggestion_deal_mobile/suggestion_deal_mobile.iml" filepath="$PROJECT_DIR$/suggestion_deal_mobile/suggestion_deal_mobile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/util.iml" filepath="$PROJECT_DIR$/util/util.iml" />
+    </modules>
+  </component>
+</project>
