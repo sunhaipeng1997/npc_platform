@@ -305,7 +305,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         performance.setView(true);
         performance.setStatus(PerformanceStatusEnum.AUDIT_SUCCESS.getValue());//默认已通过
         if (addPerformanceDto.getLevel().equals(LevelEnum.AREA.getValue()) || (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue()) && userDetails.getTown().getType().equals(LevelEnum.AREA.getValue()))){
-            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getArea().getUid()));
+            performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndAreaUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), LevelEnum.AREA.getValue(), npcMember.getArea().getUid()));
         }else if (addPerformanceDto.getLevel().equals(LevelEnum.TOWN.getValue())){
             performance.setPerformanceType(performanceTypeRepository.findByNameAndLevelAndTownUidAndIsDelFalse(addPerformanceDto.getPerformanceType(), addPerformanceDto.getLevel(), npcMember.getTown().getUid()));
         }
